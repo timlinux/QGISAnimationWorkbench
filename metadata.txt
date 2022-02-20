@@ -1,0 +1,9 @@
+[general]
+name=QGIS Animations
+description=A plugin to let you build animations in QGIS
+about=I started the work on this plugin as an experimental way to create a spinning globe in QGIS.
+version=1.0
+qgisMinimumVersion=3.0
+author=Tim Sutton
+email=tim@kartoza.com
+repository=https://github.com/timlinux/QGISAnimationPlugin
