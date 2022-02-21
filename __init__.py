@@ -10,6 +10,7 @@
 #---------------------------------------------------------------------
 
 from PyQt5.QtWidgets import QAction, QMessageBox
+from animation_workbench import AnimationWorkbench
 
 def classFactory(iface):
     return Animations(iface)
@@ -30,3 +31,5 @@ class Animations:
 
     def run(self):
         QMessageBox.information(None, 'Animations Plugin', 'Hi')
+        dialog = AnimationWorkbench(iface)
+        dialog.show()

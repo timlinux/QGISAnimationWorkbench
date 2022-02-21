@@ -15,9 +15,9 @@ from qgis.core import QgsPointXY
 def resources_path(*args):
     """Get the path to our resources folder.
 
-    .. versionadded:: 3.0
+    .. versionadded:: 1.0
 
-    Note that in version 3.0 we removed the use of Qt Resource files in
+    Note that in version 1.0 we removed the use of Qt Resource files in
     favour of directly accessing on-disk resources.
 
     :param args List of path elements e.g. ['img', 'logos', 'image.png']
@@ -38,7 +38,7 @@ def resources_path(*args):
 def resource_url(path):
     """Get the a local filesystem url to a given resource.
 
-    .. versionadded:: 3.0
+    .. versionadded:: 1.0
 
     Note that we dont use Qt Resource files in
     favour of directly accessing on-disk resources.
@@ -76,7 +76,7 @@ def get_ui_class(ui_file):
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
 
-class MultiBufferDialog(QtWidgets.QDialog, FORM_CLASS):
+class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     """Dialog implementation class Animation Workbench class."""
 
     def __init__(self, parent=None, iface=None, dock_widget=None):
@@ -87,8 +87,8 @@ class MultiBufferDialog(QtWidgets.QDialog, FORM_CLASS):
         """
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
-        self.setWindowTitle(self.tr('InaSAFE Multi Buffer Tool'))
-        icon = resources_path('img', 'icons', 'show-multi-buffer.svg')
+        self.setWindowTitle(self.tr('Animation Workbench'))
+        icon = resources_path('img', 'icons', 'animation-w.svg')
         self.setWindowIcon(QtGui.QIcon(icon))
         self.parent = parent
         self.iface = iface
@@ -98,7 +98,7 @@ class MultiBufferDialog(QtWidgets.QDialog, FORM_CLASS):
         # Allow toggling the help button
         self.help_button.setCheckable(True)
         self.help_button.toggled.connect(self.help_toggled)
-        self.main_stacked_widget.setCurrentIndex(1)
+
 
         # Fix for issue 1699 - cancel button does nothing
         cancel_button = self.button_box.button(
