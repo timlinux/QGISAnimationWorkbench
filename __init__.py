@@ -10,7 +10,7 @@
 #---------------------------------------------------------------------
 
 from PyQt5.QtWidgets import QAction, QMessageBox
-from animation_workbench import AnimationWorkbench
+from .animation_workbench import AnimationWorkbench
 
 def classFactory(iface):
     return Animations(iface)
