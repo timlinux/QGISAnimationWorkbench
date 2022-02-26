@@ -9,14 +9,18 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt5.QtWidgets import QAction, QMessageBox
+# DO NOT REMOVE THIS - it forces sip2
+# noinspection PyUnresolvedReferences
+import qgis  # pylint: disable=unused-import
+
+from PyQt5.QtWidgets import QAction
 from .animation_workbench import AnimationWorkbench
 
 def classFactory(iface):
-    return Animations(iface)
+    return AnimationWorkbenchPlugin(iface)
 
 
-class Animations:
+class AnimationWorkbenchPlugin:
     def __init__(self, iface):
         self.iface = iface
 
@@ -30,6 +34,5 @@ class Animations:
         del self.action
 
     def run(self):
-        QMessageBox.information(None, 'Animations Plugin', 'Hi')
-        dialog = AnimationWorkbench(iface)
-        dialog.show()
+        dialog = AnimationWorkbench(iface=self.iface)
+        dialog.exec_()

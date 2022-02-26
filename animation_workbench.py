@@ -8,12 +8,22 @@ import time
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA
+
 from qgis.PyQt import QtGui, QtWidgets
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QEasingCurve
 from qgis.PyQt import QtCore
-from qgis.core import QgsPointXY,QgsExpressionContextUtils,QgsProject,QgsExpressionContextScope,QgsMapRendererTask,QgsApplication,QgsCoordinateReferenceSystem
+from qgis.core import (
+    QgsPointXY,
+    QgsExpressionContextUtils,
+    QgsProject,
+    QgsExpressionContextScope,
+    QgsMapRendererTask,
+    QgsApplication,
+    QgsCoordinateReferenceSystem,
+    QgsMapRendererCustomPainterJob,
+    QgsMapLayerProxyModel)
 from enum import Enum
 
 
@@ -99,7 +109,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :type parent: QWidget
         """
         QtWidgets.QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi(self)        
+        # Work around for not being able to set the layer
+        # types allowed in the QgsMapLayerSelector combo
+        # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
+        self.layer_combo.setFilters(QgsMapLayerProxyModel.PointLayer)
+
         self.setWindowTitle(self.tr('Animation Workbench'))
         icon = resources_path('img', 'icons', 'animation-w.svg')
         self.setWindowIcon(QtGui.QIcon(icon))
@@ -167,7 +182,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.current_render_thread_count = 0
 
     def accept(self):
-        """Process the layer for multi buffering and generate a new layer.
+        """Process the animation sequence.
 
         .. note:: This is called on OK click.
         """
@@ -181,7 +196,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.previous_point = feature
                 continue
             else: #elif image_counter < 2:
-                self.fly_point_to_point(previous_point, feature)
+                self.fly_point_to_point(self.previous_point, feature)
                 self.dwell_at_point(feature)
                 self.previous_point = feature        
 
@@ -202,7 +217,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         #os.system('ffmpeg -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4')
 
 
-    def initialize_debugger():
+    def initialize_debugger(self):
         import multiprocessing
         if multiprocessing.current_process().pid > 1:
             import debugpy
@@ -229,22 +244,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         image.save(name)
 
     def free_render_lock(self):
-        global current_render_thread_count
         print('Freeing render lock.')
-        current_render_thread_count -= 1
-        print(' Now %d threads used ' % current_render_thread_count)
+        self.current_render_thread_count -= 1
+        print(' Now %d threads used ' % self.current_render_thread_count)
 
     def render_image_as_task(self,name,current_point_id,current_frame):
-        global current_render_thread_count, render_thread_pool_size
         # Block until there is space in the render thread pool
-        while current_render_thread_count > render_thread_pool_size:
+        while self.current_render_thread_count > self.render_thread_pool_size:
             time.sleep(1.0)
             print('Waiting for render lock.')
-            current_render_thread_count -= 1
-            print(' Now %d threads used ' % current_render_thread_count)
+            self.current_render_thread_count -= 1
+            print(' Now %d threads used ' % self.current_render_thread_count)
         # Ready to start rendering, claim a space in the pool
-        current_render_thread_count += 1
-        size = self.iface.mapCanvas().size()
+        self.current_render_thread_count += 1
+        #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your 
         # cartography etc. to see the progress. Here is an example
@@ -255,7 +268,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # to_string(coalesce(@current_point_id,0))%]
         task_scope = QgsExpressionContextScope()
         task_scope.setVariable('current_point_id', current_point_id)
-        task_scope.setVariable('frames_per_point', frames_per_point)
+        task_scope.setVariable('frames_per_point', self.frames_per_point)
         task_scope.setVariable('current_frame', current_frame)
         context = settings.expressionContext()
         context.appendScope(task_scope) 
@@ -276,49 +289,49 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Does not work
         #QObject.connect(mapRendererTask,SIGNAL("renderingComplete()"),free_render_lock)
         # Start the rendering task on the queue
-        QgsApplication.taskManager().addTask( mapRendererTask )
+        QgsApplication.taskManager().addTask(mapRendererTask)
 
     def fly_point_to_point(self, start_point, end_point):
-        global image_counter, frames_per_point, last_easing
+       
         with open('/tmp/log.txt', 'a') as f: # change to append too record all
             f.write('Feature: %d\n' % end_point.id())
             #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
-            image_counter += 1
+            self.image_counter += 1
             x_min = start_point.geometry().asPoint().x()
             print("XMIN : %f" % x_min)
             x_max = end_point.geometry().asPoint().x()
             print("XMAX : %f" % x_max)
             x_range = abs(x_max - x_min)
             print("XRANGE : %f" % x_range)
-            x_increment = x_range / frames_per_point
+            x_increment = x_range / self.frames_per_point
             y_min = start_point.geometry().asPoint().y()
             print("YMIN : %f" % y_min)
             y_max = end_point.geometry().asPoint().y()
             print("YMAX : %f" % y_max)
             y_range = abs(y_max - y_min)
             print("YRANGE : %f" % y_range)
-            y_increment = y_range / frames_per_point
-            global pan_easing_enabled
+            y_increment = y_range / self.frames_per_point
+
             # See https://doc.qt.io/qt-5/qeasingcurve.html#Type-enum
             # For the full list of available easings
             # This is just to change up the easing from one point hop 
             # to the next
-            if EasingMode == EasingMode.EASE_OUT:
-                pan_easing = QEasingCurve(QEasingCurve.OutBack)
-                zoom_easing = QEasingCurve(QEasingCurve.OutBack)
-                EasingMode == EasingMode.EASE_IN
+            if self.EasingMode == EasingMode.EASE_OUT:
+                self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
+                self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
+                self.EasingMode == EasingMode.EASE_IN
             else:
-                pan_easing = QEasingCurve(QEasingCurve.InBack)
-                zoom_easing = QEasingCurve(QEasingCurve.InBack)
-                last_easing = 0
+                self.pan_easing = QEasingCurve(QEasingCurve.InBack)
+                self.zoom_easing = QEasingCurve(QEasingCurve.InBack)
+                self.last_easing = 0
 
-            for current_frame in range(0, frames_per_point, 1):
+            for current_frame in range(0, self.frames_per_point, 1):
                 x_offset = x_increment * current_frame
                 x = x_min + x_offset 
                 y_offset = y_increment * current_frame
-                if pan_easing_enabled:
-                    y_easing_factor = y_offset / frames_per_point 
-                    y = y_min + (y_offset * pan_easing.valueForProgress(y_easing_factor))
+                if self.pan_easing_enabled:
+                    y_easing_factor = y_offset / self.frames_per_point 
+                    y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
                 else:
                     y = y_min + y_offset
                 if self.map_mode == MapMode.SPHERE:
@@ -330,9 +343,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # For plane map mode we just use whatever CRS is active
                 if self.map_mode is not MapMode.STATIC:
                     # Now use easings for zoom level too
-                    zoom_easing_factor = zoom_easing.valueForProgress(
-                        current_frame/frames_per_point)
-                    scale = ((max_scale - min_scale) * zoom_easing_factor) + min_scale
+                    zoom_easing_factor = self.zoom_easing.valueForProgress(
+                        current_frame/self.frames_per_point)
+                    scale = ((self.max_scale - self.min_scale) * zoom_easing_factor) + min_scale
                     if zoom_easing_factor == 1:
                         self.iface.mapCanvas().zoomToFullExtent()
                     else:
@@ -341,15 +354,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                         else:
                             self.iface.mapCanvas().setCenter(
                                 QgsPointXY(x,y))
-                            iface.mapCanvas().zoomScale(scale)
+                            self.iface.mapCanvas().zoomScale(scale)
                 
                 # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
-                name = ('/tmp/globe-%s.png' % str(image_counter).rjust(10, '0'))
+                name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
                 starttime = timeit.default_timer()
                 # Not crashy but no decorations and annotations....
                 #render_image(name)
                 # crashy - check with Nyall why...
-                render_image_as_task(name, end_point.id(), current_frame)
+                self.render_image_as_task(name, end_point.id(), current_frame)
                 #f.write('%s,%f,%f,%f,%f,%f\n' % (
                 #    timeit.default_timer() - starttime, 
                 #    x, 
@@ -357,22 +370,52 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 #    y_easing_factor, 
                 #    zoom_easing_factor, 
                 #    scale))
-                image_counter += 1
+                self.image_counter += 1
 
-    def dwell_at_point(feature):
-        global image_counter, dwell_frames
+    def dwell_at_point(self, feature):
         #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
         x = feature.geometry().asPoint().x()
         y = feature.geometry().asPoint().y()
         point = QgsPointXY(x,y)
-        iface.mapCanvas().setCenter(point)
-        iface.mapCanvas().zoomScale(min_scale)
-        for current_frame in range(0, dwell_frames, 1):
+        self.iface.mapCanvas().setCenter(point)
+        self.iface.mapCanvas().zoomScale(min_scale)
+        for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
-            name = ('/tmp/globe-%s.png' % str(image_counter).rjust(10, '0'))
+            name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
             # Not crashy but no decorations and annotations....
             #render_image(name)
             # crashy - check with Nyall why...
-            render_image_as_task(name, feature.id(), current_frame)
-            image_counter += 1
+            self.render_image_as_task(name, feature.id(), current_frame)
+            self.image_counter += 1
 
+    def help_toggled(self, flag):
+        """Show or hide the help tab in the stacked widget.
+        :param flag: Flag indicating whether help should be shown or hidden.
+        :type flag: bool
+        """
+        if flag:
+            self.help_button.setText(self.tr('Hide Help'))
+            self.show_help()
+        else:
+            self.help_button.setText(self.tr('Show Help'))
+            self.hide_help()
+
+    def hide_help(self):
+        """Hide the usage info from the user."""
+        self.main_stacked_widget.setCurrentIndex(1)
+
+    def show_help(self):
+        """Show usage info to the user."""
+        # Read the header and footer html snippets
+        self.main_stacked_widget.setCurrentIndex(0)
+        header = html_header()
+        footer = html_footer()
+
+        string = header
+
+        message = multi_buffer_help()
+
+        string += message.to_html()
+        string += footer
+
+        self.help_web_view.setHtml(string)
