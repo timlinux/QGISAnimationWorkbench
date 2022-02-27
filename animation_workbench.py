@@ -1,3 +1,11 @@
+# coding=utf-8
+"""This module contains the main GUI interaction logic for AnimationWorkbench."""
+
+__copyright__ = "Copyright 2022, Tim Sutton"
+__license__ = "GPL version 3"
+__email__ = "tim@kartoza.com"
+__revision__ = '$Format:%H$'
+
 # This will make the QGIS use a world projection and then move the center
 # of the CRS sequentially to create a spinning globe effect
 from doctest import debug_script
