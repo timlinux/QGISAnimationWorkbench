@@ -391,7 +391,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         # set parameter from dialog
 
-        os.system('rm /tmp/globe*')
+        if not self.reuse_cache.isChecked():
+            os.system('rm /tmp/globe*')
         # Point layer that we will visit each point for
         point_layer = self.layer_combo.currentLayer()
         self.max_scale = self.scale_range.maximumScale()
@@ -400,6 +401,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_per_point = self.point_frames_spin.value()
         self.image_counter = 1
         self.previous_point = None
+
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
         elif self.radio_planar.isChecked():
@@ -416,21 +418,25 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.dwell_at_point(feature)
                 self.previous_point = feature        
 
-        # Now generate the GIF. If this fails try run the call from the command line
-        # and check the path to convert (provided by ImageMagick) is correct...
-        # delay of 3.33 makes the output around 30fps               
-        os.system('/usr/bin/convert -delay 3.33 -loop 0 /tmp/globe-*.png /tmp/globe.gif')
-        # Now do a second pass with image magick to resize and compress the gif as much as possible.
-        # The remap option basically takes the first image as a reference inmage for the colour palette
-        # Depending on you cartography you may also want to bump up the colors param to increase palette size
-        # and of course adjust the scale factor to the ultimate image size you want               
-        os.system('/usr/bin/convert /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif')
-        # Also we will make a video of the scene - useful for cases where you have a larger colour
-        # pallette and gif will not hack it
-        # Pad option is to deal with cases where ffmpeg complains because the h or w of the image
-        # is an odd number of pixels.
-        # :color=white pads the video with white pixels. Change to black if needed.
-        #os.system('ffmpeg -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4')
+        if self.radio_gif.isChecked():
+            # Now generate the GIF. If this fails try run the call from the command line
+            # and check the path to convert (provided by ImageMagick) is correct...
+            # delay of 3.33 makes the output around 30fps               
+            os.system('/usr/bin/convert -delay 3.33 -loop 0 /tmp/globe-*.png /tmp/globe.gif')
+            # Now do a second pass with image magick to resize and compress the
+            # gif as much as possible.  The remap option basically takes the
+            # first image as a reference inmage for the colour palette Depending
+            # on you cartography you may also want to bump up the colors param
+            # to increase palette size and of course adjust the scale factor to
+            # the ultimate image size you want               
+            os.system('/usr/bin/convert /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif')
+        else:
+            # Also we will make a video of the scene - useful for cases where
+            # you have a larger colour pallette and gif will not hack it. The Pad
+            # option is to deal with cases where ffmpeg complains because the h
+            # or w of the image is an odd number of pixels.  :color=white pads
+            # the video with white pixels. Change to black if needed.
+            os.system('ffmpeg -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4')
 
 
     def initialize_debugger(self):
@@ -599,18 +605,23 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
                 name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
                 starttime = timeit.default_timer()
-                # Not crashy but no decorations and annotations....
-                #render_image(name)
-                # crashy - check with Nyall why...
-                self.render_image_as_task(name, end_point.id(), current_frame)
-                #f.write('%s,%f,%f,%f,%f,%f\n' % (
-                #    timeit.default_timer() - starttime, 
-                #    x, 
-                #    y, 
-                #    y_easing_factor, 
-                #    zoom_easing_factor, 
-                #    scale))
-                self.image_counter += 1
+                if os.path.exists(name) and self.reuse_cache.isChecked():
+                    # User opted to re-used cached images to do nothing for now
+                    self.image_counter += 1
+                else:
+                    # Not crashy but no decorations and annotations....
+                    #render_image(name)
+                    # crashy - check with Nyall why...
+                    self.render_image_as_task(
+                        name, end_point.id(), current_frame)
+                    #f.write('%s,%f,%f,%f,%f,%f\n' % (
+                    #    timeit.default_timer() - starttime, 
+                    #    x, 
+                    #    y, 
+                    #    y_easing_factor, 
+                    #    zoom_easing_factor, 
+                    #    scale))
+                    self.image_counter += 1
 
     def dwell_at_point(self, feature):
         #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
@@ -622,11 +633,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
-            # Not crashy but no decorations and annotations....
-            #render_image_to_file(name)
-            # crashy - check with Nyall why...
-            self.render_image_as_task(name, feature.id(), current_frame)
-            self.image_counter += 1
+            if os.path.exists(name) and self.reuse_cache.isChecked():
+                # User opted to re-used cached images to do nothing for now
+                self.image_counter += 1
+            else:
+                # Not crashy but no decorations and annotations....
+                #render_image_to_file(name)
+                # crashy - check with Nyall why...
+                self.render_image_as_task(name, feature.id(), current_frame)
+                self.image_counter += 1
 
     def help_toggled(self, flag):
         """Show or hide the help tab in the stacked widget.

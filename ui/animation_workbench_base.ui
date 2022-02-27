@@ -80,38 +80,22 @@ the GIF or MP4 as selected above.</string>
          </layout>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QGroupBox" name="output_options_group">
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="zoom_range_group">
          <property name="toolTip">
-          <string>Select which output format you would like. 
-Regardless of which you choose, a folder 
-of images will be created, one image per frame. 
-For the GIF export to work, you will 
-need to have the ImageMagick 'convert'  application 
-available on your system. For the MP4 option to work, 
-you need to have the 'ffmpeg' application on 
-your system.</string>
+          <string>The scale range that the animation should 
+move through. The smallest scale will be 
+the zenith of the animation when it zooms 
+out while travelling between points, and the 
+largest scale will be the scale used when 
+we arrive at each point.</string>
          </property>
          <property name="title">
-          <string>Output Options</string>
+          <string>Zoom Range</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_5">
+         <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
-           <widget class="QRadioButton" name="radio_gif">
-            <property name="text">
-             <string>Animated GIF</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rad_movie">
-            <property name="text">
-             <string>Movie (MP4)</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
+           <widget class="QgsScaleRangeWidget" name="scale_range"/>
           </item>
          </layout>
         </widget>
@@ -395,22 +379,49 @@ not pan / zoom the map.</string>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="zoom_range_group">
+       <item row="5" column="0">
+        <widget class="QGroupBox" name="output_options_group">
          <property name="toolTip">
-          <string>The scale range that the animation should 
-move through. The smallest scale will be 
-the zenith of the animation when it zooms 
-out while travelling between points, and the 
-largest scale will be the scale used when 
-we arrive at each point.</string>
+          <string>Select which output format you would like. 
+Regardless of which you choose, a folder 
+of images will be created, one image per frame. 
+For the GIF export to work, you will 
+need to have the ImageMagick 'convert'  application 
+available on your system. For the MP4 option to work, 
+you need to have the 'ffmpeg' application on 
+your system.</string>
          </property>
          <property name="title">
-          <string>Zoom Range</string>
+          <string>Output Options</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_10">
-          <item row="0" column="0">
-           <widget class="QgsScaleRangeWidget" name="scale_range"/>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="reuse_cache">
+            <property name="toolTip">
+             <string>Will not erase cached images on disk 
+and will resume processing from last cached image.</string>
+            </property>
+            <property name="text">
+             <string>Re-use cached images where possible</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radio_gif">
+            <property name="text">
+             <string>Animated GIF</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QRadioButton" name="rad_movie">
+            <property name="text">
+             <string>Movie (MP4)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

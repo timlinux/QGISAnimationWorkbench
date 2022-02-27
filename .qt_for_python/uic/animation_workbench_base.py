@@ -50,18 +50,14 @@ class Ui_animation_workbench_base(object):
         self.folder_button.setObjectName("folder_button")
         self.gridLayout_6.addWidget(self.folder_button, 0, 2, 1, 1)
         self.gridLayout_7.addWidget(self.output_destination_group, 6, 0, 1, 1)
-        self.output_options_group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
-        self.output_options_group.setObjectName("output_options_group")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.output_options_group)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.radio_gif = QtWidgets.QRadioButton(self.output_options_group)
-        self.radio_gif.setObjectName("radio_gif")
-        self.gridLayout_5.addWidget(self.radio_gif, 0, 0, 1, 1)
-        self.rad_movie = QtWidgets.QRadioButton(self.output_options_group)
-        self.rad_movie.setChecked(True)
-        self.rad_movie.setObjectName("rad_movie")
-        self.gridLayout_5.addWidget(self.rad_movie, 0, 1, 1, 1)
-        self.gridLayout_7.addWidget(self.output_options_group, 5, 0, 1, 1)
+        self.zoom_range_group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
+        self.zoom_range_group.setObjectName("zoom_range_group")
+        self.gridLayout_10 = QtWidgets.QGridLayout(self.zoom_range_group)
+        self.gridLayout_10.setObjectName("gridLayout_10")
+        self.scale_range = gui.QgsScaleRangeWidget(self.zoom_range_group)
+        self.scale_range.setObjectName("scale_range")
+        self.gridLayout_10.addWidget(self.scale_range, 0, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.zoom_range_group, 1, 0, 1, 1)
         self.preview_frame = QtWidgets.QFrame(self.scrollAreaWidgetContents)
         self.preview_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.preview_frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -163,14 +159,21 @@ class Ui_animation_workbench_base(object):
         self.radio_static.setObjectName("radio_static")
         self.gridLayout.addWidget(self.radio_static, 0, 2, 1, 1)
         self.gridLayout_7.addWidget(self.render_mode_group, 2, 0, 1, 1)
-        self.zoom_range_group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
-        self.zoom_range_group.setObjectName("zoom_range_group")
-        self.gridLayout_10 = QtWidgets.QGridLayout(self.zoom_range_group)
-        self.gridLayout_10.setObjectName("gridLayout_10")
-        self.scale_range = gui.QgsScaleRangeWidget(self.zoom_range_group)
-        self.scale_range.setObjectName("scale_range")
-        self.gridLayout_10.addWidget(self.scale_range, 0, 0, 1, 1)
-        self.gridLayout_7.addWidget(self.zoom_range_group, 1, 0, 1, 1)
+        self.output_options_group = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
+        self.output_options_group.setObjectName("output_options_group")
+        self.gridLayout_5 = QtWidgets.QGridLayout(self.output_options_group)
+        self.gridLayout_5.setObjectName("gridLayout_5")
+        self.reuse_cache = QtWidgets.QCheckBox(self.output_options_group)
+        self.reuse_cache.setObjectName("reuse_cache")
+        self.gridLayout_5.addWidget(self.reuse_cache, 0, 0, 1, 2)
+        self.radio_gif = QtWidgets.QRadioButton(self.output_options_group)
+        self.radio_gif.setObjectName("radio_gif")
+        self.gridLayout_5.addWidget(self.radio_gif, 1, 0, 1, 1)
+        self.rad_movie = QtWidgets.QRadioButton(self.output_options_group)
+        self.rad_movie.setChecked(True)
+        self.rad_movie.setObjectName("rad_movie")
+        self.gridLayout_5.addWidget(self.rad_movie, 1, 1, 1, 1)
+        self.gridLayout_7.addWidget(self.output_options_group, 5, 0, 1, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout_9.addWidget(self.scrollArea, 0, 0, 1, 1)
         self.button_box = QtWidgets.QDialogButtonBox(animation_workbench_base)
@@ -195,17 +198,13 @@ class Ui_animation_workbench_base(object):
 "all of the frames of the animation, and \n"
 "the GIF or MP4 as selected above."))
         self.folder_button.setText(_translate("animation_workbench_base", "..."))
-        self.output_options_group.setToolTip(_translate("animation_workbench_base", "Select which output format you would like. \n"
-"Regardless of which you choose, a folder \n"
-"of images will be created, one image per frame. \n"
-"For the GIF export to work, you will \n"
-"need to have the ImageMagick \'convert\'  application \n"
-"available on your system. For the MP4 option to work, \n"
-"you need to have the \'ffmpeg\' application on \n"
-"your system."))
-        self.output_options_group.setTitle(_translate("animation_workbench_base", "Output Options"))
-        self.radio_gif.setText(_translate("animation_workbench_base", "Animated GIF"))
-        self.rad_movie.setText(_translate("animation_workbench_base", "Movie (MP4)"))
+        self.zoom_range_group.setToolTip(_translate("animation_workbench_base", "The scale range that the animation should \n"
+"move through. The smallest scale will be \n"
+"the zenith of the animation when it zooms \n"
+"out while travelling between points, and the \n"
+"largest scale will be the scale used when \n"
+"we arrive at each point."))
+        self.zoom_range_group.setTitle(_translate("animation_workbench_base", "Zoom Range"))
         self.current_frame_preview.setText(_translate("animation_workbench_base", "TextLabel"))
         self.project_variables_text_edit.setHtml(_translate("animation_workbench_base", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -256,11 +255,18 @@ class Ui_animation_workbench_base(object):
         self.radio_sphere.setText(_translate("animation_workbench_base", "Sphere"))
         self.radio_planar.setText(_translate("animation_workbench_base", "Planar"))
         self.radio_static.setText(_translate("animation_workbench_base", "Static"))
-        self.zoom_range_group.setToolTip(_translate("animation_workbench_base", "The scale range that the animation should \n"
-"move through. The smallest scale will be \n"
-"the zenith of the animation when it zooms \n"
-"out while travelling between points, and the \n"
-"largest scale will be the scale used when \n"
-"we arrive at each point."))
-        self.zoom_range_group.setTitle(_translate("animation_workbench_base", "Zoom Range"))
+        self.output_options_group.setToolTip(_translate("animation_workbench_base", "Select which output format you would like. \n"
+"Regardless of which you choose, a folder \n"
+"of images will be created, one image per frame. \n"
+"For the GIF export to work, you will \n"
+"need to have the ImageMagick \'convert\'  application \n"
+"available on your system. For the MP4 option to work, \n"
+"you need to have the \'ffmpeg\' application on \n"
+"your system."))
+        self.output_options_group.setTitle(_translate("animation_workbench_base", "Output Options"))
+        self.reuse_cache.setToolTip(_translate("animation_workbench_base", "Will not erase cached images on disk \n"
+"and will resume processing from last cached image."))
+        self.reuse_cache.setText(_translate("animation_workbench_base", "Re-use cached images where possible"))
+        self.radio_gif.setText(_translate("animation_workbench_base", "Animated GIF"))
+        self.rad_movie.setText(_translate("animation_workbench_base", "Movie (MP4)"))
 from qgis import gui
