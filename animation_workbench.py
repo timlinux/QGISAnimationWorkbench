@@ -24,6 +24,8 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsMapRendererCustomPainterJob,
     QgsMapLayerProxyModel)
+from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
+from qgis.core import Qgis
 from enum import Enum
 
 
@@ -271,7 +273,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.pan_easing_preview_animation = QPropertyAnimation(self.pan_easing_preview_icon, b"pos")
         self.pan_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
         self.pan_easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.pan_easing_preview_animation.setEndValue(QPoint(150, 150))
+        self.pan_easing_preview_animation.setEndValue(QPoint(250, 150))
         self.pan_easing_preview_animation.setDuration(1500)
         # loop forever ...
         self.pan_easing_preview_animation.setLoopCount(-1)
@@ -283,7 +285,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_preview_animation = QPropertyAnimation(self.zoom_easing_preview_icon, b"pos")
         self.zoom_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
         self.zoom_easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.zoom_easing_preview_animation.setEndValue(QPoint(150, 150))
+        self.zoom_easing_preview_animation.setEndValue(QPoint(250, 150))
         self.zoom_easing_preview_animation.setDuration(1500)
         # loop forever ...
         self.zoom_easing_preview_animation.setLoopCount(-1)
@@ -296,7 +298,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_combo.currentIndexChanged.connect(
             self.zoom_easing_changed)
 
-
+        # Set an initial image in the preview based on the current map
+        image = self.render_image()
+        pixmap = QtGui.QPixmap.fromImage(image)
+        self.current_frame_preview.setPixmap(pixmap)
+        self.current_frame_preview.setScaledContents(True)
         # The maximum number of concurrent threads to allow
         # during rendering. Probably setting to the same number 
         # of CPU cores you have would be a good conservative approach
@@ -304,6 +310,50 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.render_thread_pool_size = 100
         # Number of currently running render threads
         self.current_render_thread_count = 0
+
+    def display_information_message_box(
+            self, parent=None, title=None, message=None):
+        """
+        Display an information message box.
+        :param title: The title of the message box.
+        :type title: basestring
+        :param message: The message inside the message box.
+        :type message: basestring
+        """
+        QMessageBox.information(parent, title, message)
+
+    def display_information_message_bar(
+            self,
+            title=None,
+            message=None,
+            more_details=None,
+            button_text='Show details ...',
+            duration=8):
+        """
+        Display an information message bar.
+        :param title: The title of the message bar.
+        :type title: basestring
+        :param message: The message inside the message bar.
+        :type message: basestring
+        :param more_details: The message inside the 'Show details' button.
+        :type more_details: basestring
+        :param button_text: The text of the button if 'more_details' is not empty.
+        :type button_text: basestring
+        :param duration: The duration for the display, default is 8 seconds.
+        :type duration: int
+        """
+        self.iface.messageBar().clearWidgets()
+        widget = self.iface.messageBar().createMessage(title, message)
+
+        if more_details:
+            button = QPushButton(widget)
+            button.setText(button_text)
+            button.pressed.connect(
+                lambda: self.display_information_message_box(
+                    title=title, message=more_details))
+            widget.layout().addWidget(button)
+
+        self.iface.messageBar().pushWidget(widget, Qgis.Info, duration)
 
     def pan_easing_changed(self, index):
         """Handle changes to the pan easing type combo.
@@ -380,8 +430,38 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             debugpy.wait_for_client()
             print("Visual Studio Code debugger is now attached", flush=True)
 
+    def render_image(self):
+        """Render the current canvas to an image.
+        
+        .. note:: This is renders synchronously.
 
-    def render_image(self, name):
+        .. versionadded:: 1.0
+
+        :returns QImage: 
+        """
+        size = self.iface.mapCanvas().size()
+        image = QImage(size, QImage.Format_RGB32)
+
+        painter = QPainter(image)
+        settings = self.iface.mapCanvas().mapSettings()
+        self.iface.mapCanvas().refresh()
+        # You can fine tune the settings here for different
+        # dpi, extent, antialiasing...
+        # Just make sure the size of the target image matches
+
+        job = QgsMapRendererCustomPainterJob(settings, painter)
+        job.renderSynchronously()
+        painter.end()
+        self.display_information_message_bar(
+                title="Image rendered",
+                message="Image rendered",
+                more_details=None,
+                button_text='Show details ...',
+                duration=8)
+        return image
+
+
+    def render_image_to_file(self, name):
         size = self.iface.mapCanvas().size()
         image = QImage(size, QImage.Format_RGB32)
 
@@ -537,7 +617,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
             # Not crashy but no decorations and annotations....
-            #render_image(name)
+            #render_image_to_file(name)
             # crashy - check with Nyall why...
             self.render_image_as_task(name, feature.id(), current_frame)
             self.image_counter += 1

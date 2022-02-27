@@ -129,9 +129,28 @@ your system.</string>
            <widget class="QWidget" name="zoom_easing_preview" native="true">
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>250</width>
               <height>150</height>
              </size>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="current_frame_preview">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>150</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>250</width>
+              <height>150</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
@@ -172,9 +191,16 @@ p, li { white-space: pre-wrap; }
            <widget class="QWidget" name="pan_easing_preview" native="true">
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>250</width>
               <height>150</height>
              </size>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="project_variables_label">
+            <property name="text">
+             <string>Project Variables</string>
             </property>
            </widget>
           </item>
@@ -191,27 +217,10 @@ p, li { white-space: pre-wrap; }
             </property>
            </spacer>
           </item>
-          <item row="5" column="0">
-           <widget class="QWidget" name="current_frame_preview" native="true">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>150</height>
-             </size>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="zoom_easing_preview_label">
             <property name="text">
              <string>Zoom Easing Preview</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="project_variables_label">
-            <property name="text">
-             <string>Project Variables</string>
             </property>
            </widget>
           </item>
