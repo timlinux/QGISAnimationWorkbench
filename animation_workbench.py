@@ -93,10 +93,6 @@ class MapMode(Enum):
     SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
     PLANE = 2 # CRS will not be altered, but will pan and zoom to each point
     STATIC = 3 # Map will not pan / zoom
-class EasingMode(Enum):
-    EASE_IN = 1 # traveling away from an object
-    EASE_OUT = 2 # travelling towards an object
-
 
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
@@ -158,9 +154,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.dwell_frames = 30
 
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = 75589836
-        self.min_scale = 1000000
-        self.image_counter = 1 
+        self.max_scale = None
+        self.min_scale = None
+        self.image_counter = None 
         # enable this if you want wobbling panning
         self.pan_easing_enabled = False
         self.previous_point = None
@@ -173,7 +169,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             QgsProject.instance(), 'current_point_id', 0)
 
         self.map_mode = MapMode.SPHERE
-        self.easing_mode = EasingMode.EASE_OUT
 
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
@@ -291,6 +286,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_preview_animation.setLoopCount(-1)
         self.zoom_easing_preview_animation.start()
 
+        # Defaults will be overridden by combo change
+        self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
+        self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
+
         # Keep this after above animations are set up 
         # since the slot requires the above setup to be completed
         self.pan_easing_combo.currentIndexChanged.connect(
@@ -368,6 +367,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         easing = QEasingCurve.Type(index)
         self.pan_easing_preview_animation.setEasingCurve(easing)
+        self.pan_easing = easing 
 
     def zoom_easing_changed(self, index):
         """Handle changes to the zoom easing type combo.
@@ -382,8 +382,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         easing = QEasingCurve.Type(index)
         self.zoom_easing_preview_animation.setEasingCurve(easing)
-
-
+        self.zoom_easing = easing
 
     def accept(self):
         """Process the animation sequence.
@@ -394,7 +393,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         os.system('rm /tmp/globe*')
         # Point layer that we will visit each point for
-        point_layer = self.iface.activeLayer()
+        point_layer = self.layer_combo.currentLayer()
+        self.max_scale = self.scale_range.maximumScale()
+        self.min_scale = self.scale_range.minimumScale()
+        self.dwell_frames = self.hover_frames_spin.value()
+        self.frames_per_point = self.point_frames_spin.value()
+        self.image_counter = 1
+        self.previous_point = None
+        if self.radio_sphere.isChecked():
+            self.map_mode = MapMode.SPHERE
+        elif self.radio_planar.isChecked():
+            self.map_mode = MapMode.PLANE
+        else:
+            self.map_mode = MapMode.STATIC
+        
         for feature in point_layer.getFeatures():
             if self.previous_point is None:
                 self.previous_point = feature
@@ -550,14 +562,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # For the full list of available easings
             # This is just to change up the easing from one point hop 
             # to the next
-            if self.EasingMode == EasingMode.EASE_OUT:
-                self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
-                self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
-                self.EasingMode == EasingMode.EASE_IN
-            else:
-                self.pan_easing = QEasingCurve(QEasingCurve.InBack)
-                self.zoom_easing = QEasingCurve(QEasingCurve.InBack)
-                self.last_easing = 0
+            self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
+            self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
 
             for current_frame in range(0, self.frames_per_point, 1):
                 x_offset = x_increment * current_frame
@@ -579,7 +585,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     # Now use easings for zoom level too
                     zoom_easing_factor = self.zoom_easing.valueForProgress(
                         current_frame/self.frames_per_point)
-                    scale = ((self.max_scale - self.min_scale) * zoom_easing_factor) + min_scale
+                    scale = ((self.max_scale - self.min_scale) * zoom_easing_factor) + self.min_scale
                     if zoom_easing_factor == 1:
                         self.iface.mapCanvas().zoomToFullExtent()
                     else:
@@ -612,7 +618,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         y = feature.geometry().asPoint().y()
         point = QgsPointXY(x,y)
         self.iface.mapCanvas().setCenter(point)
-        self.iface.mapCanvas().zoomScale(min_scale)
+        self.iface.mapCanvas().zoomScale(self.min_scale)
         for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))

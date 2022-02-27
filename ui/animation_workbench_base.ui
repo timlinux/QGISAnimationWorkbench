@@ -410,7 +410,7 @@ we arrive at each point.</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
-           <widget class="QgsScaleRangeWidget" name="mScaleRangeWidget"/>
+           <widget class="QgsScaleRangeWidget" name="scale_range"/>
           </item>
          </layout>
         </widget>
