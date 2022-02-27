@@ -167,6 +167,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             QgsProject.instance(), 'current_frame', 0)
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_point_id', 0)
+        # None, Panning, Hovering
+        QgsExpressionContextUtils.setProjectVariable(
+            QgsProject.instance(), 'current_animation_action', 'None')
 
         self.map_mode = MapMode.SPHERE
 
@@ -286,6 +289,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_preview_animation.setLoopCount(-1)
         self.zoom_easing_preview_animation.start()
 
+        # See https://doc.qt.io/qt-5/qeasingcurve.html#Type-enum
+        # For the full list of available easings
         # Defaults will be overridden by combo change
         self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
         self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
@@ -309,6 +314,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.render_thread_pool_size = 100
         # Number of currently running render threads
         self.current_render_thread_count = 0
+        self.progress_bar.setValue(0)
+        self.render_thread_pool_size = None
+        self.current_render_thread_count = None
 
     def display_information_message_box(
             self, parent=None, title=None, message=None):
@@ -367,7 +375,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         easing = QEasingCurve.Type(index)
         self.pan_easing_preview_animation.setEasingCurve(easing)
-        self.pan_easing = easing 
+        self.pan_easing = QEasingCurve(easing)
 
     def zoom_easing_changed(self, index):
         """Handle changes to the zoom easing type combo.
@@ -382,7 +390,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         easing = QEasingCurve.Type(index)
         self.zoom_easing_preview_animation.setEasingCurve(easing)
-        self.zoom_easing = easing
+        self.zoom_easing = QEasingCurve(easing)
 
     def accept(self):
         """Process the animation sequence.
@@ -393,6 +401,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         if not self.reuse_cache.isChecked():
             os.system('rm /tmp/globe*')
+        # The maximum number of concurrent threads to allow
+        # during rendering. Probably setting to the same number 
+        # of CPU cores you have would be a good conservative approach
+        # You could probably run 100 or more on a decently specced machine
+        self.render_thread_pool_size = 100
+        # Number of currently running render threads
+        self.current_render_thread_count = 0
         # Point layer that we will visit each point for
         point_layer = self.layer_combo.currentLayer()
         self.max_scale = self.scale_range.maximumScale()
@@ -400,6 +415,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.dwell_frames = self.hover_frames_spin.value()
         self.frames_per_point = self.point_frames_spin.value()
         self.image_counter = 1
+        self.progress_bar.setMaximum(
+            point_layer.featureCount() * (
+                self.dwell_frames + self.frames_per_point)
+        )
+        self.progress_bar.setValue(0)
         self.previous_point = None
 
         if self.radio_sphere.isChecked():
@@ -410,6 +430,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.map_mode = MapMode.STATIC
         
         for feature in point_layer.getFeatures():
+            # None, Panning, Hovering
+            QgsExpressionContextUtils.setProjectVariable(
+                QgsProject.instance(), 'current_animation_action', 'None')
             if self.previous_point is None:
                 self.previous_point = feature
                 continue
@@ -436,7 +459,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # option is to deal with cases where ffmpeg complains because the h
             # or w of the image is an odd number of pixels.  :color=white pads
             # the video with white pixels. Change to black if needed.
-            os.system('ffmpeg -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4')
+            # -y to force overwrite exising file
+            os.system('ffmpeg -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4')
 
 
     def initialize_debugger(self):
@@ -549,6 +573,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             f.write('Feature: %d\n' % end_point.id())
             #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
             self.image_counter += 1
+            self.progress_bar.setValue(self.image_counter)
             x_min = start_point.geometry().asPoint().x()
             print("XMIN : %f" % x_min)
             x_max = end_point.geometry().asPoint().x()
@@ -564,12 +589,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             print("YRANGE : %f" % y_range)
             y_increment = y_range / self.frames_per_point
 
-            # See https://doc.qt.io/qt-5/qeasingcurve.html#Type-enum
-            # For the full list of available easings
-            # This is just to change up the easing from one point hop 
-            # to the next
-            self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
-            self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
+            # None, Panning, Hovering
+            QgsExpressionContextUtils.setProjectVariable(
+                QgsProject.instance(), 'current_animation_action', 'Panning')
 
             for current_frame in range(0, self.frames_per_point, 1):
                 x_offset = x_increment * current_frame
@@ -630,18 +652,23 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         point = QgsPointXY(x,y)
         self.iface.mapCanvas().setCenter(point)
         self.iface.mapCanvas().zoomScale(self.min_scale)
+        # None, Panning, Hovering
+        QgsExpressionContextUtils.setProjectVariable(
+            QgsProject.instance(), 'current_animation_action', 'Hovering')
         for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images to do nothing for now
-                self.image_counter += 1
+                pass
             else:
                 # Not crashy but no decorations and annotations....
                 #render_image_to_file(name)
                 # crashy - check with Nyall why...
                 self.render_image_as_task(name, feature.id(), current_frame)
-                self.image_counter += 1
+            
+            self.image_counter += 1
+            self.progress_bar.setValue(self.image_counter)
 
     def help_toggled(self, flag):
         """Show or hide the help tab in the stacked widget.

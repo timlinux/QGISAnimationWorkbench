@@ -180,7 +180,11 @@ class Ui_animation_workbench_base(object):
         self.button_box.setOrientation(QtCore.Qt.Horizontal)
         self.button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Help|QtWidgets.QDialogButtonBox.Ok)
         self.button_box.setObjectName("button_box")
-        self.gridLayout_9.addWidget(self.button_box, 1, 0, 1, 1)
+        self.gridLayout_9.addWidget(self.button_box, 2, 0, 1, 1)
+        self.progress_bar = QtWidgets.QProgressBar(animation_workbench_base)
+        self.progress_bar.setProperty("value", 24)
+        self.progress_bar.setObjectName("progress_bar")
+        self.gridLayout_9.addWidget(self.progress_bar, 1, 0, 1, 1)
 
         self.retranslateUi(animation_workbench_base)
         self.button_box.accepted.connect(animation_workbench_base.accept) # type: ignore
@@ -214,6 +218,8 @@ class Ui_animation_workbench_base(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">@frames_per_point - the number of frames between points as defined in this dialog.<br />@current_frame - the number of the current frame in the current point set.</p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">@current_point_id - the id of the current point we are travelling to.</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">@current_animation_action - None, Panning or Hovering depending on which phase the</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">renderer is in.</p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Here is a example of an expression you could use to show an animation of the animation progress in the copyright decoration:</p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /><span style=\" font-family:\'Droid Sans Mono\',\'monospace\',\'monospace\'; font-size:14px; color:#6a9955;\">[%\'Frame \' || to_string(coalesce(@current_frame, 0)) || \'/\' || </span></p>\n"
