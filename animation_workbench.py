@@ -157,16 +157,21 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # and the 'point_frame' project variable to determine
         # the frame number for the current point based on frames_for_interval
         
-        self.frames_per_point = setting(key='frames_per_point', default=90)
+        self.frames_per_point = int(setting(key='frames_per_point', default=90))
+        self.point_frames_spin.setValue(self.frames_per_point)
 
         # How many frames to dwell at each point for (output at 30fps)
-        self.dwell_frames = setting(key='dwell_frames', default=30)
+        self.dwell_frames = int(setting(key='dwell_frames', default=30))
+        self.hover_frames_spin.setValue(self.dwell_frames)
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = setting(key='max_scale', default=None)
-        self.min_scale = setting(key='min_scale', default=None)
+        self.max_scale = int(setting(key='max_scale', default=None))
+        self.scale_range.setMaximumScale(self.max_scale)
+        self.min_scale = int(setting(key='min_scale', default=None))
+        self.scale_range.setMinimumScale(self.min_scale)
         self.image_counter = None 
         # enable this if you want wobbling panning
-        self.pan_easing_enabled = setting(key='pan_easing_enabled', default=False)
+        self.pan_easing_enabled = bool(
+            setting(key='pan_easing_enabled', default=False))
         self.previous_point = None
 
         QgsExpressionContextUtils.setProjectVariable(
@@ -180,7 +185,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             QgsProject.instance(), 'current_animation_action', 'None')
 
         self.map_mode = setting(key='map_mode', default=MapMode.SPHERE)
-
+        if self.map_mode == MapMode.SPHERE:
+            self.radio_sphere.setChecked(True)
+        elif self.map_mode == MapMode.PLANE:
+            self.radio_planar.setChecked(True)
+        else:
+            self.radio_static.setChecked(True)
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
         self.pan_easing_combo.addItem("Linear",QEasingCurve.Linear)
@@ -302,6 +312,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Defaults will be overridden by combo change
         self.pan_easing = QEasingCurve(
             setting(key='pan_easing', default=QEasingCurve.OutBack))
+        
         self.zoom_easing = QEasingCurve(
             setting(key='zoom_easing', default=QEasingCurve.OutBack))
 
@@ -321,14 +332,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # during rendering. Probably setting to the same number 
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
-        self.render_thread_pool_size = setting(
-            key='render_thread_pool_size', default=100)
+        self.render_thread_pool_size = int(setting(
+            key='render_thread_pool_size', default=100))
         # Number of currently running render threads
         self.current_render_thread_count = 0
         self.progress_bar.setValue(0)
 
         self.reuse_cache.setChecked(
-            setting(key='reuse_cache', default=False))
+            bool(setting(key='reuse_cache', default=False)))
 
     def display_information_message_box(
             self, parent=None, title=None, message=None):
@@ -426,13 +437,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         if not self.reuse_cache.isChecked():
             os.system('rm /tmp/globe*')
-        # The maximum number of concurrent threads to allow
-        # during rendering. Probably setting to the same number 
-        # of CPU cores you have would be a good conservative approach
-        # You could probably run 100 or more on a decently specced machine
-        self.render_thread_pool_size = 100
-        # Number of currently running render threads
-        self.current_render_thread_count = 0
+
         # Point layer that we will visit each point for
         point_layer = self.layer_combo.currentLayer()
         self.max_scale = self.scale_range.maximumScale()
