@@ -35,7 +35,7 @@ from qgis.core import (
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
 from qgis.core import Qgis
 from enum import Enum
-
+from .settings import set_setting, setting
 
 def resources_path(*args):
     """Get the path to our resources folder.
@@ -156,17 +156,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # to determine the current point id
         # and the 'point_frame' project variable to determine
         # the frame number for the current point based on frames_for_interval
-        self.frames_per_point = 90
+        
+        self.frames_per_point = setting(key='frames_per_point', default=90)
 
         # How many frames to dwell at each point for (output at 30fps)
-        self.dwell_frames = 30
-
+        self.dwell_frames = setting(key='dwell_frames', default=30)
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = None
-        self.min_scale = None
+        self.max_scale = setting(key='max_scale', default=None)
+        self.min_scale = setting(key='min_scale', default=None)
         self.image_counter = None 
         # enable this if you want wobbling panning
-        self.pan_easing_enabled = False
+        self.pan_easing_enabled = setting(key='pan_easing_enabled', default=False)
         self.previous_point = None
 
         QgsExpressionContextUtils.setProjectVariable(
@@ -179,7 +179,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'None')
 
-        self.map_mode = MapMode.SPHERE
+        self.map_mode = setting(key='map_mode', default=MapMode.SPHERE)
 
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
@@ -300,8 +300,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # See https://doc.qt.io/qt-5/qeasingcurve.html#Type-enum
         # For the full list of available easings
         # Defaults will be overridden by combo change
-        self.pan_easing = QEasingCurve(QEasingCurve.OutBack)
-        self.zoom_easing = QEasingCurve(QEasingCurve.OutBack)
+        self.pan_easing = QEasingCurve(
+            setting(key='pan_easing', default=QEasingCurve.OutBack))
+        self.zoom_easing = QEasingCurve(
+            setting(key='zoom_easing', default=QEasingCurve.OutBack))
 
         # Keep this after above animations are set up 
         # since the slot requires the above setup to be completed
@@ -319,12 +321,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # during rendering. Probably setting to the same number 
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
-        self.render_thread_pool_size = 100
+        self.render_thread_pool_size = setting(
+            key='render_thread_pool_size', default=100)
         # Number of currently running render threads
         self.current_render_thread_count = 0
         self.progress_bar.setValue(0)
-        self.render_thread_pool_size = None
-        self.current_render_thread_count = None
+
+        self.reuse_cache.setChecked(
+            setting(key='reuse_cache', default=False))
 
     def display_information_message_box(
             self, parent=None, title=None, message=None):
@@ -405,6 +409,19 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         .. note:: This is called on OK click.
         """
+        # Save state
+        set_setting(key='frames_per_point',value=self.frames_per_point)
+        set_setting(key='dwell_frames',value=self.dwell_frames)
+        set_setting(key='max_scale',value=self.max_scale)
+        set_setting(key='min_scale',value=self.min_scale)
+        set_setting(key='pan_easing_enabled',value=self.pan_easing_enabled)
+        set_setting(key='map_mode',value=self.map_mode)
+        set_setting(key='pan_easing',value=self.pan_easing)
+        set_setting(key='zoom_easing',value=self.zoom_easing)
+        set_setting(
+            key='render_thread_pool_size',value=self.render_thread_pool_size)
+        set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
+
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
