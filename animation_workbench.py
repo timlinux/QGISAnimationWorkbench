@@ -653,6 +653,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     #    scale))
                     self.image_counter += 1
 
+    def load_image(self, name):
+        #Load the preview with the named image file 
+        with open(name, 'rb') as image_file:
+            content = image_file.read()
+            image = QtGui.QImage()
+            image.loadFromData(content)
+            pixmap = QtGui.QPixmap.fromImage(image)
+            self.current_frame_preview.setPixmap(pixmap)
+            self.current_frame_preview.setScaledContents(True)
+
     def dwell_at_point(self, feature):
         #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
         x = feature.geometry().asPoint().x()
@@ -668,7 +678,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images to do nothing for now
-                pass
+                self.load_image(name)
             else:
                 # Not crashy but no decorations and annotations....
                 #render_image_to_file(name)
