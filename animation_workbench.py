@@ -142,7 +142,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
         ok_button.clicked.connect(self.accept)
 
-        debug_mode = False
+        debug_mode = True
         if debug_mode:
             try:
                 self.initialize_debugger()
@@ -164,14 +164,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.dwell_frames = int(setting(key='dwell_frames', default=30))
         self.hover_frames_spin.setValue(self.dwell_frames)
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = int(setting(key='max_scale', default=None))
+        self.max_scale = int(setting(key='max_scale', default=250000000))
         self.scale_range.setMaximumScale(self.max_scale)
-        self.min_scale = int(setting(key='min_scale', default=None))
+        self.min_scale = int(setting(key='min_scale', default=10000000))
         self.scale_range.setMinimumScale(self.min_scale)
         self.image_counter = None 
         # enable this if you want wobbling panning
-        self.pan_easing_enabled = bool(
-            setting(key='pan_easing_enabled', default=False))
+        if setting(key='pan_easing_enabled', default=False) == 'false':
+            self.pan_easing_enabled = False
+        else:
+            self.pan_easing_enabled = True
+            
         self.previous_point = None
 
         QgsExpressionContextUtils.setProjectVariable(
@@ -337,6 +340,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Number of currently running render threads
         self.current_render_thread_count = 0
         self.progress_bar.setValue(0)
+        # This will be half the number of frames per point
+        # so that the first half of the journey is flying up
+        # away from the last point and the next half of the
+        # journey is flying down towards the next point.
+        self.frames_to_zenith = None
 
         self.reuse_cache.setChecked(
             bool(setting(key='reuse_cache', default=False)))
@@ -427,8 +435,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(key='min_scale',value=self.min_scale)
         set_setting(key='pan_easing_enabled',value=self.pan_easing_enabled)
         set_setting(key='map_mode',value=self.map_mode)
-        set_setting(key='pan_easing',value=self.pan_easing)
-        set_setting(key='zoom_easing',value=self.zoom_easing)
+        set_setting(key='pan_easing',value=self.pan_easing.Type)
+        set_setting(key='zoom_easing',value=self.zoom_easing.Type)
         set_setting(
             key='render_thread_pool_size',value=self.render_thread_pool_size)
         set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
@@ -444,6 +452,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.min_scale = self.scale_range.minimumScale()
         self.dwell_frames = self.hover_frames_spin.value()
         self.frames_per_point = self.point_frames_spin.value()
+        self.frames_to_zenith = int(self.frames_per_point / 2)
         self.image_counter = 1
         self.progress_bar.setMaximum(
             point_layer.featureCount() * (
@@ -599,81 +608,77 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
     def fly_point_to_point(self, start_point, end_point):
        
-        with open('/tmp/log.txt', 'a') as f: # change to append too record all
-            f.write('Feature: %d\n' % end_point.id())
-            #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
-            self.image_counter += 1
-            self.progress_bar.setValue(self.image_counter)
-            x_min = start_point.geometry().asPoint().x()
-            print("XMIN : %f" % x_min)
-            x_max = end_point.geometry().asPoint().x()
-            print("XMAX : %f" % x_max)
-            x_range = abs(x_max - x_min)
-            print("XRANGE : %f" % x_range)
-            x_increment = x_range / self.frames_per_point
-            y_min = start_point.geometry().asPoint().y()
-            print("YMIN : %f" % y_min)
-            y_max = end_point.geometry().asPoint().y()
-            print("YMAX : %f" % y_max)
-            y_range = abs(y_max - y_min)
-            print("YRANGE : %f" % y_range)
-            y_increment = y_range / self.frames_per_point
+        self.image_counter += 1
+        self.progress_bar.setValue(self.image_counter)
+        x_min = start_point.geometry().asPoint().x()
+        print("XMIN : %f" % x_min)
+        x_max = end_point.geometry().asPoint().x()
+        print("XMAX : %f" % x_max)
+        x_range = abs(x_max - x_min)
+        print("XRANGE : %f" % x_range)
+        x_increment = x_range / self.frames_per_point
+        y_min = start_point.geometry().asPoint().y()
+        print("YMIN : %f" % y_min)
+        y_max = end_point.geometry().asPoint().y()
+        print("YMAX : %f" % y_max)
+        y_range = abs(y_max - y_min)
+        print("YRANGE : %f" % y_range)
+        y_increment = y_range / self.frames_per_point
 
-            # None, Panning, Hovering
-            QgsExpressionContextUtils.setProjectVariable(
-                QgsProject.instance(), 'current_animation_action', 'Panning')
+        # None, Panning, Hovering
+        QgsExpressionContextUtils.setProjectVariable(
+            QgsProject.instance(), 'current_animation_action', 'Panning')
 
-            for current_frame in range(0, self.frames_per_point, 1):
-                x_offset = x_increment * current_frame
-                x = x_min + x_offset 
-                y_offset = y_increment * current_frame
-                if self.pan_easing_enabled:
-                    y_easing_factor = y_offset / self.frames_per_point 
-                    y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
-                else:
-                    y = y_min + y_offset
-                if self.map_mode == MapMode.SPHERE:
-                    definition = ( 
-                    '+proj=ortho +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs' % (x, y))
-                    crs = QgsCoordinateReferenceSystem()
-                    crs.createFromProj(definition)
-                    self.iface.mapCanvas().setDestinationCrs(crs)
-                # For plane map mode we just use whatever CRS is active
-                if self.map_mode is not MapMode.STATIC:
-                    # Now use easings for zoom level too
+        for current_frame in range(0, self.frames_per_point, 1):
+            x_offset = x_increment * current_frame
+            x = x_min + x_offset 
+            y_offset = y_increment * current_frame
+            if self.pan_easing_enabled:
+                y_easing_factor = y_offset / self.frames_per_point 
+                y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
+            else:
+                y = y_min + y_offset
+            if self.map_mode == MapMode.SPHERE:
+                definition = ( 
+                '+proj=ortho +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs' % (x, y))
+                crs = QgsCoordinateReferenceSystem()
+                crs.createFromProj(definition)
+                self.iface.mapCanvas().setDestinationCrs(crs)
+            # For plane map mode we just use whatever CRS is active
+            if self.map_mode is not MapMode.STATIC:
+                # Now use easings for zoom level too
+                # first figure out if we are flying up or down
+                if current_frame < self.frames_to_zenith:
+                    # Flying up
                     zoom_easing_factor = self.zoom_easing.valueForProgress(
-                        current_frame/self.frames_per_point)
-                    scale = ((self.max_scale - self.min_scale) * zoom_easing_factor) + self.min_scale
-                    if zoom_easing_factor == 1:
-                        self.iface.mapCanvas().zoomToFullExtent()
-                    else:
-                        if self.map_mode == MapMode.SPHERE:
-                            self.iface.mapCanvas().zoomScale(scale)
-                        else:
-                            self.iface.mapCanvas().setCenter(
-                                QgsPointXY(x,y))
-                            self.iface.mapCanvas().zoomScale(scale)
-                
-                # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
-                name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
-                starttime = timeit.default_timer()
-                if os.path.exists(name) and self.reuse_cache.isChecked():
-                    # User opted to re-used cached images to do nothing for now
-                    self.image_counter += 1
+                        current_frame/self.frames_to_zenith)
+                    scale = ((self.max_scale - self.min_scale) * 
+                              zoom_easing_factor) + self.min_scale
                 else:
-                    # Not crashy but no decorations and annotations....
-                    #render_image(name)
-                    # crashy - check with Nyall why...
-                    self.render_image_as_task(
-                        name, end_point.id(), current_frame)
-                    #f.write('%s,%f,%f,%f,%f,%f\n' % (
-                    #    timeit.default_timer() - starttime, 
-                    #    x, 
-                    #    y, 
-                    #    y_easing_factor, 
-                    #    zoom_easing_factor, 
-                    #    scale))
-                    self.image_counter += 1
+                    # flying down
+                    zoom_easing_factor = 1 - self.zoom_easing.valueForProgress(
+                        (current_frame - self.frames_to_zenith)/self.frames_to_zenith)
+                    scale = ((self.max_scale - self.min_scale) * 
+                        zoom_easing_factor) + self.min_scale
+
+                if self.map_mode != MapMode.SPHERE:
+                    self.iface.mapCanvas().setCenter(
+                        QgsPointXY(x,y))
+                self.iface.mapCanvas().zoomScale(scale)
+            
+            # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
+            name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
+            starttime = timeit.default_timer()
+            if os.path.exists(name) and self.reuse_cache.isChecked():
+                # User opted to re-used cached images to do nothing for now
+                self.image_counter += 1
+            else:
+                # Not crashy but no decorations and annotations....
+                #render_image(name)
+                # crashy - check with Nyall why...
+                self.render_image_as_task(
+                    name, end_point.id(), current_frame)
+                self.image_counter += 1
 
     def load_image(self, name):
         #Load the preview with the named image file 

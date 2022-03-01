@@ -10,12 +10,12 @@
             "request": "attach",
             "connect": {
                 "host": "localhost",
-                "port": 5678
+                "port": 9000
             },
             "pathMappings": [
                 {
                     "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "."
+                    "remoteRoot": "${workspaceFolder}"
                 }
             ]
         }
