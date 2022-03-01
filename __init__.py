@@ -1,7 +1,16 @@
+# coding=utf-8
+
+"""Init for AnimationWorkbench."""
+
+__copyright__ = "Copyright 2022, Tim Sutton"
+__license__ = "GPL version 3"
+__email__ = "tim@kartoza.com"
+__revision__ = '$Format:%H$'
+
 #-----------------------------------------------------------
 # Copyright (C) 2022 Tim Sutton
 #-----------------------------------------------------------
-# Licensed under the terms of GNU GPL 2
+# Licensed under the terms of GNU GPL 3
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
