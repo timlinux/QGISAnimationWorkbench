@@ -1,5 +1,22 @@
 # coding=utf-8
-"""Helper function for settings."""
+
+"""Helper functions for settings."""
+
+__copyright__ = "Copyright 2022, Tim Sutton"
+__license__ = "GPL version 3"
+__email__ = "tim@kartoza.com"
+__revision__ = '$Format:%H$'
+
+#-----------------------------------------------------------
+# Copyright (C) 2022 Tim Sutton
+#-----------------------------------------------------------
+# Licensed under the terms of GNU GPL 3
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#---------------------------------------------------------------------
 
 import json
 from collections import OrderedDict
@@ -8,12 +25,6 @@ from qgis.PyQt.QtCore import QSettings
 
 from .constants import APPLICATION_NAME
 from .default_settings import default_settings
-
-__copyright__ = "Copyright 2022, Tim Sutton"
-__license__ = "GPL version 3"
-__email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
-
 
 def deep_convert_dict(value):
     """Converts any OrderedDict elements in a value to
