@@ -19,9 +19,7 @@ import qgis  # NOQA
 
 from qgis.PyQt import QtGui, QtWidgets
 from qgis.PyQt.QtGui import QImage, QPainter
-from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
-from qgis.PyQt import QtCore
 from qgis.core import (
     QgsPointXY,
     QgsExpressionContextUtils,
@@ -36,66 +34,7 @@ from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
 from qgis.core import Qgis
 from enum import Enum
 from .settings import set_setting, setting
-
-def resources_path(*args):
-    """Get the path to our resources folder.
-
-    .. versionadded:: 1.0
-
-    Note that in version 1.0 we removed the use of Qt Resource files in
-    favour of directly accessing on-disk resources.
-
-    :param args List of path elements e.g. ['img', 'logos', 'image.png']
-    :type args: str
-
-    :return: Absolute path to the resources folder.
-    :rtype: str
-    """
-    path = os.path.dirname(__file__)
-    path = os.path.abspath(
-        os.path.join(path, os.path.pardir, 'resources'))
-    for item in args:
-        path = os.path.abspath(os.path.join(path, item))
-
-    return path
-
-
-def resource_url(path):
-    """Get the a local filesystem url to a given resource.
-
-    .. versionadded:: 1.0
-
-    Note that we dont use Qt Resource files in
-    favour of directly accessing on-disk resources.
-
-    :param path: Path to resource e.g. /home/timlinux/foo/bar.png
-    :type path: str
-
-    :return: A valid file url e.g. file:///home/timlinux/foo/bar.png
-    :rtype: str
-    """
-    url = QtCore.QUrl.fromLocalFile(path)
-    return str(url.toString())
-
-
-def get_ui_class(ui_file):
-    """Get UI Python class from .ui file.
-
-       Can be filename.ui or subdirectory/filename.ui
-
-    :param ui_file: The file of the ui in safe.gui.ui
-    :type ui_file: str
-    """
-    os.path.sep.join(ui_file.split('/'))
-    ui_file_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            # os.pardir,
-            'ui',
-            ui_file
-        )
-    )
-    return uic.loadUiType(ui_file_path)[0]
+from .utilities import get_ui_class, which, resources_path 
 
 class MapMode(Enum):
     SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
@@ -122,7 +61,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.layer_combo.setFilters(QgsMapLayerProxyModel.PointLayer)
 
         self.setWindowTitle(self.tr('Animation Workbench'))
-        icon = resources_path('img', 'icons', 'animation-w.svg')
+        icon = resources_path(
+            'img', 'icons', 'animation-workshop.svg')
         self.setWindowIcon(QtGui.QIcon(icon))
         self.parent = parent
         self.iface = iface
@@ -141,13 +81,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Fix ends
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
         ok_button.clicked.connect(self.accept)
-
-        debug_mode = True
-        if debug_mode:
-            try:
-                self.initialize_debugger()
-            except:
-                pass
 
         # How many frames to render for each point pair transition
         # The output is generated at 30fps so choosing 30
@@ -194,121 +127,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.radio_planar.setChecked(True)
         else:
             self.radio_static.setChecked(True)
-        # Perhaps we can softcode these items using the logic here
-        # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
-        self.pan_easing_combo.addItem("Linear",QEasingCurve.Linear)
-        self.pan_easing_combo.addItem("InQuad",QEasingCurve.InQuad)
-        self.pan_easing_combo.addItem("OutQuad",QEasingCurve.OutQuad)
-        self.pan_easing_combo.addItem("InOutQuad",QEasingCurve.InOutQuad)
-        self.pan_easing_combo.addItem("OutInQuad",QEasingCurve.OutInQuad)
-        self.pan_easing_combo.addItem("InCubic",QEasingCurve.InCubic)
-        self.pan_easing_combo.addItem("OutCubic",QEasingCurve.OutCubic)
-        self.pan_easing_combo.addItem("InOutCubic",QEasingCurve.InOutCubic)
-        self.pan_easing_combo.addItem("OutInCubic",QEasingCurve.OutInCubic)
-        self.pan_easing_combo.addItem("InQuart",QEasingCurve.InQuart)
-        self.pan_easing_combo.addItem("OutQuart",QEasingCurve.OutQuart)
-        self.pan_easing_combo.addItem("InOutQuart",QEasingCurve.InOutQuart)
-        self.pan_easing_combo.addItem("OutInQuart",QEasingCurve.OutInQuart)
-        self.pan_easing_combo.addItem("InQuint",QEasingCurve.InQuint)
-        self.pan_easing_combo.addItem("OutQuint",QEasingCurve.OutQuint)
-        self.pan_easing_combo.addItem("InOutQuint",QEasingCurve.InOutQuint)
-        self.pan_easing_combo.addItem("OutInQuint",QEasingCurve.OutInQuint)
-        self.pan_easing_combo.addItem("InSine",QEasingCurve.InSine)
-        self.pan_easing_combo.addItem("OutSine",QEasingCurve.OutSine)
-        self.pan_easing_combo.addItem("InOutSine",QEasingCurve.InOutSine)
-        self.pan_easing_combo.addItem("OutInSine",QEasingCurve.OutInSine)
-        self.pan_easing_combo.addItem("InExpo",QEasingCurve.InExpo)
-        self.pan_easing_combo.addItem("OutExpo",QEasingCurve.OutExpo)
-        self.pan_easing_combo.addItem("InOutExpo",QEasingCurve.InOutExpo)
-        self.pan_easing_combo.addItem("OutInExpo",QEasingCurve.OutInExpo)
-        self.pan_easing_combo.addItem("InCirc",QEasingCurve.InCirc)
-        self.pan_easing_combo.addItem("OutCirc",QEasingCurve.OutCirc)
-        self.pan_easing_combo.addItem("InOutCirc",QEasingCurve.InOutCirc)
-        self.pan_easing_combo.addItem("OutInCirc",QEasingCurve.OutInCirc)
-        self.pan_easing_combo.addItem("InElastic",QEasingCurve.InElastic)
-        self.pan_easing_combo.addItem("OutElastic",QEasingCurve.OutElastic)
-        self.pan_easing_combo.addItem("InOutElastic",QEasingCurve.InOutElastic)
-        self.pan_easing_combo.addItem("OutInElastic",QEasingCurve.OutInElastic)
-        self.pan_easing_combo.addItem("InBack",QEasingCurve.InBack)
-        self.pan_easing_combo.addItem("OutBack",QEasingCurve.OutBack)
-        self.pan_easing_combo.addItem("InOutBack",QEasingCurve.InOutBack)
-        self.pan_easing_combo.addItem("OutInBack",QEasingCurve.OutInBack)
-        self.pan_easing_combo.addItem("InBounce",QEasingCurve.InBounce)
-        self.pan_easing_combo.addItem("OutBounce",QEasingCurve.OutBounce)
-        self.pan_easing_combo.addItem("InOutBounce",QEasingCurve.InOutBounce)
-        self.pan_easing_combo.addItem("OutInBounce",QEasingCurve.OutInBounce)
-        self.pan_easing_combo.addItem("BezierSpline",QEasingCurve.BezierSpline)
-        self.pan_easing_combo.addItem("TCBSpline",QEasingCurve.TCBSpline)
-        self.pan_easing_combo.addItem("Custom",QEasingCurve.Custom)
         
-        self.zoom_easing_combo.addItem("Linear",QEasingCurve.Linear)
-        self.zoom_easing_combo.addItem("InQuad",QEasingCurve.InQuad)
-        self.zoom_easing_combo.addItem("OutQuad",QEasingCurve.OutQuad)
-        self.zoom_easing_combo.addItem("InOutQuad",QEasingCurve.InOutQuad)
-        self.zoom_easing_combo.addItem("OutInQuad",QEasingCurve.OutInQuad)
-        self.zoom_easing_combo.addItem("InCubic",QEasingCurve.InCubic)
-        self.zoom_easing_combo.addItem("OutCubic",QEasingCurve.OutCubic)
-        self.zoom_easing_combo.addItem("InOutCubic",QEasingCurve.InOutCubic)
-        self.zoom_easing_combo.addItem("OutInCubic",QEasingCurve.OutInCubic)
-        self.zoom_easing_combo.addItem("InQuart",QEasingCurve.InQuart)
-        self.zoom_easing_combo.addItem("OutQuart",QEasingCurve.OutQuart)
-        self.zoom_easing_combo.addItem("InOutQuart",QEasingCurve.InOutQuart)
-        self.zoom_easing_combo.addItem("OutInQuart",QEasingCurve.OutInQuart)
-        self.zoom_easing_combo.addItem("InQuint",QEasingCurve.InQuint)
-        self.zoom_easing_combo.addItem("OutQuint",QEasingCurve.OutQuint)
-        self.zoom_easing_combo.addItem("InOutQuint",QEasingCurve.InOutQuint)
-        self.zoom_easing_combo.addItem("OutInQuint",QEasingCurve.OutInQuint)
-        self.zoom_easing_combo.addItem("InSine",QEasingCurve.InSine)
-        self.zoom_easing_combo.addItem("OutSine",QEasingCurve.OutSine)
-        self.zoom_easing_combo.addItem("InOutSine",QEasingCurve.InOutSine)
-        self.zoom_easing_combo.addItem("OutInSine",QEasingCurve.OutInSine)
-        self.zoom_easing_combo.addItem("InExpo",QEasingCurve.InExpo)
-        self.zoom_easing_combo.addItem("OutExpo",QEasingCurve.OutExpo)
-        self.zoom_easing_combo.addItem("InOutExpo",QEasingCurve.InOutExpo)
-        self.zoom_easing_combo.addItem("OutInExpo",QEasingCurve.OutInExpo)
-        self.zoom_easing_combo.addItem("InCirc",QEasingCurve.InCirc)
-        self.zoom_easing_combo.addItem("OutCirc",QEasingCurve.OutCirc)
-        self.zoom_easing_combo.addItem("InOutCirc",QEasingCurve.InOutCirc)
-        self.zoom_easing_combo.addItem("OutInCirc",QEasingCurve.OutInCirc)
-        self.zoom_easing_combo.addItem("InElastic",QEasingCurve.InElastic)
-        self.zoom_easing_combo.addItem("OutElastic",QEasingCurve.OutElastic)
-        self.zoom_easing_combo.addItem("InOutElastic",QEasingCurve.InOutElastic)
-        self.zoom_easing_combo.addItem("OutInElastic",QEasingCurve.OutInElastic)
-        self.zoom_easing_combo.addItem("InBack",QEasingCurve.InBack)
-        self.zoom_easing_combo.addItem("OutBack",QEasingCurve.OutBack)
-        self.zoom_easing_combo.addItem("InOutBack",QEasingCurve.InOutBack)
-        self.zoom_easing_combo.addItem("OutInBack",QEasingCurve.OutInBack)
-        self.zoom_easing_combo.addItem("InBounce",QEasingCurve.InBounce)
-        self.zoom_easing_combo.addItem("OutBounce",QEasingCurve.OutBounce)
-        self.zoom_easing_combo.addItem("InOutBounce",QEasingCurve.InOutBounce)
-        self.zoom_easing_combo.addItem("OutInBounce",QEasingCurve.OutInBounce)
-        self.zoom_easing_combo.addItem("BezierSpline",QEasingCurve.BezierSpline)
-        self.zoom_easing_combo.addItem("TCBSpline",QEasingCurve.TCBSpline)
-        self.zoom_easing_combo.addItem("Custom",QEasingCurve.Custom)
-        # Set up easing previews
-        self.pan_easing_preview_icon = QtWidgets.QWidget(self.pan_easing_preview)
-        self.pan_easing_preview_icon.setStyleSheet("background-color:yellow;border-radius:5px;")
-        self.pan_easing_preview_icon.resize(10, 10)
-        self.pan_easing_preview_animation = QPropertyAnimation(self.pan_easing_preview_icon, b"pos")
-        self.pan_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
-        self.pan_easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.pan_easing_preview_animation.setEndValue(QPoint(250, 150))
-        self.pan_easing_preview_animation.setDuration(1500)
-        # loop forever ...
-        self.pan_easing_preview_animation.setLoopCount(-1)
-        self.pan_easing_preview_animation.start()
-
-        self.zoom_easing_preview_icon = QtWidgets.QWidget(self.zoom_easing_preview)
-        self.zoom_easing_preview_icon.setStyleSheet("background-color:green;border-radius:5px;")
-        self.zoom_easing_preview_icon.resize(10, 10)
-        self.zoom_easing_preview_animation = QPropertyAnimation(self.zoom_easing_preview_icon, b"pos")
-        self.zoom_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
-        self.zoom_easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.zoom_easing_preview_animation.setEndValue(QPoint(250, 150))
-        self.zoom_easing_preview_animation.setDuration(1500)
-        # loop forever ...
-        self.zoom_easing_preview_animation.setLoopCount(-1)
-        self.zoom_easing_preview_animation.start()
+        self.load_combo_with_easings(self.pan_easing_combo)
+        self.load_combo_with_easings(self.zoom_easing_combo)
+        self.setup_easing_previews()
 
         # See https://doc.qt.io/qt-5/qeasingcurve.html#Type-enum
         # For the full list of available easings
@@ -481,35 +303,27 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.previous_point = feature        
 
         if self.radio_gif.isChecked():
+            convert = which('convert')
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps               
-            os.system('/usr/bin/convert -delay 3.33 -loop 0 /tmp/globe-*.png /tmp/globe.gif')
+            os.system('%s -delay 3.33 -loop 0 /tmp/globe-*.png /tmp/globe.gif' % convert)
             # Now do a second pass with image magick to resize and compress the
             # gif as much as possible.  The remap option basically takes the
             # first image as a reference inmage for the colour palette Depending
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want               
-            os.system('/usr/bin/convert /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif')
+            os.system('%s /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif' % convert)
         else:
+            ffmpeg = which('ffmpeg')
             # Also we will make a video of the scene - useful for cases where
             # you have a larger colour pallette and gif will not hack it. The Pad
             # option is to deal with cases where ffmpeg complains because the h
             # or w of the image is an odd number of pixels.  :color=white pads
             # the video with white pixels. Change to black if needed.
             # -y to force overwrite exising file
-            os.system('ffmpeg -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4')
-
-
-    def initialize_debugger(self):
-        import multiprocessing
-        if multiprocessing.current_process().pid > 1:
-            import debugpy
-            debugpy.listen(("0.0.0.0", 9000))
-            print("Debugger is ready to be attached, press F5", flush=True)
-            debugpy.wait_for_client()
-            print("Visual Studio Code debugger is now attached", flush=True)
+            os.system('%s -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4' % ffmpeg)
 
     def render_image(self):
         """Render the current canvas to an image.
@@ -746,3 +560,77 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         string += footer
 
         self.help_web_view.setHtml(string)
+    
+    def load_combo_with_easings(self, combo):
+        # Perhaps we can softcode these items using the logic here
+        # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
+        combo.addItem("Linear",QEasingCurve.Linear)
+        combo.addItem("InQuad",QEasingCurve.InQuad)
+        combo.addItem("OutQuad",QEasingCurve.OutQuad)
+        combo.addItem("InOutQuad",QEasingCurve.InOutQuad)
+        combo.addItem("OutInQuad",QEasingCurve.OutInQuad)
+        combo.addItem("InCubic",QEasingCurve.InCubic)
+        combo.addItem("OutCubic",QEasingCurve.OutCubic)
+        combo.addItem("InOutCubic",QEasingCurve.InOutCubic)
+        combo.addItem("OutInCubic",QEasingCurve.OutInCubic)
+        combo.addItem("InQuart",QEasingCurve.InQuart)
+        combo.addItem("OutQuart",QEasingCurve.OutQuart)
+        combo.addItem("InOutQuart",QEasingCurve.InOutQuart)
+        combo.addItem("OutInQuart",QEasingCurve.OutInQuart)
+        combo.addItem("InQuint",QEasingCurve.InQuint)
+        combo.addItem("OutQuint",QEasingCurve.OutQuint)
+        combo.addItem("InOutQuint",QEasingCurve.InOutQuint)
+        combo.addItem("OutInQuint",QEasingCurve.OutInQuint)
+        combo.addItem("InSine",QEasingCurve.InSine)
+        combo.addItem("OutSine",QEasingCurve.OutSine)
+        combo.addItem("InOutSine",QEasingCurve.InOutSine)
+        combo.addItem("OutInSine",QEasingCurve.OutInSine)
+        combo.addItem("InExpo",QEasingCurve.InExpo)
+        combo.addItem("OutExpo",QEasingCurve.OutExpo)
+        combo.addItem("InOutExpo",QEasingCurve.InOutExpo)
+        combo.addItem("OutInExpo",QEasingCurve.OutInExpo)
+        combo.addItem("InCirc",QEasingCurve.InCirc)
+        combo.addItem("OutCirc",QEasingCurve.OutCirc)
+        combo.addItem("InOutCirc",QEasingCurve.InOutCirc)
+        combo.addItem("OutInCirc",QEasingCurve.OutInCirc)
+        combo.addItem("InElastic",QEasingCurve.InElastic)
+        combo.addItem("OutElastic",QEasingCurve.OutElastic)
+        combo.addItem("InOutElastic",QEasingCurve.InOutElastic)
+        combo.addItem("OutInElastic",QEasingCurve.OutInElastic)
+        combo.addItem("InBack",QEasingCurve.InBack)
+        combo.addItem("OutBack",QEasingCurve.OutBack)
+        combo.addItem("InOutBack",QEasingCurve.InOutBack)
+        combo.addItem("OutInBack",QEasingCurve.OutInBack)
+        combo.addItem("InBounce",QEasingCurve.InBounce)
+        combo.addItem("OutBounce",QEasingCurve.OutBounce)
+        combo.addItem("InOutBounce",QEasingCurve.InOutBounce)
+        combo.addItem("OutInBounce",QEasingCurve.OutInBounce)
+        combo.addItem("BezierSpline",QEasingCurve.BezierSpline)
+        combo.addItem("TCBSpline",QEasingCurve.TCBSpline)
+        combo.addItem("Custom",QEasingCurve.Custom)
+    
+    def setup_easing_previews(self):
+        # Set up easing previews
+        self.pan_easing_preview_icon = QtWidgets.QWidget(self.pan_easing_preview)
+        self.pan_easing_preview_icon.setStyleSheet("background-color:yellow;border-radius:5px;")
+        self.pan_easing_preview_icon.resize(10, 10)
+        self.pan_easing_preview_animation = QPropertyAnimation(self.pan_easing_preview_icon, b"pos")
+        self.pan_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
+        self.pan_easing_preview_animation.setStartValue(QPoint(0, 0))
+        self.pan_easing_preview_animation.setEndValue(QPoint(250, 150))
+        self.pan_easing_preview_animation.setDuration(1500)
+        # loop forever ...
+        self.pan_easing_preview_animation.setLoopCount(-1)
+        self.pan_easing_preview_animation.start()
+
+        self.zoom_easing_preview_icon = QtWidgets.QWidget(self.zoom_easing_preview)
+        self.zoom_easing_preview_icon.setStyleSheet("background-color:green;border-radius:5px;")
+        self.zoom_easing_preview_icon.resize(10, 10)
+        self.zoom_easing_preview_animation = QPropertyAnimation(self.zoom_easing_preview_icon, b"pos")
+        self.zoom_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
+        self.zoom_easing_preview_animation.setStartValue(QPoint(0, 0))
+        self.zoom_easing_preview_animation.setEndValue(QPoint(250, 150))
+        self.zoom_easing_preview_animation.setDuration(1500)
+        # loop forever ...
+        self.zoom_easing_preview_animation.setLoopCount(-1)
+        self.zoom_easing_preview_animation.start()
