@@ -381,14 +381,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         print(' Now %d threads used ' % self.current_render_thread_count)
 
     def render_image_as_task(self,name,current_point_id,current_frame):
+        # Wait for the render queue to empty first then allow another batch to run
         # Block until there is space in the render thread pool
-        while self.current_render_thread_count > self.render_thread_pool_size:
-            time.sleep(1.0)
+        if self.current_render_thread_count > self.render_thread_pool_size:
             print('Waiting for render lock.')
-            self.current_render_thread_count -= 1
-            print(' Now %d threads used ' % self.current_render_thread_count)
+            while self.current_render_thread_count > 0:
+                time.sleep(1.0)
+                print(' Now %d threads used ' % self.current_render_thread_count)
         # Ready to start rendering, claim a space in the pool
         self.current_render_thread_count += 1
+        print(' Now %d threads used ' % self.current_render_thread_count)
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your 
@@ -461,13 +463,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # first figure out if we are flying up or down
                 if current_frame < self.frames_to_zenith:
                     # Flying up
-                    zoom_easing_factor = self.zoom_easing.valueForProgress(
+                    zoom_easing_factor = 1- self.zoom_easing.valueForProgress(
                         current_frame/self.frames_to_zenith)
                     scale = ((self.max_scale - self.min_scale) * 
                               zoom_easing_factor) + self.min_scale
                 else:
                     # flying down
-                    zoom_easing_factor = 1 - self.zoom_easing.valueForProgress(
+                    zoom_easing_factor = self.zoom_easing.valueForProgress(
                         (current_frame - self.frames_to_zenith)/self.frames_to_zenith)
                     scale = ((self.max_scale - self.min_scale) * 
                         zoom_easing_factor) + self.min_scale

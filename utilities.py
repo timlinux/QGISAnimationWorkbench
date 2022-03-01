@@ -19,6 +19,7 @@ __revision__ = '$Format:%H$'
 #---------------------------------------------------------------------
 
 import os
+import sys
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA
