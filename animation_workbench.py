@@ -253,19 +253,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         .. note:: This is called on OK click.
         """
-        # Save state
-        set_setting(key='frames_per_point',value=self.frames_per_point)
-        set_setting(key='dwell_frames',value=self.dwell_frames)
-        set_setting(key='max_scale',value=int(self.max_scale))
-        set_setting(key='min_scale',value=int(self.min_scale))
-        set_setting(key='pan_easing_enabled',value=self.pan_easing_enabled)
-        set_setting(key='map_mode',value=self.map_mode)
-        set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
-        set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
-        set_setting(
-            key='render_thread_pool_size',value=self.render_thread_pool_size)
-        set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
-
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
@@ -292,6 +279,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.map_mode = MapMode.PLANE
         else:
             self.map_mode = MapMode.STATIC
+
+        # Save state
+        set_setting(key='frames_per_point',value=self.frames_per_point)
+        set_setting(key='dwell_frames',value=self.dwell_frames)
+        set_setting(key='max_scale',value=int(self.max_scale))
+        set_setting(key='min_scale',value=int(self.min_scale))
+        set_setting(key='pan_easing_enabled',value=self.pan_easing_enabled)
+        set_setting(key='map_mode',value=self.map_mode)
+        set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
+        set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
+        set_setting(
+            key='render_thread_pool_size',value=self.render_thread_pool_size)
+        set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
+
         
         for feature in point_layer.getFeatures():
             # None, Panning, Hovering
@@ -381,16 +382,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         print(' Now %d threads used ' % self.current_render_thread_count)
 
     def render_image_as_task(self,name,current_point_id,current_frame):
-        # Wait for the render queue to empty first then allow another batch to run
-        # Block until there is space in the render thread pool
-        if self.current_render_thread_count > self.render_thread_pool_size:
-            print('Waiting for render lock.')
-            while self.current_render_thread_count > 0:
-                time.sleep(1.0)
-                print(' Now %d threads used ' % self.current_render_thread_count)
-        # Ready to start rendering, claim a space in the pool
-        self.current_render_thread_count += 1
-        print(' Now %d threads used ' % self.current_render_thread_count)
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your 
@@ -418,10 +409,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Add decorations to the render job
         decorations = self.iface.activeDecorations()
         mapRendererTask.addDecorations(decorations)
-        # Allo other tasks waiting in the queue to go on and render
+        # Allow other tasks waiting in the queue to go on and render
         mapRendererTask.renderingComplete.connect(self.free_render_lock)
         # Does not work
         #QObject.connect(mapRendererTask,SIGNAL("renderingComplete()"),free_render_lock)
+
+        # Ready to start rendering, claim a space in the pool
+        self.current_render_thread_count += 1
+        print(' Now %d threads used ' % self.current_render_thread_count)
         # Start the rendering task on the queue
         QgsApplication.taskManager().addTask(mapRendererTask)
 
@@ -486,6 +481,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # User opted to re-used cached images to do nothing for now
                 pass
             else:
+                ## Wait for the render queue to empty first, if needed, then allow another batch to run
+                ## Block until there is space in the render thread pool
+                #if self.current_render_thread_count > self.render_thread_pool_size:
+                #    print('Waiting for render thread pool to empty.')
+                #    while self.current_render_thread_count > 0:
+                #        time.sleep(1.0)
+                #        print(' Now %d threads used ' % self.current_render_thread_count)
                 # Not crashy but no decorations and annotations....
                 #render_image(name)
                 # crashy - check with Nyall why...
