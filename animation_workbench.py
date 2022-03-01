@@ -32,9 +32,9 @@ from qgis.core import (
     QgsMapLayerProxyModel)
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
 from qgis.core import Qgis
-from enum import Enum
 from .settings import set_setting, setting
 from .utilities import get_ui_class, which, resources_path 
+from enum import Enum
 
 class MapMode(Enum):
     SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
@@ -73,7 +73,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.help_button.setCheckable(True)
         self.help_button.toggled.connect(self.help_toggled)
 
-
         # Fix for issue 1699 - cancel button does nothing
         cancel_button = self.button_box.button(
             QtWidgets.QDialogButtonBox.Cancel)
@@ -90,11 +89,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # and the 'point_frame' project variable to determine
         # the frame number for the current point based on frames_for_interval
         
-        self.frames_per_point = int(setting(key='frames_per_point', default=90))
+        self.frames_per_point = int(
+            setting(key='frames_per_point', default='90'))
         self.point_frames_spin.setValue(self.frames_per_point)
 
         # How many frames to dwell at each point for (output at 30fps)
-        self.dwell_frames = int(setting(key='dwell_frames', default=30))
+        self.dwell_frames = int(
+            setting(key='dwell_frames', default='30'))
         self.hover_frames_spin.setValue(self.dwell_frames)
         # Keep the scales the same if you dont want it to zoom in an out
         self.max_scale = int(setting(key='max_scale', default='250000000'))
@@ -103,7 +104,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.scale_range.setMinimumScale(self.min_scale)
         self.image_counter = None 
         # enable this if you want wobbling panning
-        if setting(key='pan_easing_enabled', default=False) == 'false':
+        if setting(key='pan_easing_enabled', default='false') == 'false':
             self.pan_easing_enabled = False
         else:
             self.pan_easing_enabled = True
@@ -120,7 +121,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'None')
 
-        self.map_mode = setting(key='map_mode', default=MapMode.SPHERE)
+        self.map_mode = setting(
+            key='map_mode', default=MapMode.SPHERE)
         if self.map_mode == MapMode.SPHERE:
             self.radio_sphere.setChecked(True)
         elif self.map_mode == MapMode.PLANE:
@@ -426,18 +428,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.image_counter += 1
         self.progress_bar.setValue(self.image_counter)
         x_min = start_point.geometry().asPoint().x()
-        print("XMIN : %f" % x_min)
         x_max = end_point.geometry().asPoint().x()
-        print("XMAX : %f" % x_max)
         x_range = abs(x_max - x_min)
-        print("XRANGE : %f" % x_range)
         x_increment = x_range / self.frames_per_point
         y_min = start_point.geometry().asPoint().y()
-        print("YMIN : %f" % y_min)
         y_max = end_point.geometry().asPoint().y()
-        print("YMAX : %f" % y_max)
         y_range = abs(y_max - y_min)
-        print("YRANGE : %f" % y_range)
         y_increment = y_range / self.frames_per_point
 
         # None, Panning, Hovering
@@ -486,14 +482,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             starttime = timeit.default_timer()
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images to do nothing for now
-                self.image_counter += 1
+                pass
             else:
                 # Not crashy but no decorations and annotations....
                 #render_image(name)
                 # crashy - check with Nyall why...
                 self.render_image_as_task(
                     name, end_point.id(), current_frame)
-                self.image_counter += 1
+            self.image_counter += 1
 
     def load_image(self, name):
         #Load the preview with the named image file 
