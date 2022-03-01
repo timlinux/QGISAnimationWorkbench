@@ -97,9 +97,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.dwell_frames = int(setting(key='dwell_frames', default=30))
         self.hover_frames_spin.setValue(self.dwell_frames)
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = int(setting(key='max_scale', default=250000000))
+        self.max_scale = int(setting(key='max_scale', default='250000000'))
         self.scale_range.setMaximumScale(self.max_scale)
-        self.min_scale = int(setting(key='min_scale', default=10000000))
+        self.min_scale = int(setting(key='min_scale', default='10000000'))
         self.scale_range.setMinimumScale(self.min_scale)
         self.image_counter = None 
         # enable this if you want wobbling panning
@@ -128,18 +128,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         else:
             self.radio_static.setChecked(True)
         
+        # Setup easing combos and previews etc
         self.load_combo_with_easings(self.pan_easing_combo)
         self.load_combo_with_easings(self.zoom_easing_combo)
         self.setup_easing_previews()
 
-        # See https://doc.qt.io/qt-5/qeasingcurve.html#Type-enum
-        # For the full list of available easings
-        # Defaults will be overridden by combo change
-        self.pan_easing = QEasingCurve(
-            setting(key='pan_easing', default=QEasingCurve.OutBack))
+        self.pan_easing = None
+        pan_easing_index = int(setting(key='pan_easing', default='0'))
         
-        self.zoom_easing = QEasingCurve(
-            setting(key='zoom_easing', default=QEasingCurve.OutBack))
+        self.zoom_easing = None
+        zoom_easing_index = int(setting(key='zoom_easing', default='0'))
 
         # Keep this after above animations are set up 
         # since the slot requires the above setup to be completed
@@ -147,6 +145,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.pan_easing_changed)
         self.zoom_easing_combo.currentIndexChanged.connect(
             self.zoom_easing_changed)
+
+        self.pan_easing_combo.setCurrentIndex(pan_easing_index)
+        self.zoom_easing_combo.setCurrentIndex(zoom_easing_index)
 
         # Set an initial image in the preview based on the current map
         image = self.render_image()
@@ -226,9 +227,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :type flag: int
 
         """
-        easing = QEasingCurve.Type(index)
-        self.pan_easing_preview_animation.setEasingCurve(easing)
-        self.pan_easing = QEasingCurve(easing)
+        easing_type = QEasingCurve.Type(index)
+        self.pan_easing_preview_animation.setEasingCurve(easing_type)
+        self.pan_easing = QEasingCurve(easing_type)
 
     def zoom_easing_changed(self, index):
         """Handle changes to the zoom easing type combo.
@@ -253,12 +254,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Save state
         set_setting(key='frames_per_point',value=self.frames_per_point)
         set_setting(key='dwell_frames',value=self.dwell_frames)
-        set_setting(key='max_scale',value=self.max_scale)
-        set_setting(key='min_scale',value=self.min_scale)
+        set_setting(key='max_scale',value=int(self.max_scale))
+        set_setting(key='min_scale',value=int(self.min_scale))
         set_setting(key='pan_easing_enabled',value=self.pan_easing_enabled)
         set_setting(key='map_mode',value=self.map_mode)
-        set_setting(key='pan_easing',value=self.pan_easing.Type)
-        set_setting(key='zoom_easing',value=self.zoom_easing.Type)
+        set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
+        set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
         set_setting(
             key='render_thread_pool_size',value=self.render_thread_pool_size)
         set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
