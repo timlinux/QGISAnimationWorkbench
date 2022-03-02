@@ -38,8 +38,8 @@ from enum import Enum
 
 class MapMode(Enum):
     SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
-    PLANE = 2 # CRS will not be altered, but will pan and zoom to each point
-    STATIC = 3 # Map will not pan / zoom
+    PLANAR = 2 # CRS will not be altered, extents will as we pan and zoom
+
 
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
@@ -73,10 +73,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.help_button.setCheckable(True)
         self.help_button.toggled.connect(self.help_toggled)
 
-        # Fix for issue 1699 - cancel button does nothing
-        cancel_button = self.button_box.button(
-            QtWidgets.QDialogButtonBox.Cancel)
-        cancel_button.clicked.connect(self.reject)
+        # Close button action
+        close_button = self.button_box.button(
+            QtWidgets.QDialogButtonBox.Close)
+        # Rename apply button to 'Run'
+        self.button_box.button(
+            QtWidgets.QDialogButtonBox.Ok).setText('Run')
+        close_button.clicked.connect(self.reject)
+        close_button.clicked.connect(self.reject)
         # Fix ends
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
         ok_button.clicked.connect(self.accept)
@@ -104,11 +108,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.scale_range.setMinimumScale(self.min_scale)
         self.image_counter = None 
         # enable this if you want wobbling panning
-        if setting(key='pan_easing_enabled', default='false') == 'false':
-            self.pan_easing_enabled = False
+        if setting(key='enable_pan_easing', default='false') == 'false':
+            self.enable_pan_easing.setChecked(False)
         else:
-            self.pan_easing_enabled = True
-            
+            self.enable_pan_easing.setChecked(True)
+        # enable this if you want wobbling zooming
+        if setting(key='enable_pan_easing', default='false') == 'false':
+            self.enable_zoom_easing.setChecked(False)
+        else:
+            self.enable_zoom_easing.setChecked(True)            
         self.previous_point = None
 
         QgsExpressionContextUtils.setProjectVariable(
@@ -121,15 +129,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'None')
 
-        self.map_mode = setting(
-            key='map_mode', default=MapMode.SPHERE)
-        if self.map_mode == MapMode.SPHERE:
+        self.map_mode = None
+        if setting(key='map_mode',default='sphere') == 'sphere':
+            self.map_mode == MapMode.SPHERE
             self.radio_sphere.setChecked(True)
-        elif self.map_mode == MapMode.PLANE:
-            self.radio_planar.setChecked(True)
         else:
-            self.radio_static.setChecked(True)
-        
+            self.map_mode == MapMode.SPHERE
+            self.radio_planar.setChecked(True)
+
         # Setup easing combos and previews etc
         self.load_combo_with_easings(self.pan_easing_combo)
         self.load_combo_with_easings(self.zoom_easing_combo)
@@ -148,14 +155,18 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_combo.currentIndexChanged.connect(
             self.zoom_easing_changed)
 
+        # Update the gui
         self.pan_easing_combo.setCurrentIndex(pan_easing_index)
         self.zoom_easing_combo.setCurrentIndex(zoom_easing_index)
+        # The above doesnt trigger the slots which we need to do 
+        # to populate the easing class members, so call explicitly
+        self.pan_easing_changed(pan_easing_index)
+        self.zoom_easing_changed(zoom_easing_index)
 
         # Set an initial image in the preview based on the current map
         image = self.render_image()
         pixmap = QtGui.QPixmap.fromImage(image)
         self.current_frame_preview.setPixmap(pixmap)
-        self.current_frame_preview.setScaledContents(True)
         # The maximum number of concurrent threads to allow
         # during rendering. Probably setting to the same number 
         # of CPU cores you have would be a good conservative approach
@@ -269,27 +280,31 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_per_point = self.point_frames_spin.value()
         self.frames_to_zenith = int(self.frames_per_point / 2)
         self.image_counter = 1
-        self.progress_bar.setMaximum(
-            point_layer.featureCount() * (
-                self.dwell_frames + self.frames_per_point)
-        )
+        feature_count = point_layer.featureCount()
+        total_frame_count = feature_count * (self.dwell_frames + self.frames_per_point)
+        self.output_log_text_edit.append('Generating %d frames' % total_frame_count)
+        self.progress_bar.setMaximum(total_frame_count)
         self.progress_bar.setValue(0)
         self.previous_point = None
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
-        elif self.radio_planar.isChecked():
-            self.map_mode = MapMode.PLANE
         else:
-            self.map_mode = MapMode.STATIC
+            self.map_mode = MapMode.PLANAR
 
         # Save state
         set_setting(key='frames_per_point',value=self.frames_per_point)
         set_setting(key='dwell_frames',value=self.dwell_frames)
         set_setting(key='max_scale',value=int(self.max_scale))
         set_setting(key='min_scale',value=int(self.min_scale))
-        set_setting(key='pan_easing_enabled',value=self.pan_easing_enabled)
-        set_setting(key='map_mode',value=self.map_mode)
+        set_setting(key='enable_pan_easing',value=self.enable_pan_easing.isChecked())
+        set_setting(key='enable_zoom_easing',value=self.enable_zoom_easing.isChecked())
+
+        if self.map_mode == MapMode.SPHERE:
+            set_setting(key='map_mode',value='sphere')
+        else:
+            set_setting(key='map_mode',value='planar')
+        
         set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
         set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
         set_setting(
@@ -310,6 +325,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.previous_point = feature        
 
         if self.radio_gif.isChecked():
+            self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
@@ -323,6 +339,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # the ultimate image size you want               
             os.system('%s /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif' % convert)
         else:
+            self.output_log_text_edit.append('Generating MP4 Movie')
             ffmpeg = which('ffmpeg')
             # Also we will make a video of the scene - useful for cases where
             # you have a larger colour pallette and gif will not hack it. The Pad
@@ -447,7 +464,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             x_offset = x_increment * current_frame
             x = x_min + x_offset 
             y_offset = y_increment * current_frame
-            if self.pan_easing_enabled:
+            if self.enable_pan_easing.isChecked():
                 y_easing_factor = y_offset / self.frames_per_point 
                 y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
             else:
@@ -458,8 +475,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromProj(definition)
                 self.iface.mapCanvas().setDestinationCrs(crs)
-            # For plane map mode we just use whatever CRS is active
-            if self.map_mode is not MapMode.STATIC:
+            # zoom in and out to each feature if we are 
+            if self.enable_zoom_easing.isChecked():
                 # Now use easings for zoom level too
                 # first figure out if we are flying up or down
                 if current_frame < self.frames_to_zenith:
@@ -509,7 +526,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             image.loadFromData(content)
             pixmap = QtGui.QPixmap.fromImage(image)
             self.current_frame_preview.setPixmap(pixmap)
-            self.current_frame_preview.setScaledContents(True)
 
     def dwell_at_point(self, feature):
         #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
