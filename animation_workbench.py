@@ -20,6 +20,10 @@ import qgis  # NOQA
 
 from qgis.PyQt import QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QUrl
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtWidgets import QPushButton, QStyle, QVBoxLayout
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
 from qgis.core import (
@@ -188,6 +192,24 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.reuse_cache.setChecked(
             bool(setting(key='reuse_cache', default=False)))
 
+        # Video playback stuff - see bottom of file for related methods 
+        self.media_player = QMediaPlayer(
+            None, #.video_preview_widget, 
+            QMediaPlayer.VideoSurface)
+        video_widget = QVideoWidget()
+        #self.video_page.replaceWidget(self.video_preview_widget,video_widget)
+        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.play_button.clicked.connect(self.play)
+        self.media_player.setVideoOutput(video_widget)
+        self.media_player.stateChanged.connect(self.media_state_changed)
+        #self.media_player.positionChanged.connect(self.position_changed)
+        self.media_player.durationChanged.connect(self.duration_changed)
+        self.media_player.error.connect(self.handle_video_error) 
+        layout = QtWidgets.QGridLayout(self.video_preview_widget)
+        layout.addWidget(video_widget)
+        # Enable image preview page on startup
+        self.preview_stack.setCurrentIndex(0)
+
     def display_information_message_box(
             self, parent=None, title=None, message=None):
         """
@@ -269,6 +291,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         .. note:: This is called on OK click.
         """
+        # Image preview page
+        self.preview_stack.setCurrentIndex(0)
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
@@ -353,6 +377,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # -y to force overwrite exising file
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
             os.system('%s -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4' % ffmpeg)
+            # Video preview page
+            self.preview_stack.setCurrentIndex(1)
+            self.media_player.setMedia(
+                QMediaContent(QUrl.fromLocalFile('/tmp/globe.mp4')))
+            self.play_button.setEnabled(True)
+            self.play()
+
             
     def render_image(self):
         """Render the current canvas to an image.
@@ -402,11 +433,18 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         image.save(name)
 
     def free_render_lock(self):
-        print('Freeing render lock.')
+        
         self.current_render_thread_count -= 1
-        print(' Now %d threads used ' % self.current_render_thread_count)
+        self.output_log_text_edit.append(
+            'Render done, freeing lock, threads used: %d' % 
+            self.current_render_thread_count)
 
     def render_image_as_task(self,name,current_point_id,current_frame):
+        if self.current_render_thread_count > self.render_thread_pool_size:
+            self.output_log_text_edit.append(
+                'Thread pool maxumum reached, waiting until it empties out')
+            while self.render_thread_pool_size >0:
+                pass
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your 
@@ -706,3 +744,33 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # loop forever ...
         self.zoom_easing_preview_animation.setLoopCount(-1)
         self.zoom_easing_preview_animation.start()
+
+
+    # Video Playback Methods
+    def play(self):
+        if self.media_player.state() == QMediaPlayer.PlayingState:
+            self.media_player.pause()
+        else:
+            self.media_player.play()
+
+    def media_state_changed(self, state):
+        if self.media_player.state() == QMediaPlayer.PlayingState:
+            self.play_button.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            self.play_button.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPlay))
+
+    def position_hanged(self, position):
+        self.position_slider.setValue(position)
+
+    def duration_changed(self, duration):
+        self.video_slider.setRange(0, duration)
+
+    def set_position(self, position):
+        self.media_player.setPosition(position)
+    
+    def handle_video_error(self):
+        self.play_button.setEnabled(False)
+        self.output_log_text_edit.append(
+            self.mediaPlayer.errorString())
