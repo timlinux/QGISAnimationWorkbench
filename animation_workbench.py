@@ -12,6 +12,7 @@ from doctest import debug_script
 import os
 import timeit
 import time
+import subprocess
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
@@ -77,15 +78,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Close button action
         close_button = self.button_box.button(
             QtWidgets.QDialogButtonBox.Close)
-        # Rename apply button to 'Run'
-        self.button_box.button(
-            QtWidgets.QDialogButtonBox.Ok).setText('Run')
         close_button.clicked.connect(self.reject)
         close_button.clicked.connect(self.reject)
         # Fix ends
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
-        ok_button.clicked.connect(self.accept)
-
+        #ok_button.clicked.connect(self.accept)
+        ok_button.setText('Run')
+        
         # How many frames to render for each point pair transition
         # The output is generated at 30fps so choosing 30
         # would fly to each point for 1s
@@ -284,7 +283,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_to_zenith = int(self.frames_per_point / 2)
         self.image_counter = 1
         feature_count = point_layer.featureCount()
-        total_frame_count = feature_count * (self.dwell_frames + self.frames_per_point)
+        # Subtract one because we already start at the first point
+        total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_point)
         self.output_log_text_edit.append('Generating %d frames' % total_frame_count)
         self.progress_bar.setMaximum(total_frame_count)
         self.progress_bar.setValue(0)
@@ -329,7 +329,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
-            convert = which('convert')
+            convert = which('convert')[0]
+            self.output_log_text_edit.append('convert found: %s' % ffmpeg)
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps               
@@ -343,15 +344,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             os.system('%s /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif' % convert)
         else:
             self.output_log_text_edit.append('Generating MP4 Movie')
-            ffmpeg = which('ffmpeg')
+            ffmpeg = which('ffmpeg')[0]
             # Also we will make a video of the scene - useful for cases where
             # you have a larger colour pallette and gif will not hack it. The Pad
             # option is to deal with cases where ffmpeg complains because the h
             # or w of the image is an odd number of pixels.  :color=white pads
             # the video with white pixels. Change to black if needed.
             # -y to force overwrite exising file
+            self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
             os.system('%s -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4' % ffmpeg)
-
+            
     def render_image(self):
         """Render the current canvas to an image.
         
@@ -471,15 +473,21 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             else:
                 x = x_min - x_offset
             y_offset = y_increment * current_frame
+
             if self.enable_pan_easing.isChecked():
                 y_easing_factor = y_offset / self.frames_per_point 
-                y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
+                # Deal with case where we need to fly north instead of south
+                if y_min < y_max:
+                    y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
+                else:
+                    y = y_min - (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
             else:
                 # Deal with case where we need to fly north instead of south
                 if y_min < y_max:
                     y = y_min + y_offset
                 else:
                     y = y_min - y_offset
+            
             if self.map_mode == MapMode.SPHERE:
                 definition = ( 
                 '+proj=ortho +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs' % (x, y))
@@ -528,6 +536,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.render_image_as_task(
                     name, end_point.id(), current_frame)
             self.image_counter += 1
+            self.progress_bar.setValue(self.image_counter)
 
     def load_image(self, name):
         #Load the preview with the named image file 
