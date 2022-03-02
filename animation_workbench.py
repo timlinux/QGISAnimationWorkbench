@@ -18,6 +18,7 @@ import time
 import qgis  # NOQA
 
 from qgis.PyQt import QtGui, QtWidgets
+from PyQt5.QtCore import pyqtSlot
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
 from qgis.core import (
@@ -262,6 +263,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_preview_animation.setEasingCurve(easing)
         self.zoom_easing = QEasingCurve(easing)
 
+    # Prevent the slot being called twize
+    @pyqtSlot()
     def accept(self):
         """Process the animation sequence.
 
@@ -462,13 +465,21 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         for current_frame in range(0, self.frames_per_point, 1):
             x_offset = x_increment * current_frame
-            x = x_min + x_offset 
+            # Deal with case where we need to fly west instead of east
+            if x_min < x_max:
+                x = x_min + x_offset
+            else:
+                x = x_min - x_offset
             y_offset = y_increment * current_frame
             if self.enable_pan_easing.isChecked():
                 y_easing_factor = y_offset / self.frames_per_point 
                 y = y_min + (y_offset * self.pan_easing.valueForProgress(y_easing_factor))
             else:
-                y = y_min + y_offset
+                # Deal with case where we need to fly north instead of south
+                if y_min < y_max:
+                    y = y_min + y_offset
+                else:
+                    y = y_min - y_offset
             if self.map_mode == MapMode.SPHERE:
                 definition = ( 
                 '+proj=ortho +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs' % (x, y))
