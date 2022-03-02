@@ -496,18 +496,18 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             y_offset = y_increment * current_frame
             
             if self.enable_pan_easing.isChecked():
-                if x_offset < x_midpoint:
+                if y_offset < y_midpoint:
                     # Flying away from centerline
                     # should be 0 at origin, 1 at centerpoint
                     pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        x_offset/x_midpoint)
+                        x_offset/y_midpoint)
                 else:
                     # Flying towards centerline
                     # should be 1 at centerpoint, 0 at destination
                     pan_easing_factor = self.pan_easing.valueForProgress(
-                        x_offset - x_midpoint / x_midpoint)
+                        x_offset - y_midpoint / y_midpoint)
                 
-                x_offset = x_offset * pan_easing_factor
+                y_offset = y_offset * pan_easing_factor
             
             # Deal with case where we need to fly north instead of south
             if y_min < y_max:
