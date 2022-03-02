@@ -164,6 +164,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             key='render_thread_pool_size', default=100))
         # Number of currently running render threads
         self.current_render_thread_count = 0
+        # Hacky way to deal with some SIP ownership issues for 
+        # the map renderers:
+        self.renderer_queue = []
         self.progress_bar.setValue(0)
         # This will be half the number of frames per point
         # so that the first half of the journey is flying up
@@ -419,6 +422,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         print(' Now %d threads used ' % self.current_render_thread_count)
         # Start the rendering task on the queue
         QgsApplication.taskManager().addTask(mapRendererTask)
+        # The above should take care of ownership of the task for us
+        # but managing it in our own queue too due to some sip wobbles
+        self.renderer_queue.append(mapRendererTask)
 
     def fly_point_to_point(self, start_point, end_point):
        
@@ -481,8 +487,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # User opted to re-used cached images to do nothing for now
                 pass
             else:
-                ## Wait for the render queue to empty first, if needed, then allow another batch to run
-                ## Block until there is space in the render thread pool
+                # Wait for the render queue to empty first, if needed, then allow another batch to run
+                # Block until there is space in the render thread pool
                 #if self.current_render_thread_count > self.render_thread_pool_size:
                 #    print('Waiting for render thread pool to empty.')
                 #    while self.current_render_thread_count > 0:
