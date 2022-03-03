@@ -194,7 +194,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # journey is flying down towards the next point.
         self.frames_to_zenith = None
 
-        if setting(key='reuse_cache', default='false') == 'false':
+        reuse_cache = setting(key='reuse_cache', default='false')
+        if  reuse_cache == 'false':
             self.reuse_cache.setChecked(False)
         else:
             self.reuse_cache.setChecked(True)
@@ -395,11 +396,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         
         for feature in point_layer.getFeatures():
             # None, Panning, Hovering
-            QgsExpressionContextUtils.setProjectVariable(
-                QgsProject.instance(), 'current_animation_action', 'None')
             if self.previous_point is None:
                 self.previous_point = feature
-                continue
             else:
                 self.fly_point_to_point(self.previous_point, feature)
                 self.dwell_at_point(feature)
@@ -492,7 +490,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         image.save(name)
 
 
-    def render_image_as_task(self,name,current_point_id,current_frame):
+    def render_image_as_task(
+        self,
+        name,
+        current_point_id,
+        current_frame,
+        action='None'):
            
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
@@ -506,7 +509,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         task_scope = QgsExpressionContextScope()
         task_scope.setVariable('current_point_id', current_point_id)
         task_scope.setVariable('frames_per_point', self.frames_per_point)
-        task_scope.setVariable('current_frame', current_frame)
+        task_scope.setVariable('current_frame', current_frame)        
+        task_scope.setVariable('current_animation_action', action)        
         context = settings.expressionContext()
         context.appendScope(task_scope) 
         settings.setExpressionContext(context)
@@ -549,9 +553,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # goes away from the direct line, then towards it.
         y_midpoint = (y_increment * self.frames_per_point) / 2
         x_midpoint = (x_increment * self.frames_per_point) / 2
-        # None, Panning, Hovering
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), 'current_animation_action', 'Panning')
 
         for current_frame in range(0, self.frames_per_point, 1):
 
@@ -640,7 +641,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 #render_image(name)
                 # crashy - check with Nyall why...
                 self.render_image_as_task(
-                    name, end_point.id(), current_frame)
+                    name, end_point.id(), current_frame, 'Panning')
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
@@ -660,9 +661,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         point = QgsPointXY(x,y)
         self.iface.mapCanvas().setCenter(point)
         self.iface.mapCanvas().zoomScale(self.max_scale)
-        # None, Panning, Hovering
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), 'current_animation_action', 'Hovering')
+
         for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
@@ -673,7 +672,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # Not crashy but no decorations and annotations....
                 #render_image_to_file(name)
                 # crashy - check with Nyall why...
-                self.render_image_as_task(name, feature.id(), current_frame)
+                self.render_image_as_task(
+                    name, feature.id(), current_frame, 'Hovering')
             
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
