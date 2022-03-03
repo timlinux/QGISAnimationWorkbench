@@ -177,13 +177,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # You could probably run 100 or more on a decently specced machine
         self.render_thread_pool_size = int(setting(
             key='render_thread_pool_size', default=100))
-        # Number of currently running render threads
-        self.current_render_thread_count = 0
-        # Workaround for SIP dodginess with ownership
-        # the means the taskmanager jobs / render tasks 
-        # do not emit their render completed signal
-        # So we keep a local list of the render jobs ids
+        # A list of tasks that need to be rendered but
+        # cannot be because the job queue is too full.
+        # we pop items off this list self.render_thread_pool_size
+        # at a time whenver the task manager tells us the queue is
+        # empty.
         self.renderer_queue = []
+        # Queue manager for above.
+        QgsApplication.taskManager().allTasksFinished.connect(
+            self.process_more_tasks)
         # Watch as tasks are completed and check if the
         # id is in our queue so we can deallocate them
         # from the queue
@@ -236,6 +238,26 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         size = QgsApplication.taskManager().countActiveTasks()
         self.active_lcd.display(size)
         
+    def process_more_tasks(self):
+        """
+        Feed the QgsTaskManager with another bundle of tasks.
+
+        This slot is called whenever the QgsTaskManager queue is 
+        finished (by means of the 'allTasksFinished' signal).
+
+        :returns: None
+        """
+        self.output_log_text_edit.append(
+                'Thread pool emptied, adding more tasks')
+            
+        self.renderer_queue
+        pop_size = self.render_thread_pool_size
+        if len(self.renderer_queue) < pop_size:
+            pop_size = len(self.renderer_queue)
+        for task in range(0, pop_size):
+            task_id = QgsApplication.taskManager().addTask(
+                self.renderer_queue.pop(0))
+
     def display_information_message_box(
             self, parent=None, title=None, message=None):
         """
@@ -314,12 +336,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     #@pyqtSlot('long','int')
     def free_render_lock(self, taskId, status):
         
-        self.current_render_thread_count -= 1
         self.output_log_text_edit.append(
-            'Render done for task %d with status %d, freeing lock. Threads used: %d' % 
-            (taskId,
-            status,
-            self.current_render_thread_count))
+            'Render done for task %d with status %d, freeing lock.' % 
+            (taskId, status))
 
     # Prevent the slot being called twize
     @pyqtSlot()
@@ -476,11 +495,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
 
     def render_image_as_task(self,name,current_point_id,current_frame):
-        if self.current_render_thread_count > self.render_thread_pool_size:
-            self.output_log_text_edit.append(
-                'Thread pool maxumum reached, waiting until it empties out')
-            #while self.render_thread_pool_size >0:
-            #    pass
+           
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your 
@@ -508,18 +523,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Add decorations to the render job
         decorations = self.iface.activeDecorations()
         mapRendererTask.addDecorations(decorations)
-        # Allow other tasks waiting in the queue to go on and render
-        #mapRendererTask.renderingComplete.connect(self.free_render_lock)
 
-        # Ready to start rendering, claim a space in the pool
-        self.current_render_thread_count += 1
-        print(' Now %d threads used ' % self.current_render_thread_count)
-        # Start the rendering task on the queue
-        task_id = QgsApplication.taskManager().addTask(mapRendererTask)
-        self.output_log_text_edit.append('Added task %d to the queue' % task_id)
-        # The above should take care of ownership of the task for us
-        # but managing it in our own queue too due to some sip wobbles
-        self.renderer_queue.append(task_id)
+        # If we have reached the rendering pool cap, we will just keep 
+        # this task in a separate queue and then pop them off the queue
+        # self.render_thread_pool_size at a time whenver the task manager
+        # lets us know we have nothing to do
+        if QgsApplication.taskManager().countActiveTasks() > self.render_thread_pool_size:
+            self.renderer_queue.append(mapRendererTask)
+        else:
+            # Start the rendering task on the queue
+            task_id = QgsApplication.taskManager().addTask(mapRendererTask)
 
     def fly_point_to_point(self, start_point, end_point):
        
@@ -625,13 +638,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # User opted to re-used cached images to do nothing for now
                 pass
             else:
-                # Wait for the render queue to empty first, if needed, then allow another batch to run
-                # Block until there is space in the render thread pool
-                #if self.current_render_thread_count > self.render_thread_pool_size:
-                #    print('Waiting for render thread pool to empty.')
-                #    while self.current_render_thread_count > 0:
-                #        time.sleep(1.0)
-                #        print(' Now %d threads used ' % self.current_render_thread_count)
                 # Not crashy but no decorations and annotations....
                 #render_image(name)
                 # crashy - check with Nyall why...
