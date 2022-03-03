@@ -179,9 +179,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             key='render_thread_pool_size', default=100))
         # Number of currently running render threads
         self.current_render_thread_count = 0
-        # Hacky way to deal with some SIP ownership issues for 
-        # the map renderers:
+        # Workaround for SIP dodginess with ownership
+        # the means the taskmanager / render tasks 
+        # do not emit their render completed signal
+        # So we keep a local list of the render tasks
         self.renderer_queue = []
+
         self.progress_bar.setValue(0)
         # This will be half the number of frames per point
         # so that the first half of the journey is flying up
