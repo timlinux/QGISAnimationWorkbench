@@ -186,10 +186,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Queue manager for above.
         QgsApplication.taskManager().allTasksFinished.connect(
             self.process_more_tasks)
-        # Watch as tasks are completed and check if the
-        # id is in our queue so we can deallocate them
-        # from the queue
-        QgsApplication.taskManager().statusChanged.connect(self.free_render_lock)
 
         self.progress_bar.setValue(0)
         # This will be half the number of frames per point
@@ -198,8 +194,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # journey is flying down towards the next point.
         self.frames_to_zenith = None
 
-        self.reuse_cache.setChecked(
-            bool(setting(key='reuse_cache', default=False)))
+        if setting(key='reuse_cache', default='false') == 'false':
+            self.reuse_cache.setChecked(False)
+        else:
+            self.reuse_cache.setChecked(True)
 
         # Video playback stuff - see bottom of file for related methods 
         self.media_player = QMediaPlayer(
@@ -247,16 +245,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         :returns: None
         """
-        self.output_log_text_edit.append(
-                'Thread pool emptied, adding more tasks')
             
-        self.renderer_queue
-        pop_size = self.render_thread_pool_size
-        if len(self.renderer_queue) < pop_size:
-            pop_size = len(self.renderer_queue)
-        for task in range(0, pop_size):
-            task_id = QgsApplication.taskManager().addTask(
-                self.renderer_queue.pop(0))
+        if len(self.renderer_queue) == 0:
+            # all processing done so go off and generate
+            # the vid or gif
+            self.processing_completed()
+        else:
+            self.output_log_text_edit.append(
+                'Thread pool emptied, adding more tasks')
+            pop_size = self.render_thread_pool_size
+            if len(self.renderer_queue) < pop_size:
+                pop_size = len(self.renderer_queue)
+            for task in range(0, pop_size):
+                task_id = QgsApplication.taskManager().addTask(
+                    self.renderer_queue.pop(0))
 
     def display_information_message_box(
             self, parent=None, title=None, message=None):
@@ -332,14 +334,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_preview_animation.setEasingCurve(easing)
         self.zoom_easing = QEasingCurve(easing)
 
-
-    #@pyqtSlot('long','int')
-    def free_render_lock(self, taskId, status):
-        
-        self.output_log_text_edit.append(
-            'Render done for task %d with status %d, freeing lock.' % 
-            (taskId, status))
-
     # Prevent the slot being called twize
     @pyqtSlot()
     def accept(self):
@@ -398,7 +392,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(
             key='render_thread_pool_size',value=self.render_thread_pool_size)
         set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
-
         
         for feature in point_layer.getFeatures():
             # None, Panning, Hovering
@@ -407,11 +400,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             if self.previous_point is None:
                 self.previous_point = feature
                 continue
-            else: #elif image_counter < 2:
+            else:
                 self.fly_point_to_point(self.previous_point, feature)
                 self.dwell_at_point(feature)
                 self.previous_point = feature        
+    
+    def processing_completed(self):
+        """Run after all processing is done to generate gif or mp4.
 
+        .. note:: This called my process_more_tasks when all tasks are complete.
+        """
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')[0]
@@ -635,7 +633,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
             starttime = timeit.default_timer()
             if os.path.exists(name) and self.reuse_cache.isChecked():
-                # User opted to re-used cached images to do nothing for now
+                # User opted to re-used cached images so do nothing for now
                 pass
             else:
                 # Not crashy but no decorations and annotations....
@@ -661,7 +659,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         y = feature.geometry().asPoint().y()
         point = QgsPointXY(x,y)
         self.iface.mapCanvas().setCenter(point)
-        self.iface.mapCanvas().zoomScale(self.min_scale)
+        self.iface.mapCanvas().zoomScale(self.max_scale)
         # None, Panning, Hovering
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'Hovering')
