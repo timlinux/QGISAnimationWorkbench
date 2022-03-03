@@ -296,7 +296,7 @@ as it flies across the scene.</string>
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">background: green; border-radius: 3px;</string>
+            <string notr="true">background: cyan; border-radius: 3px;</string>
            </property>
           </widget>
          </item>
@@ -352,24 +352,14 @@ we arrive at each point.</string>
       <number>0</number>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="pan_easing_preview_label">
+      <item row="2" column="0">
+       <widget class="QLabel" name="output_log_label">
         <property name="text">
-         <string>Pan Easing Preview</string>
+         <string>Output Logs</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QWidget" name="zoom_easing_preview" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>250</width>
-          <height>150</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
        <widget class="QStackedWidget" name="preview_stack">
         <property name="currentIndex">
          <number>1</number>
@@ -459,31 +449,95 @@ we arrive at each point.</string>
         </widget>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QWidget" name="pan_easing_preview" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>250</width>
-          <height>150</height>
-         </size>
+      <item row="0" column="0" colspan="2">
+       <widget class="QStackedWidget" name="status_stack">
+        <property name="currentIndex">
+         <number>1</number>
         </property>
+        <widget class="QWidget" name="easing_status_page">
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="0" column="0">
+           <widget class="QLabel" name="pan_easing_preview_label">
+            <property name="text">
+             <string>Pan Easing Preview</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="zoom_easing_preview_label">
+            <property name="text">
+             <string>Zoom Easing Preview</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QWidget" name="pan_easing_preview" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>150</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QWidget" name="zoom_easing_preview" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>150</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="job_progress_page">
+         <layout class="QGridLayout" name="gridLayout_14">
+          <item row="0" column="0">
+           <widget class="QLCDNumber" name="queue_lcd"/>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLCDNumber" name="active_lcd"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLCDNumber" name="completed_lcd"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="queue_label">
+            <property name="text">
+             <string>Queued Tasks</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignHCenter|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="active_label">
+            <property name="text">
+             <string>Active Tasks</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignHCenter|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="completed_label">
+            <property name="text">
+             <string>Completed  Tasks</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignHCenter|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="output_log_label">
-        <property name="text">
-         <string>Output Logs</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="zoom_easing_preview_label">
-        <property name="text">
-         <string>Zoom Easing Preview</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QTextEdit" name="output_log_text_edit">
         <property name="html">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;

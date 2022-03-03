@@ -38,7 +38,7 @@ class AnimationWorkbenchPlugin:
         
         # If you change this to true, QGIS startup
         # will block until it can attache to the remote debugger
-        debug_mode = False
+        debug_mode = True
         if debug_mode:
             try:
                 self.initialize_debugger()

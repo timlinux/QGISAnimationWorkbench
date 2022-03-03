@@ -216,7 +216,26 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         layout.addWidget(video_widget)
         # Enable image preview page on startup
         self.preview_stack.setCurrentIndex(0)
+        # Enable easing status page on startup
+        self.status_stack.setCurrentIndex(0)
+        QgsApplication.taskManager().progressChanged.connect(
+            self.show_status)
 
+    def show_status(self):
+        """
+        Display the size of the QgsTaskManager queue.
+
+        :returns: None
+        """
+        size = QgsApplication.taskManager().count()
+        self.queue_lcd.display(size)
+        size = (
+            QgsApplication.taskManager().count() -
+            QgsApplication.taskManager().countActiveTasks())
+        self.completed_lcd.display(size)
+        size = QgsApplication.taskManager().countActiveTasks()
+        self.active_lcd.display(size)
+        
     def display_information_message_box(
             self, parent=None, title=None, message=None):
         """
@@ -291,6 +310,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.zoom_easing_preview_animation.setEasingCurve(easing)
         self.zoom_easing = QEasingCurve(easing)
 
+
+    #@pyqtSlot('long','int')
+    def free_render_lock(self, taskId, status):
+        
+        self.current_render_thread_count -= 1
+        self.output_log_text_edit.append(
+            'Render done for task %d with status %d, freeing lock. Threads used: %d' % 
+            (taskId,
+            status,
+            self.current_render_thread_count))
+
     # Prevent the slot being called twize
     @pyqtSlot()
     def accept(self):
@@ -300,6 +330,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         # Image preview page
         self.preview_stack.setCurrentIndex(0)
+        # Enable queue status page
+        self.status_stack.setCurrentIndex(1)
+        self.queue_lcd.display(0)
+        self.active_lcd.display(0)
+        self.completed_lcd.display(0)
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
@@ -439,22 +474,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         painter.end()
         image.save(name)
 
-    @pyqtSlot(int,int)
-    def free_render_lock(self, taskId, status):
-        
-        self.current_render_thread_count -= 1
-        self.output_log_text_edit.append(
-            'Render done for task %s with status %s, freeing lock. Threads used: %d' % 
-            taskId,
-            status,
-            self.current_render_thread_count)
 
     def render_image_as_task(self,name,current_point_id,current_frame):
         if self.current_render_thread_count > self.render_thread_pool_size:
             self.output_log_text_edit.append(
                 'Thread pool maxumum reached, waiting until it empties out')
-            while self.render_thread_pool_size >0:
-                pass
+            #while self.render_thread_pool_size >0:
+            #    pass
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your 
@@ -483,13 +509,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         decorations = self.iface.activeDecorations()
         mapRendererTask.addDecorations(decorations)
         # Allow other tasks waiting in the queue to go on and render
-        mapRendererTask.renderingComplete.connect(self.free_render_lock)
+        #mapRendererTask.renderingComplete.connect(self.free_render_lock)
 
         # Ready to start rendering, claim a space in the pool
         self.current_render_thread_count += 1
         print(' Now %d threads used ' % self.current_render_thread_count)
         # Start the rendering task on the queue
         task_id = QgsApplication.taskManager().addTask(mapRendererTask)
+        self.output_log_text_edit.append('Added task %d to the queue' % task_id)
         # The above should take care of ownership of the task for us
         # but managing it in our own queue too due to some sip wobbles
         self.renderer_queue.append(task_id)
@@ -742,7 +769,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.pan_easing_preview_animation.start()
 
         self.zoom_easing_preview_icon = QtWidgets.QWidget(self.zoom_easing_preview)
-        self.zoom_easing_preview_icon.setStyleSheet("background-color:green;border-radius:5px;")
+        self.zoom_easing_preview_icon.setStyleSheet("background-color:cyan;border-radius:5px;")
         self.zoom_easing_preview_icon.resize(10, 10)
         self.zoom_easing_preview_animation = QPropertyAnimation(self.zoom_easing_preview_icon, b"pos")
         self.zoom_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
