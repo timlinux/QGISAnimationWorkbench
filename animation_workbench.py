@@ -202,7 +202,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.play_button.clicked.connect(self.play)
         self.media_player.setVideoOutput(video_widget)
         self.media_player.stateChanged.connect(self.media_state_changed)
-        #self.media_player.positionChanged.connect(self.position_changed)
+        self.media_player.positionChanged.connect(self.position_changed)
         self.media_player.durationChanged.connect(self.duration_changed)
         self.media_player.error.connect(self.handle_video_error) 
         layout = QtWidgets.QGridLayout(self.video_preview_widget)
@@ -761,8 +761,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.play_button.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPlay))
 
-    def position_hanged(self, position):
-        self.position_slider.setValue(position)
+    def position_changed(self, position):
+        self.video_slider.setValue(position)
 
     def duration_changed(self, duration):
         self.video_slider.setRange(0, duration)
