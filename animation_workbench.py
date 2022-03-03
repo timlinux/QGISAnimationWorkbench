@@ -180,10 +180,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Number of currently running render threads
         self.current_render_thread_count = 0
         # Workaround for SIP dodginess with ownership
-        # the means the taskmanager / render tasks 
+        # the means the taskmanager jobs / render tasks 
         # do not emit their render completed signal
-        # So we keep a local list of the render tasks
+        # So we keep a local list of the render jobs ids
         self.renderer_queue = []
+        # Watch as tasks are completed and check if the
+        # id is in our queue so we can deallocate them
+        # from the queue
+        QgsApplication.taskManager().statusChanged.connect(self.free_render_lock)
 
         self.progress_bar.setValue(0)
         # This will be half the number of frames per point
@@ -435,11 +439,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         painter.end()
         image.save(name)
 
-    def free_render_lock(self):
+    @pyqtSlot(int,int)
+    def free_render_lock(self, taskId, status):
         
         self.current_render_thread_count -= 1
         self.output_log_text_edit.append(
-            'Render done, freeing lock, threads used: %d' % 
+            'Render done for task %s with status %s, freeing lock. Threads used: %d' % 
+            taskId,
+            status,
             self.current_render_thread_count)
 
     def render_image_as_task(self,name,current_point_id,current_frame):
@@ -477,17 +484,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         mapRendererTask.addDecorations(decorations)
         # Allow other tasks waiting in the queue to go on and render
         mapRendererTask.renderingComplete.connect(self.free_render_lock)
-        # Does not work
-        #QObject.connect(mapRendererTask,SIGNAL("renderingComplete()"),free_render_lock)
 
         # Ready to start rendering, claim a space in the pool
         self.current_render_thread_count += 1
         print(' Now %d threads used ' % self.current_render_thread_count)
         # Start the rendering task on the queue
-        QgsApplication.taskManager().addTask(mapRendererTask)
+        task_id = QgsApplication.taskManager().addTask(mapRendererTask)
         # The above should take care of ownership of the task for us
         # but managing it in our own queue too due to some sip wobbles
-        self.renderer_queue.append(mapRendererTask)
+        self.renderer_queue.append(task_id)
 
     def fly_point_to_point(self, start_point, end_point):
        
