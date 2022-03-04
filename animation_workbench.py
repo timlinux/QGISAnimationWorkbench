@@ -140,6 +140,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         else:
             self.map_mode == MapMode.SPHERE
             self.radio_planar.setChecked(True)
+        self.radio_planar.toggled.connect(
+            self.show_non_fixed_extent_settings
+        )
+        self.radio_sphere.toggled.connect(
+            self.show_non_fixed_extent_settings
+        )
+        self.radio_extent.toggled.connect(
+            self.show_fixed_extent_settings
+        )
 
         # Setup easing combos and previews etc
         self.load_combo_with_easings(self.pan_easing_combo)
@@ -222,6 +231,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         QgsApplication.taskManager().progressChanged.connect(
             self.show_status)
 
+    def show_non_fixed_extent_settings(self):
+            
+        self.settings_stack.setCurrentIndex(0)
+        
+    def show_fixed_extent_settings(self):
+            
+        self.settings_stack.setCurrentIndex(1)
+                
     def show_status(self):
         """
         Display the size of the QgsTaskManager queue.

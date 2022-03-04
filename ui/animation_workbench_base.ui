@@ -23,40 +23,250 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
-      <item row="2" column="0">
-       <widget class="QGroupBox" name="render_mode_group">
-        <property name="toolTip">
-         <string>The render mode determines the behaviour and type of the animation. 
-For 'Sphere' the coordinate reference system (CRS) will 
-be manipulated to create a spinning globe effect. 
-For 'Plane', the CRS will not be altered, but will pan and 
-zoom to each point.</string>
+      <item row="3" column="0">
+       <widget class="QStackedWidget" name="settings_stack">
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-        <property name="title">
-         <string>Render Mode</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <widget class="QRadioButton" name="radio_planar">
-           <property name="text">
-            <string>Planar</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QRadioButton" name="radio_sphere">
-           <property name="text">
-            <string>Sphere</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QWidget" name="non_fixed_extent_settings">
+         <layout class="QGridLayout" name="gridLayout_15">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="easings_group">
+            <property name="title">
+             <string>Easings</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="1" column="2">
+              <widget class="QComboBox" name="zoom_easing_combo">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>The zoom easing will affect the behaviour 
+of the camera during zoom transitions.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QWidget" name="pan_preview_legend" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background: yellow; border-radius: 3px;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QComboBox" name="pan_easing_combo">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>The pan easing will determine the motion 
+characteristics of the camera on the Y axis 
+as it flies across the scene.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="enable_zoom_easing">
+               <property name="text">
+                <string>Enable Zoom Easing</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QWidget" name="widget_2" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background: cyan; border-radius: 3px;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="enable_pan_easing">
+               <property name="text">
+                <string>Enable Pan Easing</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="zoom_range_group">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>The scale range that the animation should 
+move through. The smallest scale will be 
+the zenith of the animation when it zooms 
+out while travelling between points, and the 
+largest scale will be the scale used when 
+we arrive at each point.</string>
+            </property>
+            <property name="title">
+             <string>Zoom Range</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_10">
+             <item row="0" column="0">
+              <widget class="QgsScaleRangeWidget" name="scale_range">
+               <property name="focusPolicy">
+                <enum>Qt::StrongFocus</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QGroupBox" name="animation_frames_group">
+            <property name="title">
+             <string>Animation Frames</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="1" column="0">
+              <widget class="QLabel" name="hover_frames_label">
+               <property name="text">
+                <string>Hover frames at each point</string>
+               </property>
+               <property name="buddy">
+                <cstring>hover_frames_spin</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QSpinBox" name="hover_frames_spin">
+               <property name="toolTip">
+                <string>This is the number of frames that will 
+be used during animation of the motion from 
+one point to the next. Video generation 
+is done at 30 frames per second, so a value 
+of 30 here would result in a 1 second flight time 
+between two consecutive points. 
+Set to zero to disable.</string>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>15</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="point_frames_label">
+               <property name="text">
+                <string>Frames between points</string>
+               </property>
+               <property name="buddy">
+                <cstring>point_frames_spin</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="point_frames_spin">
+               <property name="toolTip">
+                <string>This is the number of frames that will be used during
+ animation of the dwell period at each point. 
+Video generation is done at 30 frames per 
+second, so a value of 30 here would result in a 1 second 
+dwell time. 
+Set to zero to disable.</string>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>15</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="fixed_extent_settings">
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="0" column="0">
+           <widget class="QLabel" name="extent_label">
+            <property name="text">
+             <string>Extent</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QgsExtentGroupBox" name="extent_group_box"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="extent_frames_label">
+            <property name="text">
+             <string>Frames</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="extent_frames_spin"/>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>117</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="5" column="0">
        <widget class="QGroupBox" name="output_destination_group">
         <property name="title">
          <string>Output Destination</string>
@@ -110,7 +320,47 @@ the GIF or MP4 as selected above.</string>
         </layout>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="2" column="0">
+       <widget class="QGroupBox" name="render_mode_group">
+        <property name="toolTip">
+         <string>The render mode determines the behaviour and type of the animation. 
+For 'Sphere' the coordinate reference system (CRS) will 
+be manipulated to create a spinning globe effect. 
+For 'Plane', the CRS will not be altered, but will pan and 
+zoom to each point.</string>
+        </property>
+        <property name="title">
+         <string>Render Mode</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="radio_sphere">
+           <property name="text">
+            <string>Sphere</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="radio_planar">
+           <property name="text">
+            <string>Planar</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QRadioButton" name="radio_extent">
+           <property name="text">
+            <string>Fixed Extent</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="4" column="0">
        <widget class="QGroupBox" name="output_options_group">
         <property name="toolTip">
          <string>Select which output format you would like. 
@@ -151,186 +401,6 @@ and will resume processing from last cached image.</string>
            </property>
            <property name="checked">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QGroupBox" name="animation_frames_group">
-        <property name="title">
-         <string>Animation Frames</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_8">
-         <item row="1" column="0">
-          <widget class="QLabel" name="hover_frames_label">
-           <property name="text">
-            <string>Hover frames at each point</string>
-           </property>
-           <property name="buddy">
-            <cstring>hover_frames_spin</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="hover_frames_spin">
-           <property name="toolTip">
-            <string>This is the number of frames that will 
-be used during animation of the motion from 
-one point to the next. Video generation 
-is done at 30 frames per second, so a value 
-of 30 here would result in a 1 second flight time 
-between two consecutive points. 
-Set to zero to disable.</string>
-           </property>
-           <property name="maximum">
-            <number>999</number>
-           </property>
-           <property name="value">
-            <number>15</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="point_frames_label">
-           <property name="text">
-            <string>Frames between points</string>
-           </property>
-           <property name="buddy">
-            <cstring>point_frames_spin</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="point_frames_spin">
-           <property name="toolTip">
-            <string>This is the number of frames that will be used during
- animation of the dwell period at each point. 
-Video generation is done at 30 frames per 
-second, so a value of 30 here would result in a 1 second 
-dwell time. 
-Set to zero to disable.</string>
-           </property>
-           <property name="maximum">
-            <number>999</number>
-           </property>
-           <property name="value">
-            <number>15</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QGroupBox" name="easings_group">
-        <property name="title">
-         <string>Easings</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="1" column="2">
-          <widget class="QComboBox" name="zoom_easing_combo">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>The zoom easing will affect the behaviour 
-of the camera during zoom transitions.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QWidget" name="pan_preview_legend" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>25</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>25</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background: yellow; border-radius: 3px;</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QComboBox" name="pan_easing_combo">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>The pan easing will determine the motion 
-characteristics of the camera on the Y axis 
-as it flies across the scene.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="enable_zoom_easing">
-           <property name="text">
-            <string>Enable Zoom Easing</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QWidget" name="widget_2" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>25</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>25</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background: cyan; border-radius: 3px;</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="enable_pan_easing">
-           <property name="text">
-            <string>Enable Pan Easing</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QGroupBox" name="zoom_range_group">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>The scale range that the animation should 
-move through. The smallest scale will be 
-the zenith of the animation when it zooms 
-out while travelling between points, and the 
-largest scale will be the scale used when 
-we arrive at each point.</string>
-        </property>
-        <property name="title">
-         <string>Zoom Range</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_10">
-         <item row="0" column="0">
-          <widget class="QgsScaleRangeWidget" name="scale_range">
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
            </property>
           </widget>
          </item>
@@ -572,6 +642,18 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QgsCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>qgscollapsiblegroupbox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QgsExtentGroupBox</class>
+   <extends>QgsCollapsibleGroupBox</extends>
+   <header>qgsextentgroupbox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
    <header>qgsmaplayercombobox.h</header>
@@ -609,8 +691,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>772</y>
+     <x>260</x>
+     <y>823</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -625,8 +707,8 @@ p, li { white-space: pre-wrap; }
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>772</y>
+     <x>328</x>
+     <y>823</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -645,8 +727,8 @@ p, li { white-space: pre-wrap; }
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>262</x>
-     <y>220</y>
+     <x>470</x>
+     <y>240</y>
     </hint>
    </hints>
   </connection>
