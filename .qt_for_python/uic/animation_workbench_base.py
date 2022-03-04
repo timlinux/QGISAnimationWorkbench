@@ -109,6 +109,8 @@ class Ui_animation_workbench_base(object):
         self.extent_frames_label.setObjectName("extent_frames_label")
         self.gridLayout_16.addWidget(self.extent_frames_label, 2, 0, 1, 1)
         self.extent_frames_spin = QtWidgets.QSpinBox(self.fixed_extent_settings)
+        self.extent_frames_spin.setMaximum(9000000)
+        self.extent_frames_spin.setSingleStep(30)
         self.extent_frames_spin.setObjectName("extent_frames_spin")
         self.gridLayout_16.addWidget(self.extent_frames_spin, 2, 1, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 117, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)

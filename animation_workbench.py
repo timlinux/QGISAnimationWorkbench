@@ -458,7 +458,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')[0]
-            self.output_log_text_edit.append('convert found: %s' % ffmpeg)
+            self.output_log_text_edit.append('convert found: %s' % convert)
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps               
@@ -469,7 +469,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want               
-            os.system('%s /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif' % convert)
+            os.system('%s /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif' % (convert))
+            # Video preview page
+            self.preview_stack.setCurrentIndex(1)
+            self.media_player.setMedia(
+                QMediaContent(QUrl.fromLocalFile('/tmp/globe_small-gif')))
+            self.play_button.setEnabled(True)
+            self.play()
         else:
             self.output_log_text_edit.append('Generating MP4 Movie')
             ffmpeg = which('ffmpeg')[0]

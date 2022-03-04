@@ -247,7 +247,14 @@ Set to zero to disable.</string>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="extent_frames_spin"/>
+           <widget class="QSpinBox" name="extent_frames_spin">
+            <property name="maximum">
+             <number>9000000</number>
+            </property>
+            <property name="singleStep">
+             <number>30</number>
+            </property>
+           </widget>
           </item>
           <item row="3" column="1">
            <spacer name="verticalSpacer">
