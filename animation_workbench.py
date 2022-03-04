@@ -106,9 +106,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             setting(key='dwell_frames', default='30'))
         self.hover_frames_spin.setValue(self.dwell_frames)
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = int(setting(key='max_scale', default='250000000'))
+        self.max_scale = int(setting(key='max_scale', default='10000000'))
         self.scale_range.setMaximumScale(self.max_scale)
-        self.min_scale = int(setting(key='min_scale', default='10000000'))
+        self.min_scale = int(setting(key='min_scale', default='25000000'))
         self.scale_range.setMinimumScale(self.min_scale)
         self.image_counter = None 
         # enable this if you want wobbling panning
@@ -398,6 +398,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # None, Panning, Hovering
             if self.previous_point is None:
                 self.previous_point = feature
+                self.dwell_at_point(feature)
             else:
                 self.fly_point_to_point(self.previous_point, feature)
                 self.dwell_at_point(feature)
