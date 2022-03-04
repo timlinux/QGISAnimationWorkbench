@@ -629,6 +629,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromProj(definition)
                 self.iface.mapCanvas().setDestinationCrs(crs)
+                if not self.enable_zoom_easing.isChecked():
+                    self.iface.mapCanvas().zoomToFullExtent()
 
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
             name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
