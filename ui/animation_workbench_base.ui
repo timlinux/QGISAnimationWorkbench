@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>980</width>
+    <width>1080</width>
     <height>830</height>
    </rect>
   </property>
@@ -26,7 +26,7 @@
       <item row="3" column="0">
        <widget class="QStackedWidget" name="settings_stack">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="non_fixed_extent_settings">
          <layout class="QGridLayout" name="gridLayout_15">
@@ -118,7 +118,7 @@ as it flies across the scene.</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">background: cyan; border-radius: 3px;</string>
+                <string notr="true">background: #005bbc; border-radius: 3px;</string>
                </property>
               </widget>
              </item>

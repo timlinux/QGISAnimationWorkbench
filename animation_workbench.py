@@ -45,7 +45,7 @@ from enum import Enum
 class MapMode(Enum):
     SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
     PLANAR = 2 # CRS will not be altered, extents will as we pan and zoom
-
+    FIXED_EXTENT = 3 # EASING and ZOOM disabled, extent stays in place
 
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
@@ -105,6 +105,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.dwell_frames = int(
             setting(key='dwell_frames', default='30'))
         self.hover_frames_spin.setValue(self.dwell_frames)
+        # How many frames to render when we are in static mode
+        self.frames_for_extent = int(
+            setting(key='frames_for_extent', default='90'))
+        self.extent_frames_spin.setValue(self.frames_for_extent)
         # Keep the scales the same if you dont want it to zoom in an out
         self.max_scale = int(setting(key='max_scale', default='10000000'))
         self.scale_range.setMaximumScale(self.max_scale)
@@ -134,12 +138,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             QgsProject.instance(), 'current_animation_action', 'None')
 
         self.map_mode = None
-        if setting(key='map_mode',default='sphere') == 'sphere':
+        mode_string = setting(key='map_mode',default='sphere')
+        if mode_string == 'sphere':
             self.map_mode == MapMode.SPHERE
             self.radio_sphere.setChecked(True)
-        else:
-            self.map_mode == MapMode.SPHERE
+            self.status_stack.setCurrentIndex(0)
+        elif mode_string == 'planar':
+            self.map_mode == MapMode.PLANAR
             self.radio_planar.setChecked(True)
+            self.status_stack.setCurrentIndex(0)
+        else:
+            self.map_mode == MapMode.FIXED_EXTENT
+            self.radio_extent.setChecked(True)
+            self.status_stack.setCurrentIndex(1)
+
         self.radio_planar.toggled.connect(
             self.show_non_fixed_extent_settings
         )
@@ -378,48 +390,65 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.dwell_frames = self.hover_frames_spin.value()
         self.frames_per_point = self.point_frames_spin.value()
         self.frames_to_zenith = int(self.frames_per_point / 2)
+        self.frames_for_extent = self.extent_frames_spin.value()
         self.image_counter = 1
         feature_count = point_layer.featureCount()
-        # Subtract one because we already start at the first point
-        total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_point)
-        self.output_log_text_edit.append('Generating %d frames' % total_frame_count)
-        self.progress_bar.setMaximum(total_frame_count)
-        self.progress_bar.setValue(0)
-        self.previous_point = None
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
-        else:
+            set_setting(key='map_mode',value='sphere')
+        elif self.radio_planar.isChecked():
             self.map_mode = MapMode.PLANAR
-
+            set_setting(key='map_mode',value='planar')
+        else:
+            self.map_mode = MapMode.FIXED_EXTENT
+            set_setting(key='map_mode',value='fixed_extent')
         # Save state
         set_setting(key='frames_per_point',value=self.frames_per_point)
         set_setting(key='dwell_frames',value=self.dwell_frames)
+        set_setting(key='frames_for_extent',value=self.frames_for_extent)
         set_setting(key='max_scale',value=int(self.max_scale))
         set_setting(key='min_scale',value=int(self.min_scale))
         set_setting(key='enable_pan_easing',value=self.enable_pan_easing.isChecked())
         set_setting(key='enable_zoom_easing',value=self.enable_zoom_easing.isChecked())
-
-        if self.map_mode == MapMode.SPHERE:
-            set_setting(key='map_mode',value='sphere')
-        else:
-            set_setting(key='map_mode',value='planar')
-        
         set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
         set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
         set_setting(
             key='render_thread_pool_size',value=self.render_thread_pool_size)
         set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
         
-        for feature in point_layer.getFeatures():
-            # None, Panning, Hovering
-            if self.previous_point is None:
-                self.previous_point = feature
-                self.dwell_at_point(feature)
-            else:
-                self.fly_point_to_point(self.previous_point, feature)
-                self.dwell_at_point(feature)
-                self.previous_point = feature        
+        if self.map_mode == MapMode.FIXED_EXTENT:
+            self.output_log_text_edit.append(
+                'Generating %d frames for fixed extent render' % self.frames_for_extent)
+            self.progress_bar.setMaximum(self.frames_for_extent)
+            self.progress_bar.setValue(0)
+            self.image_counter = 0
+            for image_count in range(0, self.frames_for_extent):
+                name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
+                self.render_image_as_task(
+                    name,
+                    None,
+                    self.image_counter,
+                    'Fixed Extent'
+                )
+                self.progress_bar.setValue(self.image_counter)
+                self.image_counter += 1
+        else:
+            # Subtract one because we already start at the first point
+            total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_point)
+            self.output_log_text_edit.append('Generating %d frames' % total_frame_count)
+            self.progress_bar.setMaximum(total_frame_count)
+            self.progress_bar.setValue(0)
+            self.previous_point = None
+            for feature in point_layer.getFeatures():
+                # None, Panning, Hovering
+                if self.previous_point is None:
+                    self.previous_point = feature
+                    self.dwell_at_point(feature)
+                else:
+                    self.fly_point_to_point(self.previous_point, feature)
+                    self.dwell_at_point(feature)
+                    self.previous_point = feature        
     
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
@@ -793,7 +822,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.pan_easing_preview_animation.start()
 
         self.zoom_easing_preview_icon = QtWidgets.QWidget(self.zoom_easing_preview)
-        self.zoom_easing_preview_icon.setStyleSheet("background-color:cyan;border-radius:5px;")
+        self.zoom_easing_preview_icon.setStyleSheet("background-color:#005bbc;border-radius:5px;")
         self.zoom_easing_preview_icon.resize(10, 10)
         self.zoom_easing_preview_animation = QPropertyAnimation(self.zoom_easing_preview_icon, b"pos")
         self.zoom_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)

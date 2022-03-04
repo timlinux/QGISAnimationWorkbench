@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_animation_workbench_base(object):
     def setupUi(self, animation_workbench_base):
         animation_workbench_base.setObjectName("animation_workbench_base")
-        animation_workbench_base.resize(980, 830)
+        animation_workbench_base.resize(1080, 830)
         self.gridLayout_9 = QtWidgets.QGridLayout(animation_workbench_base)
         self.gridLayout_9.setObjectName("gridLayout_9")
         self.frame = QtWidgets.QFrame(animation_workbench_base)
@@ -56,7 +56,7 @@ class Ui_animation_workbench_base(object):
         self.widget_2 = QtWidgets.QWidget(self.easings_group)
         self.widget_2.setMinimumSize(QtCore.QSize(25, 25))
         self.widget_2.setMaximumSize(QtCore.QSize(25, 25))
-        self.widget_2.setStyleSheet("background: cyan; border-radius: 3px;")
+        self.widget_2.setStyleSheet("background: #005bbc; border-radius: 3px;")
         self.widget_2.setObjectName("widget_2")
         self.gridLayout_2.addWidget(self.widget_2, 1, 1, 1, 1)
         self.enable_pan_easing = QtWidgets.QCheckBox(self.easings_group)
@@ -299,7 +299,7 @@ class Ui_animation_workbench_base(object):
         self.point_layer_label.setBuddy(self.layer_combo)
 
         self.retranslateUi(animation_workbench_base)
-        self.settings_stack.setCurrentIndex(0)
+        self.settings_stack.setCurrentIndex(1)
         self.preview_stack.setCurrentIndex(1)
         self.status_stack.setCurrentIndex(1)
         self.button_box.accepted.connect(animation_workbench_base.accept) # type: ignore
