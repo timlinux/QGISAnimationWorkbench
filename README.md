@@ -69,11 +69,17 @@ A street tour of Zaporizhzhia:
 
 
 
+
+
 https://user-images.githubusercontent.com/178003/156930785-d2cca084-e85d-4a67-8b6c-2dc090f08ac6.mp4
 
 
+Data (c) OpenStreetMap Contributors
 
 QGIS Developers:
+
+
+https://user-images.githubusercontent.com/178003/156931066-87ce89e4-f8d7-46d9-9d30-aeba097f6d98.mp4
 
 
 ## 🌏 QGIS Support
@@ -149,8 +155,25 @@ This software is licensed under the [GPL v2](https://github.com/timlinux/QGISAni
 
 ##  Credits
 
+This plugin was developed by 
+
+
+Tim Sutton |
+-----------|
+![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | 
+Tim Sutton |
+Coder and Ideas Guy |
+[timlinux @ github](https://github.com/timlinux/) |
+
+
 Thanks to:
 
-* [Nyall Dawson](https://github.com/nyalldawson) For lots of helpful hints!
+
+
+Nyall Dawson | 
+-----------| 
+![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") |
+
+Also:
 * [NHN and Tui Editor](https://raw.githubusercontent.com/nhn/tui.editor) for the great README which I based this one on.
 
