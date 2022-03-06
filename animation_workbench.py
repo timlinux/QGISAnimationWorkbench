@@ -143,14 +143,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.map_mode == MapMode.SPHERE
             self.radio_sphere.setChecked(True)
             self.status_stack.setCurrentIndex(0)
+            self.settings_stack.setCurrentIndex(0)
         elif mode_string == 'planar':
             self.map_mode == MapMode.PLANAR
             self.radio_planar.setChecked(True)
             self.status_stack.setCurrentIndex(0)
+            self.settings_stack.setCurrentIndex(0)
         else:
             self.map_mode == MapMode.FIXED_EXTENT
             self.radio_extent.setChecked(True)
             self.status_stack.setCurrentIndex(1)
+            self.settings_stack.setCurrentIndex(1)
 
         self.radio_planar.toggled.connect(
             self.show_non_fixed_extent_settings
