@@ -620,9 +620,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     # Flying towards centerline
                     # should be 1 at centerpoint, 0 at destination
-                    pan_easing_factor = self.pan_easing.valueForProgress(
-                        x_offset - x_midpoint / x_midpoint)
-                
+                    try:
+                        pan_easing_factor = self.pan_easing.valueForProgress(
+                            (x_offset - x_midpoint) / x_midpoint)
+                    except:
+                        pan_easing_factor = 0
                 x_offset = x_offset * pan_easing_factor
             # Deal with case where we need to fly west instead of east
             if x_min < x_max:
