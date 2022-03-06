@@ -609,6 +609,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # goes away from the direct line, then towards it.
         y_midpoint = (y_increment * self.frames_per_point) / 2
         x_midpoint = (x_increment * self.frames_per_point) / 2
+        scale = None
 
         for current_frame in range(0, self.frames_per_point, 1):
 
@@ -643,12 +644,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     # Flying away from centerline
                     # should be 0 at origin, 1 at centerpoint
                     pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        x_offset/y_midpoint)
+                        y_offset / y_midpoint)
                 else:
                     # Flying towards centerline
                     # should be 1 at centerpoint, 0 at destination
                     pan_easing_factor = self.pan_easing.valueForProgress(
-                        x_offset - y_midpoint / y_midpoint)
+                        y_offset - y_midpoint / y_midpoint)
                 
                 y_offset = y_offset * pan_easing_factor
             
@@ -675,9 +676,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     scale = ((self.max_scale - self.min_scale) * 
                         zoom_easing_factor) + self.min_scale
 
-                if self.map_mode != MapMode.SPHERE:
-                    self.iface.mapCanvas().setCenter(
-                        QgsPointXY(x,y))
+            if self.map_mode ==MapMode.PLANAR:
+                self.iface.mapCanvas().setCenter(
+                    QgsPointXY(x,y))
+            if scale is not None:
                 self.iface.mapCanvas().zoomScale(scale)
 
             # Change CRS if needed
