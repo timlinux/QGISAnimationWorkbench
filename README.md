@@ -33,7 +33,7 @@
 
 | Name | Description |
 | --- | --- |
-| [`Alpha Version`](https://github.com/timlinux/QGISPluginWorkbench/tree/master) | Plain JavaScript component |
+| [`Alpha Version`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
 
 
 ## 🤖 Why QGIS Animation Workbench?
@@ -60,7 +60,17 @@ Let's show you some examples!
 A simple spinning globe:
 
 
+
+https://user-images.githubusercontent.com/178003/156930974-e6d4e76e-bfb0-4ee2-a2c5-030eba1aad8a.mp4
+
+
+
 A street tour of Zaporizhzhia:
+
+
+
+https://user-images.githubusercontent.com/178003/156930785-d2cca084-e85d-4a67-8b6c-2dc090f08ac6.mp4
+
 
 
 QGIS Developers:
