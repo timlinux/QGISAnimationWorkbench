@@ -1,4 +1,4 @@
-# ![QGIS Animations Plugin](https://uicdn.toast.com/toastui/img/tui-editor-bi.png)
+# ![QGIS Animations Plugin](https://user-images.githubusercontent.com/178003/156927270-4491b001-43a3-4302-a819-41c4fac8c14c.png)
 
 > Welcome to the QGIS Animation Workbench!
 
