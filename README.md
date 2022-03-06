@@ -73,7 +73,7 @@ A street tour of Zaporizhzhia:
 https://user-images.githubusercontent.com/178003/156930785-d2cca084-e85d-4a67-8b6c-2dc090f08ac6.mp4
 
 
-Data (c) OpenStreetMap Contributors
+Data above © OpenStreetMap Contributors
 
 QGIS Developers:
 
@@ -102,7 +102,7 @@ Fork `main` branch into your personal repository. Clone it to local computer. In
 Before starting development, you should check if there are any errors.
 
 ```sh
-$ git clone https://github.com/{your-personal-repo}/tui.editor.git
+$ git clone https://github.com/{your-personal-repo}/QGISAnimationWorkshop.git
 $ ln -s QGISAnimationWorkbench ~.local/share/QGIS/QGIS3/profiles/<profile>/python/plugins
 ```
 
