@@ -66,16 +66,22 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         #ok_button.clicked.connect(self.accept)
         ok_button.setText('Run')
         ok_button.setEnabled(False)
-        
+
+        # place where working files are stored
+        self.work_directory = tempfile.gettempdir()
+        self.frame_filename_prefix = 'animation_workbench'
+        # place where final products are stored
         self.output_directory = None
-        file_path = setting(key='output_file', default='')
-        if file_path != '':
-            self.file_edit.setText(file_path)
-            self.output_directory = os.path.dirname(file_path)
+        self.output_file = setting(key='output_file', default='')
+
+        if self.output_file != '':
+            self.file_edit.setText(self.output_file)
+            self.output_directory = os.path.dirname(self.output_file)
             ok_button.setEnabled(True)
         self.file_button.clicked.connect(
             self.set_output_name)
-
+        self.file_edit.textChanged.connect(
+            self.output_name_changed)
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
@@ -281,6 +287,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         size = QgsApplication.taskManager().countActiveTasks()
         self.active_lcd.display(size)
         
+    def output_name_changed(self, path):
+        # File name line edit changed slot
+        self.output_file = path
+        self.output_directory = os.path.dirname(self.output_file)
+        set_setting(key='output_file',value=path)
+
     def set_output_name(self):
         # Popup a dialog to request the filename if scenario_file_path = None 
         dialog_title = 'Save video' 
@@ -289,9 +301,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         ok_button.setText('Run')
         ok_button.setEnabled(False)
         
-
         if self.output_directory is None:
-            self.output_directory = tempfile.gettempdir()
+            self.output_directory = self.work_directory
         # noinspection PyCallByClass,PyTypeChecker 
         file_path, __ = QFileDialog.getSaveFileName( 
             self, 
@@ -422,7 +433,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
-            os.system('rm /tmp/globe*')
+            os.system('rm %s/%s*' % 
+            (
+                self.work_directory,
+                self.frame_filename_prefix
+            ))
 
         # Point layer that we will visit each point for
         point_layer = self.layer_combo.currentLayer()
@@ -457,7 +472,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(
             key='render_thread_pool_size',value=self.render_thread_pool_size)
         set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
-        
+        set_setting(key='output_file',value=self.output_file)
         if self.map_mode == MapMode.FIXED_EXTENT:
             self.output_log_text_edit.append(
                 'Generating %d frames for fixed extent render' % self.frames_for_extent)
@@ -465,7 +480,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setValue(0)
             self.image_counter = 0
             for image_count in range(0, self.frames_for_extent):
-                name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
+                name = ('%s/%s-%s.png' % (
+                    str(self.image_counter).rjust(10, '0'),
+                    self.work_directory,
+                    self.frame_filename_prefix
+                ))
                 self.render_image_as_task(
                     name,
                     None,
@@ -499,21 +518,27 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')[0]
-            work_directory = tempfile.gettempdir()
             self.output_log_text_edit.append('convert found: %s' % convert)
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps               
-            os.system('%s -delay 3.33 -loop 0 %s/globe-*.png %s' % (
-                convert, work_directory, self.output_file))
+            os.system('%s -delay 3.33 -loop 0 %s/$s-*.png %s' % (
+                self.work_directory,
+                self.frame_filename_prefix,
+                convert, self.work_directory, self.output_file))
             # Now do a second pass with image magick to resize and compress the
             # gif as much as possible.  The remap option basically takes the
             # first image as a reference inmage for the colour palette Depending
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want               
-            os.system('%s %s -coalesce -scale 600x600 -fuzz 2% +dither -remap %s/globe.gif[20] +dither -colors 14 -layers Optimize %s/animation_small.gif' % (
-                convert, self.output_file, work_directory))
+            os.system('%s %s -coalesce -scale 600x600 -fuzz 2% +dither -remap %s/%s.gif[20] +dither -colors 14 -layers Optimize %s/animation_small.gif' % (
+                convert, 
+                self.output_file, 
+                self.work_directory,
+                self.frame_filename_prefix,
+                self.work_directory
+                ))
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
@@ -532,8 +557,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # -y to force overwrite exising file
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
             
-            os.system('%s -y -framerate %d -pattern_type glob -i "%s/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p $s' % (
-                ffmpeg, self.framerate_spin.value(), self.output_file))
+            framerate = str(self.framerate_spin.value())
+
+            command = ("""
+                %s -y -framerate %s -pattern_type glob \
+                -i "%s/%s-*.png" -vf \
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
+                -c:v libx264 -pix_fmt yuv420p %s""" % (
+                ffmpeg, 
+                framerate,
+                self.work_directory,
+                self.frame_filename_prefix,
+                self.output_file))
+            self.output_log_text_edit.append('Generating Movie:\n%s' % command)
+            os.system(command)
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
@@ -737,7 +774,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     self.iface.mapCanvas().zoomToFullExtent()
 
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
-            name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
+
+            name = ('%s/%s-%s.png' % (
+                self.work_directory, 
+                self.frame_filename_prefix, 
+                str(self.image_counter).rjust(10, '0')))
             starttime = timeit.default_timer()
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images so do nothing for now
@@ -770,7 +811,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
-            name = ('/tmp/globe-%s.png' % str(self.image_counter).rjust(10, '0'))
+            name = ('%s/%s-%s.png' % (
+                self.work_directory,
+                self.frame_filename_prefix,
+                str(self.image_counter).rjust(10, '0')))
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images to do nothing for now
                 self.load_image(name)
