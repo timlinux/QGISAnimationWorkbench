@@ -108,7 +108,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Fix ends
         
         # How many frames to render for each point pair transition
-        # The output is generated at 30fps so choosing 30
+        # The output is generated at e.g. 30fps so choosing 30
         # would fly to each point for 1s
         # You can then use the 'current_point' project variable
         # to determine the current point id
@@ -119,7 +119,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             setting(key='frames_per_point', default='90'))
         self.point_frames_spin.setValue(self.frames_per_point)
 
-        # How many frames to dwell at each point for (output at 30fps)
+        # How many frames to dwell at each point for (output at e.g. 30fps)
         self.dwell_frames = int(
             setting(key='dwell_frames', default='30'))
         self.hover_frames_spin.setValue(self.dwell_frames)
@@ -342,6 +342,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # the vid or gif
             self.show_status()
             self.processing_completed()
+            self.progress_bar.setValue(0)
         else:
             self.output_log_text_edit.append(
                 'Thread pool emptied, adding more tasks')
@@ -351,6 +352,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             for task in range(0, pop_size):
                 task_id = QgsApplication.taskManager().addTask(
                     self.renderer_queue.pop(0))
+            self.progress_bar.setValue(
+                self.progress_bar.value() * pop_size)
 
     def display_information_message_box(
             self, parent=None, title=None, message=None):

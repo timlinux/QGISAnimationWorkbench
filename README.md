@@ -154,7 +154,9 @@ This software is licensed under the [GPL v2](https://github.com/timlinux/QGISAni
 
 ##  Credits
 
-This plugin was developed by 
+## Author
+
+This plugin was developed by: 
 
 
 Tim Sutton |
@@ -165,8 +167,9 @@ Coder and Ideas Guy |
 [timlinux @ github](https://github.com/timlinux/) |
 
 
-Thanks to:
+## Contributors:
 
+Thanks to:
 
 
 Nyall Dawson | 
