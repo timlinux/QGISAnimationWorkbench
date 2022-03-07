@@ -170,9 +170,9 @@ class Ui_animation_workbench_base(object):
         self.output_destination_group.setObjectName("output_destination_group")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.output_destination_group)
         self.gridLayout_6.setObjectName("gridLayout_6")
-        self.folder_label = QtWidgets.QLabel(self.output_destination_group)
-        self.folder_label.setObjectName("folder_label")
-        self.gridLayout_6.addWidget(self.folder_label, 0, 0, 1, 1)
+        self.file_label = QtWidgets.QLabel(self.output_destination_group)
+        self.file_label.setObjectName("file_label")
+        self.gridLayout_6.addWidget(self.file_label, 0, 0, 1, 1)
         self.file_edit = QtWidgets.QLineEdit(self.output_destination_group)
         self.file_edit.setObjectName("file_edit")
         self.gridLayout_6.addWidget(self.file_edit, 0, 1, 1, 1)
@@ -396,7 +396,7 @@ class Ui_animation_workbench_base(object):
         self.radio_gif.setText(_translate("animation_workbench_base", "Animated GIF"))
         self.rad_movie.setText(_translate("animation_workbench_base", "Movie (MP4)"))
         self.output_destination_group.setTitle(_translate("animation_workbench_base", "Output Destination"))
-        self.folder_label.setText(_translate("animation_workbench_base", "Folder"))
+        self.file_label.setText(_translate("animation_workbench_base", "File"))
         self.file_edit.setToolTip(_translate("animation_workbench_base", "The output folder will be populated with \n"
 "all of the frames of the animation, and \n"
 "the GIF or MP4 as selected above."))
