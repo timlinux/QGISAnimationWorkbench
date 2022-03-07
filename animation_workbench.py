@@ -13,6 +13,7 @@ import os
 import timeit
 import time
 import subprocess
+import tempfile
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
@@ -23,7 +24,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QPushButton, QStyle, QVBoxLayout
+from PyQt5.QtWidgets import QPushButton, QStyle, QFileDialog
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
 from qgis.core import (
@@ -61,6 +62,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)        
+        ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
+        #ok_button.clicked.connect(self.accept)
+        ok_button.setText('Run')
+        ok_button.setEnabled(False)
+        
+        self.output_directory = None
+        file_path = setting(key='output_file', default='')
+        if file_path != '':
+            self.file_edit.setText(file_path)
+            self.output_directory = os.path.dirname(file_path)
+            ok_button.setEnabled(True)
+        self.file_button.clicked.connect(
+            self.set_output_name)
+
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
@@ -85,9 +100,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         close_button.clicked.connect(self.reject)
         close_button.clicked.connect(self.reject)
         # Fix ends
-        ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
-        #ok_button.clicked.connect(self.accept)
-        ok_button.setText('Run')
         
         # How many frames to render for each point pair transition
         # The output is generated at 30fps so choosing 30
@@ -269,6 +281,31 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         size = QgsApplication.taskManager().countActiveTasks()
         self.active_lcd.display(size)
         
+    def set_output_name(self):
+        # Popup a dialog to request the filename if scenario_file_path = None 
+        dialog_title = 'Save video' 
+        ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
+        #ok_button.clicked.connect(self.accept)
+        ok_button.setText('Run')
+        ok_button.setEnabled(False)
+        
+
+        if self.output_directory is None:
+            self.output_directory = tempfile.gettempdir()
+        # noinspection PyCallByClass,PyTypeChecker 
+        file_path, __ = QFileDialog.getSaveFileName( 
+            self, 
+            dialog_title, 
+            os.path.join(self.output_directory, 'qgis_animation.mp4'), 
+            "Video (*.mp4);;GIF (*.gif)") 
+        if file_path is None or file_path == '': 
+            ok_button.setEnabled(False)
+            return 
+        ok_button.setEnabled(True)
+        self.output_directory = os.path.dirname(file_path) 
+        self.output_file = file_path
+        self.file_edit.setText(file_path)
+
     def process_more_tasks(self):
         """
         Feed the QgsTaskManager with another bundle of tasks.
@@ -465,7 +502,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps               
-            os.system('%s -delay 3.33 -loop 0 /tmp/globe-*.png /tmp/globe.gif' % convert)
+            os.system('%s -delay 3.33 -loop 0 /tmp/globe-*.png %s' % (
+                convert, self.output_file))
             # Now do a second pass with image magick to resize and compress the
             # gif as much as possible.  The remap option basically takes the
             # first image as a reference inmage for the colour palette Depending
@@ -489,7 +527,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # the video with white pixels. Change to black if needed.
             # -y to force overwrite exising file
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
-            os.system('%s -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p /tmp/globe.mp4' % ffmpeg)
+            
+            os.system('%s -y -framerate %d -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p $s' % (
+                ffmpeg, self.framerate_spin, self.output_file))
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
