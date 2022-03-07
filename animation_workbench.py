@@ -319,6 +319,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         if len(self.renderer_queue) == 0:
             # all processing done so go off and generate
             # the vid or gif
+            self.show_status()
             self.processing_completed()
         else:
             self.output_log_text_edit.append(
@@ -498,25 +499,28 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')[0]
+            work_directory = tempfile.gettempdir()
             self.output_log_text_edit.append('convert found: %s' % convert)
             # Now generate the GIF. If this fails try run the call from the command line
             # and check the path to convert (provided by ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps               
-            os.system('%s -delay 3.33 -loop 0 /tmp/globe-*.png %s' % (
-                convert, self.output_file))
+            os.system('%s -delay 3.33 -loop 0 %s/globe-*.png %s' % (
+                convert, work_directory, self.output_file))
             # Now do a second pass with image magick to resize and compress the
             # gif as much as possible.  The remap option basically takes the
             # first image as a reference inmage for the colour palette Depending
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want               
-            os.system('%s /tmp/globe.gif -coalesce -scale 600x600 -fuzz 2% +dither -remap /tmp/globe.gif[20] +dither -colors 14 -layers Optimize /tmp/globe_small.gif' % (convert))
+            os.system('%s %s -coalesce -scale 600x600 -fuzz 2% +dither -remap %s/globe.gif[20] +dither -colors 14 -layers Optimize %s/animation_small.gif' % (
+                convert, self.output_file, work_directory))
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
-                QMediaContent(QUrl.fromLocalFile('/tmp/globe_small-gif')))
+                QMediaContent(QUrl.fromLocalFile('/tmp/animation_small-gif')))
             self.play_button.setEnabled(True)
             self.play()
+            self.output_log_text_edit.append('GIF written to %s' % self.output_file)
         else:
             self.output_log_text_edit.append('Generating MP4 Movie')
             ffmpeg = which('ffmpeg')[0]
@@ -528,7 +532,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # -y to force overwrite exising file
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
             
-            os.system('%s -y -framerate %d -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p $s' % (
+            os.system('%s -y -framerate %d -pattern_type glob -i "%s/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p $s' % (
                 ffmpeg, self.framerate_spin.value(), self.output_file))
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
@@ -536,8 +540,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 QMediaContent(QUrl.fromLocalFile(self.output_file)))
             self.play_button.setEnabled(True)
             self.play()
+            self.output_log_text_edit.append('MP4 written to %s' % self.output_file)
 
-            
     def render_image(self):
         """Render the current canvas to an image.
         
@@ -914,4 +918,4 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     def handle_video_error(self):
         self.play_button.setEnabled(False)
         self.output_log_text_edit.append(
-            self.mediaPlayer.errorString())
+            self.media_player.errorString())
