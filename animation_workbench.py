@@ -529,11 +529,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
             
             os.system('%s -y -framerate %d -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" -c:v libx264 -pix_fmt yuv420p $s' % (
-                ffmpeg, self.framerate_spin, self.output_file))
+                ffmpeg, self.framerate_spin.value(), self.output_file))
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
-                QMediaContent(QUrl.fromLocalFile('/tmp/globe.mp4')))
+                QMediaContent(QUrl.fromLocalFile(self.output_file)))
             self.play_button.setEnabled(True)
             self.play()
 
