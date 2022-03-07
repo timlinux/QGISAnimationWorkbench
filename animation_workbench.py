@@ -132,7 +132,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.scale_range.setMaximumScale(self.max_scale)
         self.min_scale = int(setting(key='min_scale', default='25000000'))
         self.scale_range.setMinimumScale(self.min_scale)
+        
+        # Stores the current image in the entire set
         self.image_counter = None 
+        # Stores the total number of frames in the whole animation
+        self.total_frame_count = None
+
         # enable this if you want wobbling panning
         if setting(key='enable_pan_easing', default='false') == 'false':
             self.enable_pan_easing.setChecked(False)
@@ -148,12 +153,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'frames_per_point', 0)
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), 'current_frame', 0)
+            QgsProject.instance(), 'current_frame_for_point', 0)
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_point_id', 0)
         # None, Panning, Hovering
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'None')
+        
+        QgsExpressionContextUtils.setProjectVariable(
+            QgsProject.instance(), 'current_frame', 'None')
+        QgsExpressionContextUtils.setProjectVariable(
+            QgsProject.instance(), 'total_frame_count', 'None')
 
         self.map_mode = None
         mode_string = setting(key='map_mode',default='sphere')
@@ -477,6 +487,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.output_log_text_edit.append(
                 'Generating %d frames for fixed extent render' % self.frames_for_extent)
             self.progress_bar.setMaximum(self.frames_for_extent)
+            self.total_frame_count = self.frames_for_extent
             self.progress_bar.setValue(0)
             self.image_counter = 0
             for image_count in range(0, self.frames_for_extent):
@@ -495,9 +506,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.image_counter += 1
         else:
             # Subtract one because we already start at the first point
-            total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_point)
-            self.output_log_text_edit.append('Generating %d frames' % total_frame_count)
-            self.progress_bar.setMaximum(total_frame_count)
+            self.total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_point)
+            self.output_log_text_edit.append(
+                'Generating %d frames' % self.total_frame_count)
+            self.progress_bar.setMaximum(
+                self.total_frame_count)
             self.progress_bar.setValue(0)
             self.previous_point = None
             for feature in point_layer.getFeatures():
@@ -646,8 +659,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         task_scope = QgsExpressionContextScope()
         task_scope.setVariable('current_point_id', current_point_id)
         task_scope.setVariable('frames_per_point', self.frames_per_point)
-        task_scope.setVariable('current_frame', current_frame)        
-        task_scope.setVariable('current_animation_action', action)        
+        task_scope.setVariable('current_frame_for_point', current_frame)        
+        task_scope.setVariable('current_animation_action', action)     
+        task_scope.setVariable('current_frame', self.image_counter)        
+        task_scope.setVariable('total_frame_count', self.total_frame_count)     
+
         context = settings.expressionContext()
         context.appendScope(task_scope) 
         settings.setExpressionContext(context)
