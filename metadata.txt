@@ -1,5 +1,5 @@
 [general]
-name=QGIS Animations
+name=QGIS Animation Workbench
 description=A plugin to let you build animations in QGIS
 about=I started the work on this plugin as an experimental way to create a spinning globe in QGIS.
 version=1.0
