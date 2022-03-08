@@ -104,22 +104,21 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         close_button = self.button_box.button(
             QtWidgets.QDialogButtonBox.Close)
         close_button.clicked.connect(self.reject)
-        close_button.clicked.connect(self.reject)
         # Fix ends
         
-        # How many frames to render for each point pair transition
+        # How many frames to render for each feature pair transition
         # The output is generated at e.g. 30fps so choosing 30
-        # would fly to each point for 1s
-        # You can then use the 'current_point' project variable
-        # to determine the current point id
-        # and the 'point_frame' project variable to determine
-        # the frame number for the current point based on frames_for_interval
+        # would fly to each feature for 1s
+        # You can then use the 'current_feature' project variable
+        # to determine the current feature id
+        # and the 'feature_frame' project variable to determine
+        # the frame number for the current feature based on frames_for_interval
         
-        self.frames_per_point = int(
-            setting(key='frames_per_point', default='90'))
-        self.point_frames_spin.setValue(self.frames_per_point)
+        self.frames_per_feature = int(
+            setting(key='frames_per_feature', default='90'))
+        self.feature_frames_spin.setValue(self.frames_per_feature)
 
-        # How many frames to dwell at each point for (output at e.g. 30fps)
+        # How many frames to dwell at each feature for (output at e.g. 30fps)
         self.dwell_frames = int(
             setting(key='dwell_frames', default='30'))
         self.hover_frames_spin.setValue(self.dwell_frames)
@@ -148,14 +147,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.enable_zoom_easing.setChecked(False)
         else:
             self.enable_zoom_easing.setChecked(True)            
-        self.previous_point = None
+        self.previous_feature = None
 
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), 'frames_per_point', 0)
+            QgsProject.instance(), 'frames_per_feature', 0)
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), 'current_frame_for_point', 0)
+            QgsProject.instance(), 'current_frame_for_feature', 0)
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), 'current_point_id', 0)
+            QgsProject.instance(), 'current_feature_id', 0)
         # None, Panning, Hovering
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'None')
@@ -240,10 +239,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.process_more_tasks)
 
         self.progress_bar.setValue(0)
-        # This will be half the number of frames per point
+        # This will be half the number of frames per feature
         # so that the first half of the journey is flying up
-        # away from the last point and the next half of the
-        # journey is flying down towards the next point.
+        # away from the last feature and the next half of the
+        # journey is flying down towards the next feature.
         self.frames_to_zenith = None
 
         reuse_cache = setting(key='reuse_cache', default='false')
@@ -288,12 +287,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         :returns: None
         """
-        size = QgsApplication.taskManager().count()
-        self.queue_lcd.display(size)
-        size = (
-            QgsApplication.taskManager().count() -
-            QgsApplication.taskManager().countActiveTasks())
-        self.completed_lcd.display(size)
         size = QgsApplication.taskManager().countActiveTasks()
         self.active_lcd.display(size)
         
@@ -307,7 +300,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Popup a dialog to request the filename if scenario_file_path = None 
         dialog_title = 'Save video' 
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
-        #ok_button.clicked.connect(self.accept)
         ok_button.setText('Run')
         ok_button.setEnabled(False)
         
@@ -336,7 +328,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         :returns: None
         """
-            
+        self.total_tasks_lcd.display(self.total_frame_count)
+        self.completed_tasks_lcd.display(
+            self.total_frame_count - len(self.renderer_queue))        
         if len(self.renderer_queue) == 0:
             # all processing done so go off and generate
             # the vid or gif
@@ -440,9 +434,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.preview_stack.setCurrentIndex(0)
         # Enable queue status page
         self.status_stack.setCurrentIndex(1)
-        self.queue_lcd.display(0)
+        self.remaining_features_lcd.display(0)
         self.active_lcd.display(0)
         self.completed_lcd.display(0)
+        self.remaining_features_lcd.display(0)
+        self.total_tasks_lcd.display(0)
+        self.completed_tasks_lcd.display(0)        
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
@@ -452,16 +449,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.frame_filename_prefix
             ))
 
-        # Point layer that we will visit each point for
-        point_layer = self.layer_combo.currentLayer()
+        # feature layer that we will visit each feature for
+        feature_layer = self.layer_combo.currentLayer()
         self.max_scale = self.scale_range.maximumScale()
         self.min_scale = self.scale_range.minimumScale()
         self.dwell_frames = self.hover_frames_spin.value()
-        self.frames_per_point = self.point_frames_spin.value()
-        self.frames_to_zenith = int(self.frames_per_point / 2)
+        self.frames_per_feature = self.feature_frames_spin.value()
+        self.frames_to_zenith = int(self.frames_per_feature / 2)
         self.frames_for_extent = self.extent_frames_spin.value()
         self.image_counter = 1
-        feature_count = point_layer.featureCount()
+        feature_count = feature_layer.featureCount()
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
@@ -473,7 +470,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.map_mode = MapMode.FIXED_EXTENT
             set_setting(key='map_mode',value='fixed_extent')
         # Save state
-        set_setting(key='frames_per_point',value=self.frames_per_point)
+        set_setting(key='frames_per_feature',value=self.frames_per_feature)
         set_setting(key='dwell_frames',value=self.dwell_frames)
         set_setting(key='frames_for_extent',value=self.frames_for_extent)
         set_setting(key='max_scale',value=int(self.max_scale))
@@ -508,23 +505,23 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.progress_bar.setValue(self.image_counter)
                 self.image_counter += 1
         else:
-            # Subtract one because we already start at the first point
-            self.total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_point)
+            # Subtract one because we already start at the first feature
+            self.total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_feature)
             self.output_log_text_edit.append(
                 'Generating %d frames' % self.total_frame_count)
             self.progress_bar.setMaximum(
                 self.total_frame_count)
             self.progress_bar.setValue(0)
-            self.previous_point = None
-            for feature in point_layer.getFeatures():
+            self.previous_feature = None
+            for feature in feature_layer.getFeatures():
                 # None, Panning, Hovering
-                if self.previous_point is None:
-                    self.previous_point = feature
-                    self.dwell_at_point(feature)
+                if self.previous_feature is None:
+                    self.previous_feature = feature
+                    self.dwell_at_feature(feature)
                 else:
-                    self.fly_point_to_point(self.previous_point, feature)
-                    self.dwell_at_point(feature)
-                    self.previous_point = feature        
+                    self.fly_feature_to_feature(self.previous_feature, feature)
+                    self.dwell_at_feature(feature)
+                    self.previous_feature = feature        
     
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
@@ -646,7 +643,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     def render_image_as_task(
         self,
         name,
-        current_point_id,
+        current_feature_id,
         current_frame,
         action='None'):
            
@@ -657,12 +654,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # of a QGS expression you can use in the map decoration copyright
         # widget to show current script progress
         # [%'Frame ' || to_string(coalesce(@current_frame, 0)) || '/' || 
-        # to_string(coalesce(@frames_per_point, 0)) || ' for point ' || 
-        # to_string(coalesce(@current_point_id,0))%]
+        # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' || 
+        # to_string(coalesce(@current_feature_id,0))%]
         task_scope = QgsExpressionContextScope()
-        task_scope.setVariable('current_point_id', current_point_id)
-        task_scope.setVariable('frames_per_point', self.frames_per_point)
-        task_scope.setVariable('current_frame_for_point', current_frame)        
+        task_scope.setVariable('current_feature_id', current_feature_id)
+        task_scope.setVariable('frames_per_feature', self.frames_per_feature)
+        task_scope.setVariable('current_frame_for_feature', current_frame)        
         task_scope.setVariable('current_animation_action', action)     
         task_scope.setVariable('current_frame', self.image_counter)        
         task_scope.setVariable('total_frame_count', self.total_frame_count)     
@@ -692,41 +689,41 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # Start the rendering task on the queue
             task_id = QgsApplication.taskManager().addTask(mapRendererTask)
 
-    def fly_point_to_point(self, start_point, end_point):
+    def fly_feature_to_feature(self, start_feature, end_feature):
        
         self.image_counter += 1
         self.progress_bar.setValue(self.image_counter)
-        x_min = start_point.geometry().asPoint().x()
-        x_max = end_point.geometry().asPoint().x()
+        x_min = start_feature.geometry().asPoint().x()
+        x_max = end_feature.geometry().asPoint().x()
         x_range = abs(x_max - x_min)
-        x_increment = x_range / self.frames_per_point
-        y_min = start_point.geometry().asPoint().y()
-        y_max = end_point.geometry().asPoint().y()
+        x_increment = x_range / self.frames_per_feature
+        y_min = start_feature.geometry().asPoint().y()
+        y_max = end_feature.geometry().asPoint().y()
         y_range = abs(y_max - y_min)
-        y_increment = y_range / self.frames_per_point
-        # at the midpoint of the traveral between the two points
+        y_increment = y_range / self.frames_per_feature
+        # at the midfeature of the traveral between the two features
         # we switch the easing around so the movememnt first
         # goes away from the direct line, then towards it.
-        y_midpoint = (y_increment * self.frames_per_point) / 2
-        x_midpoint = (x_increment * self.frames_per_point) / 2
+        y_midfeature = (y_increment * self.frames_per_feature) / 2
+        x_midfeature = (x_increment * self.frames_per_feature) / 2
         scale = None
 
-        for current_frame in range(0, self.frames_per_point, 1):
+        for current_frame in range(0, self.frames_per_feature, 1):
 
             # For x we could have a pan easing
             x_offset = x_increment * current_frame
             if self.enable_pan_easing.isChecked():
-                if x_offset < x_midpoint:
+                if x_offset < x_midfeature:
                     # Flying away from centerline
-                    # should be 0 at origin, 1 at centerpoint
+                    # should be 0 at origin, 1 at centerfeature
                     pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        x_offset/x_midpoint)
+                        x_offset/x_midfeature)
                 else:
                     # Flying towards centerline
-                    # should be 1 at centerpoint, 0 at destination
+                    # should be 1 at centerfeature, 0 at destination
                     try:
                         pan_easing_factor = self.pan_easing.valueForProgress(
-                            (x_offset - x_midpoint) / x_midpoint)
+                            (x_offset - x_midfeature) / x_midfeature)
                     except:
                         pan_easing_factor = 0
                 x_offset = x_offset * pan_easing_factor
@@ -740,16 +737,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             y_offset = y_increment * current_frame
             
             if self.enable_pan_easing.isChecked():
-                if y_offset < y_midpoint:
+                if y_offset < y_midfeature:
                     # Flying away from centerline
-                    # should be 0 at origin, 1 at centerpoint
+                    # should be 0 at origin, 1 at centerfeature
                     pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        y_offset / y_midpoint)
+                        y_offset / y_midfeature)
                 else:
                     # Flying towards centerline
-                    # should be 1 at centerpoint, 0 at destination
+                    # should be 1 at centerfeature, 0 at destination
                     pan_easing_factor = self.pan_easing.valueForProgress(
-                        y_offset - y_midpoint / y_midpoint)
+                        y_offset - y_midfeature / y_midfeature)
                 
                 y_offset = y_offset * pan_easing_factor
             
@@ -807,7 +804,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 #render_image(name)
                 # crashy - check with Nyall why...
                 self.render_image_as_task(
-                    name, end_point.id(), current_frame, 'Panning')
+                    name, end_feature.id(), current_frame, 'Panning')
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
@@ -820,7 +817,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             pixmap = QtGui.QPixmap.fromImage(image)
             self.current_frame_preview.setPixmap(pixmap)
 
-    def dwell_at_point(self, feature):
+    def dwell_at_feature(self, feature):
         #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
         x = feature.geometry().asPoint().x()
         y = feature.geometry().asPoint().y()

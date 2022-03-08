@@ -229,7 +229,7 @@ we arrive at each point.</string>
              <item row="2" column="0">
               <widget class="QLabel" name="hover_frames_label">
                <property name="text">
-                <string>Hover frames at each point</string>
+                <string>Hover frames at each feature</string>
                </property>
                <property name="buddy">
                 <cstring>hover_frames_spin</cstring>
@@ -237,20 +237,20 @@ we arrive at each point.</string>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="point_frames_label">
+              <widget class="QLabel" name="feature_frames_label">
                <property name="text">
-                <string>Frames between points</string>
+                <string>Frames between feature</string>
                </property>
                <property name="buddy">
-                <cstring>point_frames_spin</cstring>
+                <cstring>feature_frames_spin</cstring>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="point_frames_spin">
+              <widget class="QSpinBox" name="feature_frames_spin">
                <property name="toolTip">
                 <string>This is the number of frames that will be used during
- animation of the dwell period at each point. 
+ animation of the dwell period at each feature. 
 Video generation is done at 30 frames per 
 second, so a value of 30 here would result in a 1 second 
 dwell time. 
@@ -285,6 +285,10 @@ Set to zero to disable.</string>
              </item>
              <item row="0" column="1">
               <widget class="QSpinBox" name="framerate_spin">
+               <property name="toolTip">
+                <string>When writing to video or gif, 
+how many frames per second to use.</string>
+               </property>
                <property name="suffix">
                 <string> fps</string>
                </property>
@@ -545,7 +549,7 @@ the GIF or MP4 as selected above.</string>
       <item row="0" column="0" colspan="2">
        <widget class="QStackedWidget" name="status_stack">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="easing_status_page">
          <layout class="QGridLayout" name="gridLayout_13">
@@ -587,26 +591,67 @@ the GIF or MP4 as selected above.</string>
         </widget>
         <widget class="QWidget" name="job_progress_page">
          <layout class="QGridLayout" name="gridLayout_14">
-          <item row="0" column="0">
-           <widget class="QLCDNumber" name="queue_lcd"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLCDNumber" name="active_lcd"/>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLCDNumber" name="completed_lcd"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="queue_label">
+          <item row="3" column="0">
+           <widget class="QLabel" name="remaining_features_label">
             <property name="text">
-             <string>Queued Tasks</string>
+             <string>Remaining Features</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignHCenter|Qt::AlignTop</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="0" column="0">
+           <widget class="QLCDNumber" name="total_tasks_lcd">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="completed_label">
+            <property name="text">
+             <string>Features Completed</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignHCenter|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLCDNumber" name="completed_lcd">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLCDNumber" name="remaining_features_lcd">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLCDNumber" name="active_lcd">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
            <widget class="QLabel" name="active_label">
             <property name="text">
              <string>Active Tasks</string>
@@ -616,10 +661,42 @@ the GIF or MP4 as selected above.</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="completed_label">
+          <item row="1" column="0">
+           <widget class="QLabel" name="total_tasks_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>Completed  Tasks</string>
+             <string>Total Tasks</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignHCenter|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLCDNumber" name="completed_tasks_lcd">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="completed_tasks_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Completed Tasks</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -695,7 +772,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>pan_easing_combo</tabstop>
   <tabstop>enable_zoom_easing</tabstop>
   <tabstop>zoom_easing_combo</tabstop>
-  <tabstop>point_frames_spin</tabstop>
+  <tabstop>feature_frames_spin</tabstop>
   <tabstop>hover_frames_spin</tabstop>
   <tabstop>reuse_cache</tabstop>
   <tabstop>radio_gif</tabstop>
