@@ -2,7 +2,7 @@
 
 > Welcome to the QGIS Animation Workbench!
 
-![Logo](resource/logo/animation_workbench_logo.svg)
+![Logo](resources/img/logo/animation-workbench-logo.svg)
 
 [![github release version](https://img.shields.io/github/v/release/timlinux/QGISAnimationWorkbench.svg?include_prereleases)](https://github.com/timlinux/QGISAnimationWorkbenchr/releases/latest) [![QGIS Plugin Repository](https://img.shields.io/badge/Powered%20by-QGIS-blue.svg)](https://plugins.qgis.org/FIXME) [![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://github.com/timlinux/QGISAnimationWorkbench/blob/master/LICENSE) [![PRs welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](https://github.com/timlinux/QGISAnimationWorkbench/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) [![code with heart by timlinux](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-timlinux-ff1414.svg)](https://github.com/timlinux)
 
