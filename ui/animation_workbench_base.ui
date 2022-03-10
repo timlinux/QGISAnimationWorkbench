@@ -85,114 +85,6 @@ zoom to each point.</string>
           <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QGroupBox" name="easings_group">
-            <property name="title">
-             <string>Easings</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="0">
-              <widget class="QLabel" name="point_layer_label">
-               <property name="text">
-                <string>Point layer</string>
-               </property>
-               <property name="buddy">
-                <cstring>layer_combo</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QgsMapLayerComboBox" name="layer_combo"/>
-             </item>
-             <item row="1" column="0">
-              <widget class="QCheckBox" name="enable_pan_easing">
-               <property name="text">
-                <string>Enable Pan Easing</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <widget class="QWidget" name="pan_preview_legend" native="true">
-                 <property name="minimumSize">
-                  <size>
-                   <width>25</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>25</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="autoFillBackground">
-                  <bool>false</bool>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">background: yellow; border-radius: 3px;</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QComboBox" name="pan_easing_combo">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="toolTip">
-                  <string>The pan easing will determine the motion 
-characteristics of the camera on the Y axis 
-as it flies across the scene.</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="enable_zoom_easing">
-               <property name="text">
-                <string>Enable Zoom Easing</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QWidget" name="widget_2" native="true">
-                 <property name="minimumSize">
-                  <size>
-                   <width>25</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>25</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">background: #005bbc; border-radius: 3px;</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QComboBox" name="zoom_easing_combo">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="toolTip">
-                  <string>The zoom easing will affect the behaviour 
-of the camera during zoom transitions.</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QGroupBox" name="zoom_range_group">
             <property name="enabled">
@@ -303,6 +195,18 @@ how many frames per second to use.</string>
                 <string>Frame rate per second</string>
                </property>
               </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="easings_group">
+            <property name="title">
+             <string>Animation Layer</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="0" colspan="2">
+              <widget class="QgsMapLayerComboBox" name="layer_combo"/>
              </item>
             </layout>
            </widget>
@@ -549,25 +453,11 @@ the GIF or MP4 as selected above.</string>
       <item row="0" column="0" colspan="2">
        <widget class="QStackedWidget" name="status_stack">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="easing_status_page">
          <layout class="QGridLayout" name="gridLayout_13">
           <item row="0" column="0">
-           <widget class="QLabel" name="pan_easing_preview_label">
-            <property name="text">
-             <string>Pan Easing Preview</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="zoom_easing_preview_label">
-            <property name="text">
-             <string>Zoom Easing Preview</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
            <widget class="QWidget" name="pan_easing_preview" native="true">
             <property name="minimumSize">
              <size>
@@ -577,7 +467,7 @@ the GIF or MP4 as selected above.</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="0" column="1">
            <widget class="QWidget" name="zoom_easing_preview" native="true">
             <property name="minimumSize">
              <size>
@@ -768,10 +658,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>scale_range</tabstop>
   <tabstop>radio_sphere</tabstop>
   <tabstop>radio_planar</tabstop>
-  <tabstop>enable_pan_easing</tabstop>
-  <tabstop>pan_easing_combo</tabstop>
-  <tabstop>enable_zoom_easing</tabstop>
-  <tabstop>zoom_easing_combo</tabstop>
   <tabstop>feature_frames_spin</tabstop>
   <tabstop>hover_frames_spin</tabstop>
   <tabstop>reuse_cache</tabstop>
@@ -812,54 +698,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>enable_pan_easing</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>pan_easing_combo</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>127</x>
-     <y>224</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>470</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>enable_zoom_easing</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>zoom_easing_combo</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>142</x>
-     <y>267</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>297</x>
-     <y>265</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>enable_zoom_easing</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>zoom_range_group</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>60</x>
-     <y>273</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>70</x>
-     <y>309</y>
     </hint>
    </hints>
   </connection>

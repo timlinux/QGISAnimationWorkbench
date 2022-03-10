@@ -11,9 +11,8 @@ __revision__ = '$Format:%H$'
 from doctest import debug_script
 import os
 import timeit
-import time
-import subprocess
 import tempfile
+from enum import Enum
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
@@ -39,7 +38,7 @@ from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
 from qgis.core import Qgis
 from .settings import set_setting, setting
 from .utilities import get_ui_class, which, resources_path 
-from enum import Enum
+from .easing_preview import EasingPreview
 
 class MapMode(Enum):
     SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
@@ -136,15 +135,41 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.total_frame_count = None
 
         # enable this if you want wobbling panning
+
+        self.pan_easing_widget = EasingPreview(self.pan_easing_preview)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.enable_pan_easing.setChecked(False)
+            self.pan_easing_widget.setEnabled(False)
         else:
-            self.enable_pan_easing.setChecked(True)
+            self.pan_easing_widget.setEnabled(True)
         # enable this if you want wobbling zooming
+        self.zoom_easing_widget = EasingPreview(self.zoom_easing_preview)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.enable_zoom_easing.setChecked(False)
+            self.enable_zoom_easing_widget.setChecked(False)
         else:
-            self.enable_zoom_easing.setChecked(True)            
+            self.enable_zoom_easing_widget.setChecked(True)            
+
+        self.pan_easing = None
+        pan_easing_index = int(setting(key='pan_easing', default='0'))
+        
+        self.zoom_easing = None
+        zoom_easing_index = int(setting(key='zoom_easing', default='0'))
+
+        # Keep this after above animations are set up 
+        # since the slot requires the above setup to be completed
+        self.pan_easing_combo.currentIndexChanged.connect(
+            self.pan_easing_changed)
+        self.zoom_easing_combo.currentIndexChanged.connect(
+            self.zoom_easing_changed)
+
+        # Update the gui
+        self.pan_easing_combo.setCurrentIndex(pan_easing_index)
+        self.zoom_easing_combo.setCurrentIndex(zoom_easing_index)
+        # The above doesnt trigger the slots which we need to do 
+        # to populate the easing class members, so call explicitly
+        self.pan_easing_changed(pan_easing_index)
+        self.zoom_easing_changed(zoom_easing_index)
+
+
         self.previous_feature = None
 
         QgsExpressionContextUtils.setProjectVariable(
@@ -189,32 +214,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.radio_extent.toggled.connect(
             self.show_fixed_extent_settings
         )
-
-        # Setup easing combos and previews etc
-        self.load_combo_with_easings(self.pan_easing_combo)
-        self.load_combo_with_easings(self.zoom_easing_combo)
-        self.setup_easing_previews()
-
-        self.pan_easing = None
-        pan_easing_index = int(setting(key='pan_easing', default='0'))
-        
-        self.zoom_easing = None
-        zoom_easing_index = int(setting(key='zoom_easing', default='0'))
-
-        # Keep this after above animations are set up 
-        # since the slot requires the above setup to be completed
-        self.pan_easing_combo.currentIndexChanged.connect(
-            self.pan_easing_changed)
-        self.zoom_easing_combo.currentIndexChanged.connect(
-            self.zoom_easing_changed)
-
-        # Update the gui
-        self.pan_easing_combo.setCurrentIndex(pan_easing_index)
-        self.zoom_easing_combo.setCurrentIndex(zoom_easing_index)
-        # The above doesnt trigger the slots which we need to do 
-        # to populate the easing class members, so call explicitly
-        self.pan_easing_changed(pan_easing_index)
-        self.zoom_easing_changed(zoom_easing_index)
 
         # Set an initial image in the preview based on the current map
         image = self.render_image()
@@ -346,36 +345,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         self.iface.messageBar().pushWidget(widget, Qgis.Info, duration)
 
-    def pan_easing_changed(self, index):
-        """Handle changes to the pan easing type combo.
-        
-        .. note:: This is called on changes to the pan easing combo.
-
-        .. versionadded:: 1.0
-
-        :param index: Index of the now selected combo item.
-        :type flag: int
-
-        """
-        easing_type = QEasingCurve.Type(index)
-        self.pan_easing_preview_animation.setEasingCurve(easing_type)
-        self.pan_easing = QEasingCurve(easing_type)
-
-    def zoom_easing_changed(self, index):
-        """Handle changes to the zoom easing type combo.
-        
-        .. note:: This is called on changes to the zoom easing combo.
-
-        .. versionadded:: 1.0
-
-        :param index: Index of the now selected combo item.
-        :type flag: int
-
-        """
-        easing = QEasingCurve.Type(index)
-        self.zoom_easing_preview_animation.setEasingCurve(easing)
-        self.zoom_easing = QEasingCurve(easing)
-
     # Prevent the slot being called twize
     @pyqtSlot()
     def accept(self):
@@ -428,8 +397,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(key='frames_for_extent',value=self.frames_for_extent)
         set_setting(key='max_scale',value=int(self.max_scale))
         set_setting(key='min_scale',value=int(self.min_scale))
-        set_setting(key='enable_pan_easing',value=self.enable_pan_easing.isChecked())
-        set_setting(key='enable_zoom_easing',value=self.enable_zoom_easing.isChecked())
+        set_setting(key='enable_pan_easing',value=self.pan_easing_widget.isEnabled())
+        set_setting(key='enable_zoom_easing',value=self.zoom_easing_widget.isEnabled())
         set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
         set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
         set_setting(
@@ -825,7 +794,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         combo.addItem("OutInBounce",QEasingCurve.OutInBounce)
         combo.addItem("BezierSpline",QEasingCurve.BezierSpline)
         combo.addItem("TCBSpline",QEasingCurve.TCBSpline)
-        combo.addItem("Custom",QEasingCurve.Custom)
     
     def setup_easing_previews(self):
         # Set up easing previews
