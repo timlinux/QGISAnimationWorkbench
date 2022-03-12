@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+resources/example_projects/farm_scene.qgz
+resources/example_projects/tour.gpkg
+resources/example_projects/tour.gpkg-shm
+resources/example_projects/tour.gpkg-wal
+resources/synfig/fish.*.png
+resources/img/logo/animation-workbench-logo.svg.2022_03_09_22_56_44.0.svg
