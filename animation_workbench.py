@@ -512,10 +512,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             
             for image_count in range(0, self.frames_for_extent):
                 name = ('%s/%s-%s.png' % (
-                    str(self.image_counter).rjust(10, '0'),
                     self.work_directory,
-                    self.frame_filename_prefix
+                    self.frame_filename_prefix,
+                    str(self.image_counter).rjust(10, '0')
                 ))
+                self.output_log_text_edit.append(name)
                 self.render_image_as_task(
                     name,
                     None,
