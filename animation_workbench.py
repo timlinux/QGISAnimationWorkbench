@@ -31,6 +31,7 @@ from qgis.core import (
     QgsExpressionContextUtils,
     QgsProject,
     QgsApplication,
+    QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
     QgsMapRendererCustomPainterJob,
     QgsMapLayerProxyModel)
@@ -59,6 +60,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)        
+
+        self.setWindowTitle(self.tr('Animation Workbench'))
+        icon = resources_path(
+            'img', 'icons', 'animation-workshop.svg')
+        self.setWindowIcon(QtGui.QIcon(icon))
+        self.parent = parent
+        self.iface = iface
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
         #ok_button.clicked.connect(self.accept)
         ok_button.setText('Run')
@@ -84,12 +92,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
         self.layer_combo.setFilters(QgsMapLayerProxyModel.PointLayer)
 
-        self.setWindowTitle(self.tr('Animation Workbench'))
-        icon = resources_path(
-            'img', 'icons', 'animation-workshop.svg')
-        self.setWindowIcon(QtGui.QIcon(icon))
-        self.parent = parent
-        self.iface = iface
+        self.extent_group_box.setOutputCrs(
+            QgsProject.instance().crs()
+        )
+        self.extent_group_box.setOutputExtentFromUser(
+            self.iface.mapCanvas().extent(),
+            QgsProject.instance().crs())
+        #self.extent_group_box.setOriginalExtnt()
         # Set up things for context help
         self.help_button = self.button_box.button(
             QtWidgets.QDialogButtonBox.Help)
@@ -371,8 +380,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.frame_filename_prefix
             ))
 
+<<<<<<< HEAD
         # feature layer that we will visit each feature for
         feature_layer = self.layer_combo.currentLayer()
+=======
+        # Point layer that we will visit each point for
+        self.point_layer = self.layer_combo.currentLayer()
+        self.transform = QgsCoordinateTransform(
+            self.point_layer.crs(),
+            QgsProject.instance().crs(),
+            QgsProject.instance())
+>>>>>>> main
         self.max_scale = self.scale_range.maximumScale()
         self.min_scale = self.scale_range.minimumScale()
         self.dwell_frames = self.hover_frames_spin.value()
@@ -380,7 +398,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_to_zenith = int(self.frames_per_feature / 2)
         self.frames_for_extent = self.extent_frames_spin.value()
         self.image_counter = 1
+<<<<<<< HEAD
         feature_count = feature_layer.featureCount()
+=======
+        feature_count = self.point_layer.featureCount()
+>>>>>>> main
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
@@ -411,13 +433,18 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setMaximum(self.frames_for_extent)
             self.total_frame_count = self.frames_for_extent
             self.progress_bar.setValue(0)
+            self.iface.mapCanvas().setExtent(
+                self.extent_group_box.currentExtent())
+
             self.image_counter = 0
+            
             for image_count in range(0, self.frames_for_extent):
                 name = ('%s/%s-%s.png' % (
-                    str(self.image_counter).rjust(10, '0'),
                     self.work_directory,
-                    self.frame_filename_prefix
+                    self.frame_filename_prefix,
+                    str(self.image_counter).rjust(10, '0')
                 ))
+                self.output_log_text_edit.append(name)
                 self.render_image_as_task(
                     name,
                     None,
@@ -434,8 +461,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setMaximum(
                 self.total_frame_count)
             self.progress_bar.setValue(0)
+<<<<<<< HEAD
             self.previous_feature = None
             for feature in feature_layer.getFeatures():
+=======
+            self.previous_point = None
+            for feature in self.point_layer.getFeatures():
+>>>>>>> main
                 # None, Panning, Hovering
                 if self.previous_feature is None:
                     self.previous_feature = feature
@@ -646,8 +678,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                         zoom_easing_factor) + self.min_scale
 
             if self.map_mode ==MapMode.PLANAR:
-                self.iface.mapCanvas().setCenter(
-                    QgsPointXY(x,y))
+                center = QgsPointXY(x,y)
+                center = self.transform.transform(center)
+                self.iface.mapCanvas().setCenter(center)
             if scale is not None:
                 self.iface.mapCanvas().zoomScale(scale)
 
@@ -693,8 +726,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
         x = feature.geometry().asPoint().x()
         y = feature.geometry().asPoint().y()
-        point = QgsPointXY(x,y)
-        self.iface.mapCanvas().setCenter(point)
+        center = QgsPointXY(x,y)
+        center = self.transform.transform(center)
+        self.iface.mapCanvas().setCenter(center)
         self.iface.mapCanvas().zoomScale(self.max_scale)
 
         for current_frame in range(0, self.dwell_frames, 1):
