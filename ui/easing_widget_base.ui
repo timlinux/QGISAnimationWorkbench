@@ -46,5 +46,22 @@ as it flies across the scene.</string>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>enable_easing</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>easing_combo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>37</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>53</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

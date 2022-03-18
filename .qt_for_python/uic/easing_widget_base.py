@@ -30,6 +30,7 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.easing_preview, 2, 0, 1, 1)
 
         self.retranslateUi(Form)
+        self.enable_easing.toggled['bool'].connect(self.easing_combo.setEnabled) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
