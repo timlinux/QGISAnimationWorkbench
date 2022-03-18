@@ -1,44 +1,20 @@
 # coding=utf-8
-"""This module contains the main GUI interaction logic for AnimationWorkbench."""
+"""This module implements the easing selector and preview widget for AnimationWorkbench."""
 
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = '$Format:%H$'
 
-# This will make the QGIS use a world projection and then move the center
-# of the CRS sequentially to create a spinning globe effect
-from doctest import debug_script
-import os
-import timeit
-import time
-import subprocess
-import tempfile
-
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA
 
-from qgis.PyQt import QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QUrl
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+from qgis.PyQt import QtWidgets
 from PyQt5.QtWidgets import QWidget
-from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
-from qgis.core import (
-    QgsPointXY,
-    QgsExpressionContextUtils,
-    QgsProject,
-    QgsApplication,
-    QgsCoordinateReferenceSystem,
-    QgsMapRendererCustomPainterJob,
-    QgsMapLayerProxyModel)
-from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
-from qgis.core import Qgis
-from .settings import set_setting, setting
-from .utilities import get_ui_class, which, resources_path 
+
+from .utilities import get_ui_class
 from enum import Enum
 
 FORM_CLASS = get_ui_class('easing_preview_base.ui')
@@ -46,8 +22,18 @@ FORM_CLASS = get_ui_class('easing_preview_base.ui')
 class EasingPreview(QWidget, FORM_CLASS):
     """Widget implementation for the easing preview class."""
 
-    def __init__(self, parent=None, iface=None):
-        """Constructor for the multi buffer dialog.
+    def __init__(
+        self, 
+        enable_easing=False,
+        current_easing="Linear",
+        parent=None):
+        """Constructor for easing preview.
+
+        :param enable_easing: Flag to indicate whether the easing is enabled.
+        :type enable_easing: bool
+
+        :current_easing: Easing to select by default in the easing combo.
+        :type current_easing: str
 
         :param parent: Parent widget of this widget.
         :type parent: QWidget
@@ -56,8 +42,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.setupUi(self)   
         self.load_combo_with_easings(self.easing_combo)
         self.setup_easing_previews()
-        self.easing = None
-            
+    
     def load_combo_with_easings(self, combo):
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
