@@ -147,37 +147,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         self.pan_easing_widget = EasingPreview(self.pan_easing_preview)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.pan_easing_widget.setEnabled(False)
+            self.pan_easing_widget.disable()
         else:
-            self.pan_easing_widget.setEnabled(True)
+            self.pan_easing_widget.enable()
         # enable this if you want wobbling zooming
         self.zoom_easing_widget = EasingPreview(self.zoom_easing_preview)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.enable_zoom_easing_widget.setChecked(False)
+            self.enable_zoom_easing_widget.disable()
         else:
-            self.enable_zoom_easing_widget.setChecked(True)            
+            self.enable_zoom_easing_widget.enable()           
 
-        self.pan_easing = None
-        pan_easing_index = int(setting(key='pan_easing', default='0'))
-        
-        self.zoom_easing = None
-        zoom_easing_index = int(setting(key='zoom_easing', default='0'))
-
-        # Keep this after above animations are set up 
-        # since the slot requires the above setup to be completed
-        self.pan_easing_combo.currentIndexChanged.connect(
-            self.pan_easing_changed)
-        self.zoom_easing_combo.currentIndexChanged.connect(
-            self.zoom_easing_changed)
-
-        # Update the gui
-        self.pan_easing_combo.setCurrentIndex(pan_easing_index)
-        self.zoom_easing_combo.setCurrentIndex(zoom_easing_index)
-        # The above doesnt trigger the slots which we need to do 
-        # to populate the easing class members, so call explicitly
-        self.pan_easing_changed(pan_easing_index)
-        self.zoom_easing_changed(zoom_easing_index)
-
+        self.pan_easing = setting(key='pan_easing', default='0')
+        self.zoom_easing = setting(key='zoom_easing', default='0')
+        self.pan_easing_widget.set_easing_by_name(self.pan_easing)
+        self.zoom_easing_widget.set_easing_by_name(self.zoom_easing)
 
         self.previous_feature = None
 
@@ -380,17 +363,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.frame_filename_prefix
             ))
 
-<<<<<<< HEAD
         # feature layer that we will visit each feature for
         feature_layer = self.layer_combo.currentLayer()
-=======
-        # Point layer that we will visit each point for
-        self.point_layer = self.layer_combo.currentLayer()
         self.transform = QgsCoordinateTransform(
-            self.point_layer.crs(),
+            feature_layer.crs(),
             QgsProject.instance().crs(),
             QgsProject.instance())
->>>>>>> main
         self.max_scale = self.scale_range.maximumScale()
         self.min_scale = self.scale_range.minimumScale()
         self.dwell_frames = self.hover_frames_spin.value()
@@ -398,11 +376,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_to_zenith = int(self.frames_per_feature / 2)
         self.frames_for_extent = self.extent_frames_spin.value()
         self.image_counter = 1
-<<<<<<< HEAD
         feature_count = feature_layer.featureCount()
-=======
-        feature_count = self.point_layer.featureCount()
->>>>>>> main
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
@@ -419,10 +393,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(key='frames_for_extent',value=self.frames_for_extent)
         set_setting(key='max_scale',value=int(self.max_scale))
         set_setting(key='min_scale',value=int(self.min_scale))
-        set_setting(key='enable_pan_easing',value=self.pan_easing_widget.isEnabled())
-        set_setting(key='enable_zoom_easing',value=self.zoom_easing_widget.isEnabled())
-        set_setting(key='pan_easing',value=self.pan_easing_combo.currentIndex())
-        set_setting(key='zoom_easing',value=self.zoom_easing_combo.currentIndex())
+        set_setting(key='enable_pan_easing',value=self.pan_easing_widget.is_enabled())
+        set_setting(key='enable_zoom_easing',value=self.zoom_easing_widget.is_enabled())
+        set_setting(key='pan_easing',value=self.pan_easing_combo.easing_name())
+        set_setting(key='zoom_easing',value=self.zoom_easing_combo.easing_name())
         set_setting(
             key='render_thread_pool_size',value=self.render_thread_pool_size)
         set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
@@ -461,13 +435,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setMaximum(
                 self.total_frame_count)
             self.progress_bar.setValue(0)
-<<<<<<< HEAD
             self.previous_feature = None
             for feature in feature_layer.getFeatures():
-=======
-            self.previous_point = None
-            for feature in self.point_layer.getFeatures():
->>>>>>> main
                 # None, Panning, Hovering
                 if self.previous_feature is None:
                     self.previous_feature = feature

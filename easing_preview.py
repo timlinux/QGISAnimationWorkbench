@@ -41,7 +41,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         QWidget.__init__(self, parent)
         self.setupUi(self)   
         self.easing_preview_animation = None
-        self.load_combo_with_easings(self.easing_combo)
+        self.load_combo_with_easings()
         self.setup_easing_previews()
     
     def disable(self):
@@ -51,10 +51,26 @@ class EasingPreview(QWidget, FORM_CLASS):
     def enable(self):
         self.enable_easing.setChecked(True)
         self.easing_preview_animation.setLoopCount(-1)
+    
+    def is_enabled(self):
+        return self.easing.enable_easing.isChecked()
+    
+    def set_easing_by_name(self, name):
+        combo = self.easing_combo
+        index = combo.findText(name)
+        if index != -1:
+            combo.setCurrentIndex(index)
+    
+    def easing_name(self):
+        return self.easing_combo.currentText()
+
+    def easing(self):
+        return self.easing_combo.currentData()
 
     def load_combo_with_easings(self, combo):
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
+        combo = self.easing_combo
         combo.addItem("Linear",QEasingCurve.Linear)
         combo.addItem("InQuad",QEasingCurve.InQuad)
         combo.addItem("OutQuad",QEasingCurve.OutQuad)
