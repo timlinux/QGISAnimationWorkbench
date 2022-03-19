@@ -101,9 +101,9 @@ class AnimationWorkbenchPlugin:
 
         :returns: None
         """
-        self.total_tasks_lcd.display(self.total_frame_count)
-        self.completed_tasks_lcd.display(
-            self.total_frame_count - len(self.renderer_queue))        
+        #self.total_tasks_lcd.display(self.total_frame_count)
+        #self.completed_tasks_lcd.display(
+        #    self.total_frame_count - len(self.renderer_queue))        
         if len(self.renderer_queue) == 0:
             # all processing done so go off and generate
             # the vid or gif

@@ -26,6 +26,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         self, 
         enable_easing=False,
         current_easing="Linear",
+        color = "#ff0000",
         parent=None):
         """Constructor for easing preview.
 
@@ -34,6 +35,9 @@ class EasingPreview(QWidget, FORM_CLASS):
 
         :current_easing: Easing to select by default in the easing combo.
         :type current_easing: str
+        
+        :color: Color of the easing display - defaults to red.
+        :type current_easing: str
 
         :param parent: Parent widget of this widget.
         :type parent: QWidget
@@ -41,6 +45,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         QWidget.__init__(self, parent)
         self.setupUi(self)   
         self.easing_preview_animation = None
+        self.preview_color = color
         self.load_combo_with_easings()
         self.setup_easing_previews()
     
@@ -67,7 +72,7 @@ class EasingPreview(QWidget, FORM_CLASS):
     def easing(self):
         return self.easing_combo.currentData()
 
-    def load_combo_with_easings(self, combo):
+    def load_combo_with_easings(self):
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
         combo = self.easing_combo

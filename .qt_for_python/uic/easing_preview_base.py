@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/timlinux/dev/python/QGISAnimationWorkbench/ui/easing_widget_base.ui'
+# Form implementation generated from reading ui file '/home/timlinux/dev/python/QGISAnimationWorkbench/ui/easing_preview_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #

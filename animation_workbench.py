@@ -153,9 +153,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # enable this if you want wobbling zooming
         self.zoom_easing_widget = EasingPreview(self.zoom_easing_preview)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.enable_zoom_easing_widget.disable()
+            self.zoom_easing_widget.disable()
         else:
-            self.enable_zoom_easing_widget.enable()           
+            self.zoom_easing_widget.enable()
 
         self.pan_easing = setting(key='pan_easing', default='0')
         self.zoom_easing = setting(key='zoom_easing', default='0')
