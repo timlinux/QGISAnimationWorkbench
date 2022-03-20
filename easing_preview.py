@@ -11,12 +11,10 @@ __revision__ = '$Format:%H$'
 import qgis  # NOQA
 
 from qgis.PyQt import QtWidgets
-from PyQt5.QtWidgets import QWidget
+from qgis.PyQt.QtWidgets import QWidget
 from qgis.PyQt.QtCore import (
     QEasingCurve, QPropertyAnimation, QPoint, pyqtSignal)
-
 from .utilities import get_ui_class
-from enum import Enum
 
 FORM_CLASS = get_ui_class('easing_preview_base.ui')
 
@@ -29,17 +27,9 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def __init__(
             self,
-            enable_easing=False,
-            current_easing="Linear",
             color="#ff0000",
             parent=None):
         """Constructor for easing preview.
-
-        :param enable_easing: Flag to indicate whether the easing is enabled.
-        :type enable_easing: bool
-
-        :current_easing: Easing to select by default in the easing combo.
-        :type current_easing: str
 
         :color: Color of the easing display - defaults to red.
         :type current_easing: str

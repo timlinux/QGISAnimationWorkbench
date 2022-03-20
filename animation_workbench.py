@@ -24,8 +24,7 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QPushButton, QStyle, QFileDialog
-from qgis.PyQt.QtGui import QImage, QPainter
-from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
+
 from qgis.core import (
     QgsPointXY,
     QgsWkbTypes,
@@ -34,7 +33,6 @@ from qgis.core import (
     QgsApplication,
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
-    QgsMapRendererCustomPainterJob,
     QgsMapLayerProxyModel)
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
 from qgis.core import Qgis
@@ -55,15 +53,21 @@ FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     """Dialog implementation class Animation Workbench class."""
 
-    def __init__(self, parent=None, iface=None, dock_widget=None):
+    def __init__(self, parent=None, iface=None, render_queue=None):
         """Constructor for the multi buffer dialog.
 
         :param parent: Parent widget of this dialog.
         :type parent: QWidget
+
+        :param iface: QGIS Plugin Interface.
+        :type iface: QgsInterface
+
+        :param render_queue: Render queue to processing each frame.
+        :type render_queue: RenderQueue
         """
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
-
+        self.render_queue = render_queue
         self.setWindowTitle(self.tr('Animation Workbench'))
         icon = resources_path(
             'img', 'icons', 'animation-workshop.svg')
@@ -231,7 +235,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         )
 
         # Set an initial image in the preview based on the current map
-        image = self.render_image()
+        image = self.render_queue.render_image()
         pixmap = QtGui.QPixmap.fromImage(image)
         self.current_frame_preview.setPixmap(pixmap)
 
@@ -501,7 +505,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
 
-        .. note:: This called my process_more_tasks when all tasks are complete.
+        .. note:: This called by process_more_tasks when all tasks are complete.
         """
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
@@ -574,54 +578,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.output_log_text_edit.append(
                 'MP4 written to %s' % self.output_file)
 
-    def render_image(self):
-        """Render the current canvas to an image.
-
-        .. note:: This is renders synchronously.
-
-        .. versionadded:: 1.0
-
-        :returns QImage: 
-        """
-        size = self.iface.mapCanvas().size()
-        image = QImage(size, QImage.Format_RGB32)
-
-        painter = QPainter(image)
-        settings = self.iface.mapCanvas().mapSettings()
-        self.iface.mapCanvas().refresh()
-        # You can fine tune the settings here for different
-        # dpi, extent, antialiasing...
-        # Just make sure the size of the target image matches
-
-        job = QgsMapRendererCustomPainterJob(settings, painter)
-        job.renderSynchronously()
-        painter.end()
-        self.display_information_message_bar(
-            title="Image rendered",
-            message="Image rendered",
-            more_details=None,
-            button_text='Show details ...',
-            duration=8)
-        return image
-
-    def render_image_to_file(self, name):
-        size = self.iface.mapCanvas().size()
-        image = QImage(size, QImage.Format_RGB32)
-
-        painter = QPainter(image)
-        settings = self.iface.mapCanvas().mapSettings()
-        self.iface.mapCanvas().refresh()
-        # You can fine tune the settings here for different
-        # dpi, extent, antialiasing...
-        # Just make sure the size of the target image matches
-
-        job = QgsMapRendererCustomPainterJob(settings, painter)
-        job.renderSynchronously()
-        painter.end()
-        image.save(name)
-
     def fly_feature_to_feature(self, start_feature, end_feature):
-
         self.image_counter += 1
         self.progress_bar.setValue(self.image_counter)
         x_min = start_feature.geometry().asPoint().x()
@@ -738,7 +695,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # Not crashy but no decorations and annotations....
                 # render_image(name)
                 # crashy - check with Nyall why...
-                self.render_image_as_task(
+                self.render_queue.render_image_as_task(
                     name, end_feature.id(), current_frame, 'Panning')
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
@@ -790,7 +747,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # Not crashy but no decorations and annotations....
                 # render_image_to_file(name)
                 # crashy - check with Nyall why...
-                self.render_image_as_task(
+                self.render_queue.render_image_as_task(
                     name, feature.id(), current_frame, 'Hovering')
 
             self.image_counter += 1
