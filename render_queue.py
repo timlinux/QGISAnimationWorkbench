@@ -61,6 +61,9 @@ class RenderQueue(QObject):
         # Queue manager for above.
         QgsApplication.taskManager().allTasksFinished.connect(
             self.process_more_tasks)
+        self.frames_per_feature = 0
+        self.image_counter = 0
+        self.total_frame_count = 0
 
     def process_more_tasks(self):
         """
