@@ -109,9 +109,10 @@ class AnimationWorkbenchPlugin:
         if len(self.renderer_queue) == 0:
             # all processing done so go off and generate
             # the vid or gif
-            self.show_status()
-            self.processing_completed()
-            self.progress_bar.setValue(0)
+            # self.show_status()
+            # self.processing_completed()
+            # self.progress_bar.setValue(0)
+            pass
         else:
             self.output_log_text_edit.append(
                 'Thread pool emptied, adding more tasks')

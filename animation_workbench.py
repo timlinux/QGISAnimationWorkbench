@@ -28,6 +28,7 @@ from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QEasingCurve, QPropertyAnimation, QPoint
 from qgis.core import (
     QgsPointXY,
+    QgsWkbTypes,
     QgsExpressionContextUtils,
     QgsProject,
     QgsApplication,
@@ -98,7 +99,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
-        self.layer_combo.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layer_combo.setFilters(
+            QgsMapLayerProxyModel.PointLayer |
+            QgsMapLayerProxyModel.LineLayer |
+            QgsMapLayerProxyModel.PolygonLayer)
 
         self.extent_group_box.setOutputCrs(
             QgsProject.instance().crs()
@@ -162,7 +166,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.pan_easing_widget.disable()
         else:
             self.pan_easing_widget.enable()
-        self.pan_easing = self.pan_easing_widget.easing()
+        self.pan_easing = self.pan_easing_widget.get_easing()
         self.pan_easing_widget.easing_changed_signal.connect(
             self.pan_easing_changed
         )
@@ -176,7 +180,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         else:
             self.zoom_easing_widget.enable()
 
-        self.zoom_easing = self.zoom_easing_widget.easing()
+        self.zoom_easing = self.zoom_easing_widget.get_easing()
         self.zoom_easing_widget.easing_changed_signal.connect(
             self.zoom_easing_changed
         )
@@ -399,10 +403,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         # feature layer that we will visit each feature for
         feature_layer = self.layer_combo.currentLayer()
-        self.transform = QgsCoordinateTransform(
-            feature_layer.crs(),
-            QgsProject.instance().crs(),
-            QgsProject.instance())
+        if feature_layer:
+            self.transform = QgsCoordinateTransform(
+                feature_layer.crs(),
+                QgsProject.instance().crs(),
+                QgsProject.instance())
+            feature_count = feature_layer.featureCount()
+
         self.max_scale = self.scale_range.maximumScale()
         self.min_scale = self.scale_range.minimumScale()
         self.dwell_frames = self.hover_frames_spin.value()
@@ -410,8 +417,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_to_zenith = int(self.frames_per_feature / 2)
         self.frames_for_extent = self.extent_frames_spin.value()
         self.image_counter = 1
-        feature_count = feature_layer.featureCount()
-
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
             set_setting(key='map_mode', value='sphere')
@@ -439,8 +444,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(
             key='zoom_easing',
             value=self.zoom_easing_widget.easing_name())
-        set_setting(
-            key='render_thread_pool_size', value=self.render_thread_pool_size)
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
         set_setting(key='output_file', value=self.output_file)
         if self.map_mode == MapMode.FIXED_EXTENT:
@@ -471,6 +474,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.progress_bar.setValue(self.image_counter)
                 self.image_counter += 1
         else:
+            if not feature_layer:
+                self.output_log_text_edit.append(
+                    'Processing halted, no animation layer set.')
+                return
             # Subtract one because we already start at the first feature
             self.total_frame_count = (
                 (feature_count - 1) *
@@ -746,11 +753,25 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.current_frame_preview.setPixmap(pixmap)
 
     def dwell_at_feature(self, feature):
-        # f.write('Render Time,Longitude,Latitude,Latitude Easing
-        # Factor,Zoom Easing Factor,Zoom Scale\n')
-        x = feature.geometry().asPoint().x()
-        y = feature.geometry().asPoint().y()
-        center = QgsPointXY(x, y)
+        """Wait at a feature to emphasise it in the video.
+
+        :param feature: QgsFeature to dwell at.
+        :type feature: QgsFeature
+        """
+        x, y = None, None
+        if feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
+            x = feature.geometry().asPoint().x()
+            y = feature.geometry().asPoint().y()
+            center = QgsPointXY(x, y)
+        elif feature.geometry().wkbType() == QgsWkbTypes.LineGeometry:
+            length = feature.geometry().length()
+            point = feature.geometry().interpolate(length/2.0)
+            x = point.geometry().x()
+            y = point.geometry().y()
+            center = QgsPointXY(x, y)
+        else:  # assumes polygon
+            center = feature.geometry().centroid().asPoint()
+
         center = self.transform.transform(center)
         self.iface.mapCanvas().setCenter(center)
         self.iface.mapCanvas().zoomScale(self.max_scale)

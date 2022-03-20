@@ -73,7 +73,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.easing_preview_animation.start()
 
     def is_enabled(self):
-        return self.easing.enable_easing.isChecked()
+        return self.enable_easing.isChecked()
 
     def set_easing_by_name(self, name):
         combo = self.easing_combo
@@ -84,7 +84,7 @@ class EasingPreview(QWidget, FORM_CLASS):
     def easing_name(self):
         return self.easing_combo.currentText()
 
-    def easing(self):
+    def get_easing(self):
         return self.easing_combo.currentData()
 
     def preview_colour(self):
