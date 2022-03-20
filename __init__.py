@@ -7,16 +7,16 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = '$Format:%H$'
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # Copyright (C) 2022 Tim Sutton
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # Licensed under the terms of GNU GPL 3
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
@@ -33,15 +33,17 @@ from .animation_workbench import AnimationWorkbench
 from .utilities import resources_path
 from .settings import setting
 
+
 def classFactory(iface):
     return AnimationWorkbenchPlugin(iface)
+
 
 class AnimationWorkbenchPlugin:
     def __init__(self, iface):
         self.iface = iface
 
     def initGui(self):
-        
+
         # If you change this to true, QGIS startup
         # will block until it can attache to the remote debugger
         debug_mode = False
@@ -54,13 +56,13 @@ class AnimationWorkbenchPlugin:
         icon = QIcon(resources_path(
             'img', 'icons', 'animation-workbench.svg'))
         self.action = QAction(
-            icon, 
-            'Animation Workbench', 
+            icon,
+            'Animation Workbench',
             self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.action)
         # The maximum number of concurrent threads to allow
-        # during rendering. Probably setting to the same number 
+        # during rendering. Probably setting to the same number
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
         self.render_thread_pool_size = int(setting(
@@ -78,7 +80,7 @@ class AnimationWorkbenchPlugin:
     def unload(self):
         self.iface.removeToolBarIcon(self.action)
         del self.action
-    
+
     def initialize_debugger(self):
         import multiprocessing
         if multiprocessing.current_process().pid > 1:
@@ -101,9 +103,9 @@ class AnimationWorkbenchPlugin:
 
         :returns: None
         """
-        #self.total_tasks_lcd.display(self.total_frame_count)
-        #self.completed_tasks_lcd.display(
-        #    self.total_frame_count - len(self.renderer_queue))        
+        # self.total_tasks_lcd.display(self.total_frame_count)
+        # self.completed_tasks_lcd.display(
+        #    self.total_frame_count - len(self.renderer_queue))
         if len(self.renderer_queue) == 0:
             # all processing done so go off and generate
             # the vid or gif
@@ -121,38 +123,39 @@ class AnimationWorkbenchPlugin:
                     self.renderer_queue.pop(0))
             self.progress_bar.setValue(
                 self.progress_bar.value() * pop_size)
-    
+
     def render_image_as_task(
-        self,
-        name,
-        current_feature_id,
-        current_frame,
-        action='None'):
-           
+            self,
+            name,
+            current_feature_id,
+            current_frame,
+            action='None'):
+
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
-        # The next part sets project variables that you can use in your 
+        # The next part sets project variables that you can use in your
         # cartography etc. to see the progress. Here is an example
         # of a QGS expression you can use in the map decoration copyright
         # widget to show current script progress
-        # [%'Frame ' || to_string(coalesce(@current_frame, 0)) || '/' || 
-        # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' || 
+        # [%'Frame ' || to_string(coalesce(@current_frame, 0)) || '/' ||
+        # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
         # to_string(coalesce(@current_feature_id,0))%]
         task_scope = QgsExpressionContextScope()
         task_scope.setVariable('current_feature_id', current_feature_id)
         task_scope.setVariable('frames_per_feature', self.frames_per_feature)
-        task_scope.setVariable('current_frame_for_feature', current_frame)        
-        task_scope.setVariable('current_animation_action', action)     
-        task_scope.setVariable('current_frame', self.image_counter)        
-        task_scope.setVariable('total_frame_count', self.total_frame_count)     
+        task_scope.setVariable('current_frame_for_feature', current_frame)
+        task_scope.setVariable('current_animation_action', action)
+        task_scope.setVariable('current_frame', self.image_counter)
+        task_scope.setVariable('total_frame_count', self.total_frame_count)
 
         context = settings.expressionContext()
-        context.appendScope(task_scope) 
+        context.appendScope(task_scope)
         settings.setExpressionContext(context)
         # Set the output file name for the render task
-        mapRendererTask = QgsMapRendererTask( settings, name, "PNG" )
-        # We need to clone the annotations because otherwise SIP will 
-        # pass ownership and then cause a crash when the render task is destroyed
+        mapRendererTask = QgsMapRendererTask(settings, name, "PNG")
+        # We need to clone the annotations because otherwise SIP will
+        # pass ownership and then cause a crash when the render task is
+        # destroyed
         annotations = QgsProject.instance().annotationManager().annotations()
         annotations_list = [a.clone() for a in annotations]
         if (len(annotations_list) > 0):
@@ -161,8 +164,7 @@ class AnimationWorkbenchPlugin:
         decorations = self.iface.activeDecorations()
         mapRendererTask.addDecorations(decorations)
 
-        # We will put this task in a separate queue and then pop them off the queue
-        # at a time whenver the task manager
-        # lets us know we have nothing to do
-        # Start the rendering task on the queue
+        # We will put this task in a separate queue and then pop them off
+        # the queue at a time whenver the task manager lets us know we have
+        # nothing to do.
         task_id = QgsApplication.taskManager().addTask(mapRendererTask)

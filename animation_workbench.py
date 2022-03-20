@@ -1,5 +1,5 @@
 # coding=utf-8
-"""This module contains the main GUI interaction logic for AnimationWorkbench."""
+"""This module has the main GUI interaction logic for AnimationWorkbench."""
 
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
@@ -38,13 +38,15 @@ from qgis.core import (
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
 from qgis.core import Qgis
 from .settings import set_setting, setting
-from .utilities import get_ui_class, which, resources_path 
+from .utilities import get_ui_class, which, resources_path
 from .easing_preview import EasingPreview
 
+
 class MapMode(Enum):
-    SPHERE = 1 # CRS will be manipulated to create a spinning globe effect
-    PLANAR = 2 # CRS will not be altered, extents will as we pan and zoom
-    FIXED_EXTENT = 3 # EASING and ZOOM disabled, extent stays in place
+    SPHERE = 1  # CRS will be manipulated to create a spinning globe effect
+    PLANAR = 2  # CRS will not be altered, extents will as we pan and zoom
+    FIXED_EXTENT = 3  # EASING and ZOOM disabled, extent stays in place
+
 
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
@@ -59,7 +61,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :type parent: QWidget
         """
         QtWidgets.QDialog.__init__(self, parent)
-        self.setupUi(self)        
+        self.setupUi(self)
 
         self.setWindowTitle(self.tr('Animation Workbench'))
         icon = resources_path(
@@ -67,8 +69,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.setWindowIcon(QtGui.QIcon(icon))
         self.parent = parent
         self.iface = iface
+
+        self.output_log_text_edit.append(
+            'Welcome to the QGIS Animation Workbench')
+        self.output_log_text_edit.append(
+            '© Tim Sutton, Feb 2022')
+
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
-        #ok_button.clicked.connect(self.accept)
+        # ok_button.clicked.connect(self.accept)
         ok_button.setText('Run')
         ok_button.setEnabled(False)
 
@@ -98,7 +106,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.extent_group_box.setOutputExtentFromUser(
             self.iface.mapCanvas().extent(),
             QgsProject.instance().crs())
-        #self.extent_group_box.setOriginalExtnt()
+        # self.extent_group_box.setOriginalExtnt()
         # Set up things for context help
         self.help_button = self.button_box.button(
             QtWidgets.QDialogButtonBox.Help)
@@ -111,7 +119,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             QtWidgets.QDialogButtonBox.Close)
         close_button.clicked.connect(self.reject)
         # Fix ends
-        
+
         # How many frames to render for each feature pair transition
         # The output is generated at e.g. 30fps so choosing 30
         # would fly to each feature for 1s
@@ -119,7 +127,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # to determine the current feature id
         # and the 'feature_frame' project variable to determine
         # the frame number for the current feature based on frames_for_interval
-        
+
         self.frames_per_feature = int(
             setting(key='frames_per_feature', default='90'))
         self.feature_frames_spin.setValue(self.frames_per_feature)
@@ -137,33 +145,41 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.scale_range.setMaximumScale(self.max_scale)
         self.min_scale = int(setting(key='min_scale', default='25000000'))
         self.scale_range.setMinimumScale(self.min_scale)
-        
+
         # Stores the current image in the entire set
-        self.image_counter = None 
+        self.image_counter = None
         # Stores the total number of frames in the whole animation
         self.total_frame_count = None
 
-        # Note: pan_easing_preview and zoom_easing_preview are
+        # Note: self.pan_easing_widget and zoom_easing_preview are
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
-        self.pan_easing.set_checkbox_label('Enable Pan Easing')
+        self.pan_easing_widget.set_checkbox_label('Enable Pan Easing')
         pan_easing_name = setting(key='pan_easing', default='Linear')
-        self.pan_easing.set_preview_colour('#00ff00')
-        self.pan_easing.set_easing_by_name(pan_easing_name)
+        self.pan_easing_widget.set_preview_colour('#00ff00')
+        self.pan_easing_widget.set_easing_by_name(pan_easing_name)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.pan_easing.disable()
+            self.pan_easing_widget.disable()
         else:
-            self.pan_easing.enable()
+            self.pan_easing_widget.enable()
+        self.pan_easing = self.pan_easing_widget.easing()
+        self.pan_easing_widget.easing_changed_signal.connect(
+            self.pan_easing_changed
+        )
 
-        self.zoom_easing.set_checkbox_label('Enable Zoom Easing')
+        self.zoom_easing_widget.set_checkbox_label('Enable Zoom Easing')
         zoom_easing_name = setting(key='zoom_easing', default='Linear')
-        self.pan_easing.set_preview_colour('#0000ff')
-        self.zoom_easing.set_easing_by_name(zoom_easing_name)
+        self.zoom_easing_widget.set_preview_colour('#0000ff')
+        self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.zoom_easing.disable()
+            self.zoom_easing_widget.disable()
         else:
-            self.zoom_easing.enable()
+            self.zoom_easing_widget.enable()
 
+        self.zoom_easing = self.zoom_easing_widget.easing()
+        self.zoom_easing_widget.easing_changed_signal.connect(
+            self.zoom_easing_changed
+        )
 
         self.previous_feature = None
 
@@ -176,14 +192,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # None, Panning, Hovering
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_animation_action', 'None')
-        
+
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'current_frame', 'None')
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'total_frame_count', 'None')
 
         self.map_mode = None
-        mode_string = setting(key='map_mode',default='sphere')
+        mode_string = setting(key='map_mode', default='sphere')
         if mode_string == 'sphere':
             self.map_mode == MapMode.SPHERE
             self.radio_sphere.setChecked(True)
@@ -223,24 +239,25 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_to_zenith = None
 
         reuse_cache = setting(key='reuse_cache', default='false')
-        if  reuse_cache == 'false':
+        if reuse_cache == 'false':
             self.reuse_cache.setChecked(False)
         else:
             self.reuse_cache.setChecked(True)
 
-        # Video playback stuff - see bottom of file for related methods 
+        # Video playback stuff - see bottom of file for related methods
         self.media_player = QMediaPlayer(
-            None, #.video_preview_widget, 
+            None,  # .video_preview_widget,
             QMediaPlayer.VideoSurface)
         video_widget = QVideoWidget()
-        #self.video_page.replaceWidget(self.video_preview_widget,video_widget)
-        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        # self.video_page.replaceWidget(self.video_preview_widget,video_widget)
+        self.play_button.setIcon(
+            self.style().standardIcon(QStyle.SP_MediaPlay))
         self.play_button.clicked.connect(self.play)
         self.media_player.setVideoOutput(video_widget)
         self.media_player.stateChanged.connect(self.media_state_changed)
         self.media_player.positionChanged.connect(self.position_changed)
         self.media_player.durationChanged.connect(self.duration_changed)
-        self.media_player.error.connect(self.handle_video_error) 
+        self.media_player.error.connect(self.handle_video_error)
         layout = QtWidgets.QGridLayout(self.video_preview_widget)
         layout.addWidget(video_widget)
         # Enable image preview page on startup
@@ -250,14 +267,28 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         QgsApplication.taskManager().progressChanged.connect(
             self.show_status)
 
+    # slot
+    def pan_easing_changed(self, easing):
+        self.output_log_text_edit.append(
+            'Pan easing set to: %s' %
+            self.pan_easing_widget.easing_name())
+        self.pan_easing = easing
+
+    # slot
+    def zoom_easing_changed(self, easing):
+        self.output_log_text_edit.append(
+            'Zoom easing set to: %s' %
+            self.pan_easing_widget.easing_name())
+        self.zoom_easing = easing
+
     def show_non_fixed_extent_settings(self):
-            
+
         self.settings_stack.setCurrentIndex(0)
-        
+
     def show_fixed_extent_settings(self):
-            
+
         self.settings_stack.setCurrentIndex(1)
-                
+
     def show_status(self):
         """
         Display the size of the QgsTaskManager queue.
@@ -266,33 +297,33 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         """
         size = QgsApplication.taskManager().countActiveTasks()
         self.active_lcd.display(size)
-        
+
     def output_name_changed(self, path):
         # File name line edit changed slot
         self.output_file = path
         self.output_directory = os.path.dirname(self.output_file)
-        set_setting(key='output_file',value=path)
+        set_setting(key='output_file', value=path)
 
     def set_output_name(self):
-        # Popup a dialog to request the filename if scenario_file_path = None 
-        dialog_title = 'Save video' 
+        # Popup a dialog to request the filename if scenario_file_path = None
+        dialog_title = 'Save video'
         ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
         ok_button.setText('Run')
         ok_button.setEnabled(False)
-        
+
         if self.output_directory is None:
             self.output_directory = self.work_directory
-        # noinspection PyCallByClass,PyTypeChecker 
-        file_path, __ = QFileDialog.getSaveFileName( 
-            self, 
-            dialog_title, 
-            os.path.join(self.output_directory, 'qgis_animation.mp4'), 
-            "Video (*.mp4);;GIF (*.gif)") 
-        if file_path is None or file_path == '': 
+        # noinspection PyCallByClass,PyTypeChecker
+        file_path, __ = QFileDialog.getSaveFileName(
+            self,
+            dialog_title,
+            os.path.join(self.output_directory, 'qgis_animation.mp4'),
+            "Video (*.mp4);;GIF (*.gif)")
+        if file_path is None or file_path == '':
             ok_button.setEnabled(False)
-            return 
+            return
         ok_button.setEnabled(True)
-        self.output_directory = os.path.dirname(file_path) 
+        self.output_directory = os.path.dirname(file_path)
         self.output_file = file_path
         self.file_edit.setText(file_path)
 
@@ -322,7 +353,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :type message: basestring
         :param more_details: The message inside the 'Show details' button.
         :type more_details: basestring
-        :param button_text: The text of the button if 'more_details' is not empty.
+        :param button_text: Text of the button if 'more_details' is not empty.
         :type button_text: basestring
         :param duration: The duration for the display, default is 8 seconds.
         :type duration: int
@@ -356,15 +387,15 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.completed_lcd.display(0)
         self.remaining_features_lcd.display(0)
         self.total_tasks_lcd.display(0)
-        self.completed_tasks_lcd.display(0)        
+        self.completed_tasks_lcd.display(0)
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
-            os.system('rm %s/%s*' % 
-            (
-                self.work_directory,
-                self.frame_filename_prefix
-            ))
+            os.system('rm %s/%s*' %
+                      (
+                          self.work_directory,
+                          self.frame_filename_prefix
+                      ))
 
         # feature layer that we will visit each feature for
         feature_layer = self.layer_combo.currentLayer()
@@ -383,30 +414,39 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
-            set_setting(key='map_mode',value='sphere')
+            set_setting(key='map_mode', value='sphere')
         elif self.radio_planar.isChecked():
             self.map_mode = MapMode.PLANAR
-            set_setting(key='map_mode',value='planar')
+            set_setting(key='map_mode', value='planar')
         else:
             self.map_mode = MapMode.FIXED_EXTENT
-            set_setting(key='map_mode',value='fixed_extent')
+            set_setting(key='map_mode', value='fixed_extent')
         # Save state
-        set_setting(key='frames_per_feature',value=self.frames_per_feature)
-        set_setting(key='dwell_frames',value=self.dwell_frames)
-        set_setting(key='frames_for_extent',value=self.frames_for_extent)
-        set_setting(key='max_scale',value=int(self.max_scale))
-        set_setting(key='min_scale',value=int(self.min_scale))
-        set_setting(key='enable_pan_easing',value=self.pan_easing.is_enabled())
-        set_setting(key='enable_zoom_easing',value=self.zoom_easing.is_enabled())
-        set_setting(key='pan_easing',value=self.pan_easing_combo.easing_name())
-        set_setting(key='zoom_easing',value=self.zoom_easing_combo.easing_name())
+        set_setting(key='frames_per_feature', value=self.frames_per_feature)
+        set_setting(key='dwell_frames', value=self.dwell_frames)
+        set_setting(key='frames_for_extent', value=self.frames_for_extent)
+        set_setting(key='max_scale', value=int(self.max_scale))
+        set_setting(key='min_scale', value=int(self.min_scale))
         set_setting(
-            key='render_thread_pool_size',value=self.render_thread_pool_size)
-        set_setting(key='reuse_cache',value=self.reuse_cache.isChecked())
-        set_setting(key='output_file',value=self.output_file)
+            key='enable_pan_easing',
+            value=self.pan_easing_widget.is_enabled())
+        set_setting(
+            key='enable_zoom_easing',
+            value=self.zoom_easing_widget.is_enabled())
+        set_setting(
+            key='pan_easing',
+            value=self.pan_easing_widget.easing_name())
+        set_setting(
+            key='zoom_easing',
+            value=self.zoom_easing_widget.easing_name())
+        set_setting(
+            key='render_thread_pool_size', value=self.render_thread_pool_size)
+        set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
+        set_setting(key='output_file', value=self.output_file)
         if self.map_mode == MapMode.FIXED_EXTENT:
             self.output_log_text_edit.append(
-                'Generating %d frames for fixed extent render' % self.frames_for_extent)
+                'Generating %d frames for fixed extent render'
+                % self.frames_for_extent)
             self.progress_bar.setMaximum(self.frames_for_extent)
             self.total_frame_count = self.frames_for_extent
             self.progress_bar.setValue(0)
@@ -414,7 +454,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.extent_group_box.currentExtent())
 
             self.image_counter = 0
-            
+
             for image_count in range(0, self.frames_for_extent):
                 name = ('%s/%s-%s.png' % (
                     self.work_directory,
@@ -432,7 +472,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.image_counter += 1
         else:
             # Subtract one because we already start at the first feature
-            self.total_frame_count = (feature_count - 1) * (self.dwell_frames + self.frames_per_feature)
+            self.total_frame_count = (
+                (feature_count - 1) *
+                (self.dwell_frames + self.frames_per_feature))
             self.output_log_text_edit.append(
                 'Generating %d frames' % self.total_frame_count)
             self.progress_bar.setMaximum(
@@ -447,8 +489,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     self.fly_feature_to_feature(self.previous_feature, feature)
                     self.dwell_at_feature(feature)
-                    self.previous_feature = feature        
-    
+                    self.previous_feature = feature
+
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
 
@@ -458,9 +500,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')[0]
             self.output_log_text_edit.append('convert found: %s' % convert)
-            # Now generate the GIF. If this fails try run the call from the command line
-            # and check the path to convert (provided by ImageMagick) is correct...
-            # delay of 3.33 makes the output around 30fps               
+            # Now generate the GIF. If this fails try run the call from
+            # the command line and check the path to convert (provided by
+            # ImageMagick) is correct...
+            # delay of 3.33 makes the output around 30fps
             os.system('%s -delay 3.33 -loop 0 %s/$s-*.png %s' % (
                 self.work_directory,
                 self.frame_filename_prefix,
@@ -470,32 +513,37 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             # first image as a reference inmage for the colour palette Depending
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
-            # the ultimate image size you want               
-            os.system('%s %s -coalesce -scale 600x600 -fuzz 2% +dither -remap %s/%s.gif[20] +dither -colors 14 -layers Optimize %s/animation_small.gif' % (
-                convert, 
-                self.output_file, 
+            # the ultimate image size you want
+            os.system("""
+                %s %s -coalesce -scale 600x600 -fuzz 2% +dither \
+                    -remap %s/%s.gif[20] +dither -colors 14 -layers \
+                    Optimize %s/animation_small.gif""" % (
+                convert,
+                self.output_file,
                 self.work_directory,
                 self.frame_filename_prefix,
                 self.work_directory
-                ))
+            ))
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
                 QMediaContent(QUrl.fromLocalFile('/tmp/animation_small-gif')))
             self.play_button.setEnabled(True)
             self.play()
-            self.output_log_text_edit.append('GIF written to %s' % self.output_file)
+            self.output_log_text_edit.append(
+                'GIF written to %s' % self.output_file)
         else:
             self.output_log_text_edit.append('Generating MP4 Movie')
             ffmpeg = which('ffmpeg')[0]
             # Also we will make a video of the scene - useful for cases where
-            # you have a larger colour pallette and gif will not hack it. The Pad
-            # option is to deal with cases where ffmpeg complains because the h
-            # or w of the image is an odd number of pixels.  :color=white pads
-            # the video with white pixels. Change to black if needed.
+            # you have a larger colour pallette and gif will not hack it.
+            # The Pad option is to deal with cases where ffmpeg complains
+            # because the h or w of the image is an odd number of pixels.
+            # :color=white pads the video with white pixels.
+            # Change to black if needed.
             # -y to force overwrite exising file
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
-            
+
             framerate = str(self.framerate_spin.value())
 
             command = ("""
@@ -503,7 +551,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 -i "%s/%s-*.png" -vf \
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
                 -c:v libx264 -pix_fmt yuv420p %s""" % (
-                ffmpeg, 
+                ffmpeg,
                 framerate,
                 self.work_directory,
                 self.frame_filename_prefix,
@@ -516,11 +564,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 QMediaContent(QUrl.fromLocalFile(self.output_file)))
             self.play_button.setEnabled(True)
             self.play()
-            self.output_log_text_edit.append('MP4 written to %s' % self.output_file)
+            self.output_log_text_edit.append(
+                'MP4 written to %s' % self.output_file)
 
     def render_image(self):
         """Render the current canvas to an image.
-        
+
         .. note:: This is renders synchronously.
 
         .. versionadded:: 1.0
@@ -541,13 +590,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         job.renderSynchronously()
         painter.end()
         self.display_information_message_bar(
-                title="Image rendered",
-                message="Image rendered",
-                more_details=None,
-                button_text='Show details ...',
-                duration=8)
+            title="Image rendered",
+            message="Image rendered",
+            more_details=None,
+            button_text='Show details ...',
+            duration=8)
         return image
-
 
     def render_image_to_file(self, name):
         size = self.iface.mapCanvas().size()
@@ -566,7 +614,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         image.save(name)
 
     def fly_feature_to_feature(self, start_feature, end_feature):
-       
+
         self.image_counter += 1
         self.progress_bar.setValue(self.image_counter)
         x_min = start_feature.geometry().asPoint().x()
@@ -588,7 +636,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
             # For x we could have a pan easing
             x_offset = x_increment * current_frame
-            if self.enable_pan_easing.isChecked():
+            if self.pan_easing_widget.is_enabled():
                 if x_offset < x_midfeature:
                     # Flying away from centerline
                     # should be 0 at origin, 1 at centerfeature
@@ -611,8 +659,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
             # for Y we could have easing
             y_offset = y_increment * current_frame
-            
-            if self.enable_pan_easing.isChecked():
+
+            if self.pan_easing_widget.is_enabled():
                 if y_offset < y_midfeature:
                     # Flying away from centerline
                     # should be 0 at origin, 1 at centerfeature
@@ -623,34 +671,35 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     # should be 1 at centerfeature, 0 at destination
                     pan_easing_factor = self.pan_easing.valueForProgress(
                         y_offset - y_midfeature / y_midfeature)
-                
+
                 y_offset = y_offset * pan_easing_factor
-            
+
             # Deal with case where we need to fly north instead of south
             if y_min < y_max:
                 y = y_min + y_offset
             else:
                 y = y_min - y_offset
 
-            # zoom in and out to each feature if we are 
-            if self.enable_zoom_easing.isChecked():
+            # zoom in and out to each feature if we are doing zoom easing
+            if self.zoom_easing_widget.is_enabled():
                 # Now use easings for zoom level too
                 # first figure out if we are flying up or down
                 if current_frame < self.frames_to_zenith:
                     # Flying up
-                    zoom_easing_factor = 1- self.zoom_easing.valueForProgress(
+                    zoom_easing_factor = 1 - self.zoom_easing.valueForProgress(
                         current_frame/self.frames_to_zenith)
-                    scale = ((self.max_scale - self.min_scale) * 
-                              zoom_easing_factor) + self.min_scale
+                    scale = ((self.max_scale - self.min_scale) *
+                             zoom_easing_factor) + self.min_scale
                 else:
                     # flying down
                     zoom_easing_factor = self.zoom_easing.valueForProgress(
-                        (current_frame - self.frames_to_zenith)/self.frames_to_zenith)
-                    scale = ((self.max_scale - self.min_scale) * 
-                        zoom_easing_factor) + self.min_scale
+                        (current_frame - self.frames_to_zenith) /
+                        self.frames_to_zenith)
+                    scale = ((self.max_scale - self.min_scale) *
+                             zoom_easing_factor) + self.min_scale
 
-            if self.map_mode ==MapMode.PLANAR:
-                center = QgsPointXY(x,y)
+            if self.map_mode == MapMode.PLANAR:
+                center = QgsPointXY(x, y)
                 center = self.transform.transform(center)
                 self.iface.mapCanvas().setCenter(center)
             if scale is not None:
@@ -658,19 +707,21 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
             # Change CRS if needed
             if self.map_mode == MapMode.SPHERE:
-                definition = ( 
-                '+proj=ortho +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs' % (x, y))
+                definition = (""" +proj=ortho \
+                    +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
+                    +ellps=sphere +units=m +no_defs""" % (x, y))
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromProj(definition)
                 self.iface.mapCanvas().setDestinationCrs(crs)
                 if not self.enable_zoom_easing.isChecked():
                     self.iface.mapCanvas().zoomToFullExtent()
 
-            # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
+            # Pad the numbers in the name so that they form a 10 digit
+            # string with left padding of 0s
 
             name = ('%s/%s-%s.png' % (
-                self.work_directory, 
-                self.frame_filename_prefix, 
+                self.work_directory,
+                self.frame_filename_prefix,
                 str(self.image_counter).rjust(10, '0')))
             starttime = timeit.default_timer()
             if os.path.exists(name) and self.reuse_cache.isChecked():
@@ -678,7 +729,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 pass
             else:
                 # Not crashy but no decorations and annotations....
-                #render_image(name)
+                # render_image(name)
                 # crashy - check with Nyall why...
                 self.render_image_as_task(
                     name, end_feature.id(), current_frame, 'Panning')
@@ -686,7 +737,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setValue(self.image_counter)
 
     def load_image(self, name):
-        #Load the preview with the named image file 
+        # Load the preview with the named image file
         with open(name, 'rb') as image_file:
             content = image_file.read()
             image = QtGui.QImage()
@@ -695,16 +746,18 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.current_frame_preview.setPixmap(pixmap)
 
     def dwell_at_feature(self, feature):
-        #f.write('Render Time,Longitude,Latitude,Latitude Easing Factor,Zoom Easing Factor,Zoom Scale\n')
+        # f.write('Render Time,Longitude,Latitude,Latitude Easing
+        # Factor,Zoom Easing Factor,Zoom Scale\n')
         x = feature.geometry().asPoint().x()
         y = feature.geometry().asPoint().y()
-        center = QgsPointXY(x,y)
+        center = QgsPointXY(x, y)
         center = self.transform.transform(center)
         self.iface.mapCanvas().setCenter(center)
         self.iface.mapCanvas().zoomScale(self.max_scale)
 
         for current_frame in range(0, self.dwell_frames, 1):
-            # Pad the numbers in the name so that they form a 10 digit string with left padding of 0s
+            # Pad the numbers in the name so that they form a
+            # 10 digit string with left padding of 0s
             name = ('%s/%s-%s.png' % (
                 self.work_directory,
                 self.frame_filename_prefix,
@@ -714,11 +767,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.load_image(name)
             else:
                 # Not crashy but no decorations and annotations....
-                #render_image_to_file(name)
+                # render_image_to_file(name)
                 # crashy - check with Nyall why...
                 self.render_image_as_task(
                     name, feature.id(), current_frame, 'Hovering')
-            
+
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
@@ -753,54 +806,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         string += footer
 
         self.help_web_view.setHtml(string)
-    
-    def load_combo_with_easings(self, combo):
-        # Perhaps we can softcode these items using the logic here
-        # https://github.com/baoboa/pyqt5/blob/master/examples/animation/easing/easing.py#L159
-        combo.addItem("Linear",QEasingCurve.Linear)
-        combo.addItem("InQuad",QEasingCurve.InQuad)
-        combo.addItem("OutQuad",QEasingCurve.OutQuad)
-        combo.addItem("InOutQuad",QEasingCurve.InOutQuad)
-        combo.addItem("OutInQuad",QEasingCurve.OutInQuad)
-        combo.addItem("InCubic",QEasingCurve.InCubic)
-        combo.addItem("OutCubic",QEasingCurve.OutCubic)
-        combo.addItem("InOutCubic",QEasingCurve.InOutCubic)
-        combo.addItem("OutInCubic",QEasingCurve.OutInCubic)
-        combo.addItem("InQuart",QEasingCurve.InQuart)
-        combo.addItem("OutQuart",QEasingCurve.OutQuart)
-        combo.addItem("InOutQuart",QEasingCurve.InOutQuart)
-        combo.addItem("OutInQuart",QEasingCurve.OutInQuart)
-        combo.addItem("InQuint",QEasingCurve.InQuint)
-        combo.addItem("OutQuint",QEasingCurve.OutQuint)
-        combo.addItem("InOutQuint",QEasingCurve.InOutQuint)
-        combo.addItem("OutInQuint",QEasingCurve.OutInQuint)
-        combo.addItem("InSine",QEasingCurve.InSine)
-        combo.addItem("OutSine",QEasingCurve.OutSine)
-        combo.addItem("InOutSine",QEasingCurve.InOutSine)
-        combo.addItem("OutInSine",QEasingCurve.OutInSine)
-        combo.addItem("InExpo",QEasingCurve.InExpo)
-        combo.addItem("OutExpo",QEasingCurve.OutExpo)
-        combo.addItem("InOutExpo",QEasingCurve.InOutExpo)
-        combo.addItem("OutInExpo",QEasingCurve.OutInExpo)
-        combo.addItem("InCirc",QEasingCurve.InCirc)
-        combo.addItem("OutCirc",QEasingCurve.OutCirc)
-        combo.addItem("InOutCirc",QEasingCurve.InOutCirc)
-        combo.addItem("OutInCirc",QEasingCurve.OutInCirc)
-        combo.addItem("InElastic",QEasingCurve.InElastic)
-        combo.addItem("OutElastic",QEasingCurve.OutElastic)
-        combo.addItem("InOutElastic",QEasingCurve.InOutElastic)
-        combo.addItem("OutInElastic",QEasingCurve.OutInElastic)
-        combo.addItem("InBack",QEasingCurve.InBack)
-        combo.addItem("OutBack",QEasingCurve.OutBack)
-        combo.addItem("InOutBack",QEasingCurve.InOutBack)
-        combo.addItem("OutInBack",QEasingCurve.OutInBack)
-        combo.addItem("InBounce",QEasingCurve.InBounce)
-        combo.addItem("OutBounce",QEasingCurve.OutBounce)
-        combo.addItem("InOutBounce",QEasingCurve.InOutBounce)
-        combo.addItem("OutInBounce",QEasingCurve.OutInBounce)
-        combo.addItem("BezierSpline",QEasingCurve.BezierSpline)
-        combo.addItem("TCBSpline",QEasingCurve.TCBSpline)
-    
+
     # Video Playback Methods
     def play(self):
         if self.media_player.state() == QMediaPlayer.PlayingState:
@@ -824,7 +830,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
     def set_position(self, position):
         self.media_player.setPosition(position)
-    
+
     def handle_video_error(self):
         self.play_button.setEnabled(False)
         self.output_log_text_edit.append(
