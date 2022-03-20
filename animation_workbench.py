@@ -143,24 +143,27 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Stores the total number of frames in the whole animation
         self.total_frame_count = None
 
-        # enable this if you want wobbling panning
-
-        self.pan_easing_widget = EasingPreview(self.pan_easing_preview)
+        # Note: pan_easing_preview and zoom_easing_preview are
+        # custom widgets implemented in easing_preview.py
+        # and added in designer as promoted widgets.
+        self.pan_easing.set_checkbox_label('Enable Pan Easing')
+        pan_easing_name = setting(key='pan_easing', default='Linear')
+        self.pan_easing.set_preview_colour('#00ff00')
+        self.pan_easing.set_easing_by_name(pan_easing_name)
         if setting(key='enable_pan_easing', default='false') == 'false':
-            self.pan_easing_widget.disable()
+            self.pan_easing.disable()
         else:
-            self.pan_easing_widget.enable()
-        # enable this if you want wobbling zooming
-        self.zoom_easing_widget = EasingPreview(self.zoom_easing_preview)
-        if setting(key='enable_pan_easing', default='false') == 'false':
-            self.zoom_easing_widget.disable()
-        else:
-            self.zoom_easing_widget.enable()
+            self.pan_easing.enable()
 
-        self.pan_easing = setting(key='pan_easing', default='0')
-        self.zoom_easing = setting(key='zoom_easing', default='0')
-        self.pan_easing_widget.set_easing_by_name(self.pan_easing)
-        self.zoom_easing_widget.set_easing_by_name(self.zoom_easing)
+        self.zoom_easing.set_checkbox_label('Enable Zoom Easing')
+        zoom_easing_name = setting(key='zoom_easing', default='Linear')
+        self.pan_easing.set_preview_colour('#0000ff')
+        self.zoom_easing.set_easing_by_name(zoom_easing_name)
+        if setting(key='enable_pan_easing', default='false') == 'false':
+            self.zoom_easing.disable()
+        else:
+            self.zoom_easing.enable()
+
 
         self.previous_feature = None
 
@@ -393,8 +396,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         set_setting(key='frames_for_extent',value=self.frames_for_extent)
         set_setting(key='max_scale',value=int(self.max_scale))
         set_setting(key='min_scale',value=int(self.min_scale))
-        set_setting(key='enable_pan_easing',value=self.pan_easing_widget.is_enabled())
-        set_setting(key='enable_zoom_easing',value=self.zoom_easing_widget.is_enabled())
+        set_setting(key='enable_pan_easing',value=self.pan_easing.is_enabled())
+        set_setting(key='enable_zoom_easing',value=self.zoom_easing.is_enabled())
         set_setting(key='pan_easing',value=self.pan_easing_combo.easing_name())
         set_setting(key='zoom_easing',value=self.zoom_easing_combo.easing_name())
         set_setting(
@@ -798,33 +801,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         combo.addItem("BezierSpline",QEasingCurve.BezierSpline)
         combo.addItem("TCBSpline",QEasingCurve.TCBSpline)
     
-    def setup_easing_previews(self):
-        # Set up easing previews
-        self.pan_easing_preview_icon = QtWidgets.QWidget(self.pan_easing_preview)
-        self.pan_easing_preview_icon.setStyleSheet("background-color:yellow;border-radius:5px;")
-        self.pan_easing_preview_icon.resize(10, 10)
-        self.pan_easing_preview_animation = QPropertyAnimation(self.pan_easing_preview_icon, b"pos")
-        self.pan_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
-        self.pan_easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.pan_easing_preview_animation.setEndValue(QPoint(250, 150))
-        self.pan_easing_preview_animation.setDuration(1500)
-        # loop forever ...
-        self.pan_easing_preview_animation.setLoopCount(-1)
-        self.pan_easing_preview_animation.start()
-
-        self.zoom_easing_preview_icon = QtWidgets.QWidget(self.zoom_easing_preview)
-        self.zoom_easing_preview_icon.setStyleSheet("background-color:#005bbc;border-radius:5px;")
-        self.zoom_easing_preview_icon.resize(10, 10)
-        self.zoom_easing_preview_animation = QPropertyAnimation(self.zoom_easing_preview_icon, b"pos")
-        self.zoom_easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
-        self.zoom_easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.zoom_easing_preview_animation.setEndValue(QPoint(250, 150))
-        self.zoom_easing_preview_animation.setDuration(1500)
-        # loop forever ...
-        self.zoom_easing_preview_animation.setLoopCount(-1)
-        self.zoom_easing_preview_animation.start()
-
-
     # Video Playback Methods
     def play(self):
         if self.media_player.state() == QMediaPlayer.PlayingState:

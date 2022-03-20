@@ -48,14 +48,23 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.preview_color = color
         self.load_combo_with_easings()
         self.setup_easing_previews()
+        self.easing_combo.currentIndexChanged.connect(
+            self.easing_changed)
+        self.enable_easing.toggled.connect(self.checkbox_changed)
     
+    def checkbox_changed(self, new_state):
+        if new_state:
+            self.enable()
+        else:
+            self.disable()
+
     def disable(self):
         self.enable_easing.setChecked(False)
-        self.easing_preview_animation.setLoopCount(0)
+        self.easing_preview_animation.stop()
 
     def enable(self):
         self.enable_easing.setChecked(True)
-        self.easing_preview_animation.setLoopCount(-1)
+        self.easing_preview_animation.start()
     
     def is_enabled(self):
         return self.easing.enable_easing.isChecked()
@@ -71,6 +80,18 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def easing(self):
         return self.easing_combo.currentData()
+    
+    def preview_colour(self):
+        return self.preview_colour
+    
+    def set_preview_colour(self, colour):
+        self.preview_colour = colour
+        self.easing_preview_icon.setStyleSheet(
+            'background-color:%s;border-radius:5px;'
+            % self.preview_color)
+    
+    def set_checkbox_label(self, label):
+        self.enable_easing.setText(label)
 
     def load_combo_with_easings(self):
         # Perhaps we can softcode these items using the logic here
