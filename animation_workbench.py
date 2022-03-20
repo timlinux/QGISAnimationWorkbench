@@ -179,7 +179,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         zoom_easing_name = setting(key='zoom_easing', default='Linear')
         self.zoom_easing_widget.set_preview_colour('#0000ff')
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
-        if setting(key='enable_pan_easing', default='false') == 'false':
+        if setting(key='enable_zoom_easing', default='false') == 'false':
             self.zoom_easing_widget.disable()
         else:
             self.zoom_easing_widget.enable()
@@ -581,12 +581,17 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     def fly_feature_to_feature(self, start_feature, end_feature):
         self.image_counter += 1
         self.progress_bar.setValue(self.image_counter)
-        x_min = start_feature.geometry().asPoint().x()
-        x_max = end_feature.geometry().asPoint().x()
+        # In case we are iterating over lines or polygons, we
+        # need to conver them to points first.
+        start_point = self.geometry_to_pointxy(start_feature)
+        end_point = self.geometry_to_pointxy(end_feature)
+        # now go on to calculate the mins, max's and ranges
+        x_min = start_point.x()
+        x_max = end_point.x()
         x_range = abs(x_max - x_min)
         x_increment = x_range / self.frames_per_feature
-        y_min = start_feature.geometry().asPoint().y()
-        y_max = end_feature.geometry().asPoint().y()
+        y_min = start_point.y()
+        y_max = end_point.y()
         y_range = abs(y_max - y_min)
         y_increment = y_range / self.frames_per_feature
         # at the midfeature of the traveral between the two features
@@ -715,20 +720,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :param feature: QgsFeature to dwell at.
         :type feature: QgsFeature
         """
-        x, y = None, None
-        if feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
-            x = feature.geometry().asPoint().x()
-            y = feature.geometry().asPoint().y()
-            center = QgsPointXY(x, y)
-        elif feature.geometry().wkbType() == QgsWkbTypes.LineGeometry:
-            length = feature.geometry().length()
-            point = feature.geometry().interpolate(length/2.0)
-            x = point.geometry().x()
-            y = point.geometry().y()
-            center = QgsPointXY(x, y)
-        else:  # assumes polygon
-            center = feature.geometry().centroid().asPoint()
-
+        center = self.geometry_to_pointxy(feature)
         center = self.transform.transform(center)
         self.iface.mapCanvas().setCenter(center)
         self.iface.mapCanvas().zoomScale(self.max_scale)
@@ -752,6 +744,22 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
+
+    def geometry_to_pointxy(self, feature):
+        x, y = None, None
+        if feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
+            x = feature.geometry().asPoint().x()
+            y = feature.geometry().asPoint().y()
+            center = QgsPointXY(x, y)
+        elif feature.geometry().wkbType() == QgsWkbTypes.LineGeometry:
+            length = feature.geometry().length()
+            point = feature.geometry().interpolate(length/2.0)
+            x = point.geometry().x()
+            y = point.geometry().y()
+            center = QgsPointXY(x, y)
+        else:  # assumes polygon
+            center = feature.geometry().centroid().asPoint()
+        return center
 
     def help_toggled(self, flag):
         """Show or hide the help tab in the stacked widget.
