@@ -26,6 +26,7 @@ import qgis  # pylint: disable=unused-import
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from .animation_workbench import AnimationWorkbench
+from .workbench_settings import WorkbenchSettings
 from .utilities import resources_path
 from .render_queue import RenderQueue
 
@@ -40,6 +41,8 @@ class AnimationWorkbenchPlugin:
 
     def initGui(self):
 
+        self.render_queue = RenderQueue(iface=self.iface)
+
         # If you change this to true, QGIS startup
         # will block until it can attache to the remote debugger
         debug_mode = False
@@ -51,13 +54,20 @@ class AnimationWorkbenchPlugin:
 
         icon = QIcon(resources_path(
             'img', 'icons', 'animation-workbench.svg'))
-        self.action = QAction(
+
+        self.run_action = QAction(
             icon,
             'Animation Workbench',
             self.iface.mainWindow())
-        self.action.triggered.connect(self.run)
-        self.iface.addToolBarIcon(self.action)
-        self.render_queue = RenderQueue(iface=self.iface)
+        self.run_action.triggered.connect(self.run)
+        self.iface.addToolBarIcon(self.run_action)
+
+        self.settings_action = QAction(
+            icon,
+            'Animation Workbench Settings',
+            self.iface.mainWindow())
+        self.settings_action.triggered.connect(self.settings)
+        self.iface.addToolBarIcon(self.settings_action)
 
     def unload(self):
         self.iface.removeToolBarIcon(self.action)
@@ -76,4 +86,8 @@ class AnimationWorkbenchPlugin:
         dialog = AnimationWorkbench(
             iface=self.iface,
             render_queue=self.render_queue)
+        dialog.exec_()
+
+    def settings(self):
+        dialog = WorkbenchSettings()
         dialog.exec_()
