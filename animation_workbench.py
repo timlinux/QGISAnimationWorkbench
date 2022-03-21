@@ -446,7 +446,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     str(self.image_counter).rjust(10, '0')
                 ))
                 self.output_log_text_edit.append(name)
-                self.render_queue.render_image_as_task(
+                self.render_queue.queue_task(
                     name,
                     None,
                     self.image_counter,
@@ -477,6 +477,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     self.fly_feature_to_feature(self.previous_feature, feature)
                     self.dwell_at_feature(feature)
                     self.previous_feature = feature
+        # Now all the tasks are prepared, start the render_queue processing
+        self.render_queue.process_more_tasks()
 
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
@@ -676,7 +678,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # Not crashy but no decorations and annotations....
                 # render_image(name)
                 # crashy - check with Nyall why...
-                self.render_queue.render_image_as_task(
+                self.render_queue.queue_task(
                     name, end_feature.id(), current_frame, 'Panning')
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
@@ -715,7 +717,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # Not crashy but no decorations and annotations....
                 # render_image_to_file(name)
                 # crashy - check with Nyall why...
-                self.render_queue.render_image_as_task(
+                self.render_queue.queue_task(
                     name, feature.id(), current_frame, 'Hovering')
 
             self.image_counter += 1

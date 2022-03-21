@@ -108,11 +108,13 @@ class RenderQueue(QObject):
         """
         Feed the QgsTaskManager with another bundle of tasks.
 
-        This slot is called whenever the QgsTaskManager queue is 
+        This slot is called whenever the QgsTaskManager queue is
         finished (by means of the 'allTasksFinished' signal).
 
         :returns: None
         """
+        # Note we might get some side effects here if the task 
+        # manager is running other tasks not related to this plugin
         self.total_completed += self.last_pool_size
         # self.total_tasks_lcd.display(self.total_frame_count)
         # self.completed_tasks_lcd.display(
@@ -129,7 +131,7 @@ class RenderQueue(QObject):
                 task_id = QgsApplication.taskManager().addTask(
                     self.renderer_queue.pop(0))
 
-    def render_image_as_task(
+    def queue_task(
             self,
             name,
             current_feature_id,
@@ -173,7 +175,8 @@ class RenderQueue(QObject):
         # We will put this task in a separate queue and then pop them off
         # the queue at a time whenver the task manager lets us know we have
         # nothing to do.
-        task_id = QgsApplication.taskManager().addTask(mapRendererTask)
+        self.renderer_queue.append(mapRendererTask)
+        #task_id = QgsApplication.taskManager().addTask(mapRendererTask)
         self.update_status()
 
     def render_image(self):
