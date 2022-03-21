@@ -35,11 +35,23 @@ as it flies across the scene.</string>
    </item>
    <item row="2" column="0">
     <widget class="QWidget" name="easing_preview" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>250</width>
        <height>150</height>
       </size>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
      </property>
     </widget>
    </item>

@@ -459,6 +459,12 @@ the GIF or MP4 as selected above.</string>
          <layout class="QGridLayout" name="gridLayout_13">
           <item row="1" column="0">
            <widget class="EasingPreview" name="pan_easing_widget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>250</width>
@@ -469,6 +475,12 @@ the GIF or MP4 as selected above.</string>
           </item>
           <item row="1" column="1">
            <widget class="EasingPreview" name="zoom_easing_widget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>250</width>

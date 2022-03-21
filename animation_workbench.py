@@ -54,7 +54,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     """Dialog implementation class Animation Workbench class."""
 
     def __init__(self, parent=None, iface=None, render_queue=None):
-        """Constructor for the multi buffer dialog.
+        """Constructor for the workbench dialog.
 
         :param parent: Parent widget of this dialog.
         :type parent: QWidget
@@ -164,7 +164,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # and added in designer as promoted widgets.
         self.pan_easing_widget.set_checkbox_label('Enable Pan Easing')
         pan_easing_name = setting(key='pan_easing', default='Linear')
-        self.pan_easing_widget.set_preview_colour('#00ff00')
+        self.pan_easing_widget.set_preview_color('#00ff00')
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
         if setting(key='enable_pan_easing', default='false') == 'false':
             self.pan_easing_widget.disable()
@@ -177,7 +177,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         self.zoom_easing_widget.set_checkbox_label('Enable Zoom Easing')
         zoom_easing_name = setting(key='zoom_easing', default='Linear')
-        self.zoom_easing_widget.set_preview_colour('#0000ff')
+        self.zoom_easing_widget.set_preview_color('#0000ff')
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
         if setting(key='enable_zoom_easing', default='false') == 'false':
             self.zoom_easing_widget.disable()
@@ -469,12 +469,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                     str(self.image_counter).rjust(10, '0')
                 ))
                 self.output_log_text_edit.append(name)
-                self.render_image_as_task(
+                self.render_queue.render_image_as_task(
                     name,
                     None,
                     self.image_counter,
-                    'Fixed Extent'
-                )
+                    'Fixed Extent')
                 self.progress_bar.setValue(self.image_counter)
                 self.image_counter += 1
         else:
@@ -521,7 +520,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 convert, self.work_directory, self.output_file))
             # Now do a second pass with image magick to resize and compress the
             # gif as much as possible.  The remap option basically takes the
-            # first image as a reference inmage for the colour palette Depending
+            # first image as a reference image for the colour palette Depending
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want
@@ -786,7 +785,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         string = header
 
-        message = multi_buffer_help()
+        message = workbench_help()
 
         string += message.to_html()
         string += footer

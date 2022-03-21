@@ -20,7 +20,6 @@ __revision__ = '$Format:%H$'
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
-from matplotlib.colors import from_levels_and_colors
 import qgis  # pylint: disable=unused-import
 
 from PyQt5.QtWidgets import QAction

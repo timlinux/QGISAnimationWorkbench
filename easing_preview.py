@@ -78,11 +78,11 @@ class EasingPreview(QWidget, FORM_CLASS):
         easing_type = QEasingCurve.Type(self.easing_combo.currentIndex())
         return QEasingCurve(easing_type)
 
-    def preview_colour(self):
-        return self.preview_colour
+    def preview_color(self):
+        return self.preview_color
 
-    def set_preview_colour(self, colour):
-        self.preview_colour = colour
+    def set_preview_color(self, color):
+        self.preview_color = color
         self.easing_preview_icon.setStyleSheet(
             'background-color:%s;border-radius:5px;'
             % self.preview_color)
@@ -143,6 +143,9 @@ class EasingPreview(QWidget, FORM_CLASS):
         # Set up easing previews
         self.easing_preview_icon = QtWidgets.QWidget(
             self.easing_preview)
+        height = self.easing_preview.height()
+        width = self.easing_preview.width()
+        self.preview_color = 'red'
         self.easing_preview_icon.setStyleSheet(
             'background-color:%s;border-radius:5px;'
             % self.preview_color)
@@ -152,8 +155,8 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.easing_preview_animation.setEasingCurve(
             QEasingCurve.InOutCubic)
         self.easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.easing_preview_animation.setEndValue(QPoint(250, 150))
-        self.easing_preview_animation.setDuration(1500)
+        self.easing_preview_animation.setEndValue(QPoint(width, height))
+        self.easing_preview_animation.setDuration(3500)
         # loop forever ...
         self.easing_preview_animation.setLoopCount(-1)
         self.easing_preview_animation.start()
