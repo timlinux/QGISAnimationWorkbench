@@ -278,6 +278,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.processing_completed)
         self.render_queue.status_message.connect(
             self.show_message)
+        self.render_queue.image_rendered.connect(
+            self.load_image)
 
     def close(self):
         self.save_state()

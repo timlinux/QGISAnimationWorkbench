@@ -20,12 +20,14 @@ __revision__ = '$Format:%H$'
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
+from grpc import StatusCode
 import qgis  # pylint: disable=unused-import
 
 from qgis.core import (
     QgsProject,
     QgsExpressionContextScope,
     QgsMapRendererTask,
+    QgsTask,
     QgsApplication)
 
 from qgis.PyQt.QtGui import QImage, QPainter
@@ -44,6 +46,8 @@ class RenderQueue(QObject):
     status_changed = pyqtSignal()
     processing_completed = pyqtSignal()
     status_message = pyqtSignal(str)
+    # Sends the path to each frame as it is rendered
+    image_rendered = pyqtSignal(str)
 
     def __init__(self, parent=None, iface=None):
         super().__init__(parent=parent)
@@ -60,6 +64,10 @@ class RenderQueue(QObject):
         # at a time whenver the task manager tells us the queue is
         # empty.
         self.renderer_queue = []
+        # Used to keep a list of the task ids and the
+        # image they will output to because we cannot find out the
+        # image path from the QgsMapRendererTask
+        self.task_dict = {}
         self.verbose_mode = int(setting(key='verbose_mode', default=0))
         self.total_queue_size = 0
         self.active_queue_size = 0
@@ -67,7 +75,7 @@ class RenderQueue(QObject):
         self.total_feature_count = 0
         self.completed_feature_count = 0
         # Records how many jobs were scheduled last
-        # can differ from render_thread_pool_size if 
+        # can differ from render_thread_pool_size if
         # we are near the end of the queue
         self.last_pool_size = 0
 
@@ -76,11 +84,24 @@ class RenderQueue(QObject):
         self.total_frame_count = 0
         # Queue manager for above.
         QgsApplication.taskManager().allTasksFinished.connect(
-            self.process_more_tasks)        
+            self.process_more_tasks)
         QgsApplication.taskManager().progressChanged.connect(
             self.update_status)
-    
+        QgsApplication.taskManager().statusChanged.connect(
+            self.task_status_changed)
+
+    # slot
+    def task_status_changed(self, task_id, status):
+        if status == QgsTask.TaskStatus.Complete:
+            try:
+                file_name = self.task_dict[task_id]
+                self.image_rendered.emit(file_name)
+            except:
+                pass
+
     def reset(self):
+        self.renderer_queue.clear()
+        self.task_dict.clear()
         self.total_queue_size = 0
         self.active_queue_size = 0
         self.total_completed = 0
@@ -113,7 +134,7 @@ class RenderQueue(QObject):
 
         :returns: None
         """
-        # Note we might get some side effects here if the task 
+        # Note we might get some side effects here if the task
         # manager is running other tasks not related to this plugin
         self.total_completed += self.last_pool_size
         # self.total_tasks_lcd.display(self.total_frame_count)
@@ -131,12 +152,13 @@ class RenderQueue(QObject):
                 task = self.renderer_queue.pop(0)
                 task_id = QgsApplication.taskManager().addTask(
                     task)
-                if self.verbose_mode:                
-                    self.status_message.emit(
-                        'Rendering: %s' % task_id)
-                        # Would be nicer but not supported:
-                        #'Rendering: %s' % task.name())
+                self.task_dict[task_id] = task.objectName()
 
+                if self.verbose_mode:
+                    self.status_message.emit(
+                        'Rendering: %s' % task.objectName())
+                    # Would be nicer but not supported:
+                    # 'Rendering: %s' % task.name())
 
     def queue_task(
             self,
@@ -179,6 +201,9 @@ class RenderQueue(QObject):
         decorations = self.iface.activeDecorations()
         mapRendererTask.addDecorations(decorations)
 
+        # We use QObject.setObjectName to store the file name
+        # because the QgsMapRenderer task does not store it
+        mapRendererTask.setObjectName(name)
         # We will put this task in a separate queue and then pop them off
         # the queue at a time whenver the task manager lets us know we have
         # nothing to do.
