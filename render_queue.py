@@ -43,6 +43,7 @@ class RenderQueue(QObject):
     # Signals
     status_changed = pyqtSignal()
     processing_completed = pyqtSignal()
+    status_message = pyqtSignal(str)
 
     def __init__(self, parent=None, iface=None):
         super().__init__(parent=parent)
@@ -59,7 +60,7 @@ class RenderQueue(QObject):
         # at a time whenver the task manager tells us the queue is
         # empty.
         self.renderer_queue = []
-
+        self.verbose_mode = int(setting(key='verbose_mode', default=0))
         self.total_queue_size = 0
         self.active_queue_size = 0
         self.total_completed = 0
@@ -103,7 +104,6 @@ class RenderQueue(QObject):
                 self.total_completed / self.frames_per_feature)
         self.status_changed.emit()
 
-
     def process_more_tasks(self):
         """
         Feed the QgsTaskManager with another bundle of tasks.
@@ -127,9 +127,16 @@ class RenderQueue(QObject):
             self.last_pool_size = self.render_thread_pool_size
             if len(self.renderer_queue) < self.last_pool_size:
                 self.last_pool_size = len(self.renderer_queue)
-            for task in range(0, self.last_pool_size):
+            for item in range(0, self.last_pool_size):
+                task = self.renderer_queue.pop(0)
                 task_id = QgsApplication.taskManager().addTask(
-                    self.renderer_queue.pop(0))
+                    task)
+                if self.verbose_mode:                
+                    self.status_message.emit(
+                        'Rendering: %s' % task_id)
+                        # Would be nicer but not supported:
+                        #'Rendering: %s' % task.name())
+
 
     def queue_task(
             self,
@@ -176,6 +183,7 @@ class RenderQueue(QObject):
         # the queue at a time whenver the task manager lets us know we have
         # nothing to do.
         self.renderer_queue.append(mapRendererTask)
+        mapRendererTask.taskCompleted.connect(self.update_status)
         #task_id = QgsApplication.taskManager().addTask(mapRendererTask)
         self.update_status()
 

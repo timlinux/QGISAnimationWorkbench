@@ -59,6 +59,12 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
             self.debug_mode_checkbox.setChecked(True)
         else:
             self.debug_mode_checkbox.setChecked(False)
+        # Adds verbose log message, useful for diagnostics
+        verbose_mode = int(setting(key='verbose_mode', default=0))
+        if verbose_mode:
+            self.verbose_mode_checkbox.setChecked(True)
+        else:
+            self.verbose_mode_checkbox.setChecked(False)            
 
     def accept(self):
         """Process the animation sequence.
@@ -72,5 +78,10 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
             set_setting(key='debug_mode', value=1)
         else:
             set_setting(key='debug_mode', value=0)
+
+        if self.verbose_mode_checkbox.isChecked():
+            set_setting(key='verbose_mode', value=1)
+        else:
+            set_setting(key='verbose_mode', value=0)            
             
         self.close()

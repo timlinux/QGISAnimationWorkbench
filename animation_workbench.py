@@ -272,6 +272,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.show_status)
         self.render_queue.processing_completed.connect(
             self.processing_completed)
+        self.render_queue.status_message.connect(
+            self.show_message)
+    
+    def show_message(self, message):
+        self.output_log_text_edit.append(message)
         
     # slot
     def pan_easing_changed(self, easing):
@@ -549,6 +554,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
     def fly_feature_to_feature(self, start_feature, end_feature):
         self.image_counter += 1
+        verbose_mode = int(setting(key='verbose_mode', default=0))
         self.progress_bar.setValue(self.image_counter)
         # In case we are iterating over lines or polygons, we
         # need to conver them to points first.
@@ -666,6 +672,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.work_directory,
                 self.frame_filename_prefix,
                 str(self.image_counter).rjust(10, '0')))
+            
+            if verbose_mode:                
+                self.output_log_text_edit.append(
+                    'Fly : %s' % name)
+
             starttime = timeit.default_timer()
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images so do nothing for now
@@ -702,6 +713,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         center = self.transform.transform(center)
         self.iface.mapCanvas().setCenter(center)
         self.iface.mapCanvas().zoomScale(self.max_scale)
+        verbose_mode = int(setting(key='verbose_mode', default=0))
 
         for current_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a
@@ -710,6 +722,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.work_directory,
                 self.frame_filename_prefix,
                 str(self.image_counter).rjust(10, '0')))
+
+            if verbose_mode:                
+                self.output_log_text_edit.append(
+                    'Dwell : %s' % name)
+
             if os.path.exists(name) and self.reuse_cache.isChecked():
                 # User opted to re-used cached images to do nothing for now
                 self.load_image(name)
