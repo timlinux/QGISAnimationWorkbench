@@ -40,8 +40,9 @@ from .settings import setting
 
 class RenderQueue(QObject):
 
-    # Signal emitted when the easing is changed
-    easing_changed_signal = pyqtSignal(int)
+    # Signals
+    status_changed = pyqtSignal()
+    processing_completed = pyqtSignal()
 
     def __init__(self, parent=None, iface=None):
         super().__init__(parent=parent)
@@ -58,12 +59,50 @@ class RenderQueue(QObject):
         # at a time whenver the task manager tells us the queue is
         # empty.
         self.renderer_queue = []
-        # Queue manager for above.
-        QgsApplication.taskManager().allTasksFinished.connect(
-            self.process_more_tasks)
+
+        self.total_queue_size = 0
+        self.active_queue_size = 0
+        self.total_completed = 0
+        self.total_feature_count = 0
+        self.completed_feature_count = 0
+        # Records how many jobs were scheduled last
+        # can differ from render_thread_pool_size if 
+        # we are near the end of the queue
+        self.last_pool_size = 0
+
         self.frames_per_feature = 0
         self.image_counter = 0
         self.total_frame_count = 0
+        # Queue manager for above.
+        QgsApplication.taskManager().allTasksFinished.connect(
+            self.process_more_tasks)        
+        QgsApplication.taskManager().progressChanged.connect(
+            self.update_status)
+    
+    def reset(self):
+        self.total_queue_size = 0
+        self.active_queue_size = 0
+        self.total_completed = 0
+        self.total_feature_count = 0
+        self.completed_feature_count = 0
+
+        self.frames_per_feature = 0
+        self.image_counter = 0
+        self.total_frame_count = 0
+        self.status_changed.emit()
+
+    def update_status(self):
+        # make sure internal counters are consistent
+        # then emit a signal to let watchers know the counts
+        # have been updated
+        self.active_queue_size = QgsApplication.taskManager().countActiveTasks()
+        if self.frames_per_feature:
+            self.total_feature_count = int(
+                self.total_queue_size / self.frames_per_feature)
+            self.completed_feature_count = int(
+                self.total_completed / self.frames_per_feature)
+        self.status_changed.emit()
+
 
     def process_more_tasks(self):
         """
@@ -74,27 +113,21 @@ class RenderQueue(QObject):
 
         :returns: None
         """
+        self.total_completed += self.last_pool_size
         # self.total_tasks_lcd.display(self.total_frame_count)
         # self.completed_tasks_lcd.display(
         #    self.total_frame_count - len(self.renderer_queue))
         if len(self.renderer_queue) == 0:
-            # all processing done so go off and generate
-            # the vid or gif
-            # self.show_status()
-            # self.processing_completed()
-            # self.progress_bar.setValue(0)
-            pass
+            # all processing done
+            self.update_status()
+            self.processing_completed.emit()
         else:
-            self.output_log_text_edit.append(
-                'Thread pool emptied, adding more tasks')
-            pop_size = self.render_thread_pool_size
-            if len(self.renderer_queue) < pop_size:
-                pop_size = len(self.renderer_queue)
-            for task in range(0, pop_size):
+            self.last_pool_size = self.render_thread_pool_size
+            if len(self.renderer_queue) < self.last_pool_size:
+                self.last_pool_size = len(self.renderer_queue)
+            for task in range(0, self.last_pool_size):
                 task_id = QgsApplication.taskManager().addTask(
                     self.renderer_queue.pop(0))
-            self.progress_bar.setValue(
-                self.progress_bar.value() * pop_size)
 
     def render_image_as_task(
             self,
@@ -103,6 +136,7 @@ class RenderQueue(QObject):
             current_frame,
             action='None'):
 
+        self.total_queue_size += 1
         #size = self.iface.mapCanvas().size()
         settings = self.iface.mapCanvas().mapSettings()
         # The next part sets project variables that you can use in your
@@ -140,6 +174,7 @@ class RenderQueue(QObject):
         # the queue at a time whenver the task manager lets us know we have
         # nothing to do.
         task_id = QgsApplication.taskManager().addTask(mapRendererTask)
+        self.update_status()
 
     def render_image(self):
         """Render the current canvas to an image.

@@ -453,7 +453,7 @@ the GIF or MP4 as selected above.</string>
       <item row="0" column="0" colspan="2">
        <widget class="QStackedWidget" name="status_stack">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="easing_status_page">
          <layout class="QGridLayout" name="gridLayout_13">
@@ -531,7 +531,7 @@ the GIF or MP4 as selected above.</string>
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QLCDNumber" name="completed_lcd">
+           <widget class="QLCDNumber" name="completed_features_lcd">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>

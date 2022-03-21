@@ -272,9 +272,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.preview_stack.setCurrentIndex(0)
         # Enable easing status page on startup
         self.status_stack.setCurrentIndex(0)
-        QgsApplication.taskManager().progressChanged.connect(
+        self.render_queue.status_changed.connect(
             self.show_status)
-
+        self.render_queue.processing_completed.connect(
+            self.processing_completed)
+        
     # slot
     def pan_easing_changed(self, easing):
         self.output_log_text_edit.append(
@@ -303,8 +305,19 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
         :returns: None
         """
-        size = QgsApplication.taskManager().countActiveTasks()
-        self.active_lcd.display(size)
+        self.active_lcd.display(
+            self.render_queue.active_queue_size)
+        self.total_tasks_lcd.display(
+            self.render_queue.total_queue_size
+        )
+        self.remaining_features_lcd.display(
+            self.render_queue.total_feature_count - 
+            self.render_queue.completed_feature_count)
+        self.completed_tasks_lcd.display(
+            self.render_queue.total_completed
+        )
+        self.completed_features_lcd.display(
+            self.render_queue.completed_feature_count)
 
     def output_name_changed(self, path):
         # File name line edit changed slot
@@ -390,12 +403,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.preview_stack.setCurrentIndex(0)
         # Enable queue status page
         self.status_stack.setCurrentIndex(1)
-        self.remaining_features_lcd.display(0)
-        self.active_lcd.display(0)
-        self.completed_lcd.display(0)
-        self.remaining_features_lcd.display(0)
-        self.total_tasks_lcd.display(0)
-        self.completed_tasks_lcd.display(0)
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
@@ -450,6 +457,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             value=self.zoom_easing_widget.easing_name())
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
         set_setting(key='output_file', value=self.output_file)
+        self.render_queue.reset()
         if self.map_mode == MapMode.FIXED_EXTENT:
             self.output_log_text_edit.append(
                 'Generating %d frames for fixed extent render'
