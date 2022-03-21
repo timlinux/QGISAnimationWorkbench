@@ -70,8 +70,10 @@ class AnimationWorkbenchPlugin:
         self.iface.addToolBarIcon(self.settings_action)
 
     def unload(self):
-        self.iface.removeToolBarIcon(self.action)
-        del self.action
+        self.iface.removeToolBarIcon(self.run_action)
+        self.iface.removeToolBarIcon(self.settings_action)
+        del self.run_action
+        del self.settings_action
 
     def initialize_debugger(self):
         import multiprocessing
