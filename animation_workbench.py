@@ -121,9 +121,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Close button action
         close_button = self.button_box.button(
             QtWidgets.QDialogButtonBox.Close)
-        close_button.clicked.connect(self.reject)
+        close_button.clicked.connect(self.close)
         # Fix ends
 
+        # Used by ffmpeg and convert to set the fps for rendered videos
+        self.frames_per_second = int(
+            setting(key='frames_per_second', default='90'))
+        self.framerate_spin.setValue(self.frames_per_second)
         # How many frames to render for each feature pair transition
         # The output is generated at e.g. 30fps so choosing 30
         # would fly to each feature for 1s
@@ -274,10 +278,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.processing_completed)
         self.render_queue.status_message.connect(
             self.show_message)
-    
+
+    def close(self):
+        self.save_state()
+        self.reject()
+
     def show_message(self, message):
         self.output_log_text_edit.append(message)
-        
+
     # slot
     def pan_easing_changed(self, easing):
         self.output_log_text_edit.append(
@@ -312,7 +320,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.render_queue.total_queue_size
         )
         self.remaining_features_lcd.display(
-            self.render_queue.total_feature_count - 
+            self.render_queue.total_feature_count -
             self.render_queue.completed_feature_count)
         self.completed_tasks_lcd.display(
             self.render_queue.total_completed
@@ -349,58 +357,16 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.output_file = file_path
         self.file_edit.setText(file_path)
 
-    # Prevent the slot being called twize
-    @pyqtSlot()
-    def accept(self):
-        """Process the animation sequence.
+    def save_state(self):
 
-        .. note:: This is called on OK click.
-        """
-        # Image preview page
-        self.preview_stack.setCurrentIndex(0)
-        # Enable queue status page
-        self.status_stack.setCurrentIndex(1)
-        # set parameter from dialog
+        self.frames_per_second = self.framerate_spin.value()
+        set_setting(key='frames_per_second', value=self.frames_per_second)
 
-        if not self.reuse_cache.isChecked():
-            os.system('rm %s/%s*' %
-                      (
-                          self.work_directory,
-                          self.frame_filename_prefix
-                      ))
-
-        # feature layer that we will visit each feature for
-        feature_layer = self.layer_combo.currentLayer()
-        if feature_layer:
-            self.transform = QgsCoordinateTransform(
-                feature_layer.crs(),
-                QgsProject.instance().crs(),
-                QgsProject.instance())
-            feature_count = feature_layer.featureCount()
-
-        layer_type = qgis.core.QgsWkbTypes.displayString(
-            int(self.layer_combo.currentLayer().wkbType()))
-        layer_name = self.layer_combo.currentLayer().name()
-        self.output_log_text_edit.append(
-            'Generating flight path for %s layer: %s' % 
-            (layer_type, layer_name))
-        self.max_scale = self.scale_range.maximumScale()
-        self.min_scale = self.scale_range.minimumScale()
-        self.dwell_frames = self.hover_frames_spin.value()
-        self.frames_per_feature = self.feature_frames_spin.value()
-        self.frames_to_zenith = int(self.frames_per_feature / 2)
-        self.frames_for_extent = self.extent_frames_spin.value()
-        self.render_queue.frames_per_feature = (
-            self.frames_per_feature + self.dwell_frames)
-        self.image_counter = 1
         if self.radio_sphere.isChecked():
-            self.map_mode = MapMode.SPHERE
             set_setting(key='map_mode', value='sphere')
         elif self.radio_planar.isChecked():
-            self.map_mode = MapMode.PLANAR
             set_setting(key='map_mode', value='planar')
         else:
-            self.map_mode = MapMode.FIXED_EXTENT
             set_setting(key='map_mode', value='fixed_extent')
         # Save state
         set_setting(key='frames_per_feature', value=self.frames_per_feature)
@@ -422,6 +388,62 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             value=self.zoom_easing_widget.easing_name())
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
         set_setting(key='output_file', value=self.output_file)
+
+    # Prevent the slot being called twize
+    @pyqtSlot()
+    def accept(self):
+        """Process the animation sequence.
+
+        .. note:: This is called on OK click.
+        """
+        # Image preview page
+        self.preview_stack.setCurrentIndex(0)
+        # Enable queue status page
+        self.status_stack.setCurrentIndex(1)
+        # set parameter from dialog
+
+        if not self.reuse_cache.isChecked():
+            os.system('rm %s/%s*' %
+                      (
+                          self.work_directory,
+                          self.frame_filename_prefix
+                      ))
+        # feature layer that we will visit each feature for
+        feature_layer = self.layer_combo.currentLayer()
+        if feature_layer:
+            self.transform = QgsCoordinateTransform(
+                feature_layer.crs(),
+                QgsProject.instance().crs(),
+                QgsProject.instance())
+            feature_count = feature_layer.featureCount()
+
+        layer_type = qgis.core.QgsWkbTypes.displayString(
+            int(self.layer_combo.currentLayer().wkbType()))
+        layer_name = self.layer_combo.currentLayer().name()
+        self.output_log_text_edit.append(
+            'Generating flight path for %s layer: %s' %
+            (layer_type, layer_name))
+        self.max_scale = self.scale_range.maximumScale()
+        self.min_scale = self.scale_range.minimumScale()
+        self.dwell_frames = self.hover_frames_spin.value()
+        self.frames_per_feature = self.feature_frames_spin.value()
+        self.frames_to_zenith = int(self.frames_per_feature / 2)
+        self.frames_for_extent = self.extent_frames_spin.value()
+        self.render_queue.frames_per_feature = (
+            self.frames_per_feature + self.dwell_frames)
+        self.image_counter = 1
+
+        self.frames_per_second = self.framerate_spin.value()
+
+        if self.radio_sphere.isChecked():
+            self.map_mode = MapMode.SPHERE
+        elif self.radio_planar.isChecked():
+            self.map_mode = MapMode.PLANAR
+        else:
+            self.map_mode = MapMode.FIXED_EXTENT
+
+        self.save_state()
+
         self.render_queue.reset()
         if self.map_mode == MapMode.FIXED_EXTENT:
             self.output_log_text_edit.append(
@@ -672,8 +694,8 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.work_directory,
                 self.frame_filename_prefix,
                 str(self.image_counter).rjust(10, '0')))
-            
-            if verbose_mode:                
+
+            if verbose_mode:
                 self.output_log_text_edit.append(
                     'Fly : %s' % name)
 
@@ -723,7 +745,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.frame_filename_prefix,
                 str(self.image_counter).rjust(10, '0')))
 
-            if verbose_mode:                
+            if verbose_mode:
                 self.output_log_text_edit.append(
                     'Dwell : %s' % name)
 
@@ -754,14 +776,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             y = feature.geometry().asPoint().y()
             center = QgsPointXY(x, y)
         elif geometry_type in [
-            'LineString', 'LineStringZ', 'LineStringM', 'LineStringZM']:
+                'LineString', 'LineStringZ', 'LineStringM', 'LineStringZM']:
             length = feature.geometry().length()
             point = feature.geometry().interpolate(length/2.0)
             x = point.geometry().x()
             y = point.geometry().y()
             center = QgsPointXY(x, y)
         elif geometry_type in [
-            'Polygon', 'PolygonZ', 'PolygonM', 'PolygonZM']:
+                'Polygon', 'PolygonZ', 'PolygonM', 'PolygonZM']:
             center = feature.geometry().centroid().asPoint()
         else:
             center = None
