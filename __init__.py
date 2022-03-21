@@ -22,7 +22,7 @@ __revision__ = '$Format:%H$'
 # noinspection PyUnresolvedReferences
 import qgis  # pylint: disable=unused-import
 
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction, QPushButton
 from PyQt5.QtGui import QIcon
 from .animation_workbench import AnimationWorkbench
 from .workbench_settings import WorkbenchSettings
@@ -92,3 +92,36 @@ class AnimationWorkbenchPlugin:
     def settings(self):
         dialog = WorkbenchSettings()
         dialog.exec_()
+
+    def display_information_message_bar(
+            self,
+            title=None,
+            message=None,
+            more_details=None,
+            button_text='Show details ...',
+            duration=8):
+        """
+        Display an information message bar.
+        :param title: The title of the message bar.
+        :type title: basestring
+        :param message: The message inside the message bar.
+        :type message: basestring
+        :param more_details: The message inside the 'Show details' button.
+        :type more_details: basestring
+        :param button_text: Text of the button if 'more_details' is not empty.
+        :type button_text: basestring
+        :param duration: The duration for the display, default is 8 seconds.
+        :type duration: int
+        """
+        self.iface.messageBar().clearWidgets()
+        widget = self.iface.messageBar().createMessage(title, message)
+
+        if more_details:
+            button = QPushButton(widget)
+            button.setText(button_text)
+            button.pressed.connect(
+                lambda: self.display_information_message_box(
+                    title=title, message=more_details))
+            widget.layout().addWidget(button)
+
+        self.iface.messageBar().pushWidget(widget, Qgis.Info, duration)
