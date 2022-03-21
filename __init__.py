@@ -18,17 +18,20 @@ __revision__ = '$Format:%H$'
 # (at your option) any later version.
 # ---------------------------------------------------------------------
 
+import time
+
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
 import qgis  # pylint: disable=unused-import
 
-from PyQt5.QtWidgets import QAction, QPushButton
 from PyQt5.QtGui import QIcon
+from qgis.core import Qgis
+from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
 from .animation_workbench import AnimationWorkbench
 from .workbench_settings import WorkbenchSettings
 from .utilities import resources_path
 from .render_queue import RenderQueue
-
+from .settings import setting
 
 def classFactory(iface):
     return AnimationWorkbenchPlugin(iface)
@@ -41,16 +44,6 @@ class AnimationWorkbenchPlugin:
     def initGui(self):
 
         self.render_queue = RenderQueue(iface=self.iface)
-
-        # If you change this to true, QGIS startup
-        # will block until it can attache to the remote debugger
-        debug_mode = False
-        if debug_mode:
-            try:
-                self.initialize_debugger()
-            except:
-                pass
-
         icon = QIcon(resources_path(
             'img', 'icons', 'animation-workbench.svg'))
 
@@ -68,20 +61,38 @@ class AnimationWorkbenchPlugin:
         self.settings_action.triggered.connect(self.settings)
         self.iface.addToolBarIcon(self.settings_action)
 
+        # If you change debug_mode to true, after clicking
+        # this toolbutton, QGIS will block until it can attach
+        # to the remote debugger
+        debug_mode = int(setting(key='debug_mode', default=0))      
+        if debug_mode:
+            self.debug_action = QAction(
+                icon,
+                'Animation Workbench Debug Mode',
+                self.iface.mainWindow())
+            self.debug_action.triggered.connect(self.debug)
+            self.iface.addToolBarIcon(self.debug_action)
+
+    def debug(self):
+        self.display_information_message_box(
+            title='Animation Workbench',
+            message='Close this dialog then open VSCode and start your debug client.')
+        time.sleep(2)
+        import multiprocessing
+        if multiprocessing.current_process().pid > 1:
+
+            import debugpy
+            debugpy.listen(("0.0.0.0", 9000))
+            debugpy.wait_for_client()
+            self.display_information_message_bar(
+                title='Animation Workbench',
+                message='Visual Studio Code debugger is now attached on port 9000')
+
     def unload(self):
         self.iface.removeToolBarIcon(self.run_action)
         self.iface.removeToolBarIcon(self.settings_action)
         del self.run_action
         del self.settings_action
-
-    def initialize_debugger(self):
-        import multiprocessing
-        if multiprocessing.current_process().pid > 1:
-            import debugpy
-            debugpy.listen(("0.0.0.0", 9000))
-            print("Debugger is ready to be attached, press F5", flush=True)
-            debugpy.wait_for_client()
-            print("Visual Studio Code debugger is now attached", flush=True)
 
     def run(self):
         dialog = AnimationWorkbench(
@@ -125,3 +136,14 @@ class AnimationWorkbenchPlugin:
             widget.layout().addWidget(button)
 
         self.iface.messageBar().pushWidget(widget, Qgis.Info, duration)
+
+    def display_information_message_box(
+            self, parent=None, title=None, message=None):
+        """
+        Display an information message box.
+        :param title: The title of the message box.
+        :type title: basestring
+        :param message: The message inside the message box.
+        :type message: basestring
+        """
+        QMessageBox.information(parent, title, message)

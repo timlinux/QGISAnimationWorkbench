@@ -23,22 +23,18 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QPushButton, QStyle, QFileDialog
+from PyQt5.QtWidgets import QStyle, QFileDialog
 
 from qgis.core import (
     QgsPointXY,
     QgsWkbTypes,
     QgsExpressionContextUtils,
     QgsProject,
-    QgsApplication,
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
     QgsMapLayerProxyModel)
-from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
-from qgis.core import Qgis
 from .settings import set_setting, setting
 from .utilities import get_ui_class, which, resources_path
-from .easing_preview import EasingPreview
 
 
 class MapMode(Enum):
@@ -348,17 +344,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.output_file = file_path
         self.file_edit.setText(file_path)
 
-    def display_information_message_box(
-            self, parent=None, title=None, message=None):
-        """
-        Display an information message box.
-        :param title: The title of the message box.
-        :type title: basestring
-        :param message: The message inside the message box.
-        :type message: basestring
-        """
-        QMessageBox.information(parent, title, message)
-
     # Prevent the slot being called twize
     @pyqtSlot()
     def accept(self):
@@ -388,6 +373,12 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 QgsProject.instance())
             feature_count = feature_layer.featureCount()
 
+        layer_type = qgis.core.QgsWkbTypes.displayString(
+            int(self.layer_combo.currentLayer().wkbType()))
+        layer_name = self.layer_combo.currentLayer().name()
+        self.output_log_text_edit.append(
+            'Generating flight path for %s layer: %s' % 
+            (layer_type, layer_name))
         self.max_scale = self.scale_range.maximumScale()
         self.min_scale = self.scale_range.minimumScale()
         self.dwell_frames = self.hover_frames_spin.value()
@@ -563,6 +554,11 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # need to conver them to points first.
         start_point = self.geometry_to_pointxy(start_feature)
         end_point = self.geometry_to_pointxy(end_feature)
+        if not start_point or not end_point:
+            self.output_log_text_edit.append(
+                'Unsupported geometry, skipping.')
+            return
+
         # now go on to calculate the mins, max's and ranges
         x_min = start_point.x()
         x_max = end_point.x()
@@ -699,6 +695,10 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :type feature: QgsFeature
         """
         center = self.geometry_to_pointxy(feature)
+        if not center:
+            self.output_log_text_edit.append(
+                'Unsupported geometry, skipping.')
+            return
         center = self.transform.transform(center)
         self.iface.mapCanvas().setCenter(center)
         self.iface.mapCanvas().zoomScale(self.max_scale)
@@ -725,18 +725,29 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
     def geometry_to_pointxy(self, feature):
         x, y = None, None
-        if feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
+        # Be careful of replacing this with logic like this
+        # feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
+        # subce it resolves to the wrong type
+        geometry_type = qgis.core.QgsWkbTypes.displayString(
+            int(feature.geometry().wkbType()))
+        # List of type names is here:
+        # https://api.qgis.org/api/qgswkbtypes_8cpp_source.html
+        if geometry_type in ['Point', 'PointZ', 'PointM', 'PointZM']:
             x = feature.geometry().asPoint().x()
             y = feature.geometry().asPoint().y()
             center = QgsPointXY(x, y)
-        elif feature.geometry().wkbType() == QgsWkbTypes.LineGeometry:
+        elif geometry_type in [
+            'LineString', 'LineStringZ', 'LineStringM', 'LineStringZM']:
             length = feature.geometry().length()
             point = feature.geometry().interpolate(length/2.0)
             x = point.geometry().x()
             y = point.geometry().y()
             center = QgsPointXY(x, y)
-        else:  # assumes polygon
+        elif geometry_type in [
+            'Polygon', 'PolygonZ', 'PolygonM', 'PolygonZM']:
             center = feature.geometry().centroid().asPoint()
+        else:
+            center = None
         return center
 
     def help_toggled(self, flag):

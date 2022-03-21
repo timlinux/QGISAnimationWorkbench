@@ -49,6 +49,16 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         # You could probably run 100 or more on a decently specced machine
         self.spin_thread_pool_size.setValue(int(setting(
             key='render_thread_pool_size', default=10)))
+        # This is intended for developers to attach to the plugin using a 
+        # remote debugger so that they can step through the code. Do not 
+        # enable it if you do not have a remote debugger set up as it will 
+        # block QGIS startup until a debugger is attached to the process. 
+        # Requires restart after changing.
+        debug_mode = int(setting(key='debug_mode', default=0))
+        if debug_mode:
+            self.debug_mode_checkbox.setChecked(True)
+        else:
+            self.debug_mode_checkbox.setChecked(False)
 
     def accept(self):
         """Process the animation sequence.
@@ -58,4 +68,9 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         set_setting(
             key='render_thread_pool_size',
             value=self.spin_thread_pool_size.value())
+        if self.debug_mode_checkbox.isChecked():
+            set_setting(key='debug_mode', value=1)
+        else:
+            set_setting(key='debug_mode', value=0)
+            
         self.close()
