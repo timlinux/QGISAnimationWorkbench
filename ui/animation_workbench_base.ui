@@ -88,7 +88,7 @@ zoom to each point.</string>
           <item row="1" column="0">
            <widget class="QGroupBox" name="zoom_range_group">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="toolTip">
              <string>The scale range that the animation should 

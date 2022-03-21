@@ -47,7 +47,7 @@ class Ui_animation_workbench_base(object):
         self.gridLayout_15.setSpacing(6)
         self.gridLayout_15.setObjectName("gridLayout_15")
         self.zoom_range_group = QtWidgets.QGroupBox(self.non_fixed_extent_settings)
-        self.zoom_range_group.setEnabled(False)
+        self.zoom_range_group.setEnabled(True)
         self.zoom_range_group.setObjectName("zoom_range_group")
         self.gridLayout_10 = QtWidgets.QGridLayout(self.zoom_range_group)
         self.gridLayout_10.setObjectName("gridLayout_10")

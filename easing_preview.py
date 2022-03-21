@@ -75,7 +75,8 @@ class EasingPreview(QWidget, FORM_CLASS):
         return self.easing_combo.currentText()
 
     def get_easing(self):
-        return self.easing_combo.currentData()
+        easing_type = QEasingCurve.Type(self.easing_combo.currentIndex())
+        return QEasingCurve(easing_type)
 
     def preview_colour(self):
         return self.preview_colour
