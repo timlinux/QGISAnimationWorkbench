@@ -765,6 +765,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setValue(self.image_counter)
 
     def geometry_to_pointxy(self, feature):
+        verbose_mode = int(setting(key='verbose_mode', default=0))
         x, y = None, None
         # Be careful of replacing this with logic like this
         # feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
@@ -773,21 +774,25 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             int(feature.geometry().wkbType()))
         # List of type names is here:
         # https://api.qgis.org/api/qgswkbtypes_8cpp_source.html
-        if geometry_type in ['Point', 'PointZ', 'PointM', 'PointZM']:
+        if geometry_type in ['Point', 'PointZ', 'PointM', 'PointZM', 'Point25D']:
             x = feature.geometry().asPoint().x()
             y = feature.geometry().asPoint().y()
             center = QgsPointXY(x, y)
         elif geometry_type in [
-                'LineString', 'LineStringZ', 'LineStringM', 'LineStringZM']:
+                'LineString', 'LineStringZ', 'LineStringM',
+                'LineStringZM', 'LineString25D']:
             length = feature.geometry().length()
             point = feature.geometry().interpolate(length/2.0)
             x = point.geometry().x()
             y = point.geometry().y()
             center = QgsPointXY(x, y)
         elif geometry_type in [
-                'Polygon', 'PolygonZ', 'PolygonM', 'PolygonZM']:
+                'Polygon', 'PolygonZ', 'PolygonM', 'PolygonZM', 'Polygon25D']:
             center = feature.geometry().centroid().asPoint()
         else:
+            if verbose_mode:
+                self.output_log_text_edit.append(
+                    'Feature Geometry Type : %s' % geometry_type)
             center = None
         return center
 
