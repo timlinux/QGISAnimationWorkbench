@@ -252,8 +252,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         # Set an initial image in the preview based on the current map
         image = self.render_queue.render_image()
-        pixmap = QtGui.QPixmap.fromImage(image)
-        self.current_frame_preview.setPixmap(pixmap)
+        if not image.isNull():
+            pixmap = QPixmap.fromImage(image)
+            self.current_frame_preview.setPixmap(pixmap)
 
         self.progress_bar.setValue(0)
         # This will be half the number of frames per feature
