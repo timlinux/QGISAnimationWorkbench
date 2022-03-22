@@ -48,7 +48,9 @@ from qgis.core import (
     QgsProject,
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
-    QgsMapLayerProxyModel)
+    QgsMapLayerProxyModel,
+    QgsReferencedRectangle
+)
 from .settings import set_setting, setting
 from .utilities import get_ui_class, which, resources_path
 
@@ -471,8 +473,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.progress_bar.setMaximum(self.frames_for_extent)
             self.total_frame_count = self.frames_for_extent
             self.progress_bar.setValue(0)
-            self.iface.mapCanvas().setExtent(
-                self.extent_group_box.currentExtent())
+            self.iface.mapCanvas().setReferencedExtent(QgsReferencedRectangle(
+                self.extent_group_box.currentExtent(), self.extent_group_box.currentCrs()))
 
             self.image_counter = 0
 
