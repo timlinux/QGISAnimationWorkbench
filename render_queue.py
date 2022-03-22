@@ -20,7 +20,6 @@ __revision__ = '$Format:%H$'
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
-from grpc import StatusCode
 import qgis  # pylint: disable=unused-import
 
 from qgis.core import (
