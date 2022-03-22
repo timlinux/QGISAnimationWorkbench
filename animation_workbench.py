@@ -433,7 +433,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.frames_for_extent = self.extent_frames_spin.value()
         self.render_queue.frames_per_feature = (
             self.frames_per_feature + self.dwell_frames)
-        self.image_counter = 1
+        self.image_counter = 0
 
         self.frames_per_second = self.framerate_spin.value()
 
@@ -456,8 +456,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
             self.progress_bar.setValue(0)
             self.iface.mapCanvas().setExtent(
                 self.extent_group_box.currentExtent())
-
-            self.image_counter = 0
 
             for image_count in range(0, self.frames_for_extent):
                 name = ('%s/%s-%s.png' % (
@@ -577,7 +575,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 'MP4 written to %s' % self.output_file)
 
     def fly_feature_to_feature(self, start_feature, end_feature):
-        self.image_counter += 1
         verbose_mode = int(setting(key='verbose_mode', default=0))
         self.progress_bar.setValue(self.image_counter)
         # In case we are iterating over lines or polygons, we
@@ -606,7 +603,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         scale = None
 
         for current_frame in range(0, self.frames_per_feature, 1):
-
+            self.image_counter += 1
             # For x we could have a pan easing
             x_offset = x_increment * current_frame
             if self.pan_easing_widget.is_enabled():
@@ -711,7 +708,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 # crashy - check with Nyall why...
                 self.render_queue.queue_task(
                     name, end_feature.id(), current_frame, 'Panning')
-            self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
     def load_image(self, name):
@@ -729,6 +725,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :param feature: QgsFeature to dwell at.
         :type feature: QgsFeature
         """
+       
         center = self.geometry_to_pointxy(feature)
         if not center:
             self.output_log_text_edit.append(
@@ -740,6 +737,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         verbose_mode = int(setting(key='verbose_mode', default=0))
 
         for current_frame in range(0, self.dwell_frames, 1):
+            self.image_counter += 1
             # Pad the numbers in the name so that they form a
             # 10 digit string with left padding of 0s
             name = ('%s/%s-%s.png' % (
@@ -761,7 +759,6 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.render_queue.queue_task(
                     name, feature.id(), current_frame, 'Hovering')
 
-            self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
     def geometry_to_pointxy(self, feature):
