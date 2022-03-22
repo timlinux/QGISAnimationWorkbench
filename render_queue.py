@@ -225,10 +225,14 @@ class RenderQueue(QObject):
         :returns QImage:
         """
         size = self.iface.mapCanvas().size()
-        image = QImage(size, QImage.Format_RGB32)
+
+        settings = self.iface.mapCanvas().mapSettings()
+        image = QImage(size, settings.outputImageFormat())
+        image.setDotsPerMeterX(round(1000*settings.outputDpi()/25.4))
+        image.setDotsPerMeterY(round(1000 * settings.outputDpi() / 25.4))
+        image.fill(settings.backgroundColor().rgb())
 
         painter = QPainter(image)
-        settings = self.iface.mapCanvas().mapSettings()
         self.iface.mapCanvas().refresh()
         # You can fine tune the settings here for different
         # dpi, extent, antialiasing...
@@ -241,10 +245,15 @@ class RenderQueue(QObject):
 
     def render_image_to_file(self, name):
         size = self.iface.mapCanvas().size()
-        image = QImage(size, QImage.Format_RGB32)
+
+        settings = self.iface.mapCanvas().mapSettings()
+
+        image = QImage(size, settings.outputImageFormat())
+        image.setDotsPerMeterX(round(1000*settings.outputDpi()/25.4))
+        image.setDotsPerMeterY(round(1000 * settings.outputDpi() / 25.4))
+        image.fill(settings.backgroundColor().rgb())
 
         painter = QPainter(image)
-        settings = self.iface.mapCanvas().mapSettings()
         self.iface.mapCanvas().refresh()
         # You can fine tune the settings here for different
         # dpi, extent, antialiasing...
