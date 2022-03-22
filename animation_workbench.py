@@ -789,29 +789,25 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Be careful of replacing this with logic like this
         # feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
         # subce it resolves to the wrong type
-        geometry_type = qgis.core.QgsWkbTypes.displayString(
-            int(feature.geometry().wkbType()))
+        flat_type = QgsWkbTypes.flatType(feature.geometry().wkbType())
         # List of type names is here:
         # https://api.qgis.org/api/qgswkbtypes_8cpp_source.html
-        if geometry_type in ['Point', 'PointZ', 'PointM', 'PointZM', 'Point25D']:
+        if flat_type == QgsWkbTypes.Point:
             x = feature.geometry().asPoint().x()
             y = feature.geometry().asPoint().y()
             center = QgsPointXY(x, y)
-        elif geometry_type in [
-                'LineString', 'LineStringZ', 'LineStringM',
-                'LineStringZM', 'LineString25D']:
+        elif flat_type == QgsWkbTypes.LineString:
             length = feature.geometry().length()
             point = feature.geometry().interpolate(length/2.0)
             x = point.geometry().x()
             y = point.geometry().y()
             center = QgsPointXY(x, y)
-        elif geometry_type in [
-                'Polygon', 'PolygonZ', 'PolygonM', 'PolygonZM', 'Polygon25D']:
+        elif flat_type == QgsWkbTypes.Polygon:
             center = feature.geometry().centroid().asPoint()
         else:
             if verbose_mode:
                 self.output_log_text_edit.append(
-                    'Feature Geometry Type : %s' % geometry_type)
+                    'Feature Geometry Type : %s' % QgsWkbTypes.displayString(feature.geometry().wkbType()))
             center = None
         return center
 
