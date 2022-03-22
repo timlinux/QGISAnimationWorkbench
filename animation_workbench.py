@@ -177,6 +177,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Stores the total number of frames in the whole animation
         self.total_frame_count = None
 
+        self.last_preview_image = None
+
         # Note: self.pan_easing_widget and zoom_easing_preview are
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
@@ -466,6 +468,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.save_state()
 
         self.render_queue.reset()
+        self.last_preview_image = None
 
         self.render_queue.set_annotations(QgsProject.instance().annotationManager().annotations())
         self.render_queue.set_decorations(self.iface.activeDecorations())
@@ -739,6 +742,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.progress_bar.setValue(self.image_counter)
 
     def load_image(self, name):
+        if self.last_preview_image is not None and self.last_preview_image > name:
+            # images won't necessarily be rendered in order, so only update the preview image
+            # if the rendered image is from later in the animation vs the one we are currently showing.
+            # avoids the preview jumping forward and backward and zooming/in out in unpredictable patterns
+            return
+
+        self.last_preview_image = name
         # Load the preview with the named image file
         with open(name, 'rb') as image_file:
             content = image_file.read()
