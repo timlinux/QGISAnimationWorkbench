@@ -23,12 +23,16 @@ __revision__ = '$Format:%H$'
 # from grpc import StatusCode
 import qgis  # pylint: disable=unused-import
 
+from typing import List
+
 from qgis.core import (
     QgsProject,
     QgsExpressionContextScope,
     QgsMapRendererTask,
     QgsTask,
-    QgsApplication)
+    QgsApplication,
+    QgsMapSettings
+)
 
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QObject, pyqtSignal
@@ -38,6 +42,16 @@ from qgis.core import (
     QgsApplication,
     QgsMapRendererCustomPainterJob)
 from .settings import setting
+
+
+class RenderJob:
+
+    def __init__(self,
+                 file_name: str,
+                 map_settings: QgsMapSettings
+                 ):
+        self.file_name: str = file_name
+        self.map_settings: QgsMapSettings = map_settings
 
 
 class RenderQueue(QObject):
@@ -63,7 +77,7 @@ class RenderQueue(QObject):
         # we pop items off this list self.render_thread_pool_size
         # at a time whenver the task manager tells us the queue is
         # empty.
-        self.renderer_queue = []
+        self.renderer_queue: List[RenderJob] = []
         # Used to keep a list of the task ids and the
         # image they will output to because we cannot find out the
         # image path from the QgsMapRendererTask
@@ -74,6 +88,9 @@ class RenderQueue(QObject):
         self.total_completed = 0
         self.total_feature_count = 0
         self.completed_feature_count = 0
+        self.annotations_list = []
+        self.decorations = []
+
         # Records how many jobs were scheduled last
         # can differ from render_thread_pool_size if
         # we are near the end of the queue
@@ -112,6 +129,8 @@ class RenderQueue(QObject):
         self.image_counter = 0
         self.total_frame_count = 0
         self.status_changed.emit()
+        self.annotations_list = []
+        self.decorations = []
 
     def update_status(self):
         # make sure internal counters are consistent
@@ -149,19 +168,31 @@ class RenderQueue(QObject):
             if len(self.renderer_queue) < self.last_pool_size:
                 self.last_pool_size = len(self.renderer_queue)
             for item in range(0, self.last_pool_size):
-                task = self.renderer_queue.pop(0)
+                job = self.renderer_queue.pop(0)
+
+                task = self.create_task(job)
                 task_id = QgsApplication.taskManager().addTask(
                     task)
-                self.task_dict[task_id] = task.objectName()
+                self.task_dict[task_id] = job.file_name
+
+                self.update_status()
 
                 if self.verbose_mode:
                     self.status_message.emit(
-                        'Rendering: %s' % task.objectName())
+                        'Rendering: %s' % job.file_name)
                     # Would be nicer but not supported:
                     # 'Rendering: %s' % task.name())
 
+    def set_annotations(self,
+                        annotations):
+        self.annotations_list = [a.clone() for a in annotations]
+
+    def set_decorations(self, decorations):
+        self.decorations = decorations
+
     def queue_task(
             self,
+            map_settings: QgsMapSettings,
             name,
             current_feature_id,
             current_frame,
@@ -169,7 +200,7 @@ class RenderQueue(QObject):
 
         self.total_queue_size += 1
         #size = self.iface.mapCanvas().size()
-        settings = self.iface.mapCanvas().mapSettings()
+        settings = map_settings
         # The next part sets project variables that you can use in your
         # cartography etc. to see the progress. Here is an example
         # of a QGS expression you can use in the map decoration copyright
@@ -188,29 +219,33 @@ class RenderQueue(QObject):
         context = settings.expressionContext()
         context.appendScope(task_scope)
         settings.setExpressionContext(context)
+
+        # We will put this task in a separate queue and then pop them off
+        # the queue at a time whenever the task manager lets us know we have
+        # nothing to do.
+        job = RenderJob(name, settings)
+        self.renderer_queue.append(job)
+
+    def create_task(self, job: RenderJob):
         # Set the output file name for the render task
-        mapRendererTask = QgsMapRendererTask(settings, name, "PNG")
+        mapRendererTask = QgsMapRendererTask(job.map_settings, job.file_name, "PNG")
         # We need to clone the annotations because otherwise SIP will
         # pass ownership and then cause a crash when the render task is
         # destroyed
-        annotations = QgsProject.instance().annotationManager().annotations()
-        annotations_list = [a.clone() for a in annotations]
-        if (len(annotations_list) > 0):
-            mapRendererTask.addAnnotations([a.clone() for a in annotations])
+        if self.annotations_list:
+            cloned_annotations = [a.clone() for a in self.annotations_list]
+            mapRendererTask.addAnnotations(cloned_annotations)
+
         # Add decorations to the render job
-        decorations = self.iface.activeDecorations()
-        mapRendererTask.addDecorations(decorations)
+        mapRendererTask.addDecorations(self.decorations)
 
         # We use QObject.setObjectName to store the file name
         # because the QgsMapRenderer task does not store it
-        mapRendererTask.setObjectName(name)
-        # We will put this task in a separate queue and then pop them off
-        # the queue at a time whenver the task manager lets us know we have
-        # nothing to do.
-        self.renderer_queue.append(mapRendererTask)
+        mapRendererTask.setObjectName(job.file_name)
+
         mapRendererTask.taskCompleted.connect(self.update_status)
-        #task_id = QgsApplication.taskManager().addTask(mapRendererTask)
-        self.update_status()
+
+        return mapRendererTask
 
     def render_image(self):
         """Render the current canvas to an image.

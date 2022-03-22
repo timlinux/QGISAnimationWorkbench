@@ -466,6 +466,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.save_state()
 
         self.render_queue.reset()
+
+        self.render_queue.set_annotations(QgsProject.instance().annotationManager().annotations())
+        self.render_queue.set_decorations(self.iface.activeDecorations())
+
         if self.map_mode == MapMode.FIXED_EXTENT:
             self.output_log_text_edit.append(
                 'Generating %d frames for fixed extent render'
@@ -486,6 +490,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 ))
                 self.output_log_text_edit.append(name)
                 self.render_queue.queue_task(
+                    self.iface.mapCanvas().mapSettings(),
                     name,
                     None,
                     self.image_counter,
@@ -729,7 +734,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 # render_image(name)
                 # crashy - check with Nyall why...
                 self.render_queue.queue_task(
-                    name, end_feature.id(), current_frame, 'Panning')
+                    self.iface.mapCanvas().mapSettings(), name, end_feature.id(), current_frame, 'Panning')
             self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
@@ -778,6 +783,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 # render_image_to_file(name)
                 # crashy - check with Nyall why...
                 self.render_queue.queue_task(
+                    self.iface.mapCanvas().mapSettings(),
                     name, feature.id(), current_frame, 'Hovering')
 
             self.image_counter += 1
