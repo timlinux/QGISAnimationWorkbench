@@ -24,7 +24,7 @@ import time
 # noinspection PyUnresolvedReferences
 import qgis  # pylint: disable=unused-import
 
-from PyQt5.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
 from .animation_workbench import AnimationWorkbench
@@ -64,7 +64,7 @@ class AnimationWorkbenchPlugin:
         # If you change debug_mode to true, after clicking
         # this toolbutton, QGIS will block until it can attach
         # to the remote debugger
-        debug_mode = int(setting(key='debug_mode', default=0))      
+        debug_mode = int(setting(key='debug_mode', default=0))
         if debug_mode:
             self.debug_action = QAction(
                 icon,

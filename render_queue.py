@@ -215,14 +215,14 @@ class RenderQueue(QObject):
     def render_image(self):
         """Render the current canvas to an image.
 
-        .. note:: This is renders synchronously. 
+        .. note:: This is renders synchronously.
 
         .. deprecated We should deprecate this - it is currently only used
-            when making a preview 
+            when making a preview
 
         .. versionadded:: 1.0
 
-        :returns QImage: 
+        :returns QImage:
         """
         size = self.iface.mapCanvas().size()
         image = QImage(size, QImage.Format_RGB32)

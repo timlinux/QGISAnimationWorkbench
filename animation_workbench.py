@@ -18,12 +18,28 @@ from enum import Enum
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA
 
-from qgis.PyQt import QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QUrl
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+from qgis.PyQt.QtCore import (
+    pyqtSlot,
+    QUrl
+)
+from qgis.PyQt.QtGui import (
+    QIcon,
+    QPixmap,
+    QImage
+)
+from qgis.PyQt.QtWidgets import (
+    QStyle,
+    QFileDialog,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout
+)
+
+from PyQt5.QtMultimedia import (
+    QMediaContent,
+    QMediaPlayer
+)
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QStyle, QFileDialog
 
 from qgis.core import (
     QgsPointXY,
@@ -46,7 +62,7 @@ class MapMode(Enum):
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
 
-class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
+class AnimationWorkbench(QDialog, FORM_CLASS):
     """Dialog implementation class Animation Workbench class."""
 
     def __init__(self, parent=None, iface=None, render_queue=None):
@@ -61,13 +77,13 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         :param render_queue: Render queue to processing each frame.
         :type render_queue: RenderQueue
         """
-        QtWidgets.QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
         self.setupUi(self)
         self.render_queue = render_queue
         self.setWindowTitle(self.tr('Animation Workbench'))
         icon = resources_path(
             'img', 'icons', 'animation-workshop.svg')
-        self.setWindowIcon(QtGui.QIcon(icon))
+        self.setWindowIcon(QIcon(icon))
         self.parent = parent
         self.iface = iface
 
@@ -76,7 +92,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.output_log_text_edit.append(
             '© Tim Sutton, Feb 2022')
 
-        ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
+        ok_button = self.button_box.button(QDialogButtonBox.Ok)
         # ok_button.clicked.connect(self.accept)
         ok_button.setText('Run')
         ok_button.setEnabled(False)
@@ -113,14 +129,14 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # self.extent_group_box.setOriginalExtnt()
         # Set up things for context help
         self.help_button = self.button_box.button(
-            QtWidgets.QDialogButtonBox.Help)
+            QDialogButtonBox.Help)
         # Allow toggling the help button
         self.help_button.setCheckable(True)
         self.help_button.toggled.connect(self.help_toggled)
 
         # Close button action
         close_button = self.button_box.button(
-            QtWidgets.QDialogButtonBox.Close)
+            QDialogButtonBox.Close)
         close_button.clicked.connect(self.close)
         # Fix ends
 
@@ -266,7 +282,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         self.media_player.positionChanged.connect(self.position_changed)
         self.media_player.durationChanged.connect(self.duration_changed)
         self.media_player.error.connect(self.handle_video_error)
-        layout = QtWidgets.QGridLayout(self.video_preview_widget)
+        layout = QGridLayout(self.video_preview_widget)
         layout.addWidget(video_widget)
         # Enable image preview page on startup
         self.preview_stack.setCurrentIndex(0)
@@ -339,7 +355,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
     def set_output_name(self):
         # Popup a dialog to request the filename if scenario_file_path = None
         dialog_title = 'Save video'
-        ok_button = self.button_box.button(QtWidgets.QDialogButtonBox.Ok)
+        ok_button = self.button_box.button(QDialogButtonBox.Ok)
         ok_button.setText('Run')
         ok_button.setEnabled(False)
 
@@ -718,9 +734,9 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
         # Load the preview with the named image file
         with open(name, 'rb') as image_file:
             content = image_file.read()
-            image = QtGui.QImage()
+            image = QImage()
             image.loadFromData(content)
-            pixmap = QtGui.QPixmap.fromImage(image)
+            pixmap = QPixmap.fromImage(image)
             self.current_frame_preview.setPixmap(pixmap)
 
     def dwell_at_feature(self, feature):
