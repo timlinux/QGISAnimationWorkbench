@@ -20,13 +20,11 @@ __revision__ = '$Format:%H$'
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
-# from grpc import StatusCode
 import qgis  # pylint: disable=unused-import
 
 from typing import List
 
 from qgis.core import (
-    QgsProject,
     QgsExpressionContextScope,
     QgsMapRendererTask,
     QgsTask,
@@ -38,7 +36,6 @@ from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.core import (
-    QgsProject,
     QgsApplication,
     QgsMapRendererCustomPainterJob)
 from .settings import setting

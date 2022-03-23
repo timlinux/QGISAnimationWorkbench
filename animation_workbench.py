@@ -454,7 +454,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.frames_for_extent = self.extent_frames_spin.value()
         self.render_queue.frames_per_feature = (
             self.frames_per_feature + self.dwell_frames)
-        self.image_counter = 1
+        self.image_counter = 0
 
         self.frames_per_second = self.framerate_spin.value()
 
@@ -482,8 +482,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.progress_bar.setValue(0)
             self.iface.mapCanvas().setReferencedExtent(QgsReferencedRectangle(
                 self.extent_group_box.currentExtent(), self.extent_group_box.currentCrs()))
-
-            self.image_counter = 0
 
             for image_count in range(0, self.frames_for_extent):
                 name = ('%s/%s-%s.png' % (
@@ -582,7 +580,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
             framerate = str(self.framerate_spin.value())
 
-            command = ("""
+            unix_command = ("""
                 %s -y -framerate %s -pattern_type glob \
                 -i "%s/%s-*.png" -vf \
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
@@ -592,8 +590,20 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.work_directory,
                 self.frame_filename_prefix,
                 self.output_file))
-            self.output_log_text_edit.append('Generating Movie:\n%s' % command)
-            os.system(command)
+
+            #windows_command = ("""
+            #    %s -y -framerate %s -pattern_type sequence -start_number 0000000001 \
+            #    -i "%s/%s-%00000000010d.png" -vf \
+            #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
+            #    -c:v libx264 -pix_fmt yuv420p %s""" % (
+            #    ffmpeg,
+            #    framerate,
+            #    self.work_directory,
+            #    self.frame_filename_prefix,
+            #    self.output_file))
+
+            self.output_log_text_edit.append('Generating Movie:\n%s' % unix_command)
+            os.system(unix_command)
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
@@ -604,7 +614,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 'MP4 written to %s' % self.output_file)
 
     def fly_feature_to_feature(self, start_feature, end_feature):
-        self.image_counter += 1
         verbose_mode = int(setting(key='verbose_mode', default=0))
         self.progress_bar.setValue(self.image_counter)
         # In case we are iterating over lines or polygons, we
@@ -633,7 +642,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         scale = None
 
         for current_frame in range(0, self.frames_per_feature, 1):
-
+            self.image_counter += 1
             # For x we could have a pan easing
             x_offset = x_increment * current_frame
             if self.pan_easing_widget.is_enabled():
@@ -737,8 +746,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 # render_image(name)
                 # crashy - check with Nyall why...
                 self.render_queue.queue_task(
-                    self.iface.mapCanvas().mapSettings(), name, end_feature.id(), current_frame, 'Panning')
-            self.image_counter += 1
+                    self.iface.mapCanvas().mapSettings(), 
+                    name, end_feature.id(), current_frame, 'Panning')
+
             self.progress_bar.setValue(self.image_counter)
 
     def load_image(self, name):
@@ -763,6 +773,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         :param feature: QgsFeature to dwell at.
         :type feature: QgsFeature
         """
+       
         center = self.geometry_to_pointxy(feature)
         if not center:
             self.output_log_text_edit.append(
@@ -774,6 +785,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         verbose_mode = int(setting(key='verbose_mode', default=0))
 
         for current_frame in range(0, self.dwell_frames, 1):
+            self.image_counter += 1
             # Pad the numbers in the name so that they form a
             # 10 digit string with left padding of 0s
             name = ('%s/%s-%s.png' % (
@@ -796,7 +808,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     self.iface.mapCanvas().mapSettings(),
                     name, feature.id(), current_frame, 'Hovering')
 
-            self.image_counter += 1
             self.progress_bar.setValue(self.image_counter)
 
     def geometry_to_pointxy(self, feature):
