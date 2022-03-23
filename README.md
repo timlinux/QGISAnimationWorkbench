@@ -56,10 +56,14 @@ animation progresses? That is what the animation workbench tries to solve.
 
 ![imagem](https://user-images.githubusercontent.com/178003/159691009-8a8485f0-2bf0-419f-9dd4-a71c207b9117.png)
 
-And the subsequent CPU load:
+And the subsequent CPU load during processing:
 
 
 ![cpu](https://user-images.githubusercontent.com/178003/159691200-18dfea74-ac11-4620-9def-803b9c61c98d.png)
+
+After processing:
+
+![imagem](https://user-images.githubusercontent.com/178003/159691416-7cd5c4bf-ad47-4943-9008-bd04b7bf4ef9.png)
 
 
 
