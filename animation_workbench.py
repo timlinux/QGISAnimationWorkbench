@@ -553,7 +553,7 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
 
             framerate = str(self.framerate_spin.value())
 
-            command = ("""
+            unix_command = ("""
                 %s -y -framerate %s -pattern_type glob \
                 -i "%s/%s-*.png" -vf \
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
@@ -563,8 +563,20 @@ class AnimationWorkbench(QtWidgets.QDialog, FORM_CLASS):
                 self.work_directory,
                 self.frame_filename_prefix,
                 self.output_file))
-            self.output_log_text_edit.append('Generating Movie:\n%s' % command)
-            os.system(command)
+
+            #windows_command = ("""
+            #    %s -y -framerate %s -pattern_type sequence -start_number 0000000001 \
+            #    -i "%s/%s-%00000000010d.png" -vf \
+            #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
+            #    -c:v libx264 -pix_fmt yuv420p %s""" % (
+            #    ffmpeg,
+            #    framerate,
+            #    self.work_directory,
+            #    self.frame_filename_prefix,
+            #    self.output_file))
+
+            self.output_log_text_edit.append('Generating Movie:\n%s' % unix_command)
+            os.system(unix_command)
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
