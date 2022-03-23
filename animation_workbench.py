@@ -20,25 +20,21 @@ import qgis  # NOQA
 
 from qgis.PyQt.QtCore import (
     pyqtSlot,
-    QUrl
-)
+    QUrl)
 from qgis.PyQt.QtGui import (
     QIcon,
     QPixmap,
-    QImage
-)
+    QImage)
 from qgis.PyQt.QtWidgets import (
     QStyle,
     QFileDialog,
     QDialog,
     QDialogButtonBox,
-    QGridLayout
-)
+    QGridLayout)
 
 from PyQt5.QtMultimedia import (
     QMediaContent,
-    QMediaPlayer
-)
+    QMediaPlayer)
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 from qgis.core import (
@@ -49,8 +45,8 @@ from qgis.core import (
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
     QgsMapLayerProxyModel,
-    QgsReferencedRectangle
-)
+    QgsReferencedRectangle)
+
 from .settings import set_setting, setting
 from .utilities import get_ui_class, which, resources_path
 
@@ -742,9 +738,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 # User opted to re-used cached images so do nothing for now
                 pass
             else:
-                # Not crashy but no decorations and annotations....
-                # render_image(name)
-                # crashy - check with Nyall why...
                 self.render_queue.queue_task(
                     self.iface.mapCanvas().mapSettings(), 
                     name, end_feature.id(), current_frame, 'Panning')
@@ -753,9 +746,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def load_image(self, name):
         if self.last_preview_image is not None and self.last_preview_image > name:
-            # images won't necessarily be rendered in order, so only update the preview image
-            # if the rendered image is from later in the animation vs the one we are currently showing.
-            # avoids the preview jumping forward and backward and zooming/in out in unpredictable patterns
+            # Images won't necessarily be rendered in order, so only update the 
+            # preview image if the rendered image is from later in the animation 
+            # vs the one we are currently showing. Avoids the preview jumping 
+            # forward and backward and zooming/in out in unpredictable patterns
             return
 
         self.last_preview_image = name
@@ -813,12 +807,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     def geometry_to_pointxy(self, feature):
         verbose_mode = int(setting(key='verbose_mode', default=0))
         x, y = None, None
-        # Be careful of replacing this with logic like this
-        # feature.geometry().wkbType() == QgsWkbTypes.PointGeometry:
-        # subce it resolves to the wrong type
+        # Flattype will remove 25d, Z, M etc from the geometry type
+        # Still need to deal with multipoints, curves etc
         flat_type = QgsWkbTypes.flatType(feature.geometry().wkbType())
-        # List of type names is here:
-        # https://api.qgis.org/api/qgswkbtypes_8cpp_source.html
+
         if flat_type == QgsWkbTypes.Point:
             x = feature.geometry().asPoint().x()
             y = feature.geometry().asPoint().y()
@@ -834,7 +826,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         else:
             if verbose_mode:
                 self.output_log_text_edit.append(
-                    'Feature Geometry Type : %s' % QgsWkbTypes.displayString(feature.geometry().wkbType()))
+                    'Unsupported Feature Geometry Type : %s' % 
+                    QgsWkbTypes.displayString(
+                        feature.geometry().wkbType()))
             center = None
         return center
 
