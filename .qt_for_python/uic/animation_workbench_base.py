@@ -23,6 +23,35 @@ class Ui_animation_workbench_base(object):
         self.frame.setObjectName("frame")
         self.gridLayout_7 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_7.setObjectName("gridLayout_7")
+        self.output_options_group = QtWidgets.QGroupBox(self.frame)
+        self.output_options_group.setObjectName("output_options_group")
+        self.gridLayout_5 = QtWidgets.QGridLayout(self.output_options_group)
+        self.gridLayout_5.setObjectName("gridLayout_5")
+        self.reuse_cache = QtWidgets.QCheckBox(self.output_options_group)
+        self.reuse_cache.setObjectName("reuse_cache")
+        self.gridLayout_5.addWidget(self.reuse_cache, 0, 0, 1, 2)
+        self.radio_gif = QtWidgets.QRadioButton(self.output_options_group)
+        self.radio_gif.setObjectName("radio_gif")
+        self.gridLayout_5.addWidget(self.radio_gif, 1, 0, 1, 1)
+        self.rad_movie = QtWidgets.QRadioButton(self.output_options_group)
+        self.rad_movie.setChecked(True)
+        self.rad_movie.setObjectName("rad_movie")
+        self.gridLayout_5.addWidget(self.rad_movie, 1, 1, 1, 1)
+        self.gridLayout_7.addWidget(self.output_options_group, 3, 0, 1, 1)
+        self.output_destination_group = QtWidgets.QGroupBox(self.frame)
+        self.output_destination_group.setObjectName("output_destination_group")
+        self.gridLayout_6 = QtWidgets.QGridLayout(self.output_destination_group)
+        self.gridLayout_6.setObjectName("gridLayout_6")
+        self.movie_file_label = QtWidgets.QLabel(self.output_destination_group)
+        self.movie_file_label.setObjectName("movie_file_label")
+        self.gridLayout_6.addWidget(self.movie_file_label, 0, 0, 1, 1)
+        self.movie_file_edit = QtWidgets.QLineEdit(self.output_destination_group)
+        self.movie_file_edit.setObjectName("movie_file_edit")
+        self.gridLayout_6.addWidget(self.movie_file_edit, 0, 1, 1, 1)
+        self.movie_file_button = QtWidgets.QToolButton(self.output_destination_group)
+        self.movie_file_button.setObjectName("movie_file_button")
+        self.gridLayout_6.addWidget(self.movie_file_button, 0, 2, 1, 1)
+        self.gridLayout_7.addWidget(self.output_destination_group, 5, 0, 1, 1)
         self.render_mode_group = QtWidgets.QGroupBox(self.frame)
         self.render_mode_group.setObjectName("render_mode_group")
         self.gridLayout = QtWidgets.QGridLayout(self.render_mode_group)
@@ -115,35 +144,20 @@ class Ui_animation_workbench_base(object):
         self.gridLayout_16.addItem(spacerItem, 3, 1, 1, 1)
         self.settings_stack.addWidget(self.fixed_extent_settings)
         self.gridLayout_7.addWidget(self.settings_stack, 2, 0, 1, 1)
-        self.output_options_group = QtWidgets.QGroupBox(self.frame)
-        self.output_options_group.setObjectName("output_options_group")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.output_options_group)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.reuse_cache = QtWidgets.QCheckBox(self.output_options_group)
-        self.reuse_cache.setObjectName("reuse_cache")
-        self.gridLayout_5.addWidget(self.reuse_cache, 0, 0, 1, 2)
-        self.radio_gif = QtWidgets.QRadioButton(self.output_options_group)
-        self.radio_gif.setObjectName("radio_gif")
-        self.gridLayout_5.addWidget(self.radio_gif, 1, 0, 1, 1)
-        self.rad_movie = QtWidgets.QRadioButton(self.output_options_group)
-        self.rad_movie.setChecked(True)
-        self.rad_movie.setObjectName("rad_movie")
-        self.gridLayout_5.addWidget(self.rad_movie, 1, 1, 1, 1)
-        self.gridLayout_7.addWidget(self.output_options_group, 3, 0, 1, 1)
-        self.output_destination_group = QtWidgets.QGroupBox(self.frame)
-        self.output_destination_group.setObjectName("output_destination_group")
-        self.gridLayout_6 = QtWidgets.QGridLayout(self.output_destination_group)
-        self.gridLayout_6.setObjectName("gridLayout_6")
-        self.file_label = QtWidgets.QLabel(self.output_destination_group)
-        self.file_label.setObjectName("file_label")
-        self.gridLayout_6.addWidget(self.file_label, 0, 0, 1, 1)
-        self.file_edit = QtWidgets.QLineEdit(self.output_destination_group)
-        self.file_edit.setObjectName("file_edit")
-        self.gridLayout_6.addWidget(self.file_edit, 0, 1, 1, 1)
-        self.file_button = QtWidgets.QToolButton(self.output_destination_group)
-        self.file_button.setObjectName("file_button")
-        self.gridLayout_6.addWidget(self.file_button, 0, 2, 1, 1)
-        self.gridLayout_7.addWidget(self.output_destination_group, 4, 0, 1, 1)
+        self.groupBox = QtWidgets.QGroupBox(self.frame)
+        self.groupBox.setObjectName("groupBox")
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.groupBox)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.music_file_button = QtWidgets.QToolButton(self.groupBox)
+        self.music_file_button.setObjectName("music_file_button")
+        self.gridLayout_4.addWidget(self.music_file_button, 0, 2, 1, 1)
+        self.music_file_label = QtWidgets.QLabel(self.groupBox)
+        self.music_file_label.setObjectName("music_file_label")
+        self.gridLayout_4.addWidget(self.music_file_label, 0, 0, 1, 1)
+        self.music_file_edit = QtWidgets.QLineEdit(self.groupBox)
+        self.music_file_edit.setObjectName("music_file_edit")
+        self.gridLayout_4.addWidget(self.music_file_edit, 0, 1, 1, 1)
+        self.gridLayout_7.addWidget(self.groupBox, 4, 0, 1, 1)
         self.gridLayout_9.addWidget(self.frame, 0, 0, 1, 1)
         self.preview_frame = QtWidgets.QFrame(animation_workbench_base)
         self.preview_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -329,8 +343,8 @@ class Ui_animation_workbench_base(object):
 
         self.retranslateUi(animation_workbench_base)
         self.settings_stack.setCurrentIndex(0)
-        self.preview_stack.setCurrentIndex(0)
-        self.status_stack.setCurrentIndex(1)
+        self.preview_stack.setCurrentIndex(1)
+        self.status_stack.setCurrentIndex(0)
         self.button_box.accepted.connect(animation_workbench_base.accept) # type: ignore
         self.button_box.rejected.connect(animation_workbench_base.reject) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(animation_workbench_base)
@@ -341,13 +355,33 @@ class Ui_animation_workbench_base(object):
         animation_workbench_base.setTabOrder(self.hover_frames_spin, self.reuse_cache)
         animation_workbench_base.setTabOrder(self.reuse_cache, self.radio_gif)
         animation_workbench_base.setTabOrder(self.radio_gif, self.rad_movie)
-        animation_workbench_base.setTabOrder(self.rad_movie, self.file_edit)
-        animation_workbench_base.setTabOrder(self.file_edit, self.file_button)
-        animation_workbench_base.setTabOrder(self.file_button, self.output_log_text_edit)
+        animation_workbench_base.setTabOrder(self.rad_movie, self.movie_file_edit)
+        animation_workbench_base.setTabOrder(self.movie_file_edit, self.movie_file_button)
+        animation_workbench_base.setTabOrder(self.movie_file_button, self.output_log_text_edit)
 
     def retranslateUi(self, animation_workbench_base):
         _translate = QtCore.QCoreApplication.translate
         animation_workbench_base.setWindowTitle(_translate("animation_workbench_base", "Dialog"))
+        self.output_options_group.setToolTip(_translate("animation_workbench_base", "Select which output format you would like. \n"
+"Regardless of which you choose, a folder \n"
+"of images will be created, one image per frame. \n"
+"For the GIF export to work, you will \n"
+"need to have the ImageMagick \'convert\'  application \n"
+"available on your system. For the MP4 option to work, \n"
+"you need to have the \'ffmpeg\' application on \n"
+"your system."))
+        self.output_options_group.setTitle(_translate("animation_workbench_base", "Output Options"))
+        self.reuse_cache.setToolTip(_translate("animation_workbench_base", "Will not erase cached images on disk \n"
+"and will resume processing from last cached image."))
+        self.reuse_cache.setText(_translate("animation_workbench_base", "Re-use cached images where possible"))
+        self.radio_gif.setText(_translate("animation_workbench_base", "Animated GIF"))
+        self.rad_movie.setText(_translate("animation_workbench_base", "Movie (MP4)"))
+        self.output_destination_group.setTitle(_translate("animation_workbench_base", "Output Destination"))
+        self.movie_file_label.setText(_translate("animation_workbench_base", "File"))
+        self.movie_file_edit.setToolTip(_translate("animation_workbench_base", "The output folder will be populated with \n"
+"all of the frames of the animation, and \n"
+"the GIF or MP4 as selected above."))
+        self.movie_file_button.setText(_translate("animation_workbench_base", "..."))
         self.render_mode_group.setToolTip(_translate("animation_workbench_base", "The render mode determines the behaviour and type of the animation. \n"
 "For \'Sphere\' the coordinate reference system (CRS) will \n"
 "be manipulated to create a spinning globe effect. \n"
@@ -387,26 +421,9 @@ class Ui_animation_workbench_base(object):
         self.easings_group.setTitle(_translate("animation_workbench_base", "Animation Layer"))
         self.extent_label.setText(_translate("animation_workbench_base", "Extent"))
         self.extent_frames_label.setText(_translate("animation_workbench_base", "Frames"))
-        self.output_options_group.setToolTip(_translate("animation_workbench_base", "Select which output format you would like. \n"
-"Regardless of which you choose, a folder \n"
-"of images will be created, one image per frame. \n"
-"For the GIF export to work, you will \n"
-"need to have the ImageMagick \'convert\'  application \n"
-"available on your system. For the MP4 option to work, \n"
-"you need to have the \'ffmpeg\' application on \n"
-"your system."))
-        self.output_options_group.setTitle(_translate("animation_workbench_base", "Output Options"))
-        self.reuse_cache.setToolTip(_translate("animation_workbench_base", "Will not erase cached images on disk \n"
-"and will resume processing from last cached image."))
-        self.reuse_cache.setText(_translate("animation_workbench_base", "Re-use cached images where possible"))
-        self.radio_gif.setText(_translate("animation_workbench_base", "Animated GIF"))
-        self.rad_movie.setText(_translate("animation_workbench_base", "Movie (MP4)"))
-        self.output_destination_group.setTitle(_translate("animation_workbench_base", "Output Destination"))
-        self.file_label.setText(_translate("animation_workbench_base", "File"))
-        self.file_edit.setToolTip(_translate("animation_workbench_base", "The output folder will be populated with \n"
-"all of the frames of the animation, and \n"
-"the GIF or MP4 as selected above."))
-        self.file_button.setText(_translate("animation_workbench_base", "..."))
+        self.groupBox.setTitle(_translate("animation_workbench_base", "Soundtrack (optional)"))
+        self.music_file_button.setText(_translate("animation_workbench_base", "..."))
+        self.music_file_label.setText(_translate("animation_workbench_base", "File"))
         self.output_log_label.setText(_translate("animation_workbench_base", "Output Logs"))
         self.current_frame_preview_label.setText(_translate("animation_workbench_base", "Current Frame Preview"))
         self.video_preview_label.setText(_translate("animation_workbench_base", "Video Preview"))

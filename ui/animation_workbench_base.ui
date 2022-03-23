@@ -23,6 +23,85 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
+      <item row="3" column="0">
+       <widget class="QGroupBox" name="output_options_group">
+        <property name="toolTip">
+         <string>Select which output format you would like. 
+Regardless of which you choose, a folder 
+of images will be created, one image per frame. 
+For the GIF export to work, you will 
+need to have the ImageMagick 'convert'  application 
+available on your system. For the MP4 option to work, 
+you need to have the 'ffmpeg' application on 
+your system.</string>
+        </property>
+        <property name="title">
+         <string>Output Options</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="reuse_cache">
+           <property name="toolTip">
+            <string>Will not erase cached images on disk 
+and will resume processing from last cached image.</string>
+           </property>
+           <property name="text">
+            <string>Re-use cached images where possible</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="radio_gif">
+           <property name="text">
+            <string>Animated GIF</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QRadioButton" name="rad_movie">
+           <property name="text">
+            <string>Movie (MP4)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QGroupBox" name="output_destination_group">
+        <property name="title">
+         <string>Output Destination</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="movie_file_label">
+           <property name="text">
+            <string>File</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="movie_file_edit">
+           <property name="toolTip">
+            <string>The output folder will be populated with 
+all of the frames of the animation, and 
+the GIF or MP4 as selected above.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="movie_file_button">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QGroupBox" name="render_mode_group">
         <property name="toolTip">
@@ -259,81 +338,28 @@ how many frames per second to use.</string>
         </widget>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QGroupBox" name="output_options_group">
-        <property name="toolTip">
-         <string>Select which output format you would like. 
-Regardless of which you choose, a folder 
-of images will be created, one image per frame. 
-For the GIF export to work, you will 
-need to have the ImageMagick 'convert'  application 
-available on your system. For the MP4 option to work, 
-you need to have the 'ffmpeg' application on 
-your system.</string>
-        </property>
-        <property name="title">
-         <string>Output Options</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0" colspan="2">
-          <widget class="QCheckBox" name="reuse_cache">
-           <property name="toolTip">
-            <string>Will not erase cached images on disk 
-and will resume processing from last cached image.</string>
-           </property>
-           <property name="text">
-            <string>Re-use cached images where possible</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="radio_gif">
-           <property name="text">
-            <string>Animated GIF</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QRadioButton" name="rad_movie">
-           <property name="text">
-            <string>Movie (MP4)</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item row="4" column="0">
-       <widget class="QGroupBox" name="output_destination_group">
+       <widget class="QGroupBox" name="groupBox">
         <property name="title">
-         <string>Output Destination</string>
+         <string>Soundtrack (optional)</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_6">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="2">
+          <widget class="QToolButton" name="music_file_button">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="file_label">
+          <widget class="QLabel" name="music_file_label">
            <property name="text">
             <string>File</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="file_edit">
-           <property name="toolTip">
-            <string>The output folder will be populated with 
-all of the frames of the animation, and 
-the GIF or MP4 as selected above.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QToolButton" name="file_button">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="music_file_edit"/>
          </item>
         </layout>
        </widget>
@@ -363,7 +389,7 @@ the GIF or MP4 as selected above.</string>
       <item row="1" column="0" colspan="2">
        <widget class="QStackedWidget" name="preview_stack">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="preview_page">
          <layout class="QGridLayout" name="gridLayout_11">
@@ -453,7 +479,7 @@ the GIF or MP4 as selected above.</string>
       <item row="0" column="0" colspan="2">
        <widget class="QStackedWidget" name="status_stack">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="easing_status_page">
          <layout class="QGridLayout" name="gridLayout_13">
@@ -688,8 +714,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>reuse_cache</tabstop>
   <tabstop>radio_gif</tabstop>
   <tabstop>rad_movie</tabstop>
-  <tabstop>file_edit</tabstop>
-  <tabstop>file_button</tabstop>
+  <tabstop>movie_file_edit</tabstop>
+  <tabstop>movie_file_button</tabstop>
   <tabstop>output_log_text_edit</tabstop>
  </tabstops>
  <resources/>

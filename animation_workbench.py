@@ -103,13 +103,22 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.output_file = setting(key='output_file', default='')
 
         if self.output_file != '':
-            self.file_edit.setText(self.output_file)
+            self.movie_file_edit.setText(self.output_file)
             self.output_directory = os.path.dirname(self.output_file)
             ok_button.setEnabled(True)
-        self.file_button.clicked.connect(
+        self.movie_file_button.clicked.connect(
             self.set_output_name)
-        self.file_edit.textChanged.connect(
+        self.movie_file_edit.textChanged.connect(
             self.output_name_changed)
+
+        self.music_file = setting(key='music_file', default='')
+        if self.music_file != '':
+            self.music_file_edit.setText(self.music_file)
+        self.music_file_button.clicked.connect(
+            self.choose_music_file)
+        self.music_file_edit.textChanged.connect(
+            self.music_file_name_changed)
+
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
@@ -353,6 +362,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.output_directory = os.path.dirname(self.output_file)
         set_setting(key='output_file', value=path)
 
+    def music_file_name_changed(self, path):
+        # Sound file name line edit changed slot
+        self.music_file = path
+        set_setting(key='music_file', value=path)
+
     def set_output_name(self):
         # Popup a dialog to request the filename if scenario_file_path = None
         dialog_title = 'Save video'
@@ -374,7 +388,22 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         ok_button.setEnabled(True)
         self.output_directory = os.path.dirname(file_path)
         self.output_file = file_path
-        self.file_edit.setText(file_path)
+        self.movie_file_edit.setText(file_path)
+
+    def choose_music_file(self):
+        # Popup a dialog to request the filename for music backing track
+        dialog_title = 'Music for video'
+
+        # noinspection PyCallByClass,PyTypeChecker
+        file_path, __ = QFileDialog.getOpenFileName(
+            self,
+            dialog_title,
+            self.music_file,
+            "Mp3 (*.mp3);;Wav (*.wav)")
+        if file_path is None or file_path == '':
+            return
+        self.music_file = file_path
+        self.music_file_edit.setText(self.music_file)
 
     def save_state(self):
 
@@ -407,6 +436,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             value=self.zoom_easing_widget.easing_name())
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
         set_setting(key='output_file', value=self.output_file)
+        set_setting(key='music_file', value=self.music_file)
 
     # Prevent the slot being called twize
     @pyqtSlot()
@@ -575,16 +605,20 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
 
             framerate = str(self.framerate_spin.value())
-
+            if self.music_file != '':
+                mp3_flag = '-i %s' % self.music_file
+            else:
+                mp3_flag = ''
             unix_command = ("""
                 %s -y -framerate %s -pattern_type glob \
-                -i "%s/%s-*.png" -vf \
+                -i "%s/%s-*.png" %s -vf \
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
                 -c:v libx264 -pix_fmt yuv420p %s""" % (
                 ffmpeg,
                 framerate,
                 self.work_directory,
                 self.frame_filename_prefix,
+                mp3_flag,
                 self.output_file))
 
             #windows_command = ("""
