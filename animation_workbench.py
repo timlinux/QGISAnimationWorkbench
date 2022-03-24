@@ -519,7 +519,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
             music_file=self.music_file_edit.text(),
-            format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
+            output_format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
             work_directory=self.work_directory,
             frame_filename_prefix = self.frame_filename_prefix,
             framerate = self.framerate_spin.value()
