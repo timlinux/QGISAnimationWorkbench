@@ -287,6 +287,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.render_queue.image_rendered.connect(
             self.load_image)
 
+        self.movie_task = None
+
     def closeEvent(self, event):
         self.save_state()
         self.reject()
@@ -521,8 +523,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         .. note:: This called by process_more_tasks when all tasks are complete.
         """
-
-        movie_task = MovieCreationTask(
+        self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
             music_file=self.music_file_edit.text(),
             output_format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
@@ -542,10 +543,17 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.play_button.setEnabled(True)
             self.play()
 
-        movie_task.message.connect(log_message)
-        movie_task.movie_created.connect(show_movie)
+        def cleanup_movie_task():
+            self.movie_task = None
 
-        QgsApplication.taskManager().addTask(movie_task)
+        self.movie_task.message.connect(log_message)
+        self.movie_task.movie_created.connect(show_movie)
+
+        # todo - show a message based on success/fail
+        self.movie_task.taskCompleted.connect(cleanup_movie_task)
+        self.movie_task.taskTerminated.connect(cleanup_movie_task)
+
+        QgsApplication.taskManager().addTask(self.movie_task)
 
     def show_preview_for_frame(self, frame: int):
         controller = self.create_controller()

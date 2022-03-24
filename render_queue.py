@@ -119,10 +119,13 @@ class RenderQueue(QObject):
         """
         Feed the QgsTaskManager with next task
         """
-        if len(self.job_queue) == 0:
-            # all processing done
-            self.update_status()
+        if not self.job_queue and not self.active_tasks:
+            # all done!
             self.processing_completed.emit()
+
+        if not self.job_queue:
+            # no more jobs to add
+            self.update_status()
             return
 
         free_threads = self.render_thread_pool_size - len(self.active_tasks)
