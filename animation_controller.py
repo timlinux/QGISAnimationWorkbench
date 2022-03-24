@@ -243,6 +243,18 @@ class AnimationController(QObject):
         center = self.layer_to_map_transform.transform(center)
         self.set_extent_center(center.x(), center.y())
         self.set_to_scale(self.max_scale)
+        # Change CRS if needed
+        if self.map_mode == MapMode.SPHERE:
+            definition = (""" +proj=ortho \
+                +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
+                +ellps=sphere +units=m +no_defs""" % (
+                    center.y(), center.x()))
+            crs = QgsCoordinateReferenceSystem()
+            crs.createFromProj(definition)
+            self.map_settings.setDestinationCrs(crs)
+
+            if self.zoom_easing is None:
+                self.zoom_to_full_extent()
 
         for dwell_frame in range(0, self.dwell_frames, 1):
             # Pad the numbers in the name so that they form a
@@ -317,7 +329,7 @@ class AnimationController(QObject):
             if self.map_mode == MapMode.SPHERE:
                 definition = (""" +proj=ortho \
                     +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
-                    +ellps=sphere +units=m +no_defs""" % (x, y))
+                    +ellps=sphere +units=m +no_defs""" % (y, x))
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromProj(definition)
                 self.map_settings.setDestinationCrs(crs)
