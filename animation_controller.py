@@ -204,11 +204,16 @@ class AnimationController(QObject):
 
     def geometry_to_pointxy(self, feature: QgsFeature) -> Optional[QgsPointXY]:
         x, y = None, None
-        flat_type = QgsWkbTypes.flatType(feature.geometry().wkbType())
+        geom = feature.geometry()
+
+        # use simplified type, so that we don't have to care about multipolygons/lines with just single part!
+        raw_geom = feature.geometry().constGet().simplifiedTypeRef()\
+
+        flat_type = QgsWkbTypes.flatType(raw_geom.wkbType())
 
         if flat_type == QgsWkbTypes.Point:
-            x = feature.geometry().asPoint().x()
-            y = feature.geometry().asPoint().y()
+            x = raw_geom.x()
+            y = raw_geom.y()
             center = QgsPointXY(x, y)
         elif flat_type == QgsWkbTypes.LineString:
             length = feature.geometry().length()
