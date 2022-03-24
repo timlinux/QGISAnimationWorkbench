@@ -416,7 +416,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         # only saved to project
         if self.layer_combo.currentLayer():
-            QgsProject.instance().writeEntry('animation', 'layer_id', self.layer_combo.currentLayer().id())
+            QgsProject.instance().writeEntry(
+                'animation', 'layer_id', self.layer_combo.currentLayer().id())
         else:
             QgsProject.instance().removeEntry('animation', 'layer_id')
 
