@@ -25,14 +25,11 @@ import qgis  # pylint: disable=unused-import
 from typing import List
 
 from qgis.core import (
-    QgsExpressionContextScope,
     QgsMapRendererTask,
     QgsTask,
-    QgsApplication,
     QgsMapSettings
 )
 
-from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 from qgis.PyQt.QtGui import QImage, QPainter
 from qgis.core import (
@@ -187,41 +184,9 @@ class RenderQueue(QObject):
     def set_decorations(self, decorations):
         self.decorations = decorations
 
-    def queue_task(
-            self,
-            map_settings: QgsMapSettings,
-            name,
-            current_feature_id,
-            current_frame,
-            action='None'):
-
-        self.total_queue_size += 1
-        #size = self.iface.mapCanvas().size()
-        settings = map_settings
-        # The next part sets project variables that you can use in your
-        # cartography etc. to see the progress. Here is an example
-        # of a QGS expression you can use in the map decoration copyright
-        # widget to show current script progress
-        # [%'Frame ' || to_string(coalesce(@current_frame, 0)) || '/' ||
-        # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
-        # to_string(coalesce(@current_feature_id,0))%]
-        task_scope = QgsExpressionContextScope()
-        task_scope.setVariable('current_feature_id', current_feature_id)
-        task_scope.setVariable('frames_per_feature', self.frames_per_feature)
-        task_scope.setVariable('current_frame_for_feature', current_frame)
-        task_scope.setVariable('current_animation_action', action)
-        task_scope.setVariable('current_frame', self.image_counter)
-        task_scope.setVariable('total_frame_count', self.total_frame_count)
-
-        context = settings.expressionContext()
-        context.appendScope(task_scope)
-        settings.setExpressionContext(context)
-
-        # We will put this task in a separate queue and then pop them off
-        # the queue at a time whenever the task manager lets us know we have
-        # nothing to do.
-        job = RenderJob(name, settings)
+    def add_job(self, job: RenderJob):
         self.renderer_queue.append(job)
+        self.total_queue_size += 1
 
     def create_task(self, job: RenderJob):
         # Set the output file name for the render task

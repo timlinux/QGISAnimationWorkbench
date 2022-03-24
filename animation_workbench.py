@@ -8,16 +8,16 @@ __revision__ = '$Format:%H$'
 
 # This will make the QGIS use a world projection and then move the center
 # of the CRS sequentially to create a spinning globe effect
-from doctest import debug_script
 import os
-import timeit
 import tempfile
-from enum import Enum
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA
-
+from PyQt5.QtMultimedia import (
+    QMediaContent,
+    QMediaPlayer)
+from PyQt5.QtMultimediaWidgets import QVideoWidget
 from qgis.PyQt.QtCore import (
     pyqtSlot,
     QUrl)
@@ -31,31 +31,21 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QGridLayout)
-
-from PyQt5.QtMultimedia import (
-    QMediaContent,
-    QMediaPlayer)
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-
 from qgis.core import (
     QgsPointXY,
-    QgsWkbTypes,
     QgsExpressionContextUtils,
     QgsProject,
-    QgsCoordinateTransform,
-    QgsCoordinateReferenceSystem,
     QgsMapLayerProxyModel,
-    QgsReferencedRectangle)
+    QgsReferencedRectangle
+)
 
 from .settings import set_setting, setting
 from .utilities import get_ui_class, which, resources_path
-
-
-class MapMode(Enum):
-    SPHERE = 1  # CRS will be manipulated to create a spinning globe effect
-    PLANAR = 2  # CRS will not be altered, extents will as we pan and zoom
-    FIXED_EXTENT = 3  # EASING and ZOOM disabled, extent stays in place
-
+from .animation_controller import (
+    MapMode,
+    AnimationController,
+    InvalidAnimationParametersException
+)
 
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
@@ -177,11 +167,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.min_scale = int(setting(key='min_scale', default='25000000'))
         self.scale_range.setMinimumScale(self.min_scale)
 
-        # Stores the current image in the entire set
-        self.image_counter = None
-        # Stores the total number of frames in the whole animation
-        self.total_frame_count = None
-
         self.last_preview_image = None
 
         # Note: self.pan_easing_widget and zoom_easing_preview are
@@ -266,11 +251,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.current_frame_preview.setPixmap(pixmap)
 
         self.progress_bar.setValue(0)
-        # This will be half the number of frames per feature
-        # so that the first half of the journey is flying up
-        # away from the last feature and the next half of the
-        # journey is flying down towards the next feature.
-        self.frames_to_zenith = None
 
         reuse_cache = setting(key='reuse_cache', default='false')
         if reuse_cache == 'false':
@@ -457,32 +437,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                           self.work_directory,
                           self.frame_filename_prefix
                       ))
-        # feature layer that we will visit each feature for
-        feature_layer = self.layer_combo.currentLayer()
-        if feature_layer:
-            self.transform = QgsCoordinateTransform(
-                feature_layer.crs(),
-                QgsProject.instance().crs(),
-                QgsProject.instance())
-            feature_count = feature_layer.featureCount()
-
-        layer_type = qgis.core.QgsWkbTypes.displayString(
-            int(self.layer_combo.currentLayer().wkbType()))
-        layer_name = self.layer_combo.currentLayer().name()
-        self.output_log_text_edit.append(
-            'Generating flight path for %s layer: %s' %
-            (layer_type, layer_name))
-        self.max_scale = self.scale_range.maximumScale()
-        self.min_scale = self.scale_range.minimumScale()
-        self.dwell_frames = self.hover_frames_spin.value()
-        self.frames_per_feature = self.feature_frames_spin.value()
-        self.frames_to_zenith = int(self.frames_per_feature / 2)
-        self.frames_for_extent = self.extent_frames_spin.value()
-        self.render_queue.frames_per_feature = (
-            self.frames_per_feature + self.dwell_frames)
-        self.image_counter = 0
-
-        self.frames_per_second = self.framerate_spin.value()
 
         if self.radio_sphere.isChecked():
             self.map_mode = MapMode.SPHERE
@@ -490,6 +444,21 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.map_mode = MapMode.PLANAR
         else:
             self.map_mode = MapMode.FIXED_EXTENT
+
+        if self.map_mode != MapMode.FIXED_EXTENT:
+            layer_type = qgis.core.QgsWkbTypes.displayString(
+                int(self.layer_combo.currentLayer().wkbType()))
+            layer_name = self.layer_combo.currentLayer().name()
+            self.output_log_text_edit.append(
+                'Generating flight path for %s layer: %s' %
+                (layer_type, layer_name))
+
+        self.max_scale = self.scale_range.maximumScale()
+        self.min_scale = self.scale_range.minimumScale()
+        self.dwell_frames = self.hover_frames_spin.value()
+        self.frames_per_feature = self.feature_frames_spin.value()
+        self.frames_for_extent = self.extent_frames_spin.value()
+        self.frames_per_second = self.framerate_spin.value()
 
         self.save_state()
 
@@ -500,54 +469,48 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.render_queue.set_decorations(self.iface.activeDecorations())
 
         if self.map_mode == MapMode.FIXED_EXTENT:
-            self.output_log_text_edit.append(
-                'Generating %d frames for fixed extent render'
-                % self.frames_for_extent)
-            self.progress_bar.setMaximum(self.frames_for_extent)
-            self.total_frame_count = self.frames_for_extent
-            self.progress_bar.setValue(0)
-            self.iface.mapCanvas().setReferencedExtent(QgsReferencedRectangle(
-                self.extent_group_box.currentExtent(), self.extent_group_box.currentCrs()))
-
-            for image_count in range(0, self.frames_for_extent):
-                name = ('%s/%s-%s.png' % (
-                    self.work_directory,
-                    self.frame_filename_prefix,
-                    str(self.image_counter).rjust(10, '0')
-                ))
-                self.output_log_text_edit.append(name)
-                self.render_queue.queue_task(
-                    self.iface.mapCanvas().mapSettings(),
-                    name,
-                    None,
-                    self.image_counter,
-                    'Fixed Extent')
-                self.progress_bar.setValue(self.image_counter)
-                self.image_counter += 1
+            controller = AnimationController.create_fixed_extent_controller(
+                map_settings=self.iface.mapCanvas().mapSettings(),
+                output_extent=QgsReferencedRectangle(self.extent_group_box.outputExtent(),
+                                                     self.extent_group_box.outputCrs()),
+                total_frames=self.frames_for_extent
+            )
         else:
-            if not feature_layer:
-                self.output_log_text_edit.append(
-                    'Processing halted, no animation layer set.')
+            try:
+                controller = AnimationController.create_moving_extent_controller(
+                    map_settings=self.iface.mapCanvas().mapSettings(),
+                    mode=self.map_mode,
+                    feature_layer=self.layer_combo.currentLayer(),
+                    travel_frames=self.frames_per_feature,
+                    dwell_frames=self.dwell_frames,
+                    min_scale=self.scale_range.minimumScale(),
+                    max_scale=self.scale_range.maximumScale(),
+                    pan_easing=self.pan_easing if self.pan_easing_widget.is_enabled() else None,
+                    zoom_easing=self.zoom_easing if self.zoom_easing_widget.is_enabled() else None
+                )
+            except InvalidAnimationParametersException as e:
+                self.output_log_text_edit.append(f'Processing halted: {e}')
                 return
-            # Subtract one because we already start at the first feature
-            self.total_frame_count = (
-                (feature_count - 1) *
-                (self.dwell_frames + self.frames_per_feature))
-            self.output_log_text_edit.append(
-                'Generating %d frames' % self.total_frame_count)
-            self.progress_bar.setMaximum(
-                self.total_frame_count)
-            self.progress_bar.setValue(0)
-            self.previous_feature = None
-            for feature in feature_layer.getFeatures():
-                # None, Panning, Hovering
-                if self.previous_feature is None:
-                    self.previous_feature = feature
-                    self.dwell_at_feature(feature)
-                else:
-                    self.fly_feature_to_feature(self.previous_feature, feature)
-                    self.dwell_at_feature(feature)
-                    self.previous_feature = feature
+
+        controller.reuse_cache = self.reuse_cache.isChecked()
+
+        self.output_log_text_edit.append(
+            'Generating {} frames'.format(controller.total_frame_count))
+        self.progress_bar.setMaximum(controller.total_frame_count)
+        self.progress_bar.setValue(0)
+
+        def log_message(message):
+            self.output_log_text_edit.append(message)
+
+        controller.normal_message.connect(log_message)
+        if int(setting(key='verbose_mode', default=0)):
+            controller.verbose_message.connect(log_message)
+
+        for image_counter, job in enumerate(controller.create_jobs()):
+            self.output_log_text_edit.append(job.file_name)
+            self.render_queue.add_job(job)
+            self.progress_bar.setValue(image_counter)
+
         # Now all the tasks are prepared, start the render_queue processing
         self.render_queue.process_more_tasks()
 
@@ -621,7 +584,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 mp3_flag,
                 self.output_file))
 
-            #windows_command = ("""
+            # windows_command = ("""
             #    %s -y -framerate %s -pattern_type sequence -start_number 0000000001 \
             #    -i "%s/%s-%00000000010d.png" -vf \
             #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
@@ -643,146 +606,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append(
                 'MP4 written to %s' % self.output_file)
 
-    def fly_feature_to_feature(self, start_feature, end_feature):
-        verbose_mode = int(setting(key='verbose_mode', default=0))
-        self.progress_bar.setValue(self.image_counter)
-        # In case we are iterating over lines or polygons, we
-        # need to conver them to points first.
-        start_point = self.geometry_to_pointxy(start_feature)
-        end_point = self.geometry_to_pointxy(end_feature)
-        if not start_point or not end_point:
-            self.output_log_text_edit.append(
-                'Unsupported geometry, skipping.')
-            return
-
-        # now go on to calculate the mins, max's and ranges
-        x_min = start_point.x()
-        x_max = end_point.x()
-        x_range = abs(x_max - x_min)
-        x_increment = x_range / self.frames_per_feature
-        y_min = start_point.y()
-        y_max = end_point.y()
-        y_range = abs(y_max - y_min)
-        y_increment = y_range / self.frames_per_feature
-        # at the midfeature of the traveral between the two features
-        # we switch the easing around so the movememnt first
-        # goes away from the direct line, then towards it.
-        y_midfeature = (y_increment * self.frames_per_feature) / 2
-        x_midfeature = (x_increment * self.frames_per_feature) / 2
-        scale = None
-
-        for current_frame in range(0, self.frames_per_feature, 1):
-            self.image_counter += 1
-            # For x we could have a pan easing
-            x_offset = x_increment * current_frame
-            if self.pan_easing_widget.is_enabled():
-                if x_offset < x_midfeature:
-                    # Flying away from centerline
-                    # should be 0 at origin, 1 at centerfeature
-                    pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        x_offset/x_midfeature)
-                else:
-                    # Flying towards centerline
-                    # should be 1 at centerfeature, 0 at destination
-                    try:
-                        pan_easing_factor = self.pan_easing.valueForProgress(
-                            (x_offset - x_midfeature) / x_midfeature)
-                    except:
-                        pan_easing_factor = 0
-                x_offset = x_offset * pan_easing_factor
-            # Deal with case where we need to fly west instead of east
-            if x_min < x_max:
-                x = x_min + x_offset
-            else:
-                x = x_min - x_offset
-
-            # for Y we could have easing
-            y_offset = y_increment * current_frame
-
-            if self.pan_easing_widget.is_enabled():
-                if y_offset < y_midfeature:
-                    # Flying away from centerline
-                    # should be 0 at origin, 1 at centerfeature
-                    pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        y_offset / y_midfeature)
-                else:
-                    # Flying towards centerline
-                    # should be 1 at centerfeature, 0 at destination
-                    pan_easing_factor = self.pan_easing.valueForProgress(
-                        y_offset - y_midfeature / y_midfeature)
-
-                y_offset = y_offset * pan_easing_factor
-
-            # Deal with case where we need to fly north instead of south
-            if y_min < y_max:
-                y = y_min + y_offset
-            else:
-                y = y_min - y_offset
-
-            # zoom in and out to each feature if we are doing zoom easing
-            if self.zoom_easing_widget.is_enabled():
-                # Now use easings for zoom level too
-                # first figure out if we are flying up or down
-                if current_frame < self.frames_to_zenith:
-                    # Flying up
-                    zoom_easing_factor = 1 - self.zoom_easing.valueForProgress(
-                        current_frame/self.frames_to_zenith)
-                    scale = ((self.max_scale - self.min_scale) *
-                             zoom_easing_factor) + self.min_scale
-                else:
-                    # flying down
-                    zoom_easing_factor = self.zoom_easing.valueForProgress(
-                        (current_frame - self.frames_to_zenith) /
-                        self.frames_to_zenith)
-                    scale = ((self.max_scale - self.min_scale) *
-                             zoom_easing_factor) + self.min_scale
-
-            if self.map_mode == MapMode.PLANAR:
-                center = QgsPointXY(x, y)
-                center = self.transform.transform(center)
-                self.iface.mapCanvas().setCenter(center)
-            if scale is not None:
-                self.iface.mapCanvas().zoomScale(scale)
-
-            # Change CRS if needed
-            if self.map_mode == MapMode.SPHERE:
-                definition = (""" +proj=ortho \
-                    +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
-                    +ellps=sphere +units=m +no_defs""" % (x, y))
-                crs = QgsCoordinateReferenceSystem()
-                crs.createFromProj(definition)
-                self.iface.mapCanvas().setDestinationCrs(crs)
-                if not self.enable_zoom_easing.isChecked():
-                    self.iface.mapCanvas().zoomToFullExtent()
-
-            # Pad the numbers in the name so that they form a 10 digit
-            # string with left padding of 0s
-
-            name = ('%s/%s-%s.png' % (
-                self.work_directory,
-                self.frame_filename_prefix,
-                str(self.image_counter).rjust(10, '0')))
-
-            if verbose_mode:
-                self.output_log_text_edit.append(
-                    'Fly : %s' % name)
-
-            starttime = timeit.default_timer()
-            if os.path.exists(name) and self.reuse_cache.isChecked():
-                # User opted to re-used cached images so do nothing for now
-                pass
-            else:
-                self.render_queue.queue_task(
-                    self.iface.mapCanvas().mapSettings(), 
-                    name, end_feature.id(), current_frame, 'Panning')
-
-            self.progress_bar.setValue(self.image_counter)
-
     def load_image(self, name):
         if self.last_preview_image is not None and self.last_preview_image > name:
-            # Images won't necessarily be rendered in order, so only update the 
-            # preview image if the rendered image is from later in the animation 
-            # vs the one we are currently showing. Avoids the preview jumping 
+            # Images won't necessarily be rendered in order, so only update the
+            # preview image if the rendered image is from later in the animation
+            # vs the one we are currently showing. Avoids the preview jumping
             # forward and backward and zooming/in out in unpredictable patterns
             return
 
@@ -794,77 +622,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             image.loadFromData(content)
             pixmap = QPixmap.fromImage(image)
             self.current_frame_preview.setPixmap(pixmap)
-
-    def dwell_at_feature(self, feature):
-        """Wait at a feature to emphasise it in the video.
-
-        :param feature: QgsFeature to dwell at.
-        :type feature: QgsFeature
-        """
-       
-        center = self.geometry_to_pointxy(feature)
-        if not center:
-            self.output_log_text_edit.append(
-                'Unsupported geometry, skipping.')
-            return
-        center = self.transform.transform(center)
-        self.iface.mapCanvas().setCenter(center)
-        self.iface.mapCanvas().zoomScale(self.max_scale)
-        verbose_mode = int(setting(key='verbose_mode', default=0))
-
-        for current_frame in range(0, self.dwell_frames, 1):
-            self.image_counter += 1
-            # Pad the numbers in the name so that they form a
-            # 10 digit string with left padding of 0s
-            name = ('%s/%s-%s.png' % (
-                self.work_directory,
-                self.frame_filename_prefix,
-                str(self.image_counter).rjust(10, '0')))
-
-            if verbose_mode:
-                self.output_log_text_edit.append(
-                    'Dwell : %s' % name)
-
-            if os.path.exists(name) and self.reuse_cache.isChecked():
-                # User opted to re-used cached images to do nothing for now
-                self.load_image(name)
-            else:
-                # Not crashy but no decorations and annotations....
-                # render_image_to_file(name)
-                # crashy - check with Nyall why...
-                self.render_queue.queue_task(
-                    self.iface.mapCanvas().mapSettings(),
-                    name, feature.id(), current_frame, 'Hovering')
-
-            self.progress_bar.setValue(self.image_counter)
-
-    def geometry_to_pointxy(self, feature):
-        verbose_mode = int(setting(key='verbose_mode', default=0))
-        x, y = None, None
-        # Flattype will remove 25d, Z, M etc from the geometry type
-        # Still need to deal with multipoints, curves etc
-        flat_type = QgsWkbTypes.flatType(feature.geometry().wkbType())
-
-        if flat_type == QgsWkbTypes.Point:
-            x = feature.geometry().asPoint().x()
-            y = feature.geometry().asPoint().y()
-            center = QgsPointXY(x, y)
-        elif flat_type == QgsWkbTypes.LineString:
-            length = feature.geometry().length()
-            point = feature.geometry().interpolate(length/2.0)
-            x = point.geometry().x()
-            y = point.geometry().y()
-            center = QgsPointXY(x, y)
-        elif flat_type == QgsWkbTypes.Polygon:
-            center = feature.geometry().centroid().asPoint()
-        else:
-            if verbose_mode:
-                self.output_log_text_edit.append(
-                    'Unsupported Feature Geometry Type : %s' % 
-                    QgsWkbTypes.displayString(
-                        feature.geometry().wkbType()))
-            center = None
-        return center
 
     def help_toggled(self, flag):
         """Show or hide the help tab in the stacked widget.
