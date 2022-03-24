@@ -338,6 +338,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.completed_features_lcd.display(
             self.render_queue.completed_feature_count)
 
+        self.progress_bar.setValue(self.render_queue.total_completed)
+
     def set_output_name(self):
         # Popup a dialog to request the filename if scenario_file_path = None
         dialog_title = 'Save video'
@@ -467,7 +469,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         for image_counter, job in enumerate(controller.create_jobs()):
             self.output_log_text_edit.append(job.file_name)
             self.render_queue.add_job(job)
-            self.progress_bar.setValue(image_counter)
 
         # Now all the tasks are prepared, start the render_queue processing
         self.render_queue.start_processing()
@@ -545,6 +546,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         def cleanup_movie_task():
             self.movie_task = None
+
+            self.progress_bar.setMaximum(100)
+            self.progress_bar.setValue(0)
 
         self.movie_task.message.connect(log_message)
         self.movie_task.movie_created.connect(show_movie)
