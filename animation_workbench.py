@@ -37,7 +37,8 @@ from qgis.core import (
     QgsExpressionContextUtils,
     QgsProject,
     QgsMapLayerProxyModel,
-    QgsReferencedRectangle
+    QgsReferencedRectangle,
+    QgsApplication
 )
 from qgis.gui import (
     QgsExtentWidget
@@ -50,6 +51,7 @@ from .animation_controller import (
     AnimationController,
     InvalidAnimationParametersException
 )
+from .movie_creator import MovieCreationTask, MovieFormat
 
 FORM_CLASS = get_ui_class('animation_workbench_base.ui')
 
@@ -505,7 +507,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.progress_bar.setValue(image_counter)
 
         # Now all the tasks are prepared, start the render_queue processing
-        self.render_queue.process_more_tasks()
+        self.render_queue.start_processing()
 
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
@@ -513,95 +515,30 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         .. note:: This called by process_more_tasks when all tasks are complete.
         """
 
-        output_file = self.movie_file_edit.text()
-        music_file = self.music_file_edit.text()
+        movie_task = MovieCreationTask(
+            output_file=self.movie_file_edit.text(),
+            music_file=self.music_file_edit.text(),
+            format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
+            work_directory=self.work_directory,
+            frame_filename_prefix = self.frame_filename_prefix,
+            framerate = self.framerate_spin.value()
+        )
 
-        if self.radio_gif.isChecked():
-            self.output_log_text_edit.append('Generating GIF')
-            convert = which('convert')[0]
-            self.output_log_text_edit.append('convert found: %s' % convert)
-            # Now generate the GIF. If this fails try run the call from
-            # the command line and check the path to convert (provided by
-            # ImageMagick) is correct...
-            # delay of 3.33 makes the output around 30fps
-            os.system('%s -delay 3.33 -loop 0 %s/$s-*.png %s' % (
-                self.work_directory,
-                self.frame_filename_prefix,
-                convert, self.work_directory, output_file))
-            # Now do a second pass with image magick to resize and compress the
-            # gif as much as possible.  The remap option basically takes the
-            # first image as a reference image for the colour palette Depending
-            # on you cartography you may also want to bump up the colors param
-            # to increase palette size and of course adjust the scale factor to
-            # the ultimate image size you want
-            os.system("""
-                %s %s -coalesce -scale 600x600 -fuzz 2% +dither \
-                    -remap %s/%s.gif[20] +dither -colors 14 -layers \
-                    Optimize %s/animation_small.gif""" % (
-                convert,
-                output_file,
-                self.work_directory,
-                self.frame_filename_prefix,
-                self.work_directory
-            ))
+        def log_message(message):
+            self.output_log_text_edit.append(message)
+
+        def show_movie(movie_file: str):
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
-                QMediaContent(QUrl.fromLocalFile('/tmp/animation_small-gif')))
+                QMediaContent(QUrl.fromLocalFile(movie_file)))
             self.play_button.setEnabled(True)
             self.play()
-            self.output_log_text_edit.append(
-                'GIF written to %s' % output_file)
-        else:
-            self.output_log_text_edit.append('Generating MP4 Movie')
-            ffmpeg = which('ffmpeg')[0]
-            # Also we will make a video of the scene - useful for cases where
-            # you have a larger colour pallette and gif will not hack it.
-            # The Pad option is to deal with cases where ffmpeg complains
-            # because the h or w of the image is an odd number of pixels.
-            # :color=white pads the video with white pixels.
-            # Change to black if needed.
-            # -y to force overwrite exising file
-            self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
 
-            framerate = str(self.framerate_spin.value())
-            if music_file:
-                mp3_flag = '-i %s' % music_file
-            else:
-                mp3_flag = ''
-            unix_command = ("""
-                %s -y -framerate %s -pattern_type glob \
-                -i "%s/%s-*.png" %s -vf \
-                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
-                -c:v libx264 -pix_fmt yuv420p %s""" % (
-                ffmpeg,
-                framerate,
-                self.work_directory,
-                self.frame_filename_prefix,
-                mp3_flag,
-                output_file))
+        movie_task.message.connect(log_message)
+        movie_task.movie_created.connect(show_movie)
 
-            # windows_command = ("""
-            #    %s -y -framerate %s -pattern_type sequence -start_number 0000000001 \
-            #    -i "%s/%s-%00000000010d.png" -vf \
-            #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
-            #    -c:v libx264 -pix_fmt yuv420p %s""" % (
-            #    ffmpeg,
-            #    framerate,
-            #    self.work_directory,
-            #    self.frame_filename_prefix,
-            #    self.output_file))
-
-            self.output_log_text_edit.append('Generating Movie:\n%s' % unix_command)
-            os.system(unix_command)
-            # Video preview page
-            self.preview_stack.setCurrentIndex(1)
-            self.media_player.setMedia(
-                QMediaContent(QUrl.fromLocalFile(output_file)))
-            self.play_button.setEnabled(True)
-            self.play()
-            self.output_log_text_edit.append(
-                'MP4 written to %s' % output_file)
+        QgsApplication.taskManager().addTask(movie_task)
 
     def load_image(self, name):
         if self.last_preview_image is not None and self.last_preview_image > name:

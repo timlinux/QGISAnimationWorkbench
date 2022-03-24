@@ -94,8 +94,7 @@ class RenderQueue(QObject):
         self.image_counter = 0
         self.total_frame_count = 0
         # Queue manager for above.
-        QgsApplication.taskManager().allTasksFinished.connect(
-            self.process_more_tasks)
+
         QgsApplication.taskManager().progressChanged.connect(
             self.update_status)
         QgsApplication.taskManager().statusChanged.connect(
@@ -138,6 +137,11 @@ class RenderQueue(QObject):
                 self.total_completed / self.frames_per_feature)
         self.status_changed.emit()
 
+    def start_processing(self):
+        QgsApplication.taskManager().allTasksFinished.connect(
+            self.process_more_tasks)
+        self.process_more_tasks()
+
     def process_more_tasks(self):
         """
         Feed the QgsTaskManager with another bundle of tasks.
@@ -155,6 +159,9 @@ class RenderQueue(QObject):
         #    self.total_frame_count - len(self.renderer_queue))
         if len(self.renderer_queue) == 0:
             # all processing done
+            QgsApplication.taskManager().allTasksFinished.disconnect(
+                self.process_more_tasks)
+
             self.update_status()
             self.processing_completed.emit()
         else:
