@@ -302,7 +302,7 @@ how many frames per second to use.</string>
            </widget>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QgsExtentGroupBox" name="extent_group_box"/>
+           <widget class="QWidget" name="extent_widget_container"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="extent_frames_label">
@@ -679,24 +679,24 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>QgsCollapsibleGroupBox</class>
    <extends>QGroupBox</extends>
-   <header>qgscollapsiblegroupbox.h</header>
+   <header>qgis.gui</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QgsExtentGroupBox</class>
-   <extends>QgsCollapsibleGroupBox</extends>
-   <header>qgsextentgroupbox.h</header>
+   <class>QgsExtentWidget</class>
+   <extends>QWidget</extends>
+   <header>qgis.gui</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgsmaplayercombobox.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>QgsScaleRangeWidget</class>
    <extends>QWidget</extends>
-   <header>qgsscalerangewidget.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>EasingPreview</class>
@@ -719,38 +719,5 @@ p, li { white-space: pre-wrap; }
   <tabstop>output_log_text_edit</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>button_box</sender>
-   <signal>accepted()</signal>
-   <receiver>animation_workbench_base</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>260</x>
-     <y>823</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>animation_workbench_base</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>328</x>
-     <y>823</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
