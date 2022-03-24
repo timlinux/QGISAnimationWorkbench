@@ -33,7 +33,10 @@ from qgis.core import (
     QgsExpressionContextScope,
     QgsRectangle,
     QgsFeature,
-    QgsMapLayerUtils
+    QgsMapLayerUtils,
+    QgsGeometry,
+    QgsLineString,
+    QgsPoint
 )
 
 from .render_queue import RenderJob
@@ -167,6 +170,7 @@ class AnimationController(QObject):
             yield job
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
+        self.set_to_scale(self.min_scale)
         for feature in self.feature_layer.getFeatures():
             if self.previous_feature is not None:
                 for job in self.fly_feature_to_feature(self.previous_feature, feature):
@@ -269,93 +273,40 @@ class AnimationController(QObject):
             self.normal_message.emit('Unsupported geometry, skipping.')
             return
 
-        # now go on to calculate the mins, max's and ranges
-        x_min = start_point.x()
-        x_max = end_point.x()
-        x_range = abs(x_max - x_min)
-        x_increment = x_range / self.travel_frames
-        y_min = start_point.y()
-        y_max = end_point.y()
-        y_range = abs(y_max - y_min)
-        y_increment = y_range / self.travel_frames
-        # at the midfeature of the traveral between the two features
-        # we switch the easing around so the movememnt first
-        # goes away from the direct line, then towards it.
-        y_midfeature = (y_increment * self.travel_frames) / 2
-        x_midfeature = (x_increment * self.travel_frames) / 2
-        scale = None
+        delta_x = (end_point.x() - start_point.x())
+        delta_y = (end_point.y() - start_point.y())
 
-        for travel_frame in range(0, self.travel_frames, 1):
-            # For x we could have a pan easing
-            x_offset = x_increment * travel_frame
-            if self.pan_easing is not None:
-                if x_offset < x_midfeature:
-                    # Flying away from centerline
-                    # should be 0 at origin, 1 at centerfeature
-                    pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        x_offset / x_midfeature)
-                else:
-                    # Flying towards centerline
-                    # should be 1 at centerfeature, 0 at destination
-                    try:
-                        pan_easing_factor = self.pan_easing.valueForProgress(
-                            (x_offset - x_midfeature) / x_midfeature)
-                    except:
-                        pan_easing_factor = 0
-                x_offset = x_offset * pan_easing_factor
-            # Deal with case where we need to fly west instead of east
-            if x_min < x_max:
-                x = x_min + x_offset
-            else:
-                x = x_min - x_offset
+        for travel_frame in range(self.travel_frames):
+            # will always be between 0 - 1
+            progress_fraction = travel_frame/(self.travel_frames-1)
 
-            # for Y we could have easing
-            y_offset = y_increment * travel_frame
+            if self.pan_easing:
+                # map progress through the easing curve
+                progress_fraction = self.pan_easing.valueForProgress(progress_fraction)
 
-            if self.pan_easing is not None:
-                if y_offset < y_midfeature:
-                    # Flying away from centerline
-                    # should be 0 at origin, 1 at centerfeature
-                    pan_easing_factor = 1 - self.pan_easing.valueForProgress(
-                        y_offset / y_midfeature)
-                else:
-                    # Flying towards centerline
-                    # should be 1 at centerfeature, 0 at destination
-                    pan_easing_factor = self.pan_easing.valueForProgress(
-                        y_offset - y_midfeature / y_midfeature)
-
-                y_offset = y_offset * pan_easing_factor
-
-            # Deal with case where we need to fly north instead of south
-            if y_min < y_max:
-                y = y_min + y_offset
-            else:
-                y = y_min - y_offset
-
-            # zoom in and out to each feature if we are doing zoom easing
-            if self.zoom_easing is not None:
-                frames_to_zenith = int(self.travel_frames / 2)
-                # Now use easings for zoom level too
-                # first figure out if we are flying up or down
-                if travel_frame < frames_to_zenith:
-                    # Flying up
-                    zoom_easing_factor = 1 - self.zoom_easing.valueForProgress(
-                        travel_frame / frames_to_zenith)
-                    scale = ((self.max_scale - self.min_scale) *
-                             zoom_easing_factor) + self.min_scale
-                else:
-                    # flying down
-                    zoom_easing_factor = self.zoom_easing.valueForProgress(
-                        (travel_frame - frames_to_zenith) /
-                        frames_to_zenith)
-                    scale = ((self.max_scale - self.min_scale) *
-                             zoom_easing_factor) + self.min_scale
+            x = start_point.x() + delta_x * progress_fraction
+            y = start_point.y() + delta_y * progress_fraction
 
             if self.map_mode == MapMode.PLANAR:
                 center = QgsPointXY(x, y)
                 center = self.layer_to_map_transform.transform(center)
                 self.set_extent_center(center.x(), center.y())
-            if scale is not None:
+
+            # zoom in and out to each feature if we are doing zoom easing
+            if self.zoom_easing is not None:
+                # Now use easings for zoom level too
+                # first figure out if we are flying up or down
+                if progress_fraction < 0.5:
+                    # Flying up
+                    # take progress from 0 -> 0.5 and scale to 0 -> 1 before apply easing
+                    zoom_factor = self.zoom_easing.valueForProgress(progress_fraction*2)
+                else:
+                    # flying down
+                    # take progress from 0.5 -> 1.0 and scale to 1 ->0 before apply easing
+                    zoom_factor = self.zoom_easing.valueForProgress((1-progress_fraction) * 2)
+
+                zoom_factor = self.zoom_easing.valueForProgress(zoom_factor)
+                scale = (self.min_scale - self.max_scale) * zoom_factor + self.max_scale
                 self.set_to_scale(scale)
 
             # Change CRS if needed
