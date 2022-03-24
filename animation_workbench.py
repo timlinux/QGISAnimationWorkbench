@@ -30,13 +30,17 @@ from qgis.PyQt.QtWidgets import (
     QFileDialog,
     QDialog,
     QDialogButtonBox,
-    QGridLayout)
+    QGridLayout,
+    QVBoxLayout)
 from qgis.core import (
     QgsPointXY,
     QgsExpressionContextUtils,
     QgsProject,
     QgsMapLayerProxyModel,
     QgsReferencedRectangle
+)
+from qgis.gui import (
+    QgsExtentWidget
 )
 
 from .settings import set_setting, setting
@@ -67,6 +71,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         QDialog.__init__(self, parent)
         self.setupUi(self)
+
+        self.extent_group_box = QgsExtentWidget(None, QgsExtentWidget.ExpandedStyle)
+        vbox_layout = QVBoxLayout()
+        vbox_layout.addWidget(self.extent_group_box)
+        self.extent_widget_container.setLayout(vbox_layout)
+
         self.render_queue = render_queue
         self.setWindowTitle(self.tr('Animation Workbench'))
         icon = resources_path(
