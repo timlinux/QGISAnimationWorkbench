@@ -323,7 +323,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         :returns: None
         """
         self.active_lcd.display(
-            self.render_queue.active_queue_size)
+            self.render_queue.active_queue_size())
         self.total_tasks_lcd.display(
             self.render_queue.total_queue_size
         )
@@ -458,6 +458,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         controller.normal_message.connect(log_message)
         if int(setting(key='verbose_mode', default=0)):
             controller.verbose_message.connect(log_message)
+
+        self.render_queue.total_feature_count = controller.total_feature_count
+        self.render_queue.frames_per_feature = controller.travel_frames + controller.dwell_frames
 
         for image_counter, job in enumerate(controller.create_jobs()):
             self.output_log_text_edit.append(job.file_name)

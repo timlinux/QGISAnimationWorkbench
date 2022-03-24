@@ -94,15 +94,14 @@ class AnimationController(QObject):
         if not feature_layer:
             raise InvalidAnimationParametersException('No animation layer set')
 
-        feature_count = feature_layer.featureCount()
-
         controller = AnimationController(mode,
                                          map_settings)
         controller.feature_layer = feature_layer
+        controller.total_feature_count = feature_layer.featureCount()
 
         # Subtract one because we already start at the first feature
         controller.total_frame_count = (
-                (feature_count - 1) *
+                (controller.total_feature_count - 1) *
                 (dwell_frames + travel_frames))
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
@@ -122,6 +121,7 @@ class AnimationController(QObject):
 
         self.feature_layer: Optional[QgsVectorLayer] = None
         self.layer_to_map_transform: Optional[QgsCoordinateTransform] = None
+        self.total_feature_count: int = 0
 
         self.total_frame_count: int = 0
         self.dwell_frames: int = 0
