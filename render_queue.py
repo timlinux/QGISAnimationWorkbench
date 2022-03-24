@@ -18,23 +18,23 @@ __revision__ = '$Format:%H$'
 # (at your option) any later version.
 # ---------------------------------------------------------------------
 
+from typing import List
+
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
 import qgis  # pylint: disable=unused-import
-
-from typing import List
-
+from qgis.PyQt.QtCore import QObject, pyqtSignal
+from qgis.PyQt.QtGui import QImage
+from qgis.core import (
+    QgsApplication,
+    QgsMapRendererParallelJob
+)
 from qgis.core import (
     QgsMapRendererTask,
     QgsTask,
     QgsMapSettings
 )
 
-from qgis.PyQt.QtCore import QObject, pyqtSignal
-from qgis.PyQt.QtGui import QImage, QPainter
-from qgis.core import (
-    QgsApplication,
-    QgsMapRendererCustomPainterJob)
 from .settings import setting
 
 
@@ -47,9 +47,14 @@ class RenderJob:
         self.file_name: str = file_name
         self.map_settings: QgsMapSettings = map_settings
 
+    def render_to_image(self) -> QImage:
+        render_job = QgsMapRendererParallelJob(self.map_settings)
+        render_job.start()
+        render_job.waitForFinished()
+        return render_job.renderedImage()
+
 
 class RenderQueue(QObject):
-
     # Signals
     status_changed = pyqtSignal()
     processing_completed = pyqtSignal()
@@ -57,9 +62,8 @@ class RenderQueue(QObject):
     # Sends the path to each frame as it is rendered
     image_rendered = pyqtSignal(str)
 
-    def __init__(self, parent=None, iface=None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.iface = iface
         # The maximum number of concurrent threads to allow
         # during rendering. Probably setting to the same number
         # of CPU cores you have would be a good conservative approach
@@ -215,55 +219,3 @@ class RenderQueue(QObject):
         mapRendererTask.taskCompleted.connect(self.update_status)
 
         return mapRendererTask
-
-    def render_image(self):
-        """Render the current canvas to an image.
-
-        .. note:: This is renders synchronously.
-
-        .. deprecated We should deprecate this - it is currently only used
-            when making a preview
-
-        .. versionadded:: 1.0
-
-        :returns QImage:
-        """
-        size = self.iface.mapCanvas().size()
-
-        settings = self.iface.mapCanvas().mapSettings()
-        image = QImage(size, settings.outputImageFormat())
-        image.setDotsPerMeterX(round(1000*settings.outputDpi()/25.4))
-        image.setDotsPerMeterY(round(1000 * settings.outputDpi() / 25.4))
-        image.fill(settings.backgroundColor().rgb())
-
-        painter = QPainter(image)
-        self.iface.mapCanvas().refresh()
-        # You can fine tune the settings here for different
-        # dpi, extent, antialiasing...
-        # Just make sure the size of the target image matches
-
-        job = QgsMapRendererCustomPainterJob(settings, painter)
-        job.renderSynchronously()
-        painter.end()
-        return image
-
-    def render_image_to_file(self, name):
-        size = self.iface.mapCanvas().size()
-
-        settings = self.iface.mapCanvas().mapSettings()
-
-        image = QImage(size, settings.outputImageFormat())
-        image.setDotsPerMeterX(round(1000*settings.outputDpi()/25.4))
-        image.setDotsPerMeterY(round(1000 * settings.outputDpi() / 25.4))
-        image.fill(settings.backgroundColor().rgb())
-
-        painter = QPainter(image)
-        self.iface.mapCanvas().refresh()
-        # You can fine tune the settings here for different
-        # dpi, extent, antialiasing...
-        # Just make sure the size of the target image matches
-
-        job = QgsMapRendererCustomPainterJob(settings, painter)
-        job.renderSynchronously()
-        painter.end()
-        image.save(name)

@@ -72,14 +72,9 @@ class MovieCreationTask(QgsTask):
             # the ultimate image size you want
             os.system(f"""
                 {convert} {self.output_file} -coalesce -scale 600x600 -fuzz 2% +dither \
-                    -remap %s/%s.gif[20] +dither -colors 14 -layers \
-                    Optimize {self.work_directory}/animation_small.gif""" % (
-                convert,
-                self.output_file,
-                self.work_directory,
-                self.frame_filename_prefix,
-                self.work_directory
-            ))
+                    -remap {self.output_file}[20] +dither -colors 14 -layers \
+                    Optimize {self.work_directory}/animation_small.gif"""
+                      )
             self.message.emit(f'GIF written to {self.output_file}')
             self.movie_created.emit(self.output_file)
         else:

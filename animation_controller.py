@@ -142,6 +142,17 @@ class AnimationController(QObject):
 
         self.reuse_cache: bool = False
 
+    def create_job_for_frame(self, frame: int) -> Optional[RenderJob]:
+        """
+        Creates a render job corresponding to a specific frame
+        """
+        job = None
+        # inefficient, but we can rework later if needed!
+        jobs = self.create_jobs()
+        for _ in range(frame+1):
+            job = next(jobs)
+        return job
+
     def create_jobs(self) -> Iterator[RenderJob]:
         if self.map_mode == MapMode.FIXED_EXTENT:
             for job in self.create_fixed_extent_job():
