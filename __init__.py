@@ -44,7 +44,7 @@ class AnimationWorkbenchPlugin:
 
     def initGui(self):
 
-        self.render_queue = RenderQueue(iface=self.iface)
+        self.render_queue = RenderQueue()
         icon = QIcon(resources_path(
             'img', 'icons', 'animation-workbench.svg'))
 

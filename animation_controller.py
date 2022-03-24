@@ -94,15 +94,14 @@ class AnimationController(QObject):
         if not feature_layer:
             raise InvalidAnimationParametersException('No animation layer set')
 
-        feature_count = feature_layer.featureCount()
-
         controller = AnimationController(mode,
                                          map_settings)
         controller.feature_layer = feature_layer
+        controller.total_feature_count = feature_layer.featureCount()
 
         # Subtract one because we already start at the first feature
         controller.total_frame_count = (
-                (feature_count - 1) *
+                (controller.total_feature_count - 1) *
                 (dwell_frames + travel_frames))
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
@@ -122,6 +121,7 @@ class AnimationController(QObject):
 
         self.feature_layer: Optional[QgsVectorLayer] = None
         self.layer_to_map_transform: Optional[QgsCoordinateTransform] = None
+        self.total_feature_count: int = 0
 
         self.total_frame_count: int = 0
         self.dwell_frames: int = 0
@@ -141,6 +141,17 @@ class AnimationController(QObject):
         self.previous_feature: Optional[QgsFeature] = None
 
         self.reuse_cache: bool = False
+
+    def create_job_for_frame(self, frame: int) -> Optional[RenderJob]:
+        """
+        Creates a render job corresponding to a specific frame
+        """
+        job = None
+        # inefficient, but we can rework later if needed!
+        jobs = self.create_jobs()
+        for _ in range(frame+1):
+            job = next(jobs)
+        return job
 
     def create_jobs(self) -> Iterator[RenderJob]:
         if self.map_mode == MapMode.FIXED_EXTENT:

@@ -10,6 +10,7 @@ __revision__ = '$Format:%H$'
 # of the CRS sequentially to create a spinning globe effect
 import os
 import tempfile
+from typing import Optional
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
@@ -222,20 +223,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'total_frame_count', 'None')
 
-        self.map_mode = None
         mode_string = setting(key='map_mode', default='sphere', prefer_project_setting=True)
         if mode_string == 'sphere':
-            self.map_mode == MapMode.SPHERE
             self.radio_sphere.setChecked(True)
             self.status_stack.setCurrentIndex(0)
             self.settings_stack.setCurrentIndex(0)
         elif mode_string == 'planar':
-            self.map_mode == MapMode.PLANAR
             self.radio_planar.setChecked(True)
             self.status_stack.setCurrentIndex(0)
             self.settings_stack.setCurrentIndex(0)
         else:
-            self.map_mode == MapMode.FIXED_EXTENT
             self.radio_extent.setChecked(True)
             self.status_stack.setCurrentIndex(1)
             self.settings_stack.setCurrentIndex(1)
@@ -251,10 +248,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
         # Set an initial image in the preview based on the current map
-        image = self.render_queue.render_image()
-        if not image.isNull():
-            pixmap = QPixmap.fromImage(image)
-            self.current_frame_preview.setPixmap(pixmap)
+        self.show_preview_for_frame(0)
 
         self.progress_bar.setValue(0)
 
@@ -293,6 +287,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.render_queue.image_rendered.connect(
             self.load_image)
 
+        self.movie_task = None
+
     def closeEvent(self, event):
         self.save_state()
         self.reject()
@@ -329,7 +325,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         :returns: None
         """
         self.active_lcd.display(
-            self.render_queue.active_queue_size)
+            self.render_queue.active_queue_size())
         self.total_tasks_lcd.display(
             self.render_queue.total_queue_size
         )
@@ -341,6 +337,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         self.completed_features_lcd.display(
             self.render_queue.completed_feature_count)
+
+        self.progress_bar.setValue(self.render_queue.total_completed)
 
     def set_output_name(self):
         # Popup a dialog to request the filename if scenario_file_path = None
@@ -441,54 +439,17 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                           self.frame_filename_prefix
                       ))
 
-        if self.radio_sphere.isChecked():
-            self.map_mode = MapMode.SPHERE
-        elif self.radio_planar.isChecked():
-            self.map_mode = MapMode.PLANAR
-        else:
-            self.map_mode = MapMode.FIXED_EXTENT
-
-        if self.map_mode != MapMode.FIXED_EXTENT:
-            layer_type = qgis.core.QgsWkbTypes.displayString(
-                int(self.layer_combo.currentLayer().wkbType()))
-            layer_name = self.layer_combo.currentLayer().name()
-            self.output_log_text_edit.append(
-                'Generating flight path for %s layer: %s' %
-                (layer_type, layer_name))
-
         self.save_state()
 
         self.render_queue.reset()
         self.last_preview_image = None
 
+        controller = self.create_controller()
+        if not controller:
+            return
+
         self.render_queue.set_annotations(QgsProject.instance().annotationManager().annotations())
         self.render_queue.set_decorations(self.iface.activeDecorations())
-
-        if self.map_mode == MapMode.FIXED_EXTENT:
-            controller = AnimationController.create_fixed_extent_controller(
-                map_settings=self.iface.mapCanvas().mapSettings(),
-                output_extent=QgsReferencedRectangle(self.extent_group_box.outputExtent(),
-                                                     self.extent_group_box.outputCrs()),
-                total_frames=self.extent_frames_spin.value()
-            )
-        else:
-            try:
-                controller = AnimationController.create_moving_extent_controller(
-                    map_settings=self.iface.mapCanvas().mapSettings(),
-                    mode=self.map_mode,
-                    feature_layer=self.layer_combo.currentLayer(),
-                    travel_frames=self.feature_frames_spin.value(),
-                    dwell_frames=self.hover_frames_spin.value(),
-                    min_scale=self.scale_range.minimumScale(),
-                    max_scale=self.scale_range.maximumScale(),
-                    pan_easing=self.pan_easing if self.pan_easing_widget.is_enabled() else None,
-                    zoom_easing=self.zoom_easing if self.zoom_easing_widget.is_enabled() else None
-                )
-            except InvalidAnimationParametersException as e:
-                self.output_log_text_edit.append(f'Processing halted: {e}')
-                return
-
-        controller.reuse_cache = self.reuse_cache.isChecked()
 
         self.output_log_text_edit.append(
             'Generating {} frames'.format(controller.total_frame_count))
@@ -502,24 +463,71 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if int(setting(key='verbose_mode', default=0)):
             controller.verbose_message.connect(log_message)
 
+        self.render_queue.total_feature_count = controller.total_feature_count
+        self.render_queue.frames_per_feature = controller.travel_frames + controller.dwell_frames
+
         for image_counter, job in enumerate(controller.create_jobs()):
             self.output_log_text_edit.append(job.file_name)
             self.render_queue.add_job(job)
-            self.progress_bar.setValue(image_counter)
 
         # Now all the tasks are prepared, start the render_queue processing
         self.render_queue.start_processing()
+
+    def create_controller(self) -> Optional[AnimationController]:
+        """
+        Creates a new animation controller based on the state of the dialog
+        """
+        if self.radio_sphere.isChecked():
+            map_mode = MapMode.SPHERE
+        elif self.radio_planar.isChecked():
+            map_mode = MapMode.PLANAR
+        else:
+            map_mode = MapMode.FIXED_EXTENT
+
+        if map_mode != MapMode.FIXED_EXTENT:
+            layer_type = qgis.core.QgsWkbTypes.displayString(
+                int(self.layer_combo.currentLayer().wkbType()))
+            layer_name = self.layer_combo.currentLayer().name()
+            self.output_log_text_edit.append(
+                'Generating flight path for %s layer: %s' %
+                (layer_type, layer_name))
+
+        if map_mode == MapMode.FIXED_EXTENT:
+            controller = AnimationController.create_fixed_extent_controller(
+                map_settings=self.iface.mapCanvas().mapSettings(),
+                output_extent=QgsReferencedRectangle(self.extent_group_box.outputExtent(),
+                                                     self.extent_group_box.outputCrs()),
+                total_frames=self.extent_frames_spin.value()
+            )
+        else:
+            try:
+                controller = AnimationController.create_moving_extent_controller(
+                    map_settings=self.iface.mapCanvas().mapSettings(),
+                    mode=map_mode,
+                    feature_layer=self.layer_combo.currentLayer(),
+                    travel_frames=self.feature_frames_spin.value(),
+                    dwell_frames=self.hover_frames_spin.value(),
+                    min_scale=self.scale_range.minimumScale(),
+                    max_scale=self.scale_range.maximumScale(),
+                    pan_easing=self.pan_easing if self.pan_easing_widget.is_enabled() else None,
+                    zoom_easing=self.zoom_easing if self.zoom_easing_widget.is_enabled() else None
+                )
+            except InvalidAnimationParametersException as e:
+                self.output_log_text_edit.append(f'Processing halted: {e}')
+                return None
+
+        controller.reuse_cache = self.reuse_cache.isChecked()
+        return controller
 
     def processing_completed(self):
         """Run after all processing is done to generate gif or mp4.
 
         .. note:: This called by process_more_tasks when all tasks are complete.
         """
-
-        movie_task = MovieCreationTask(
+        self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
             music_file=self.music_file_edit.text(),
-            format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
+            output_format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
             work_directory=self.work_directory,
             frame_filename_prefix = self.frame_filename_prefix,
             framerate = self.framerate_spin.value()
@@ -536,10 +544,28 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.play_button.setEnabled(True)
             self.play()
 
-        movie_task.message.connect(log_message)
-        movie_task.movie_created.connect(show_movie)
+        def cleanup_movie_task():
+            self.movie_task = None
 
-        QgsApplication.taskManager().addTask(movie_task)
+            self.progress_bar.setMaximum(100)
+            self.progress_bar.setValue(0)
+
+        self.movie_task.message.connect(log_message)
+        self.movie_task.movie_created.connect(show_movie)
+
+        # todo - show a message based on success/fail
+        self.movie_task.taskCompleted.connect(cleanup_movie_task)
+        self.movie_task.taskTerminated.connect(cleanup_movie_task)
+
+        QgsApplication.taskManager().addTask(self.movie_task)
+
+    def show_preview_for_frame(self, frame: int):
+        controller = self.create_controller()
+        job = controller.create_job_for_frame(frame)
+        image = job.render_to_image()
+        if not image.isNull():
+            pixmap = QPixmap.fromImage(image)
+            self.current_frame_preview.setPixmap(pixmap)
 
     def load_image(self, name):
         if self.last_preview_image is not None and self.last_preview_image > name:
