@@ -111,6 +111,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             QgsMapLayerProxyModel.LineLayer |
             QgsMapLayerProxyModel.PolygonLayer)
 
+        prev_layer_id, ok = QgsProject.instance().readEntry('animation', 'layer_id')
+        if prev_layer_id:
+            layer = QgsProject.instance().mapLayer(prev_layer_id)
+            if layer:
+                self.layer_combo.setLayer(layer)
+
         self.extent_group_box.setOutputCrs(
             QgsProject.instance().crs()
         )
@@ -393,6 +399,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
         set_setting(key='output_file', value=self.movie_file_edit.text(), store_in_project=True)
         set_setting(key='music_file', value=self.music_file_edit.text(), store_in_project=True)
+
+        # only saved to project
+        if self.layer_combo.currentLayer():
+            QgsProject.instance().writeEntry('animation', 'layer_id', self.layer_combo.currentLayer().id())
+        else:
+            QgsProject.instance().removeEntry('animation', 'layer_id')
 
     # Prevent the slot being called twize
     @pyqtSlot()
