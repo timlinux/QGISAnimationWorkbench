@@ -23,6 +23,10 @@ from collections import OrderedDict
 
 from qgis.PyQt.QtCore import QSettings
 
+from qgis.core import (
+    QgsProject
+)
+
 from .constants import APPLICATION_NAME
 from .default_settings import default_settings
 
@@ -122,7 +126,7 @@ def delete_general_setting(key, qsettings=None):
     qsettings.remove(key)
 
 
-def set_setting(key, value, qsettings=None):
+def set_setting(key, value, qsettings=None, store_in_project=False):
     """Set value to QSettings based on key in InaSAFE scope.
 
     :param key: Unique key for setting.
@@ -138,8 +142,11 @@ def set_setting(key, value, qsettings=None):
     full_key = '%s/%s' % (APPLICATION_NAME, key)
     set_general_setting(full_key, value, qsettings)
 
+    if store_in_project:
+        QgsProject.instance().writeEntry('animation', key, str(value))
 
-def setting(key, default=None, expected_type=None, qsettings=None):
+
+def setting(key, default=None, expected_type=None, qsettings=None, prefer_project_setting=False):
     """Helper function to get a value from settings under InaSAFE scope.
 
     :param key: Unique key for setting.
@@ -161,6 +168,12 @@ def setting(key, default=None, expected_type=None, qsettings=None):
     """
     if default is None:
         default = default_settings.get(key, None)
+
+    if prefer_project_setting:
+        val, ok = QgsProject.instance().readEntry('animation', key)
+        if ok:
+            return val
+
     full_key = '%s/%s' % (APPLICATION_NAME, key)
     return general_setting(full_key, default, expected_type, qsettings)
 

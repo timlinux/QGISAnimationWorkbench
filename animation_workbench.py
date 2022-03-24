@@ -89,25 +89,19 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.work_directory = tempfile.gettempdir()
         self.frame_filename_prefix = 'animation_workbench'
         # place where final products are stored
-        self.output_directory = None
-        self.output_file = setting(key='output_file', default='')
-
-        if self.output_file != '':
-            self.movie_file_edit.setText(self.output_file)
-            self.output_directory = os.path.dirname(self.output_file)
+        output_file = setting(key='output_file', default='', prefer_project_setting=True)
+        if output_file:
+            self.movie_file_edit.setText(output_file)
             ok_button.setEnabled(True)
+
         self.movie_file_button.clicked.connect(
             self.set_output_name)
-        self.movie_file_edit.textChanged.connect(
-            self.output_name_changed)
 
-        self.music_file = setting(key='music_file', default='')
-        if self.music_file != '':
-            self.music_file_edit.setText(self.music_file)
+        music_file = setting(key='music_file', default='', prefer_project_setting=True)
+        if music_file:
+            self.music_file_edit.setText(music_file)
         self.music_file_button.clicked.connect(
             self.choose_music_file)
-        self.music_file_edit.textChanged.connect(
-            self.music_file_name_changed)
 
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
@@ -138,9 +132,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Fix ends
 
         # Used by ffmpeg and convert to set the fps for rendered videos
-        self.frames_per_second = int(
-            setting(key='frames_per_second', default='90'))
-        self.framerate_spin.setValue(self.frames_per_second)
+        self.framerate_spin.setValue(int(
+            setting(key='frames_per_second', default='90', prefer_project_setting=True)))
         # How many frames to render for each feature pair transition
         # The output is generated at e.g. 30fps so choosing 30
         # would fly to each feature for 1s
@@ -149,23 +142,18 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # and the 'feature_frame' project variable to determine
         # the frame number for the current feature based on frames_for_interval
 
-        self.frames_per_feature = int(
-            setting(key='frames_per_feature', default='90'))
-        self.feature_frames_spin.setValue(self.frames_per_feature)
+        self.feature_frames_spin.setValue(int(
+            setting(key='frames_per_feature', default='90', prefer_project_setting=True)))
 
         # How many frames to dwell at each feature for (output at e.g. 30fps)
-        self.dwell_frames = int(
-            setting(key='dwell_frames', default='30'))
-        self.hover_frames_spin.setValue(self.dwell_frames)
+        self.hover_frames_spin.setValue(int(
+            setting(key='dwell_frames', default='30', prefer_project_setting=True)))
         # How many frames to render when we are in static mode
-        self.frames_for_extent = int(
-            setting(key='frames_for_extent', default='90'))
-        self.extent_frames_spin.setValue(self.frames_for_extent)
+        self.extent_frames_spin.setValue(int(
+            setting(key='frames_for_extent', default='90', prefer_project_setting=True)))
         # Keep the scales the same if you dont want it to zoom in an out
-        self.max_scale = int(setting(key='max_scale', default='10000000'))
-        self.scale_range.setMaximumScale(self.max_scale)
-        self.min_scale = int(setting(key='min_scale', default='25000000'))
-        self.scale_range.setMinimumScale(self.min_scale)
+        self.scale_range.setMaximumScale(float(setting(key='max_scale', default='10000000', prefer_project_setting=True)))
+        self.scale_range.setMinimumScale(float(setting(key='min_scale', default='25000000', prefer_project_setting=True)))
 
         self.last_preview_image = None
 
@@ -173,10 +161,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
         self.pan_easing_widget.set_checkbox_label('Enable Pan Easing')
-        pan_easing_name = setting(key='pan_easing', default='Linear')
+        pan_easing_name = setting(key='pan_easing', default='Linear', prefer_project_setting=True)
         self.pan_easing_widget.set_preview_color('#00ff00')
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
-        if setting(key='enable_pan_easing', default='false') == 'false':
+        if setting(key='enable_pan_easing', default='false', prefer_project_setting=True).lower() == 'false':
             self.pan_easing_widget.disable()
         else:
             self.pan_easing_widget.enable()
@@ -186,10 +174,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
         self.zoom_easing_widget.set_checkbox_label('Enable Zoom Easing')
-        zoom_easing_name = setting(key='zoom_easing', default='Linear')
+        zoom_easing_name = setting(key='zoom_easing', default='Linear', prefer_project_setting=True)
         self.zoom_easing_widget.set_preview_color('#0000ff')
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
-        if setting(key='enable_zoom_easing', default='false') == 'false':
+        if setting(key='enable_zoom_easing', default='false', prefer_project_setting=True).lower() == 'false':
             self.zoom_easing_widget.disable()
         else:
             self.zoom_easing_widget.enable()
@@ -198,8 +186,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.zoom_easing_widget.easing_changed_signal.connect(
             self.zoom_easing_changed
         )
-
-        self.previous_feature = None
 
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'frames_per_feature', 0)
@@ -217,7 +203,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             QgsProject.instance(), 'total_frame_count', 'None')
 
         self.map_mode = None
-        mode_string = setting(key='map_mode', default='sphere')
+        mode_string = setting(key='map_mode', default='sphere', prefer_project_setting=True)
         if mode_string == 'sphere':
             self.map_mode == MapMode.SPHERE
             self.radio_sphere.setChecked(True)
@@ -336,17 +322,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.completed_features_lcd.display(
             self.render_queue.completed_feature_count)
 
-    def output_name_changed(self, path):
-        # File name line edit changed slot
-        self.output_file = path
-        self.output_directory = os.path.dirname(self.output_file)
-        set_setting(key='output_file', value=path)
-
-    def music_file_name_changed(self, path):
-        # Sound file name line edit changed slot
-        self.music_file = path
-        set_setting(key='music_file', value=path)
-
     def set_output_name(self):
         # Popup a dialog to request the filename if scenario_file_path = None
         dialog_title = 'Save video'
@@ -354,20 +329,20 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         ok_button.setText('Run')
         ok_button.setEnabled(False)
 
-        if self.output_directory is None:
-            self.output_directory = self.work_directory
+        output_directory = os.path.dirname(self.movie_file_edit.text())
+        if not output_directory:
+            output_directory = self.work_directory
+
         # noinspection PyCallByClass,PyTypeChecker
         file_path, __ = QFileDialog.getSaveFileName(
             self,
             dialog_title,
-            os.path.join(self.output_directory, 'qgis_animation.mp4'),
+            os.path.join(output_directory, 'qgis_animation.mp4'),
             "Video (*.mp4);;GIF (*.gif)")
         if file_path is None or file_path == '':
             ok_button.setEnabled(False)
             return
         ok_button.setEnabled(True)
-        self.output_directory = os.path.dirname(file_path)
-        self.output_file = file_path
         self.movie_file_edit.setText(file_path)
 
     def choose_music_file(self):
@@ -378,45 +353,46 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         file_path, __ = QFileDialog.getOpenFileName(
             self,
             dialog_title,
-            self.music_file,
+            self.music_file_edit.text(),
             "Mp3 (*.mp3);;Wav (*.wav)")
         if file_path is None or file_path == '':
             return
-        self.music_file = file_path
         self.music_file_edit.setText(self.music_file)
 
     def save_state(self):
-
-        self.frames_per_second = self.framerate_spin.value()
-        set_setting(key='frames_per_second', value=self.frames_per_second)
+        """
+        We save some project settings to both QSettings AND the current project, others just to the current project,
+        others just to settings...
+        """
+        set_setting(key='frames_per_second', value=self.framerate_spin.value(), store_in_project=True)
 
         if self.radio_sphere.isChecked():
-            set_setting(key='map_mode', value='sphere')
+            set_setting(key='map_mode', value='sphere', store_in_project=True)
         elif self.radio_planar.isChecked():
-            set_setting(key='map_mode', value='planar')
+            set_setting(key='map_mode', value='planar', store_in_project=True)
         else:
-            set_setting(key='map_mode', value='fixed_extent')
+            set_setting(key='map_mode', value='fixed_extent', store_in_project=True)
         # Save state
-        set_setting(key='frames_per_feature', value=self.frames_per_feature)
-        set_setting(key='dwell_frames', value=self.dwell_frames)
-        set_setting(key='frames_for_extent', value=self.frames_for_extent)
-        set_setting(key='max_scale', value=int(self.max_scale))
-        set_setting(key='min_scale', value=int(self.min_scale))
+        set_setting(key='frames_per_feature', value=self.feature_frames_spin.value(), store_in_project=True)
+        set_setting(key='dwell_frames', value=self.hover_frames_spin.value(), store_in_project=True)
+        set_setting(key='frames_for_extent', value=self.extent_frames_spin.value(), store_in_project=True)
+        set_setting(key='max_scale', value=self.scale_range.maximumScale(), store_in_project=True)
+        set_setting(key='min_scale', value=self.scale_range.minimumScale(), store_in_project=True)
         set_setting(
             key='enable_pan_easing',
-            value=self.pan_easing_widget.is_enabled())
+            value=self.pan_easing_widget.is_enabled(), store_in_project=True)
         set_setting(
             key='enable_zoom_easing',
-            value=self.zoom_easing_widget.is_enabled())
+            value=self.zoom_easing_widget.is_enabled(), store_in_project=True)
         set_setting(
             key='pan_easing',
-            value=self.pan_easing_widget.easing_name())
+            value=self.pan_easing_widget.easing_name(), store_in_project=True)
         set_setting(
             key='zoom_easing',
-            value=self.zoom_easing_widget.easing_name())
+            value=self.zoom_easing_widget.easing_name(), store_in_project=True)
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
-        set_setting(key='output_file', value=self.output_file)
-        set_setting(key='music_file', value=self.music_file)
+        set_setting(key='output_file', value=self.movie_file_edit.text(), store_in_project=True)
+        set_setting(key='music_file', value=self.music_file_edit.text(), store_in_project=True)
 
     # Prevent the slot being called twize
     @pyqtSlot()
@@ -453,13 +429,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 'Generating flight path for %s layer: %s' %
                 (layer_type, layer_name))
 
-        self.max_scale = self.scale_range.maximumScale()
-        self.min_scale = self.scale_range.minimumScale()
-        self.dwell_frames = self.hover_frames_spin.value()
-        self.frames_per_feature = self.feature_frames_spin.value()
-        self.frames_for_extent = self.extent_frames_spin.value()
-        self.frames_per_second = self.framerate_spin.value()
-
         self.save_state()
 
         self.render_queue.reset()
@@ -473,7 +442,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 map_settings=self.iface.mapCanvas().mapSettings(),
                 output_extent=QgsReferencedRectangle(self.extent_group_box.outputExtent(),
                                                      self.extent_group_box.outputCrs()),
-                total_frames=self.frames_for_extent
+                total_frames=self.extent_frames_spin.value()
             )
         else:
             try:
@@ -481,8 +450,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     map_settings=self.iface.mapCanvas().mapSettings(),
                     mode=self.map_mode,
                     feature_layer=self.layer_combo.currentLayer(),
-                    travel_frames=self.frames_per_feature,
-                    dwell_frames=self.dwell_frames,
+                    travel_frames=self.feature_frames_spin.value(),
+                    dwell_frames=self.hover_frames_spin.value(),
                     min_scale=self.scale_range.minimumScale(),
                     max_scale=self.scale_range.maximumScale(),
                     pan_easing=self.pan_easing if self.pan_easing_widget.is_enabled() else None,
@@ -519,6 +488,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         .. note:: This called by process_more_tasks when all tasks are complete.
         """
+
+        output_file = self.movie_file_edit.text()
+        music_file = self.music_file_edit.text()
+
         if self.radio_gif.isChecked():
             self.output_log_text_edit.append('Generating GIF')
             convert = which('convert')[0]
@@ -530,7 +503,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             os.system('%s -delay 3.33 -loop 0 %s/$s-*.png %s' % (
                 self.work_directory,
                 self.frame_filename_prefix,
-                convert, self.work_directory, self.output_file))
+                convert, self.work_directory, output_file))
             # Now do a second pass with image magick to resize and compress the
             # gif as much as possible.  The remap option basically takes the
             # first image as a reference image for the colour palette Depending
@@ -542,7 +515,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     -remap %s/%s.gif[20] +dither -colors 14 -layers \
                     Optimize %s/animation_small.gif""" % (
                 convert,
-                self.output_file,
+                output_file,
                 self.work_directory,
                 self.frame_filename_prefix,
                 self.work_directory
@@ -554,7 +527,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.play_button.setEnabled(True)
             self.play()
             self.output_log_text_edit.append(
-                'GIF written to %s' % self.output_file)
+                'GIF written to %s' % output_file)
         else:
             self.output_log_text_edit.append('Generating MP4 Movie')
             ffmpeg = which('ffmpeg')[0]
@@ -568,8 +541,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append('ffmpeg found: %s' % ffmpeg)
 
             framerate = str(self.framerate_spin.value())
-            if self.music_file != '':
-                mp3_flag = '-i %s' % self.music_file
+            if music_file:
+                mp3_flag = '-i %s' % music_file
             else:
                 mp3_flag = ''
             unix_command = ("""
@@ -582,7 +555,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.work_directory,
                 self.frame_filename_prefix,
                 mp3_flag,
-                self.output_file))
+                output_file))
 
             # windows_command = ("""
             #    %s -y -framerate %s -pattern_type sequence -start_number 0000000001 \
@@ -600,11 +573,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             # Video preview page
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
-                QMediaContent(QUrl.fromLocalFile(self.output_file)))
+                QMediaContent(QUrl.fromLocalFile(output_file)))
             self.play_button.setEnabled(True)
             self.play()
             self.output_log_text_edit.append(
-                'MP4 written to %s' % self.output_file)
+                'MP4 written to %s' % output_file)
 
     def load_image(self, name):
         if self.last_preview_image is not None and self.last_preview_image > name:
