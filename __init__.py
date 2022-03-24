@@ -24,6 +24,7 @@ import time
 # noinspection PyUnresolvedReferences
 import qgis  # pylint: disable=unused-import
 
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
@@ -96,9 +97,11 @@ class AnimationWorkbenchPlugin:
 
     def run(self):
         dialog = AnimationWorkbench(
+            parent=self.iface.mainWindow(),
             iface=self.iface,
             render_queue=self.render_queue)
-        dialog.exec_()
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.show()
 
     def settings(self):
         dialog = WorkbenchSettings()

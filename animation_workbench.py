@@ -135,9 +135,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.help_button.toggled.connect(self.help_toggled)
 
         # Close button action
-        close_button = self.button_box.button(
-            QDialogButtonBox.Close)
-        close_button.clicked.connect(self.close)
+        self.button_box.rejected.connect(self.reject)
+        self.button_box.accepted.connect(self.accept)
         # Fix ends
 
         # Used by ffmpeg and convert to set the fps for rendered videos
@@ -282,7 +281,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.render_queue.image_rendered.connect(
             self.load_image)
 
-    def close(self):
+    def closeEvent(self, event):
         self.save_state()
         self.reject()
 
