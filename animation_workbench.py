@@ -75,6 +75,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.parent = parent
         self.iface = iface
 
+        self.extent_group_box.setMapCanvas(self.iface.mapCanvas())
+        self.scale_range.setMapCanvas(self.iface.mapCanvas())
+
         self.output_log_text_edit.append(
             'Welcome to the QGIS Animation Workbench')
         self.output_log_text_edit.append(
