@@ -203,11 +203,10 @@ class AnimationController(QObject):
             self.map_settings.setExtent(full_extent)
 
     def geometry_to_pointxy(self, feature: QgsFeature) -> Optional[QgsPointXY]:
-        x, y = None, None
         geom = feature.geometry()
 
         # use simplified type, so that we don't have to care about multipolygons/lines with just single part!
-        raw_geom = feature.geometry().constGet().simplifiedTypeRef()\
+        raw_geom = geom.constGet().simplifiedTypeRef()\
 
         flat_type = QgsWkbTypes.flatType(raw_geom.wkbType())
 
@@ -216,16 +215,16 @@ class AnimationController(QObject):
             y = raw_geom.y()
             center = QgsPointXY(x, y)
         elif flat_type == QgsWkbTypes.LineString:
-            length = feature.geometry().length()
-            point = feature.geometry().interpolate(length / 2.0)
+            length = geom.length()
+            point = geom.interpolate(length / 2.0)
             x = point.geometry().x()
             y = point.geometry().y()
             center = QgsPointXY(x, y)
         elif flat_type == QgsWkbTypes.Polygon:
-            center = feature.geometry().centroid().asPoint()
+            center = geom.centroid().asPoint()
         else:
             self.verbose_message.emit('Unsupported Feature Geometry Type: {}'.format(QgsWkbTypes.displayString(
-                feature.geometry().wkbType())))
+                raw_geom.wkbType())))
             center = None
         return center
 
