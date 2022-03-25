@@ -76,7 +76,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        self.extent_group_box = QgsExtentWidget(None, QgsExtentWidget.ExpandedStyle)
+        self.extent_group_box = QgsExtentWidget(
+            None, QgsExtentWidget.ExpandedStyle)
         vbox_layout = QVBoxLayout()
         vbox_layout.addWidget(self.extent_group_box)
         self.extent_widget_container.setLayout(vbox_layout)
@@ -106,7 +107,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.work_directory = tempfile.gettempdir()
         self.frame_filename_prefix = 'animation_workbench'
         # place where final products are stored
-        output_file = setting(key='output_file', default='', prefer_project_setting=True)
+        output_file = setting(key='output_file', default='',
+                              prefer_project_setting=True)
         if output_file:
             self.movie_file_edit.setText(output_file)
             ok_button.setEnabled(True)
@@ -114,7 +116,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_file_button.clicked.connect(
             self.set_output_name)
 
-        music_file = setting(key='music_file', default='', prefer_project_setting=True)
+        music_file = setting(key='music_file', default='',
+                             prefer_project_setting=True)
         if music_file:
             self.music_file_edit.setText(music_file)
         self.music_file_button.clicked.connect(
@@ -174,8 +177,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.extent_frames_spin.setValue(int(
             setting(key='frames_for_extent', default='90', prefer_project_setting=True)))
         # Keep the scales the same if you dont want it to zoom in an out
-        self.scale_range.setMaximumScale(float(setting(key='max_scale', default='10000000', prefer_project_setting=True)))
-        self.scale_range.setMinimumScale(float(setting(key='min_scale', default='25000000', prefer_project_setting=True)))
+        self.scale_range.setMaximumScale(
+            float(setting(key='max_scale', default='10000000', prefer_project_setting=True)))
+        self.scale_range.setMinimumScale(
+            float(setting(key='min_scale', default='25000000', prefer_project_setting=True)))
 
         self.last_preview_image = None
 
@@ -183,7 +188,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
         self.pan_easing_widget.set_checkbox_label('Enable Pan Easing')
-        pan_easing_name = setting(key='pan_easing', default='Linear', prefer_project_setting=True)
+        pan_easing_name = setting(
+            key='pan_easing', default='Linear', prefer_project_setting=True)
         self.pan_easing_widget.set_preview_color('#00ff00')
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
         if setting(key='enable_pan_easing', default='false', prefer_project_setting=True).lower() == 'false':
@@ -196,7 +202,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
         self.zoom_easing_widget.set_checkbox_label('Enable Zoom Easing')
-        zoom_easing_name = setting(key='zoom_easing', default='Linear', prefer_project_setting=True)
+        zoom_easing_name = setting(
+            key='zoom_easing', default='Linear', prefer_project_setting=True)
         self.zoom_easing_widget.set_preview_color('#0000ff')
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
         if setting(key='enable_zoom_easing', default='false', prefer_project_setting=True).lower() == 'false':
@@ -224,7 +231,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), 'total_frame_count', 'None')
 
-        mode_string = setting(key='map_mode', default='sphere', prefer_project_setting=True)
+        mode_string = setting(
+            key='map_mode', default='sphere', prefer_project_setting=True)
         if mode_string == 'sphere':
             self.radio_sphere.setChecked(True)
             self.status_stack.setCurrentIndex(0)
@@ -291,7 +299,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.movie_task = None
 
-        self.preview_frame_spin.valueChanged.connect(self.show_preview_for_frame)
+        self.preview_frame_spin.valueChanged.connect(
+            self.show_preview_for_frame)
 
     def closeEvent(self, event):
         self.save_state()
@@ -386,20 +395,27 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         We save some project settings to both QSettings AND the current project, others just to the current project,
         others just to settings...
         """
-        set_setting(key='frames_per_second', value=self.framerate_spin.value(), store_in_project=True)
+        set_setting(key='frames_per_second',
+                    value=self.framerate_spin.value(), store_in_project=True)
 
         if self.radio_sphere.isChecked():
             set_setting(key='map_mode', value='sphere', store_in_project=True)
         elif self.radio_planar.isChecked():
             set_setting(key='map_mode', value='planar', store_in_project=True)
         else:
-            set_setting(key='map_mode', value='fixed_extent', store_in_project=True)
+            set_setting(key='map_mode', value='fixed_extent',
+                        store_in_project=True)
         # Save state
-        set_setting(key='frames_per_feature', value=self.feature_frames_spin.value(), store_in_project=True)
-        set_setting(key='dwell_frames', value=self.hover_frames_spin.value(), store_in_project=True)
-        set_setting(key='frames_for_extent', value=self.extent_frames_spin.value(), store_in_project=True)
-        set_setting(key='max_scale', value=self.scale_range.maximumScale(), store_in_project=True)
-        set_setting(key='min_scale', value=self.scale_range.minimumScale(), store_in_project=True)
+        set_setting(key='frames_per_feature',
+                    value=self.feature_frames_spin.value(), store_in_project=True)
+        set_setting(key='dwell_frames',
+                    value=self.hover_frames_spin.value(), store_in_project=True)
+        set_setting(key='frames_for_extent',
+                    value=self.extent_frames_spin.value(), store_in_project=True)
+        set_setting(
+            key='max_scale', value=self.scale_range.maximumScale(), store_in_project=True)
+        set_setting(
+            key='min_scale', value=self.scale_range.minimumScale(), store_in_project=True)
         set_setting(
             key='enable_pan_easing',
             value=self.pan_easing_widget.is_enabled(), store_in_project=True)
@@ -413,8 +429,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             key='zoom_easing',
             value=self.zoom_easing_widget.easing_name(), store_in_project=True)
         set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
-        set_setting(key='output_file', value=self.movie_file_edit.text(), store_in_project=True)
-        set_setting(key='music_file', value=self.music_file_edit.text(), store_in_project=True)
+        set_setting(key='output_file',
+                    value=self.movie_file_edit.text(), store_in_project=True)
+        set_setting(key='music_file',
+                    value=self.music_file_edit.text(), store_in_project=True)
 
         # only saved to project
         if self.layer_combo.currentLayer():
@@ -454,7 +472,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         controller.reuse_cache = self.reuse_cache.isChecked()
 
-        self.render_queue.set_annotations(QgsProject.instance().annotationManager().annotations())
+        self.render_queue.set_annotations(
+            QgsProject.instance().annotationManager().annotations())
         self.render_queue.set_decorations(self.iface.activeDecorations())
 
         self.output_log_text_edit.append(
@@ -491,6 +510,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             map_mode = MapMode.FIXED_EXTENT
 
         if map_mode != MapMode.FIXED_EXTENT:
+            if not self.layer_combo.currentLayer():
+                self.output_log_text_edit.append(
+                    'Cannot generate sequence without choosing a layer')
+                return
+
             layer_type = qgis.core.QgsWkbTypes.displayString(
                 int(self.layer_combo.currentLayer().wkbType()))
             layer_name = self.layer_combo.currentLayer().name()
@@ -532,10 +556,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
             music_file=self.music_file_edit.text(),
-            output_format = MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
+            output_format=MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
             work_directory=self.work_directory,
-            frame_filename_prefix = self.frame_filename_prefix,
-            framerate = self.framerate_spin.value()
+            frame_filename_prefix=self.frame_filename_prefix,
+            framerate=self.framerate_spin.value()
         )
 
         def log_message(message):
@@ -565,6 +589,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsApplication.taskManager().addTask(self.movie_task)
 
     def show_preview_for_frame(self, frame: int):
+        if self.radio_sphere.isChecked() or self.radio_planar.isChecked():
+            if not self.layer_combo.currentLayer():
+                self.output_log_text_edit.append(
+                    'Cannot generate preview without choosing a layer')
+                return
         if self.current_preview_frame_render_job:
             self.current_preview_frame_render_job.cancel()
             self.current_preview_frame_render_job = None
@@ -588,8 +617,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         job.file_name = '/tmp/tmp_image.png'
         self.current_preview_frame_render_job = job.create_task()
 
-        self.current_preview_frame_render_job.taskCompleted.connect(partial(update_preview_image, file_name=job.file_name))
-        self.current_preview_frame_render_job.taskTerminated.connect(partial(update_preview_image, file_name=job.file_name))
+        self.current_preview_frame_render_job.taskCompleted.connect(
+            partial(update_preview_image, file_name=job.file_name))
+        self.current_preview_frame_render_job.taskTerminated.connect(
+            partial(update_preview_image, file_name=job.file_name))
 
         QgsApplication.taskManager().addTask(self.current_preview_frame_render_job)
 
