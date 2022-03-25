@@ -422,26 +422,38 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         We save some project settings to both QSettings AND the current project, others just to the current project,
         others just to settings...
         """
-        set_setting(key='frames_per_second',
-                    value=self.framerate_spin.value(), store_in_project=True)
+        set_setting(
+            key='frames_per_second',
+            value=self.framerate_spin.value(),
+            store_in_project=True)
 
         if self.radio_sphere.isChecked():
-            set_setting(key='map_mode', value='sphere', store_in_project=True)
+            set_setting(
+                key='map_mode',
+                value='sphere',
+                store_in_project=True)
         elif self.radio_planar.isChecked():
-            set_setting(key='map_mode', value='planar', store_in_project=True)
+            set_setting(
+                key='map_mode',
+                value='planar',
+                store_in_project=True)
         else:
-            set_setting(key='map_mode', value='fixed_extent',
-                        store_in_project=True)
-        # Save state
-        set_setting(key='frames_per_feature',
-                    value=self.feature_frames_spin.value(),
-                    store_in_project=True)
-        set_setting(key='dwell_frames',
-                    value=self.hover_frames_spin.value(),
-                    store_in_project=True)
-        set_setting(key='frames_for_extent',
-                    value=self.extent_frames_spin.value(),
-                    store_in_project=True)
+            set_setting(
+                key='map_mode',
+                value='fixed_extent',
+                store_in_project=True)
+        set_setting(
+            key='frames_per_feature',
+            value=self.feature_frames_spin.value(),
+            store_in_project=True)
+        set_setting(
+            key='dwell_frames',
+            value=self.hover_frames_spin.value(),
+            store_in_project=True)
+        set_setting(
+            key='frames_for_extent',
+            value=self.extent_frames_spin.value(),
+            store_in_project=True)
         set_setting(
             key='max_scale',
             value=float(self.scale_range.maximumScale()),
