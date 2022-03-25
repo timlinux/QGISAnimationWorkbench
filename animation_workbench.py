@@ -156,10 +156,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.help_button.setCheckable(True)
         self.help_button.toggled.connect(self.help_toggled)
 
-        # Close button action
-        self.button_box.rejected.connect(self.reject)
+        # Close button action (save state on close)
+        self.button_box.rejected.connect(self.close)
         self.button_box.accepted.connect(self.accept)
-        # Fix ends
 
         # Used by ffmpeg and convert to set the fps for rendered videos
         self.framerate_spin.setValue(int(setting(
@@ -195,12 +194,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.scale_range.setMaximumScale(
             float(setting(
                 key='max_scale',
-                default=10000000,
+                default='10000000',
                 prefer_project_setting=True)))
         self.scale_range.setMinimumScale(
             float(setting(
                 key='min_scale',
-                default=25000000,
+                default='25000000',
                 prefer_project_setting=True)))
 
         self.last_preview_image = None
@@ -329,6 +328,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.preview_frame_spin.valueChanged.connect(
             self.show_preview_for_frame)
 
+    def close(self):
+        self.save_state()
+        self.reject()
+
     def closeEvent(self, event):
         self.save_state()
         self.reject()
@@ -456,11 +459,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             store_in_project=True)
         set_setting(
             key='max_scale',
-            value=float(self.scale_range.maximumScale()),
+            value=str(self.scale_range.maximumScale()),
             store_in_project=True)
         set_setting(
             key='min_scale',
-            value=float(self.scale_range.minimumScale()),
+            value=str(self.scale_range.minimumScale()),
             store_in_project=True)
         set_setting(
             key='enable_pan_easing',
