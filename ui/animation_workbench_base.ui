@@ -431,6 +431,27 @@ how many frames per second to use.</string>
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Frame</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="preview_frame_spin">
+              <property name="maximum">
+               <number>999999999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="video_page">

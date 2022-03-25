@@ -11,6 +11,7 @@ __revision__ = '$Format:%H$'
 import os
 import tempfile
 from typing import Optional
+from functools import partial
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
@@ -247,6 +248,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.show_fixed_extent_settings
         )
 
+        self.current_preview_frame_render_job = None
         # Set an initial image in the preview based on the current map
         self.show_preview_for_frame(0)
 
@@ -288,6 +290,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.load_image)
 
         self.movie_task = None
+
+        self.preview_frame_spin.valueChanged.connect(self.show_preview_for_frame)
 
     def closeEvent(self, event):
         self.save_state()
@@ -448,6 +452,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if not controller:
             return
 
+        controller.reuse_cache = self.reuse_cache.isChecked()
+
         self.render_queue.set_annotations(QgsProject.instance().annotationManager().annotations())
         self.render_queue.set_decorations(self.iface.activeDecorations())
 
@@ -516,7 +522,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.output_log_text_edit.append(f'Processing halted: {e}')
                 return None
 
-        controller.reuse_cache = self.reuse_cache.isChecked()
         return controller
 
     def processing_completed(self):
@@ -560,12 +565,33 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsApplication.taskManager().addTask(self.movie_task)
 
     def show_preview_for_frame(self, frame: int):
+        if self.current_preview_frame_render_job:
+            self.current_preview_frame_render_job.cancel()
+            self.current_preview_frame_render_job = None
+
         controller = self.create_controller()
         job = controller.create_job_for_frame(frame)
-        image = job.render_to_image()
-        if not image.isNull():
-            pixmap = QPixmap.fromImage(image)
-            self.current_frame_preview.setPixmap(pixmap)
+        if not job:
+            return
+
+        def update_preview_image(file_name):
+            if not self.current_preview_frame_render_job:
+                return
+
+            image = QImage(file_name)
+            if not image.isNull():
+                pixmap = QPixmap.fromImage(image)
+                self.current_frame_preview.setPixmap(pixmap)
+
+            self.current_preview_frame_render_job = None
+
+        job.file_name = '/tmp/tmp_image.png'
+        self.current_preview_frame_render_job = job.create_task()
+
+        self.current_preview_frame_render_job.taskCompleted.connect(partial(update_preview_image, file_name=job.file_name))
+        self.current_preview_frame_render_job.taskTerminated.connect(partial(update_preview_image, file_name=job.file_name))
+
+        QgsApplication.taskManager().addTask(self.current_preview_frame_render_job)
 
     def load_image(self, name):
         if self.last_preview_image is not None and self.last_preview_image > name:
