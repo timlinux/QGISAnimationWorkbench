@@ -47,7 +47,7 @@ from qgis.gui import (
 )
 
 from .settings import set_setting, setting
-from .utilities import get_ui_class, which, resources_path
+from .utilities import get_ui_class, resources_path
 from .animation_controller import (
     MapMode,
     AnimationController,
@@ -107,8 +107,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.work_directory = tempfile.gettempdir()
         self.frame_filename_prefix = 'animation_workbench'
         # place where final products are stored
-        output_file = setting(key='output_file', default='',
-                              prefer_project_setting=True)
+        output_file = setting(
+            key='output_file',
+            default='',
+            prefer_project_setting=True)
         if output_file:
             self.movie_file_edit.setText(output_file)
             ok_button.setEnabled(True)
@@ -116,8 +118,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_file_button.clicked.connect(
             self.set_output_name)
 
-        music_file = setting(key='music_file', default='',
-                             prefer_project_setting=True)
+        music_file = setting(
+            key='music_file',
+            default='',
+            prefer_project_setting=True)
         if music_file:
             self.music_file_edit.setText(music_file)
         self.music_file_button.clicked.connect(
@@ -131,7 +135,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             QgsMapLayerProxyModel.LineLayer |
             QgsMapLayerProxyModel.PolygonLayer)
 
-        prev_layer_id, ok = QgsProject.instance().readEntry('animation', 'layer_id')
+        prev_layer_id, ok = QgsProject.instance().readEntry(
+            'animation', 'layer_id')
         if prev_layer_id:
             layer = QgsProject.instance().mapLayer(prev_layer_id)
             if layer:
@@ -157,8 +162,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Fix ends
 
         # Used by ffmpeg and convert to set the fps for rendered videos
-        self.framerate_spin.setValue(int(
-            setting(key='frames_per_second', default='90', prefer_project_setting=True)))
+        self.framerate_spin.setValue(int(setting(
+            key='frames_per_second',
+            default='90',
+            prefer_project_setting=True)))
         # How many frames to render for each feature pair transition
         # The output is generated at e.g. 30fps so choosing 30
         # would fly to each feature for 1s
@@ -167,20 +174,34 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # and the 'feature_frame' project variable to determine
         # the frame number for the current feature based on frames_for_interval
 
-        self.feature_frames_spin.setValue(int(
-            setting(key='frames_per_feature', default='90', prefer_project_setting=True)))
+        self.feature_frames_spin.setValue(int(setting(
+            key='frames_per_feature',
+            default='90',
+            prefer_project_setting=True)))
 
         # How many frames to dwell at each feature for (output at e.g. 30fps)
         self.hover_frames_spin.setValue(int(
-            setting(key='dwell_frames', default='30', prefer_project_setting=True)))
+            setting(
+                key='dwell_frames',
+                default='30',
+                prefer_project_setting=True)))
         # How many frames to render when we are in static mode
         self.extent_frames_spin.setValue(int(
-            setting(key='frames_for_extent', default='90', prefer_project_setting=True)))
+            setting(
+                key='frames_for_extent',
+                default='90',
+                prefer_project_setting=True)))
         # Keep the scales the same if you dont want it to zoom in an out
         self.scale_range.setMaximumScale(
-            float(setting(key='max_scale', default='10000000', prefer_project_setting=True)))
+            float(setting(
+                key='max_scale',
+                default=10000000,
+                prefer_project_setting=True)))
         self.scale_range.setMinimumScale(
-            float(setting(key='min_scale', default='25000000', prefer_project_setting=True)))
+            float(setting(
+                key='min_scale',
+                default=25000000,
+                prefer_project_setting=True)))
 
         self.last_preview_image = None
 
@@ -192,7 +213,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             key='pan_easing', default='Linear', prefer_project_setting=True)
         self.pan_easing_widget.set_preview_color('#00ff00')
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
-        if setting(key='enable_pan_easing', default='false', prefer_project_setting=True).lower() == 'false':
+        if setting(
+                key='enable_pan_easing',
+                default=0,
+                prefer_project_setting=True) == 0:
             self.pan_easing_widget.disable()
         else:
             self.pan_easing_widget.enable()
@@ -206,7 +230,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             key='zoom_easing', default='Linear', prefer_project_setting=True)
         self.zoom_easing_widget.set_preview_color('#0000ff')
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
-        if setting(key='enable_zoom_easing', default='false', prefer_project_setting=True).lower() == 'false':
+        if setting(
+                key='enable_zoom_easing',
+                default=0,
+                prefer_project_setting=True) == 0:
             self.zoom_easing_widget.disable()
         else:
             self.zoom_easing_widget.enable()
@@ -262,8 +289,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.progress_bar.setValue(0)
 
-        reuse_cache = setting(key='reuse_cache', default='false')
-        if reuse_cache == 'false':
+        reuse_cache = setting(key='reuse_cache', default=0)
+        if reuse_cache == 0:
             self.reuse_cache.setChecked(False)
         else:
             self.reuse_cache.setChecked(True)
@@ -407,32 +434,47 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                         store_in_project=True)
         # Save state
         set_setting(key='frames_per_feature',
-                    value=self.feature_frames_spin.value(), store_in_project=True)
+                    value=self.feature_frames_spin.value(),
+                    store_in_project=True)
         set_setting(key='dwell_frames',
-                    value=self.hover_frames_spin.value(), store_in_project=True)
+                    value=self.hover_frames_spin.value(),
+                    store_in_project=True)
         set_setting(key='frames_for_extent',
-                    value=self.extent_frames_spin.value(), store_in_project=True)
+                    value=self.extent_frames_spin.value(),
+                    store_in_project=True)
         set_setting(
-            key='max_scale', value=self.scale_range.maximumScale(), store_in_project=True)
+            key='max_scale',
+            value=float(self.scale_range.maximumScale()),
+            store_in_project=True)
         set_setting(
-            key='min_scale', value=self.scale_range.minimumScale(), store_in_project=True)
+            key='min_scale',
+            value=float(self.scale_range.minimumScale()),
+            store_in_project=True)
         set_setting(
             key='enable_pan_easing',
-            value=self.pan_easing_widget.is_enabled(), store_in_project=True)
+            value=1 if self.pan_easing_widget.is_enabled() else 0,
+            store_in_project=True)
         set_setting(
             key='enable_zoom_easing',
-            value=self.zoom_easing_widget.is_enabled(), store_in_project=True)
+            value=1 if self.zoom_easing_widget.is_enabled() else 0,
+            store_in_project=True)
         set_setting(
             key='pan_easing',
-            value=self.pan_easing_widget.easing_name(), store_in_project=True)
+            value=1 if self.pan_easing_widget.easing_name() else 0,
+            store_in_project=True)
         set_setting(
             key='zoom_easing',
-            value=self.zoom_easing_widget.easing_name(), store_in_project=True)
-        set_setting(key='reuse_cache', value=self.reuse_cache.isChecked())
+            value=self.zoom_easing_widget.easing_name(),
+            store_in_project=True)
+        set_setting(
+            key='reuse_cache',
+            value=1 if self.reuse_cache.isChecked() else 0)
         set_setting(key='output_file',
-                    value=self.movie_file_edit.text(), store_in_project=True)
+                    value=self.movie_file_edit.text(),
+                    store_in_project=True)
         set_setting(key='music_file',
-                    value=self.music_file_edit.text(), store_in_project=True)
+                    value=self.music_file_edit.text(),
+                    store_in_project=True)
 
         # only saved to project
         if self.layer_combo.currentLayer():
@@ -489,7 +531,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             controller.verbose_message.connect(log_message)
 
         self.render_queue.total_feature_count = controller.total_feature_count
-        self.render_queue.frames_per_feature = controller.travel_frames + controller.dwell_frames
+        self.render_queue.frames_per_feature = (
+            controller.travel_frames + controller.dwell_frames)
 
         for image_counter, job in enumerate(controller.create_jobs()):
             self.output_log_text_edit.append(job.file_name)
@@ -592,7 +635,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if self.radio_sphere.isChecked() or self.radio_planar.isChecked():
             if not self.layer_combo.currentLayer():
                 self.output_log_text_edit.append(
-                    'Cannot generate preview without choosing a layer')
+                    'Cannot generate sequence without choosing a layer')
                 return
         if self.current_preview_frame_render_job:
             self.current_preview_frame_render_job.cancel()
