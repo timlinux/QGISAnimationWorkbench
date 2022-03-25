@@ -19,7 +19,7 @@ __revision__ = '$Format:%H$'
 # ---------------------------------------------------------------------
 
 from functools import partial
-from typing import List
+from typing import List, Optional
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
@@ -52,6 +52,22 @@ class RenderJob:
         render_job.start()
         render_job.waitForFinished()
         return render_job.renderedImage()
+
+    def create_task(self, annotations_list: Optional[List]=None, decorations: Optional[List]=None) -> QgsMapRendererTask:
+        # Set the output file name for the render task
+        task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
+        # We need to clone the annotations because otherwise SIP will
+        # pass ownership and then cause a crash when the render task is
+        # destroyed
+        if annotations_list:
+            cloned_annotations = [a.clone() for a in annotations_list]
+            task.addAnnotations(cloned_annotations)
+
+        # Add decorations to the render job
+        if decorations:
+            task.addDecorations(decorations)
+
+        return task
 
 
 class RenderQueue(QObject):
@@ -134,7 +150,7 @@ class RenderQueue(QObject):
             if self.verbose_mode:
                 self.status_message.emit(f'Rendering: {job.file_name}')
 
-            task = self.create_task(job)
+            task = job.create_task(self.annotations_list, self.decorations)
             self.active_tasks[job.file_name] = task
 
             task.taskCompleted.connect(partial(self.task_completed, file_name=job.file_name))
@@ -169,18 +185,3 @@ class RenderQueue(QObject):
     def add_job(self, job: RenderJob):
         self.job_queue.append(job)
         self.total_queue_size += 1
-
-    def create_task(self, job: RenderJob) -> QgsMapRendererTask:
-        # Set the output file name for the render task
-        task = QgsMapRendererTask(job.map_settings, job.file_name, "PNG")
-        # We need to clone the annotations because otherwise SIP will
-        # pass ownership and then cause a crash when the render task is
-        # destroyed
-        if self.annotations_list:
-            cloned_annotations = [a.clone() for a in self.annotations_list]
-            task.addAnnotations(cloned_annotations)
-
-        # Add decorations to the render job
-        task.addDecorations(self.decorations)
-
-        return task

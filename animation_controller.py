@@ -161,7 +161,6 @@ class AnimationController(QObject):
             self.layer_to_map_transform = QgsCoordinateTransform(self.feature_layer.crs(),
                                                                  self.map_settings.destinationCrs(),
                                                                  QgsProject.instance())
-
             for job in self.create_moving_extent_job():
                 yield job
 
