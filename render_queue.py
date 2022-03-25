@@ -53,7 +53,7 @@ class RenderJob:
         render_job.waitForFinished()
         return render_job.renderedImage()
 
-    def create_task(self, annotations_list: Optional[List]=None, decorations: Optional[List]=None) -> QgsMapRendererTask:
+    def create_task(self, annotations_list: Optional[List] = None, decorations: Optional[List] = None) -> QgsMapRendererTask:
         # Set the output file name for the render task
         task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
         # We need to clone the annotations because otherwise SIP will
@@ -67,6 +67,21 @@ class RenderJob:
         if decorations:
             task.addDecorations(decorations)
 
+        # TODO We need to set these cars in the task render context...
+        # QgsExpressionContextUtils.setProjectVariable(
+        #    QgsProject.instance(), 'frames_per_feature', 0)
+        # QgsExpressionContextUtils.setProjectVariable(
+        #    QgsProject.instance(), 'current_frame_for_feature', 0)
+        # QgsExpressionContextUtils.setProjectVariable(
+        #    QgsProject.instance(), 'current_feature_id', 0)
+        # None, Panning, Hovering
+        # QgsExpressionContextUtils.setProjectVariable(
+        #    QgsProject.instance(), 'current_animation_action', 'None')
+
+        # QgsExpressionContextUtils.setProjectVariable(
+        #    QgsProject.instance(), 'current_frame', 'None')
+        # QgsExpressionContextUtils.setProjectVariable(
+        #    QgsProject.instance(), 'total_frame_count', 'None')
         return task
 
 
@@ -153,8 +168,10 @@ class RenderQueue(QObject):
             task = job.create_task(self.annotations_list, self.decorations)
             self.active_tasks[job.file_name] = task
 
-            task.taskCompleted.connect(partial(self.task_completed, file_name=job.file_name))
-            task.taskTerminated.connect(partial(self.finalize_task, file_name=job.file_name))
+            task.taskCompleted.connect(
+                partial(self.task_completed, file_name=job.file_name))
+            task.taskTerminated.connect(
+                partial(self.finalize_task, file_name=job.file_name))
 
             QgsApplication.taskManager().addTask(task)
 
