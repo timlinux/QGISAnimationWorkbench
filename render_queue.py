@@ -67,21 +67,6 @@ class RenderJob:
         if decorations:
             task.addDecorations(decorations)
 
-        # TODO We need to set these cars in the task render context...
-        # QgsExpressionContextUtils.setProjectVariable(
-        #    QgsProject.instance(), 'frames_per_feature', 0)
-        # QgsExpressionContextUtils.setProjectVariable(
-        #    QgsProject.instance(), 'current_frame_for_feature', 0)
-        # QgsExpressionContextUtils.setProjectVariable(
-        #    QgsProject.instance(), 'current_feature_id', 0)
-        # None, Panning, Hovering
-        # QgsExpressionContextUtils.setProjectVariable(
-        #    QgsProject.instance(), 'current_animation_action', 'None')
-
-        # QgsExpressionContextUtils.setProjectVariable(
-        #    QgsProject.instance(), 'current_frame', 'None')
-        # QgsExpressionContextUtils.setProjectVariable(
-        #    QgsProject.instance(), 'total_frame_count', 'None')
         return task
 
 
