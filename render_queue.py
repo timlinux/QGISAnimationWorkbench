@@ -121,6 +121,18 @@ class RenderQueue(QObject):
 
         self.update_status()
 
+    def cancel_processing(self):
+        self.job_queue.clear()
+        self.total_queue_size = 0
+        self.total_completed = 0
+        self.total_feature_count = 0
+        self.completed_feature_count = 0
+
+        self.frames_per_feature = 0
+        self.annotations_list = []
+        self.decorations = []
+        self.status_message.emit(f'Cancelling after in progress jobs are done')
+
     def update_status(self):
         # make sure internal counters are consistent
         # then emit a signal to let watchers know the counts
@@ -176,8 +188,7 @@ class RenderQueue(QObject):
         self.status_changed.emit()
         self.process_queue()
 
-    def set_annotations(self,
-                        annotations):
+    def set_annotations(self, annotations):
         self.annotations_list = [a.clone() for a in annotations]
 
     def set_decorations(self, decorations):

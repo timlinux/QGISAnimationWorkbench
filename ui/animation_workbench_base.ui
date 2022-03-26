@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1080</width>
-    <height>830</height>
+    <height>832</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -302,7 +302,7 @@ how many frames per second to use.</string>
            </widget>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QWidget" name="extent_widget_container"/>
+           <widget class="QWidget" name="extent_widget_container" native="true"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="extent_frames_label">
@@ -690,7 +690,7 @@ p, li { white-space: pre-wrap; }
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -698,26 +698,14 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsCollapsibleGroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>qgis.gui</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QgsExtentWidget</class>
-   <extends>QWidget</extends>
-   <header>qgis.gui</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgis.gui</header>
+   <header>qgsmaplayercombobox.h</header>
   </customwidget>
   <customwidget>
    <class>QgsScaleRangeWidget</class>
    <extends>QWidget</extends>
-   <header>qgis.gui</header>
+   <header>qgsscalerangewidget.h</header>
   </customwidget>
   <customwidget>
    <class>EasingPreview</class>

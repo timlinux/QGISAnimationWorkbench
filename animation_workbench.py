@@ -103,6 +103,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         ok_button.setText('Run')
         ok_button.setEnabled(False)
 
+        self.cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
+        self.cancel_button.clicked.connect(self.cancel_processing)
+
         # place where working files are stored
         self.work_directory = tempfile.gettempdir()
         self.frame_filename_prefix = 'animation_workbench'
@@ -555,6 +558,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         # Now all the tasks are prepared, start the render_queue processing
         self.render_queue.start_processing()
+
+    def cancel_processing(self):
+        self.render_queue.cancel_processing()
 
     def create_controller(self) -> Optional[AnimationController]:
         """
