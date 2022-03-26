@@ -101,8 +101,8 @@ class AnimationController(QObject):
 
         # Subtract one because we already start at the first feature
         controller.total_frame_count = (
-                (controller.total_feature_count - 1) *
-                (dwell_frames + travel_frames))
+            (controller.total_feature_count - 1) *
+            (dwell_frames + travel_frames))
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
 
@@ -158,9 +158,10 @@ class AnimationController(QObject):
             for job in self.create_fixed_extent_job():
                 yield job
         else:
-            self.layer_to_map_transform = QgsCoordinateTransform(self.feature_layer.crs(),
-                                                                 self.map_settings.destinationCrs(),
-                                                                 QgsProject.instance())
+            self.layer_to_map_transform = QgsCoordinateTransform(
+                self.feature_layer.crs(),
+                self.map_settings.destinationCrs(),
+                QgsProject.instance())
             for job in self.create_moving_extent_job():
                 yield job
 
@@ -183,7 +184,8 @@ class AnimationController(QObject):
         self.set_to_scale(self.min_scale)
         for feature in self.feature_layer.getFeatures():
             if self.previous_feature is not None:
-                for job in self.fly_feature_to_feature(self.previous_feature, feature):
+                for job in self.fly_feature_to_feature(
+                        self.previous_feature, feature):
                     yield job
 
             self.previous_feature = feature
@@ -194,7 +196,9 @@ class AnimationController(QObject):
         prev_extent = self.map_settings.visibleExtent()
         x_min = center_x - prev_extent.width() / 2
         y_min = center_y - prev_extent.height() / 2
-        new_extent = QgsRectangle(x_min, y_min, x_min + prev_extent.width(), y_min + prev_extent.height())
+        new_extent = QgsRectangle(
+            x_min, y_min, x_min + prev_extent.width(),
+            y_min + prev_extent.height())
         self.map_settings.setExtent(new_extent)
 
     def set_to_scale(self, scale: float):
@@ -204,9 +208,10 @@ class AnimationController(QObject):
         self.map_settings.setExtent(r)
 
     def zoom_to_full_extent(self):
-        full_extent = QgsMapLayerUtils.combinedExtent(self.map_settings.layers(),
-                                                      self.map_settings.destinationCrs(),
-                                                      QgsProject.instance().transformContext())
+        full_extent = QgsMapLayerUtils.combinedExtent(
+            self.map_settings.layers(),
+            self.map_settings.destinationCrs(),
+            QgsProject.instance().transformContext())
         if not full_extent.isEmpty():
             # add 5% margin around full extent
             full_extent.scale(1.05)
@@ -215,7 +220,8 @@ class AnimationController(QObject):
     def geometry_to_pointxy(self, feature: QgsFeature) -> Optional[QgsPointXY]:
         geom = feature.geometry()
 
-        # use simplified type, so that we don't have to care about multipolygons/lines with just single part!
+        # use simplified type, so that we don't have to care
+        # about multipolygons/lines with just single part!
         raw_geom = geom.constGet().simplifiedTypeRef()\
 
         flat_type = QgsWkbTypes.flatType(raw_geom.wkbType())
@@ -233,8 +239,10 @@ class AnimationController(QObject):
         elif flat_type == QgsWkbTypes.Polygon:
             center = geom.centroid().asPoint()
         else:
-            self.verbose_message.emit('Unsupported Feature Geometry Type: {}'.format(QgsWkbTypes.displayString(
-                raw_geom.wkbType())))
+            self.verbose_message.emit(
+                'Unsupported Feature Geometry Type: {}'.
+                format(QgsWkbTypes.displayString(
+                    raw_geom.wkbType())))
             center = None
         return center
 
@@ -258,7 +266,7 @@ class AnimationController(QObject):
             definition = (""" +proj=ortho \
                 +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
                 +ellps=sphere +units=m +no_defs""" % (
-                    center.y(), center.x()))
+                center.y(), center.x()))
             crs = QgsCoordinateReferenceSystem()
             crs.createFromProj(definition)
             self.map_settings.setDestinationCrs(crs)
@@ -290,7 +298,10 @@ class AnimationController(QObject):
 
             self.current_frame += 1
 
-    def fly_feature_to_feature(self, start_feature: QgsFeature, end_feature: QgsFeature) -> Iterator[RenderJob]:
+    def fly_feature_to_feature(
+            self,
+            start_feature: QgsFeature,
+            end_feature: QgsFeature) -> Iterator[RenderJob]:
         # In case we are iterating over lines or polygons, we
         # need to convert them to points first.
         start_point = self.geometry_to_pointxy(start_feature)
@@ -308,7 +319,8 @@ class AnimationController(QObject):
 
             if self.pan_easing:
                 # map progress through the easing curve
-                progress_fraction = self.pan_easing.valueForProgress(progress_fraction)
+                progress_fraction = self.pan_easing.valueForProgress(
+                    progress_fraction)
 
             x = start_point.x() + delta_x * progress_fraction
             y = start_point.y() + delta_y * progress_fraction
@@ -324,15 +336,21 @@ class AnimationController(QObject):
                 # first figure out if we are flying up or down
                 if progress_fraction < 0.5:
                     # Flying up
-                    # take progress from 0 -> 0.5 and scale to 0 -> 1 before apply easing
-                    zoom_factor = self.zoom_easing.valueForProgress(progress_fraction*2)
+                    # take progress from 0 -> 0.5 and scale to 0 -> 1
+                    #  before apply easing
+                    zoom_factor = self.zoom_easing.valueForProgress(
+                        progress_fraction*2)
                 else:
                     # flying down
-                    # take progress from 0.5 -> 1.0 and scale to 1 ->0 before apply easing
-                    zoom_factor = self.zoom_easing.valueForProgress((1-progress_fraction) * 2)
+                    # take progress from 0.5 -> 1.0 and scale to 1 ->0
+                    # before apply easing
+                    zoom_factor = self.zoom_easing.valueForProgress(
+                        (1-progress_fraction) * 2)
 
                 zoom_factor = self.zoom_easing.valueForProgress(zoom_factor)
-                scale = (self.min_scale - self.max_scale) * zoom_factor + self.max_scale
+                scale = (
+                    (self.min_scale - self.max_scale) *
+                    zoom_factor + self.max_scale)
                 self.set_to_scale(scale)
 
             # Change CRS if needed
@@ -387,12 +405,18 @@ class AnimationController(QObject):
         # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
         # to_string(coalesce(@current_feature_id,0))%]
         task_scope = QgsExpressionContextScope()
-        task_scope.setVariable('current_feature_id', current_feature_id)
-        task_scope.setVariable('frames_per_feature', self.travel_frames)
-        task_scope.setVariable('current_frame_for_feature', current_frame_for_feature)
-        task_scope.setVariable('current_animation_action', action)
-        task_scope.setVariable('current_frame', self.current_frame)
-        task_scope.setVariable('total_frame_count', self.total_frame_count)
+        task_scope.setVariable(
+            'current_feature_id', current_feature_id)
+        task_scope.setVariable(
+            'frames_per_feature', self.travel_frames)
+        task_scope.setVariable(
+            'current_frame_for_feature', current_frame_for_feature)
+        task_scope.setVariable(
+            'current_animation_action', action)
+        task_scope.setVariable(
+            'current_frame', self.current_frame)
+        task_scope.setVariable(
+            'total_frame_count', self.total_frame_count)
 
         context = settings.expressionContext()
         context.appendScope(task_scope)
