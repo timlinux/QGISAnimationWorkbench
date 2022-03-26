@@ -53,7 +53,10 @@ class RenderJob:
         render_job.waitForFinished()
         return render_job.renderedImage()
 
-    def create_task(self, annotations_list: Optional[List] = None, decorations: Optional[List] = None) -> QgsMapRendererTask:
+    def create_task(
+            self,
+            annotations_list: Optional[List] = None,
+            decorations: Optional[List] = None) -> QgsMapRendererTask:
         # Set the output file name for the render task
         task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
         # We need to clone the annotations because otherwise SIP will
