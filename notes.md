@@ -25,7 +25,7 @@ ffmpeg -y -framerate 30 -pattern_type glob -i "/tmp/globe-*.png" -vf "pad=ceil(i
 
 Project variables:
 
-        task_scope.setVariable('current_point_id', current_point_id)
+        task_scope.setVariable('current_feature_id', current_feature_id)
         task_scope.setVariable('frames_per_point', self.frames_per_point)
         task_scope.setVariable('current_frame_for_point', current_frame)        
         task_scope.setVariable('current_animation_action', action)     

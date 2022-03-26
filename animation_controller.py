@@ -403,7 +403,8 @@ class AnimationController(QObject):
         # widget to show current script progress
         # [%'Frame ' || to_string(coalesce(@current_frame, 0)) || '/' ||
         # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
-        # to_string(coalesce(@current_feature_id,0))%]
+        # to_string(coalesce(@current_feature_id,0)) ||
+        # ' with map mode: ' || @current_animation_action %]
         task_scope = QgsExpressionContextScope()
         task_scope.setVariable(
             'current_feature_id', current_feature_id)
