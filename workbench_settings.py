@@ -4,7 +4,7 @@
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 # This import is to enable SIP API V2
@@ -17,7 +17,7 @@ from .settings import set_setting, setting
 from .utilities import get_ui_class, resources_path
 
 
-FORM_CLASS = get_ui_class('workbench_settings_base.ui')
+FORM_CLASS = get_ui_class("workbench_settings_base.ui")
 
 
 class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
@@ -32,9 +32,8 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         """
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
-        self.setWindowTitle(self.tr('Animation Workbench'))
-        icon = resources_path(
-            'img', 'icons', 'animation-workshop.svg')
+        self.setWindowTitle(self.tr("Animation Workbench"))
+        icon = resources_path("img", "icons", "animation-workshop.svg")
         self.setWindowIcon(QtGui.QIcon(icon))
         self.parent = parent
 
@@ -47,24 +46,25 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         # during rendering. Probably setting to the same number
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
-        self.spin_thread_pool_size.setValue(int(setting(
-            key='render_thread_pool_size', default=10)))
-        # This is intended for developers to attach to the plugin using a 
-        # remote debugger so that they can step through the code. Do not 
-        # enable it if you do not have a remote debugger set up as it will 
-        # block QGIS startup until a debugger is attached to the process. 
+        self.spin_thread_pool_size.setValue(
+            int(setting(key="render_thread_pool_size", default=10))
+        )
+        # This is intended for developers to attach to the plugin using a
+        # remote debugger so that they can step through the code. Do not
+        # enable it if you do not have a remote debugger set up as it will
+        # block QGIS startup until a debugger is attached to the process.
         # Requires restart after changing.
-        debug_mode = int(setting(key='debug_mode', default=0))
+        debug_mode = int(setting(key="debug_mode", default=0))
         if debug_mode:
             self.debug_mode_checkbox.setChecked(True)
         else:
             self.debug_mode_checkbox.setChecked(False)
         # Adds verbose log message, useful for diagnostics
-        verbose_mode = int(setting(key='verbose_mode', default=0))
+        verbose_mode = int(setting(key="verbose_mode", default=0))
         if verbose_mode:
             self.verbose_mode_checkbox.setChecked(True)
         else:
-            self.verbose_mode_checkbox.setChecked(False)            
+            self.verbose_mode_checkbox.setChecked(False)
 
     def accept(self):
         """Process the animation sequence.
@@ -72,16 +72,17 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         .. note:: This is called on OK click.
         """
         set_setting(
-            key='render_thread_pool_size',
-            value=self.spin_thread_pool_size.value())
+            key="render_thread_pool_size",
+            value=self.spin_thread_pool_size.value(),
+        )
         if self.debug_mode_checkbox.isChecked():
-            set_setting(key='debug_mode', value=1)
+            set_setting(key="debug_mode", value=1)
         else:
-            set_setting(key='debug_mode', value=0)
+            set_setting(key="debug_mode", value=0)
 
         if self.verbose_mode_checkbox.isChecked():
-            set_setting(key='verbose_mode', value=1)
+            set_setting(key="verbose_mode", value=1)
         else:
-            set_setting(key='verbose_mode', value=0)            
-            
+            set_setting(key="verbose_mode", value=0)
+
         self.close()

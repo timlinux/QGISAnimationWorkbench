@@ -4,7 +4,7 @@
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
@@ -13,10 +13,14 @@ import qgis  # NOQA
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.PyQt.QtCore import (
-    QEasingCurve, QPropertyAnimation, QPoint, pyqtSignal)
+    QEasingCurve,
+    QPropertyAnimation,
+    QPoint,
+    pyqtSignal,
+)
 from .utilities import get_ui_class
 
-FORM_CLASS = get_ui_class('easing_preview_base.ui')
+FORM_CLASS = get_ui_class("easing_preview_base.ui")
 
 
 class EasingPreview(QWidget, FORM_CLASS):
@@ -25,10 +29,7 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     """Widget implementation for the easing preview class."""
 
-    def __init__(
-            self,
-            color="#ff0000",
-            parent=None):
+    def __init__(self, color="#ff0000", parent=None):
         """Constructor for easing preview.
 
         :color: Color of the easing display - defaults to red.
@@ -43,10 +44,8 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.preview_color = color
         self.load_combo_with_easings()
         self.setup_easing_previews()
-        self.easing_combo.currentIndexChanged.connect(
-            self.easing_changed)
-        self.enable_easing.toggled.connect(
-            self.checkbox_changed)
+        self.easing_combo.currentIndexChanged.connect(self.easing_changed)
+        self.enable_easing.toggled.connect(self.checkbox_changed)
 
     def checkbox_changed(self, new_state):
         if new_state:
@@ -84,8 +83,8 @@ class EasingPreview(QWidget, FORM_CLASS):
     def set_preview_color(self, color):
         self.preview_color = color
         self.easing_preview_icon.setStyleSheet(
-            'background-color:%s;border-radius:5px;'
-            % self.preview_color)
+            "background-color:%s;border-radius:5px;" % self.preview_color
+        )
 
     def set_checkbox_label(self, label):
         self.enable_easing.setText(label)
@@ -141,19 +140,18 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def setup_easing_previews(self):
         # Set up easing previews
-        self.easing_preview_icon = QtWidgets.QWidget(
-            self.easing_preview)
+        self.easing_preview_icon = QtWidgets.QWidget(self.easing_preview)
         height = self.easing_preview.height()
         width = self.easing_preview.width()
-        self.preview_color = 'red'
+        self.preview_color = "red"
         self.easing_preview_icon.setStyleSheet(
-            'background-color:%s;border-radius:5px;'
-            % self.preview_color)
+            "background-color:%s;border-radius:5px;" % self.preview_color
+        )
         self.easing_preview_icon.resize(10, 10)
         self.easing_preview_animation = QPropertyAnimation(
-            self.easing_preview_icon, b"pos")
-        self.easing_preview_animation.setEasingCurve(
-            QEasingCurve.InOutCubic)
+            self.easing_preview_icon, b"pos"
+        )
+        self.easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
         self.easing_preview_animation.setStartValue(QPoint(0, 0))
         self.easing_preview_animation.setEndValue(QPoint(width, height))
         self.easing_preview_animation.setDuration(3500)

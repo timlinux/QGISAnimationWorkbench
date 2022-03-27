@@ -4,23 +4,17 @@
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import (
-    Optional,
-    Iterator
-)
+from typing import Optional, Iterator
 
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA
-from qgis.PyQt.QtCore import (
-    QObject,
-    pyqtSignal,
-    QEasingCurve)
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QEasingCurve
 from qgis.core import (
     QgsPointXY,
     QgsWkbTypes,
@@ -34,9 +28,6 @@ from qgis.core import (
     QgsRectangle,
     QgsFeature,
     QgsMapLayerUtils,
-    QgsGeometry,
-    QgsLineString,
-    QgsPoint
 )
 
 from .render_queue import RenderJob
@@ -59,16 +50,18 @@ class AnimationController(QObject):
     verbose_message = pyqtSignal(str)
 
     @staticmethod
-    def create_fixed_extent_controller(map_settings: QgsMapSettings,
-                                       output_extent: QgsReferencedRectangle,
-                                       total_frames: int
-                                       ) -> 'AnimationController':
+    def create_fixed_extent_controller(
+        map_settings: QgsMapSettings,
+        output_extent: QgsReferencedRectangle,
+        total_frames: int,
+    ) -> "AnimationController":
         transformed_output_extent = QgsRectangle(output_extent)
         if output_extent.crs() != map_settings.destinationCrs():
             ct = QgsCoordinateTransform(
                 output_extent.crs(),
                 map_settings.destinationCrs(),
-                QgsProject.instance())
+                QgsProject.instance(),
+            )
             ct.setBallparkTransformsAreAppropriate(True)
             transformed_output_extent = ct.transformBoundingBox(output_extent)
         map_settings.setExtent(transformed_output_extent)
@@ -80,29 +73,28 @@ class AnimationController(QObject):
 
     @staticmethod
     def create_moving_extent_controller(
-            map_settings: QgsMapSettings,
-            mode: MapMode,
-            feature_layer: QgsVectorLayer,
-            travel_frames: int,
-            dwell_frames: int,
-            min_scale: float,
-            max_scale: float,
-            pan_easing: Optional[QEasingCurve],
-            zoom_easing: Optional[QEasingCurve],
-    ) -> 'AnimationController':
+        map_settings: QgsMapSettings,
+        mode: MapMode,
+        feature_layer: QgsVectorLayer,
+        travel_frames: int,
+        dwell_frames: int,
+        min_scale: float,
+        max_scale: float,
+        pan_easing: Optional[QEasingCurve],
+        zoom_easing: Optional[QEasingCurve],
+    ) -> "AnimationController":
 
         if not feature_layer:
-            raise InvalidAnimationParametersException('No animation layer set')
+            raise InvalidAnimationParametersException("No animation layer set")
 
-        controller = AnimationController(mode,
-                                         map_settings)
+        controller = AnimationController(mode, map_settings)
         controller.feature_layer = feature_layer
         controller.total_feature_count = feature_layer.featureCount()
 
         # Subtract one because we already start at the first feature
-        controller.total_frame_count = (
-            (controller.total_feature_count - 1) *
-            (dwell_frames + travel_frames))
+        controller.total_frame_count = (controller.total_feature_count - 1) * (
+            dwell_frames + travel_frames
+        )
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
 
@@ -136,7 +128,7 @@ class AnimationController(QObject):
         self.current_frame = 0
 
         self.working_directory: Path = Path(tempfile.gettempdir())
-        self.frame_filename_prefix: str = 'animation_workbench'
+        self.frame_filename_prefix: str = "animation_workbench"
 
         self.previous_feature: Optional[QgsFeature] = None
 
@@ -149,7 +141,7 @@ class AnimationController(QObject):
         job = None
         # inefficient, but we can rework later if needed!
         jobs = self.create_jobs()
-        for _ in range(frame+1):
+        for _ in range(frame + 1):
             job = next(jobs)
         return job
 
@@ -161,15 +153,16 @@ class AnimationController(QObject):
             self.layer_to_map_transform = QgsCoordinateTransform(
                 self.feature_layer.crs(),
                 self.map_settings.destinationCrs(),
-                QgsProject.instance())
+                QgsProject.instance(),
+            )
             for job in self.create_moving_extent_job():
                 yield job
 
     def create_fixed_extent_job(self) -> Iterator[RenderJob]:
         for self.current_frame in range(self.total_frame_count):
-            name = self.working_directory / '{}-{}.png'.format(
+            name = self.working_directory / "{}-{}.png".format(
                 self.frame_filename_prefix,
-                str(self.current_frame).rjust(10, '0')
+                str(self.current_frame).rjust(10, "0"),
             )
 
             job = self.create_job(
@@ -177,7 +170,8 @@ class AnimationController(QObject):
                 name.as_posix(),
                 None,
                 self.current_frame,
-                'Fixed Extent')
+                "Fixed Extent",
+            )
             yield job
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
@@ -185,7 +179,8 @@ class AnimationController(QObject):
         for feature in self.feature_layer.getFeatures():
             if self.previous_feature is not None:
                 for job in self.fly_feature_to_feature(
-                        self.previous_feature, feature):
+                    self.previous_feature, feature
+                ):
                     yield job
 
             self.previous_feature = feature
@@ -197,8 +192,11 @@ class AnimationController(QObject):
         x_min = center_x - prev_extent.width() / 2
         y_min = center_y - prev_extent.height() / 2
         new_extent = QgsRectangle(
-            x_min, y_min, x_min + prev_extent.width(),
-            y_min + prev_extent.height())
+            x_min,
+            y_min,
+            x_min + prev_extent.width(),
+            y_min + prev_extent.height(),
+        )
         self.map_settings.setExtent(new_extent)
 
     def set_to_scale(self, scale: float):
@@ -211,7 +209,8 @@ class AnimationController(QObject):
         full_extent = QgsMapLayerUtils.combinedExtent(
             self.map_settings.layers(),
             self.map_settings.destinationCrs(),
-            QgsProject.instance().transformContext())
+            QgsProject.instance().transformContext(),
+        )
         if not full_extent.isEmpty():
             # add 5% margin around full extent
             full_extent.scale(1.05)
@@ -222,8 +221,7 @@ class AnimationController(QObject):
 
         # use simplified type, so that we don't have to care
         # about multipolygons/lines with just single part!
-        raw_geom = geom.constGet().simplifiedTypeRef()\
-
+        raw_geom = geom.constGet().simplifiedTypeRef()
         flat_type = QgsWkbTypes.flatType(raw_geom.wkbType())
 
         if flat_type == QgsWkbTypes.Point:
@@ -240,9 +238,10 @@ class AnimationController(QObject):
             center = geom.centroid().asPoint()
         else:
             self.verbose_message.emit(
-                'Unsupported Feature Geometry Type: {}'.
-                format(QgsWkbTypes.displayString(
-                    raw_geom.wkbType())))
+                "Unsupported Feature Geometry Type: {}".format(
+                    QgsWkbTypes.displayString(raw_geom.wkbType())
+                )
+            )
             center = None
         return center
 
@@ -255,7 +254,7 @@ class AnimationController(QObject):
         """
         center = self.geometry_to_pointxy(feature)
         if not center:
-            self.normal_message.emit('Unsupported geometry, skipping.')
+            self.normal_message.emit("Unsupported geometry, skipping.")
             return
 
         center = self.layer_to_map_transform.transform(center)
@@ -263,10 +262,12 @@ class AnimationController(QObject):
         self.set_to_scale(self.max_scale)
         # Change CRS if needed
         if self.map_mode == MapMode.SPHERE:
-            definition = (""" +proj=ortho \
+            definition = """ +proj=ortho \
                 +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
                 +ellps=sphere +units=m +no_defs""" % (
-                center.y(), center.x()))
+                center.y(),
+                center.x(),
+            )
             crs = QgsCoordinateReferenceSystem()
             crs.createFromProj(definition)
             self.map_settings.setDestinationCrs(crs)
@@ -278,11 +279,11 @@ class AnimationController(QObject):
             # Pad the numbers in the name so that they form a
             # 10 digit string with left padding of 0s
 
-            file_name = self.working_directory / '{}-{}.png'.format(
+            file_name = self.working_directory / "{}-{}.png".format(
                 self.frame_filename_prefix,
-                str(self.current_frame).rjust(10, '0')
+                str(self.current_frame).rjust(10, "0"),
             )
-            self.verbose_message.emit(f'Dwell : {str(file_name)}')
+            self.verbose_message.emit(f"Dwell : {str(file_name)}")
 
             if file_name.exists() and self.reuse_cache:
                 # User opted to re-used cached images to do nothing for now
@@ -291,36 +292,37 @@ class AnimationController(QObject):
                 job = self.create_job(
                     self.map_settings,
                     file_name.as_posix(),
-                    None,
+                    feature.id(),
                     dwell_frame,
-                    'Hovering')
+                    "Hovering",
+                )
                 yield job
 
             self.current_frame += 1
 
     def fly_feature_to_feature(
-            self,
-            start_feature: QgsFeature,
-            end_feature: QgsFeature) -> Iterator[RenderJob]:
+        self, start_feature: QgsFeature, end_feature: QgsFeature
+    ) -> Iterator[RenderJob]:
         # In case we are iterating over lines or polygons, we
         # need to convert them to points first.
         start_point = self.geometry_to_pointxy(start_feature)
         end_point = self.geometry_to_pointxy(end_feature)
         if not start_point or not end_point:
-            self.normal_message.emit('Unsupported geometry, skipping.')
+            self.normal_message.emit("Unsupported geometry, skipping.")
             return
 
-        delta_x = (end_point.x() - start_point.x())
-        delta_y = (end_point.y() - start_point.y())
+        delta_x = end_point.x() - start_point.x()
+        delta_y = end_point.y() - start_point.y()
 
         for travel_frame in range(self.travel_frames):
             # will always be between 0 - 1
-            progress_fraction = travel_frame/(self.travel_frames-1)
+            progress_fraction = travel_frame / (self.travel_frames - 1)
 
             if self.pan_easing:
                 # map progress through the easing curve
                 progress_fraction = self.pan_easing.valueForProgress(
-                    progress_fraction)
+                    progress_fraction
+                )
 
             x = start_point.x() + delta_x * progress_fraction
             y = start_point.y() + delta_y * progress_fraction
@@ -339,25 +341,30 @@ class AnimationController(QObject):
                     # take progress from 0 -> 0.5 and scale to 0 -> 1
                     #  before apply easing
                     zoom_factor = self.zoom_easing.valueForProgress(
-                        progress_fraction*2)
+                        progress_fraction * 2
+                    )
                 else:
                     # flying down
                     # take progress from 0.5 -> 1.0 and scale to 1 ->0
                     # before apply easing
                     zoom_factor = self.zoom_easing.valueForProgress(
-                        (1-progress_fraction) * 2)
+                        (1 - progress_fraction) * 2
+                    )
 
                 zoom_factor = self.zoom_easing.valueForProgress(zoom_factor)
                 scale = (
-                    (self.min_scale - self.max_scale) *
-                    zoom_factor + self.max_scale)
+                    self.min_scale - self.max_scale
+                ) * zoom_factor + self.max_scale
                 self.set_to_scale(scale)
 
             # Change CRS if needed
             if self.map_mode == MapMode.SPHERE:
-                definition = (""" +proj=ortho \
+                definition = """ +proj=ortho \
                     +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 \
-                    +ellps=sphere +units=m +no_defs""" % (y, x))
+                    +ellps=sphere +units=m +no_defs""" % (
+                    y,
+                    x,
+                )
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromProj(definition)
                 self.map_settings.setDestinationCrs(crs)
@@ -368,11 +375,11 @@ class AnimationController(QObject):
             # Pad the numbers in the name so that they form a 10 digit
             # string with left padding of 0s
 
-            file_name = self.working_directory / '{}-{}.png'.format(
+            file_name = self.working_directory / "{}-{}.png".format(
                 self.frame_filename_prefix,
-                str(self.current_frame).rjust(10, '0')
+                str(self.current_frame).rjust(10, "0"),
             )
-            self.verbose_message.emit(f'Fly : {str(file_name)}')
+            self.verbose_message.emit(f"Fly : {str(file_name)}")
 
             if file_name.exists() and self.reuse_cache:
                 # User opted to re-used cached images to do nothing for now
@@ -383,18 +390,20 @@ class AnimationController(QObject):
                     file_name.as_posix(),
                     end_feature.id(),
                     travel_frame,
-                    'Panning')
+                    "Panning",
+                )
                 yield job
 
             self.current_frame += 1
 
     def create_job(
-            self,
-            map_settings: QgsMapSettings,
-            name: str,
-            current_feature_id: Optional[int],
-            current_frame_for_feature: Optional[int] = None,
-            action: str = 'None'):
+        self,
+        map_settings: QgsMapSettings,
+        name: str,
+        current_feature_id: Optional[int],
+        current_frame_for_feature: Optional[int] = None,
+        action: str = "None",
+    ):
 
         settings = QgsMapSettings(map_settings)
         # The next part sets project variables that you can use in your
@@ -406,18 +415,15 @@ class AnimationController(QObject):
         # to_string(coalesce(@current_feature_id,0)) ||
         # ' with map mode: ' || @current_animation_action %]
         task_scope = QgsExpressionContextScope()
+        task_scope.setVariable("current_feature_id", current_feature_id)
+        task_scope.setVariable("frames_per_feature", self.travel_frames)
         task_scope.setVariable(
-            'current_feature_id', current_feature_id)
-        task_scope.setVariable(
-            'frames_per_feature', self.travel_frames)
-        task_scope.setVariable(
-            'current_frame_for_feature', current_frame_for_feature)
-        task_scope.setVariable(
-            'current_animation_action', action)
-        task_scope.setVariable(
-            'current_frame', self.current_frame)
-        task_scope.setVariable(
-            'total_frame_count', self.total_frame_count)
+            "current_frame_for_feature", current_frame_for_feature
+        )
+        task_scope.setVariable("dwell_frames_per_feature", self.dwell_frames)
+        task_scope.setVariable("current_animation_action", action)
+        task_scope.setVariable("current_frame", self.current_frame)
+        task_scope.setVariable("total_frame_count", self.total_frame_count)
 
         context = settings.expressionContext()
         context.appendScope(task_scope)
