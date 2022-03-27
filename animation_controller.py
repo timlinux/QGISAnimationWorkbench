@@ -28,6 +28,7 @@ from qgis.core import (
     QgsRectangle,
     QgsFeature,
     QgsMapLayerUtils,
+    Qgis
 )
 
 from .render_queue import RenderJob
@@ -54,6 +55,7 @@ class AnimationController(QObject):
         map_settings: QgsMapSettings,
         output_extent: QgsReferencedRectangle,
         total_frames: int,
+        frame_rate: float
     ) -> "AnimationController":
         transformed_output_extent = QgsRectangle(output_extent)
         if output_extent.crs() != map_settings.destinationCrs():
@@ -68,6 +70,7 @@ class AnimationController(QObject):
 
         controller = AnimationController(MapMode.FIXED_EXTENT, map_settings)
         controller.total_frame_count = total_frames
+        controller.frame_rate = frame_rate
 
         return controller
 
@@ -82,6 +85,7 @@ class AnimationController(QObject):
         max_scale: float,
         pan_easing: Optional[QEasingCurve],
         zoom_easing: Optional[QEasingCurve],
+        frame_rate: float
     ) -> "AnimationController":
 
         if not feature_layer:
@@ -104,6 +108,8 @@ class AnimationController(QObject):
         controller.pan_easing = pan_easing
         controller.zoom_easing = zoom_easing
 
+        controller.frame_rate = frame_rate
+
         return controller
 
     def __init__(self, map_mode: MapMode, map_settings: QgsMapSettings):
@@ -124,6 +130,8 @@ class AnimationController(QObject):
 
         self.pan_easing: Optional[QEasingCurve] = None
         self.zoom_easing: Optional[QEasingCurve] = None
+
+        self.frame_rate: float = 30
 
         self.current_frame = 0
 
@@ -406,6 +414,11 @@ class AnimationController(QObject):
     ):
 
         settings = QgsMapSettings(map_settings)
+
+        if Qgis.QGIS_VERSION_INT >= 32500:
+            settings.setFrameRate(self.frame_rate)
+            settings.setCurrentFrame(self.current_frame)
+
         # The next part sets project variables that you can use in your
         # cartography etc. to see the progress. Here is an example
         # of a QGS expression you can use in the map decoration copyright
@@ -422,7 +435,16 @@ class AnimationController(QObject):
         )
         task_scope.setVariable("dwell_frames_per_feature", self.dwell_frames)
         task_scope.setVariable("current_animation_action", action)
+
+        if Qgis.QGIS_VERSION_INT < 32500:
+            # we only set these variables for older QGIS versions -- since 3.26 they will be automatically
+            # set to match the QgsMapSettings currentFrame/frameRate value, which we set above
+            task_scope.setVariable("frame_number", self.current_frame)
+            task_scope.setVariable("frame_rate", self.frame_rate)
+
+        # deprecated variable, kept temporarily for compatibility with older projects only
         task_scope.setVariable("current_frame", self.current_frame)
+
         task_scope.setVariable("total_frame_count", self.total_frame_count)
 
         context = settings.expressionContext()

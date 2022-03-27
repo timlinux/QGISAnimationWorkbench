@@ -629,6 +629,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     self.extent_group_box.outputCrs(),
                 ),
                 total_frames=self.extent_frames_spin.value(),
+                frame_rate=self.framerate_spin.value()
             )
         else:
             try:
@@ -647,6 +648,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                         zoom_easing=self.zoom_easing
                         if self.zoom_easing_widget.is_enabled()
                         else None,
+                        frame_rate=self.framerate_spin.value()
                     )
                 )
             except InvalidAnimationParametersException as e:
