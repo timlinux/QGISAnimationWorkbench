@@ -147,8 +147,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.help_button.toggled.connect(self.help_toggled)
 
         # Close button action (save state on close)
-        self.button_box.rejected.connect(self.close)
+        self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
         self.button_box.accepted.connect(self.accept)
+
+        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
 
         # Used by ffmpeg and convert to set the fps for rendered videos
         self.framerate_spin.setValue(
@@ -588,10 +590,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append(job.file_name)
             self.render_queue.add_job(job)
 
+        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(True)
         # Now all the tasks are prepared, start the render_queue processing
         self.render_queue.start_processing()
 
     def cancel_processing(self):
+        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.render_queue.cancel_processing()
 
     def create_controller(self) -> Optional[AnimationController]:
@@ -657,11 +661,18 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         return controller
 
-    def processing_completed(self):
+    def processing_completed(self, success: bool):
         """Run after all processing is done to generate gif or mp4.
 
         .. note:: This called by process_more_tasks when all tasks are complete.
         """
+        if not success:
+            self.output_log_text_edit.append('Canceled by user')
+            self.progress_bar.setMaximum(100)
+            self.progress_bar.setValue(0)
+            self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
+            return
+
         self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
             music_file=self.music_file_edit.text(),
@@ -699,6 +710,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_task.taskTerminated.connect(cleanup_movie_task)
 
         QgsApplication.taskManager().addTask(self.movie_task)
+
+        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
 
     def show_preview_for_frame(self, frame: int):
         if self.radio_sphere.isChecked() or self.radio_planar.isChecked():
