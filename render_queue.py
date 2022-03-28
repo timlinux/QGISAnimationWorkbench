@@ -32,7 +32,8 @@ from qgis.core import (
     QgsMapSettings,
     QgsProxyProgressTask,
     QgsFeedback,
-    Qgis
+    Qgis,
+    QgsTask
 )
 
 from .settings import setting
@@ -53,9 +54,15 @@ class RenderJob:
         self,
         annotations_list: Optional[List] = None,
         decorations: Optional[List] = None,
+        hidden: bool = False
     ) -> QgsMapRendererTask:
         # Set the output file name for the render task
-        task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
+
+        if Qgis.QGIS_VERSION_INT >= 32500 and hidden:
+            # can only mark tasks as hidden on 3.26+
+            task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG", flags=QgsTask.Flags(QgsTask.Hidden|QgsTask.CanCancel))
+        else:
+            task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
         # We need to clone the annotations because otherwise SIP will
         # pass ownership and then cause a crash when the render task is
         # destroyed
@@ -210,7 +217,9 @@ class RenderQueue(QObject):
             if self.verbose_mode:
                 self.status_message.emit(f"Rendering: {job.file_name}")
 
-            task = job.create_task(self.annotations_list, self.decorations)
+            # create a hidden task, because the proxy wrapper task will be the only one we want
+            # to expose to users
+            task = job.create_task(self.annotations_list, self.decorations, hidden=True)
             self.active_tasks[job.file_name] = task
 
             task.taskCompleted.connect(
