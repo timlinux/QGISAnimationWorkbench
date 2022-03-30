@@ -147,7 +147,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.help_button.toggled.connect(self.help_toggled)
 
         # Close button action (save state on close)
-        self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
+        self.button_box.button(QDialogButtonBox.Close).clicked.connect(
+            self.close
+        )
         self.button_box.accepted.connect(self.accept)
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
@@ -229,21 +231,21 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         pan_easing_name = setting(
             key="pan_easing", default="Linear", prefer_project_setting=True
         )
-        self.pan_easing_widget.set_preview_color("#00ff00")
+        self.pan_easing_widget.set_preview_color("#ffff00")
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
         if (
-            setting(
-                key="enable_pan_easing", default=0, prefer_project_setting=True
+            int(
+                setting(
+                    key="enable_pan_easing",
+                    default=0,
+                    prefer_project_setting=True,
+                )
             )
             == 0
         ):
             self.pan_easing_widget.disable()
         else:
             self.pan_easing_widget.enable()
-        self.pan_easing = self.pan_easing_widget.get_easing()
-        self.pan_easing_widget.easing_changed_signal.connect(
-            self.pan_easing_changed
-        )
 
         self.zoom_easing_widget.set_checkbox_label("Enable Zoom Easing")
         zoom_easing_name = setting(
@@ -252,19 +254,18 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.zoom_easing_widget.set_preview_color("#0000ff")
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
         if (
-            setting(
-                key="enable_zoom_easing", default=0, prefer_project_setting=True
+            int(
+                setting(
+                    key="enable_zoom_easing",
+                    default=0,
+                    prefer_project_setting=True,
+                )
             )
             == 0
         ):
             self.zoom_easing_widget.disable()
         else:
             self.zoom_easing_widget.enable()
-
-        self.zoom_easing = self.zoom_easing_widget.get_easing()
-        self.zoom_easing_widget.easing_changed_signal.connect(
-            self.zoom_easing_changed
-        )
 
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), "frames_per_feature", 0
@@ -316,11 +317,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.progress_bar.setValue(0)
 
-        reuse_cache = setting(key="reuse_cache", default=0)
-        if reuse_cache == 0:
-            self.reuse_cache.setChecked(False)
-        else:
-            self.reuse_cache.setChecked(True)
+        self.reuse_cache.setChecked(False)
 
         # Video playback stuff - see bottom of file for related methods
         self.media_player = QMediaPlayer(
@@ -364,20 +361,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def show_message(self, message):
         self.output_log_text_edit.append(message)
-
-    # slot
-    def pan_easing_changed(self, easing):
-        self.output_log_text_edit.append(
-            "Pan easing set to: %s" % self.pan_easing_widget.easing_name()
-        )
-        self.pan_easing = easing
-
-    # slot
-    def zoom_easing_changed(self, easing):
-        self.output_log_text_edit.append(
-            "Zoom easing set to: %s" % self.pan_easing_widget.easing_name()
-        )
-        self.zoom_easing = easing
 
     def show_non_fixed_extent_settings(self):
 
@@ -501,16 +484,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         set_setting(
             key="pan_easing",
-            value=1 if self.pan_easing_widget.easing_name() else 0,
+            value=self.pan_easing_widget.easing_name() or "Linear",
             store_in_project=True,
         )
         set_setting(
             key="zoom_easing",
-            value=self.zoom_easing_widget.easing_name(),
+            value=self.zoom_easing_widget.easing_name() or "Linear",
             store_in_project=True,
-        )
-        set_setting(
-            key="reuse_cache", value=1 if self.reuse_cache.isChecked() else 0
         )
         set_setting(
             key="output_file",
@@ -633,7 +613,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     self.extent_group_box.outputCrs(),
                 ),
                 total_frames=self.extent_frames_spin.value(),
-                frame_rate=self.framerate_spin.value()
+                frame_rate=self.framerate_spin.value(),
             )
         else:
             try:
@@ -646,13 +626,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                         dwell_frames=self.hover_frames_spin.value(),
                         min_scale=self.scale_range.minimumScale(),
                         max_scale=self.scale_range.maximumScale(),
-                        pan_easing=self.pan_easing
+                        pan_easing=self.pan_easing_widget.get_easing()
                         if self.pan_easing_widget.is_enabled()
                         else None,
-                        zoom_easing=self.zoom_easing
+                        zoom_easing=self.zoom_easing_widget.get_easing()
                         if self.zoom_easing_widget.is_enabled()
                         else None,
-                        frame_rate=self.framerate_spin.value()
+                        frame_rate=self.framerate_spin.value(),
                     )
                 )
             except InvalidAnimationParametersException as e:
@@ -667,7 +647,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         .. note:: This called by process_more_tasks when all tasks are complete.
         """
         if not success:
-            self.output_log_text_edit.append('Canceled by user')
+            self.output_log_text_edit.append("Canceled by user")
             self.progress_bar.setMaximum(100)
             self.progress_bar.setValue(0)
             self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
