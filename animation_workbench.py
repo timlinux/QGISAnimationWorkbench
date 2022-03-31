@@ -203,25 +203,23 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             )
         )
         # Keep the scales the same if you dont want it to zoom in an out
-        self.scale_range.setMaximumScale(
-            float(
-                setting(
-                    key="max_scale",
-                    default="10000000",
-                    prefer_project_setting=True,
-                )
+        max_scale = float(
+            setting(
+                key="max_scale",
+                default="10000000",
+                prefer_project_setting=True,
             )
         )
-        self.scale_range.setMinimumScale(
-            float(
-                setting(
-                    key="min_scale",
-                    default="25000000",
-                    prefer_project_setting=True,
-                )
+        min_scale = float(
+            setting(
+                key="min_scale",
+                default="25000000",
+                prefer_project_setting=True,
             )
         )
-
+        self.scale_range.setScaleRange(min_scale, max_scale)
+        # We need to set min and max at the same time to prevent
+        # the scale widget from overriding our preferred values
         self.last_preview_image = None
 
         # Note: self.pan_easing_widget and zoom_easing_preview are
