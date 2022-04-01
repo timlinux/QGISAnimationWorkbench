@@ -164,34 +164,7 @@ zoom to each point.</string>
           <property name="spacing">
            <number>6</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QGroupBox" name="zoom_range_group">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="toolTip">
-             <string>The scale range that the animation should 
-move through. The smallest scale will be 
-the zenith of the animation when it zooms 
-out while travelling between points, and the 
-largest scale will be the scale used when 
-we arrive at each point.</string>
-            </property>
-            <property name="title">
-             <string>Zoom Range</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_10">
-             <item row="0" column="0">
-              <widget class="QgsScaleRangeWidget" name="scale_range">
-               <property name="focusPolicy">
-                <enum>Qt::StrongFocus</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QGroupBox" name="animation_frames_group">
             <property name="title">
              <string>Animation Frames</string>
@@ -278,6 +251,33 @@ how many frames per second to use.</string>
             </layout>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="zoom_range_group">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>The scale range that the animation should 
+move through. The smallest scale will be 
+the zenith of the animation when it zooms 
+out while travelling between points, and the 
+largest scale will be the scale used when 
+we arrive at each point.</string>
+            </property>
+            <property name="title">
+             <string>Zoom Range</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_10">
+             <item row="0" column="0">
+              <widget class="QgsScaleRangeWidget" name="scale_range" native="true">
+               <property name="focusPolicy">
+                <enum>Qt::StrongFocus</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QGroupBox" name="easings_group">
             <property name="title">
@@ -286,6 +286,94 @@ how many frames per second to use.</string>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0" colspan="2">
               <widget class="QgsMapLayerComboBox" name="layer_combo"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string>Data Defined Settings</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_17" columnstretch="0,0,0,0,0,0,1">
+             <item row="0" column="4">
+              <widget class="QLabel" name="mCoordYLabel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Maximum</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5">
+              <widget class="QgsPropertyOverrideButton" name="scale_max_dd_btn">
+               <property name="text">
+                <string>…</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="mCoordXLabel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Scale </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="mCoordXLabel_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Minimum</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QgsPropertyOverrideButton" name="scale_min_dd_btn">
+               <property name="text">
+                <string>…</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="6">
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -669,8 +757,8 @@ how many frames per second to use.</string>
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Cantarell'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Fira Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Cantarell';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -700,18 +788,23 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgsmaplayercombobox.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>QgsScaleRangeWidget</class>
    <extends>QWidget</extends>
-   <header>qgsscalerangewidget.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>EasingPreview</class>
    <extends>QWidget</extends>
    <header>QGISAnimationWorkbench.easing_preview</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QgsPropertyOverrideButton</class>
+   <extends>QToolButton</extends>
+   <header>qgis.gui</header>
   </customwidget>
  </customwidgets>
  <tabstops>
