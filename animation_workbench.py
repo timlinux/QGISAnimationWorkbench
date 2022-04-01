@@ -35,8 +35,15 @@ from qgis.core import (
     QgsMapLayerProxyModel,
     QgsReferencedRectangle,
     QgsApplication,
+    QgsExpressionContextGenerator,
+    QgsPropertyCollection,
+    QgsExpressionContext,
+    QgsVectorLayer
 )
-from qgis.gui import QgsExtentWidget
+from qgis.gui import (
+    QgsExtentWidget,
+    QgsPropertyOverrideButton
+)
 
 from .settings import set_setting, setting
 from .utilities import get_ui_class, resources_path
@@ -48,6 +55,24 @@ from .animation_controller import (
 from .movie_creator import MovieCreationTask, MovieFormat
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
+
+
+class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
+
+    def __init__(self):
+        super().__init__()
+        self.layer = None
+
+    def set_layer(self, layer: QgsVectorLayer):
+        self.layer = layer
+
+    def createExpressionContext(self) -> QgsExpressionContext:
+        context = QgsExpressionContext()
+        context.appendScope(QgsExpressionContextUtils.globalScope())
+        context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
+        if self.layer:
+            context.appendScope(self.layer.createExpressionContextScope())
+        return context
 
 
 class AnimationWorkbench(QDialog, FORM_CLASS):
@@ -68,6 +93,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
+        self.expression_context_generator = DialogExpressionContextGenerator()
+
         self.extent_group_box = QgsExtentWidget(
             None, QgsExtentWidget.ExpandedStyle
         )
@@ -81,6 +108,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.setWindowIcon(QIcon(icon))
         self.parent = parent
         self.iface = iface
+
+        self.data_defined_properties = QgsPropertyCollection()
 
         self.extent_group_box.setMapCanvas(self.iface.mapCanvas())
         self.scale_range.setMapCanvas(self.iface.mapCanvas())
@@ -126,6 +155,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             | QgsMapLayerProxyModel.LineLayer
             | QgsMapLayerProxyModel.PolygonLayer
         )
+        self.layer_combo.layerChanged.connect(self._layer_changed)
 
         prev_layer_id, ok = QgsProject.instance().readEntry(
             "animation", "layer_id"
@@ -349,6 +379,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.show_preview_for_frame
         )
 
+        self.register_data_defined_button(self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE)
+        self.register_data_defined_button(self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE)
+
     def close(self):
         self.save_state()
         self.reject()
@@ -356,6 +389,44 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     def closeEvent(self, event):
         self.save_state()
         self.reject()
+
+    def _layer_changed(self, layer):
+        """
+        Triggered when the layer is changed
+        """
+        self.expression_context_generator.set_layer(layer)
+
+        buttons = self.findChildren(QgsPropertyOverrideButton)
+        for button in buttons:
+            button.setVectorLayer(layer)
+
+    def register_data_defined_button(self, button, property_key: int):
+        """
+        Registers a new data defined button, linked to the given property key (see values in AnimationController)
+        """
+        button.init(property_key, self.data_defined_properties, AnimationController.DYNAMIC_PROPERTIES, None, False)
+        button.changed.connect(self._update_property)
+        button.registerExpressionContextGenerator(self.expression_context_generator)
+        button.setVectorLayer(self.layer_combo.currentLayer())
+
+    def _update_property(self):
+        """
+        Triggered when a property override button value is changed
+        """
+        button = self.sender()
+        self.data_defined_properties.setProperty(button.propertyKey(), button.toProperty())
+
+    def update_data_defined_button(self, button):
+        """
+        Updates the current state of a property override button to reflect the current
+        property value
+        """
+        if button.propertyKey() < 0:
+            return
+
+        button.blockSignals(True)
+        button.setToProperty(self.data_defined_properties.property(button.propertyKey()))
+        button.blockSignals(False)
 
     def show_message(self, message):
         self.output_log_text_edit.append(message)
@@ -637,6 +708,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.output_log_text_edit.append(f"Processing halted: {e}")
                 return None
 
+        controller.data_defined_properties=QgsPropertyCollection(self.data_defined_properties)
         return controller
 
     def processing_completed(self, success: bool):

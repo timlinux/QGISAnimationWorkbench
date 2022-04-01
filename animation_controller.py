@@ -28,7 +28,9 @@ from qgis.core import (
     QgsRectangle,
     QgsFeature,
     QgsMapLayerUtils,
-    Qgis
+    Qgis,
+    QgsPropertyDefinition,
+    QgsPropertyCollection
 )
 
 from .render_queue import RenderJob
@@ -49,6 +51,14 @@ class InvalidAnimationParametersException(Exception):
 class AnimationController(QObject):
     normal_message = pyqtSignal(str)
     verbose_message = pyqtSignal(str)
+
+    PROPERTY_MIN_SCALE = 1
+    PROPERTY_MAX_SCALE = 2
+
+    DYNAMIC_PROPERTIES = {
+        PROPERTY_MIN_SCALE: QgsPropertyDefinition('min_scale', 'Minimum scale', QgsPropertyDefinition.DoublePositive),
+        PROPERTY_MAX_SCALE: QgsPropertyDefinition('max_scale', 'Maximum scale', QgsPropertyDefinition.DoublePositive),
+    }
 
     @staticmethod
     def create_fixed_extent_controller(
@@ -95,6 +105,10 @@ class AnimationController(QObject):
         controller.feature_layer = feature_layer
         controller.total_feature_count = feature_layer.featureCount()
 
+        context = map_settings.expressionContext()
+        context.appendScope(feature_layer.createExpressionContextScope())
+        map_settings.setExpressionContext(context)
+
         # Subtract one because we already start at the first feature
         controller.total_frame_count = (controller.total_feature_count - 1) * (
             dwell_frames + travel_frames
@@ -117,6 +131,8 @@ class AnimationController(QObject):
         self.map_settings: QgsMapSettings = map_settings
         self.map_mode: MapMode = map_mode
 
+        self.data_defined_properties = QgsPropertyCollection()
+
         self.feature_layer: Optional[QgsVectorLayer] = None
         self.layer_to_map_transform: Optional[QgsCoordinateTransform] = None
         self.total_feature_count: int = 0
@@ -127,6 +143,9 @@ class AnimationController(QObject):
 
         self.max_scale: float = 0
         self.min_scale: float = 0
+
+        self._evaluated_min_scale = None
+        self._evaluated_max_scale = None
 
         self.pan_easing: Optional[QEasingCurve] = None
         self.zoom_easing: Optional[QEasingCurve] = None
@@ -141,6 +160,7 @@ class AnimationController(QObject):
         self.previous_feature: Optional[QgsFeature] = None
 
         self.reuse_cache: bool = False
+        self.flying_up = False
 
     def create_job_for_frame(self, frame: int) -> Optional[RenderJob]:
         """
@@ -183,8 +203,20 @@ class AnimationController(QObject):
             yield job
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
+        self._evaluated_max_scale = self.max_scale
+        self._evaluated_min_scale = self.min_scale
+
         self.set_to_scale(self.min_scale)
         for feature in self.feature_layer.getFeatures():
+            context = self.map_settings.expressionContext()
+            context.setFeature(feature)
+            self.map_settings.setExpressionContext(context)
+
+            # update min scale as soon as we move to the next feature
+            self._evaluated_min_scale = self.min_scale
+            if self.data_defined_properties.hasActiveProperties():
+                self._evaluated_min_scale,_ = self.data_defined_properties.valueAsDouble(AnimationController.PROPERTY_MIN_SCALE, context, self.min_scale)
+
             if self.previous_feature is not None:
                 for job in self.fly_feature_to_feature(
                     self.previous_feature, feature
@@ -267,7 +299,7 @@ class AnimationController(QObject):
 
         center = self.layer_to_map_transform.transform(center)
         self.set_extent_center(center.x(), center.y())
-        self.set_to_scale(self.max_scale)
+        self.set_to_scale(self._evaluated_max_scale)
         # Change CRS if needed
         if self.map_mode == MapMode.SPHERE:
             definition = """ +proj=ortho \
@@ -351,18 +383,33 @@ class AnimationController(QObject):
                     zoom_factor = self.zoom_easing.valueForProgress(
                         progress_fraction * 2
                     )
+                    self.flying_up = True
                 else:
                     # flying down
                     # take progress from 0.5 -> 1.0 and scale to 1 ->0
                     # before apply easing
+
+                    if self.flying_up:
+                        # update max scale at the half way point
+                        context = self.map_settings.expressionContext()
+                        context.setFeature(end_feature)
+                        self.map_settings.setExpressionContext(context)
+
+                        self._evaluated_max_scale = self.max_scale
+                        if self.data_defined_properties.hasActiveProperties():
+                            self._evaluated_max_scale, _ = self.data_defined_properties.valueAsDouble(
+                                AnimationController.PROPERTY_MAX_SCALE, context, self.max_scale)
+
+                    self.flying_up = False
+
                     zoom_factor = self.zoom_easing.valueForProgress(
                         (1 - progress_fraction) * 2
                     )
 
                 zoom_factor = self.zoom_easing.valueForProgress(zoom_factor)
                 scale = (
-                    self.min_scale - self.max_scale
-                ) * zoom_factor + self.max_scale
+                    self._evaluated_min_scale - self._evaluated_max_scale
+                ) * zoom_factor + self._evaluated_max_scale
                 self.set_to_scale(scale)
 
             # Change CRS if needed
