@@ -177,10 +177,9 @@ This software is licensed under the [GPL v2](https://github.com/timlinux/QGISAni
 This plugin was developed by: 
 
 
-Tim Sutton |
------------|
+Tim Sutton | Nyall Dawson
+-----------| --------------
 ![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | ![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") 
-Tim Sutton | Nyall Dawson 
 Coder and Ideas Guy | Genius Guru of Awesomeness
 [timlinux @ github](https://github.com/timlinux/) | [nyalldawson @ github](https://github.com/nyalldawson/)
 
