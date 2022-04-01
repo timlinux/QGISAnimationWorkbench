@@ -179,23 +179,17 @@ This plugin was developed by:
 
 Tim Sutton |
 -----------|
-![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | 
-Tim Sutton |
-Coder and Ideas Guy |
-[timlinux @ github](https://github.com/timlinux/) |
+![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | ![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") 
+Tim Sutton | Nyall Dawson 
+Coder and Ideas Guy | Genius Guru of Awesomeness
+[timlinux @ github](https://github.com/timlinux/) | [nyalldawson @ github](https://github.com/nyalldawson/)
 
 
 ## Contributors:
 
 Thanks to:
 
-
-Nyall Dawson | 
------------| 
-![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") |
-Nyall Dawson |
-Expert tips and feature ideas |
-[nyalldawson @ github](https://github.com/nyalldawson/) |
+We are looking for contributors, add yourself here!
 
 Also:
 * [NHN and Tui Editor](https://raw.githubusercontent.com/nhn/tui.editor) for the great README which I based this one on.
