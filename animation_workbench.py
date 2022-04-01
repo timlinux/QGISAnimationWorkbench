@@ -28,6 +28,10 @@ from qgis.PyQt.QtWidgets import (
     QGridLayout,
     QVBoxLayout,
 )
+from qgis.PyQt.QtXml import (
+    QDomDocument,
+    QDomElement
+)
 from qgis.core import (
     QgsPointXY,
     QgsExpressionContextUtils,
@@ -164,6 +168,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             layer = QgsProject.instance().mapLayer(prev_layer_id)
             if layer:
                 self.layer_combo.setLayer(layer)
+
+        prev_data_defined_properties_xml, _ = QgsProject.instance().readEntry(
+            "animation", "data_defined_properties"
+        )
+        if prev_data_defined_properties_xml:
+            doc = QDomDocument()
+            doc.setContent(prev_data_defined_properties_xml.encode())
+            elem = doc.firstChildElement("data_defined_properties")
+            self.data_defined_properties.readXml(elem, AnimationController.DYNAMIC_PROPERTIES)
 
         self.extent_group_box.setOutputCrs(QgsProject.instance().crs())
         self.extent_group_box.setOutputExtentFromUser(
@@ -579,6 +592,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             )
         else:
             QgsProject.instance().removeEntry("animation", "layer_id")
+        temp_doc = QDomDocument()
+        dd_elem = temp_doc.createElement('data_defined_properties')
+        self.data_defined_properties.writeXml(dd_elem, AnimationController.DYNAMIC_PROPERTIES)
+        temp_doc.appendChild(dd_elem)
+        QgsProject.instance().writeEntry(
+            "animation", "data_defined_properties", temp_doc.toString()
+        )
 
     # Prevent the slot being called twize
     @pyqtSlot()

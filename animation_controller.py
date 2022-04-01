@@ -220,7 +220,7 @@ class AnimationController(QObject):
                 if self.data_defined_properties.hasActiveProperties():
                     self._evaluated_max_scale, _ = self.data_defined_properties.valueAsDouble(
                         AnimationController.PROPERTY_MAX_SCALE, context, self.max_scale)
-                    
+
             context = QgsExpressionContext(self.expression_context)
             context.setFeature(feature)
 
