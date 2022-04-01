@@ -30,7 +30,8 @@ from qgis.core import (
     QgsMapLayerUtils,
     Qgis,
     QgsPropertyDefinition,
-    QgsPropertyCollection
+    QgsPropertyCollection,
+    QgsExpressionContext
 )
 
 from .render_queue import RenderJob
@@ -101,13 +102,13 @@ class AnimationController(QObject):
         if not feature_layer:
             raise InvalidAnimationParametersException("No animation layer set")
 
-        controller = AnimationController(mode, map_settings)
-        controller.feature_layer = feature_layer
-        controller.total_feature_count = feature_layer.featureCount()
-
         context = map_settings.expressionContext()
         context.appendScope(feature_layer.createExpressionContextScope())
         map_settings.setExpressionContext(context)
+
+        controller = AnimationController(mode, map_settings)
+        controller.feature_layer = feature_layer
+        controller.total_feature_count = feature_layer.featureCount()
 
         # Subtract one because we already start at the first feature
         controller.total_frame_count = (controller.total_feature_count - 1) * (
@@ -130,6 +131,8 @@ class AnimationController(QObject):
         super().__init__()
         self.map_settings: QgsMapSettings = map_settings
         self.map_mode: MapMode = map_mode
+
+        self.expression_context = self.map_settings.expressionContext()
 
         self.data_defined_properties = QgsPropertyCollection()
 
@@ -203,19 +206,35 @@ class AnimationController(QObject):
             yield job
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
-        self._evaluated_max_scale = self.max_scale
         self._evaluated_min_scale = self.min_scale
 
         self.set_to_scale(self.min_scale)
         for feature in self.feature_layer.getFeatures():
-            context = self.map_settings.expressionContext()
+            if self.previous_feature is None:
+                # first feature, need to evaluate the starting scale
+                context = QgsExpressionContext(self.expression_context)
+                context.setFeature(feature)
+                self.map_settings.setExpressionContext(context)
+
+                self._evaluated_max_scale = self.max_scale
+                if self.data_defined_properties.hasActiveProperties():
+                    self._evaluated_max_scale, _ = self.data_defined_properties.valueAsDouble(
+                        AnimationController.PROPERTY_MAX_SCALE, context, self.max_scale)
+                    
+            context = QgsExpressionContext(self.expression_context)
             context.setFeature(feature)
+
+            scope = QgsExpressionContextScope()
+            scope.setVariable('from_feature', self.previous_feature, True)
+            scope.setVariable('to_feature', feature, True)
+            context.appendScope(scope)
+
             self.map_settings.setExpressionContext(context)
 
-            # update min scale as soon as we move to the next feature
+            # update min scale as soon as we are ready to move to the next feature
             self._evaluated_min_scale = self.min_scale
             if self.data_defined_properties.hasActiveProperties():
-                self._evaluated_min_scale,_ = self.data_defined_properties.valueAsDouble(AnimationController.PROPERTY_MIN_SCALE, context, self.min_scale)
+                self._evaluated_min_scale, _ = self.data_defined_properties.valueAsDouble(AnimationController.PROPERTY_MIN_SCALE, context, self.min_scale)
 
             if self.previous_feature is not None:
                 for job in self.fly_feature_to_feature(
@@ -391,7 +410,7 @@ class AnimationController(QObject):
 
                     if self.flying_up:
                         # update max scale at the half way point
-                        context = self.map_settings.expressionContext()
+                        context = QgsExpressionContext(self.expression_context)
                         context.setFeature(end_feature)
                         self.map_settings.setExpressionContext(context)
 
