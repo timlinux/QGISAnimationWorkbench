@@ -31,7 +31,7 @@ from qgis.core import (
     Qgis,
     QgsPropertyDefinition,
     QgsPropertyCollection,
-    QgsExpressionContext
+    QgsExpressionContext,
 )
 
 from .render_queue import RenderJob
@@ -57,16 +57,21 @@ class AnimationController(QObject):
     PROPERTY_MAX_SCALE = 2
 
     DYNAMIC_PROPERTIES = {
-        PROPERTY_MIN_SCALE: QgsPropertyDefinition('min_scale', 'Minimum scale', QgsPropertyDefinition.DoublePositive),
-        PROPERTY_MAX_SCALE: QgsPropertyDefinition('max_scale', 'Maximum scale', QgsPropertyDefinition.DoublePositive),
+        PROPERTY_MIN_SCALE: QgsPropertyDefinition(
+            "min_scale", "Minimum scale", QgsPropertyDefinition.DoublePositive
+        ),
+        PROPERTY_MAX_SCALE: QgsPropertyDefinition(
+            "max_scale", "Maximum scale", QgsPropertyDefinition.DoublePositive
+        ),
     }
 
     @staticmethod
     def create_fixed_extent_controller(
         map_settings: QgsMapSettings,
+        feature_layer: QgsVectorLayer,
         output_extent: QgsReferencedRectangle,
         total_frames: int,
-        frame_rate: float
+        frame_rate: float,
     ) -> "AnimationController":
         transformed_output_extent = QgsRectangle(output_extent)
         if output_extent.crs() != map_settings.destinationCrs():
@@ -78,6 +83,13 @@ class AnimationController(QObject):
             ct.setBallparkTransformsAreAppropriate(True)
             transformed_output_extent = ct.transformBoundingBox(output_extent)
         map_settings.setExtent(transformed_output_extent)
+        context = map_settings.expressionContext()
+        context.appendScope(feature_layer.createExpressionContextScope())
+        map_settings.setExpressionContext(context)
+
+        controller = AnimationController(mode, map_settings)
+        controller.feature_layer = feature_layer
+        controller.total_feature_count = feature_layer.featureCount()
 
         controller = AnimationController(MapMode.FIXED_EXTENT, map_settings)
         controller.total_frame_count = total_frames
@@ -96,7 +108,7 @@ class AnimationController(QObject):
         max_scale: float,
         pan_easing: Optional[QEasingCurve],
         zoom_easing: Optional[QEasingCurve],
-        frame_rate: float
+        frame_rate: float,
     ) -> "AnimationController":
 
         if not feature_layer:
@@ -218,15 +230,21 @@ class AnimationController(QObject):
 
                 self._evaluated_max_scale = self.max_scale
                 if self.data_defined_properties.hasActiveProperties():
-                    self._evaluated_max_scale, _ = self.data_defined_properties.valueAsDouble(
-                        AnimationController.PROPERTY_MAX_SCALE, context, self.max_scale)
+                    (
+                        self._evaluated_max_scale,
+                        _,
+                    ) = self.data_defined_properties.valueAsDouble(
+                        AnimationController.PROPERTY_MAX_SCALE,
+                        context,
+                        self.max_scale,
+                    )
 
             context = QgsExpressionContext(self.expression_context)
             context.setFeature(feature)
 
             scope = QgsExpressionContextScope()
-            scope.setVariable('from_feature', self.previous_feature, True)
-            scope.setVariable('to_feature', feature, True)
+            scope.setVariable("from_feature", self.previous_feature, True)
+            scope.setVariable("to_feature", feature, True)
             context.appendScope(scope)
 
             self.map_settings.setExpressionContext(context)
@@ -234,7 +252,14 @@ class AnimationController(QObject):
             # update min scale as soon as we are ready to move to the next feature
             self._evaluated_min_scale = self.min_scale
             if self.data_defined_properties.hasActiveProperties():
-                self._evaluated_min_scale, _ = self.data_defined_properties.valueAsDouble(AnimationController.PROPERTY_MIN_SCALE, context, self.min_scale)
+                (
+                    self._evaluated_min_scale,
+                    _,
+                ) = self.data_defined_properties.valueAsDouble(
+                    AnimationController.PROPERTY_MIN_SCALE,
+                    context,
+                    self.min_scale,
+                )
 
             if self.previous_feature is not None:
                 for job in self.fly_feature_to_feature(
@@ -416,8 +441,14 @@ class AnimationController(QObject):
 
                         self._evaluated_max_scale = self.max_scale
                         if self.data_defined_properties.hasActiveProperties():
-                            self._evaluated_max_scale, _ = self.data_defined_properties.valueAsDouble(
-                                AnimationController.PROPERTY_MAX_SCALE, context, self.max_scale)
+                            (
+                                self._evaluated_max_scale,
+                                _,
+                            ) = self.data_defined_properties.valueAsDouble(
+                                AnimationController.PROPERTY_MAX_SCALE,
+                                context,
+                                self.max_scale,
+                            )
 
                     self.flying_up = False
 
