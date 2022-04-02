@@ -28,10 +28,7 @@ from qgis.PyQt.QtWidgets import (
     QGridLayout,
     QVBoxLayout,
 )
-from qgis.PyQt.QtXml import (
-    QDomDocument,
-    QDomElement
-)
+from qgis.PyQt.QtXml import QDomDocument, QDomElement
 from qgis.core import (
     QgsPointXY,
     QgsExpressionContextUtils,
@@ -42,12 +39,9 @@ from qgis.core import (
     QgsExpressionContextGenerator,
     QgsPropertyCollection,
     QgsExpressionContext,
-    QgsVectorLayer
+    QgsVectorLayer,
 )
-from qgis.gui import (
-    QgsExtentWidget,
-    QgsPropertyOverrideButton
-)
+from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
 
 from .settings import set_setting, setting
 from .utilities import get_ui_class, resources_path
@@ -62,7 +56,6 @@ FORM_CLASS = get_ui_class("animation_workbench_base.ui")
 
 
 class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
-
     def __init__(self):
         super().__init__()
         self.layer = None
@@ -73,7 +66,9 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
     def createExpressionContext(self) -> QgsExpressionContext:
         context = QgsExpressionContext()
         context.appendScope(QgsExpressionContextUtils.globalScope())
-        context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
+        context.appendScope(
+            QgsExpressionContextUtils.projectScope(QgsProject.instance())
+        )
         if self.layer:
             context.appendScope(self.layer.createExpressionContextScope())
         return context
@@ -96,9 +91,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         QDialog.__init__(self, parent)
         self.setupUi(self)
-
         self.expression_context_generator = DialogExpressionContextGenerator()
-
+        self.main_stack.setCurrentIndex(0)
         self.extent_group_box = QgsExtentWidget(
             None, QgsExtentWidget.ExpandedStyle
         )
@@ -176,7 +170,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             doc = QDomDocument()
             doc.setContent(prev_data_defined_properties_xml.encode())
             elem = doc.firstChildElement("data_defined_properties")
-            self.data_defined_properties.readXml(elem, AnimationController.DYNAMIC_PROPERTIES)
+            self.data_defined_properties.readXml(
+                elem, AnimationController.DYNAMIC_PROPERTIES
+            )
 
         self.extent_group_box.setOutputCrs(QgsProject.instance().crs())
         self.extent_group_box.setOutputExtentFromUser(
@@ -337,15 +333,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         if mode_string == "sphere":
             self.radio_sphere.setChecked(True)
-            self.status_stack.setCurrentIndex(0)
             self.settings_stack.setCurrentIndex(0)
         elif mode_string == "planar":
             self.radio_planar.setChecked(True)
-            self.status_stack.setCurrentIndex(0)
             self.settings_stack.setCurrentIndex(0)
         else:
             self.radio_extent.setChecked(True)
-            self.status_stack.setCurrentIndex(1)
             self.settings_stack.setCurrentIndex(1)
 
         self.radio_planar.toggled.connect(self.show_non_fixed_extent_settings)
@@ -375,10 +368,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.media_player.error.connect(self.handle_video_error)
         layout = QGridLayout(self.video_preview_widget)
         layout.addWidget(video_widget)
-        # Enable image preview page on startup
-        self.preview_stack.setCurrentIndex(0)
+        # Enable options page on startup
+        self.main_stack.setCurrentIndex(0)
         # Enable easing status page on startup
-        self.status_stack.setCurrentIndex(0)
         self.render_queue.status_changed.connect(self.show_status)
         self.render_queue.processing_completed.connect(
             self.processing_completed
@@ -392,8 +384,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.show_preview_for_frame
         )
 
-        self.register_data_defined_button(self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE)
-        self.register_data_defined_button(self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE)
+        self.register_data_defined_button(
+            self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
+        )
+        self.register_data_defined_button(
+            self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
+        )
 
     def close(self):
         self.save_state()
@@ -417,9 +413,17 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         Registers a new data defined button, linked to the given property key (see values in AnimationController)
         """
-        button.init(property_key, self.data_defined_properties, AnimationController.DYNAMIC_PROPERTIES, None, False)
+        button.init(
+            property_key,
+            self.data_defined_properties,
+            AnimationController.DYNAMIC_PROPERTIES,
+            None,
+            False,
+        )
         button.changed.connect(self._update_property)
-        button.registerExpressionContextGenerator(self.expression_context_generator)
+        button.registerExpressionContextGenerator(
+            self.expression_context_generator
+        )
         button.setVectorLayer(self.layer_combo.currentLayer())
 
     def _update_property(self):
@@ -427,7 +431,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         Triggered when a property override button value is changed
         """
         button = self.sender()
-        self.data_defined_properties.setProperty(button.propertyKey(), button.toProperty())
+        self.data_defined_properties.setProperty(
+            button.propertyKey(), button.toProperty()
+        )
 
     def update_data_defined_button(self, button):
         """
@@ -438,7 +444,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             return
 
         button.blockSignals(True)
-        button.setToProperty(self.data_defined_properties.property(button.propertyKey()))
+        button.setToProperty(
+            self.data_defined_properties.property(button.propertyKey())
+        )
         button.blockSignals(False)
 
     def show_message(self, message):
@@ -593,8 +601,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         else:
             QgsProject.instance().removeEntry("animation", "layer_id")
         temp_doc = QDomDocument()
-        dd_elem = temp_doc.createElement('data_defined_properties')
-        self.data_defined_properties.writeXml(dd_elem, AnimationController.DYNAMIC_PROPERTIES)
+        dd_elem = temp_doc.createElement("data_defined_properties")
+        self.data_defined_properties.writeXml(
+            dd_elem, AnimationController.DYNAMIC_PROPERTIES
+        )
         temp_doc.appendChild(dd_elem)
         QgsProject.instance().writeEntry(
             "animation", "data_defined_properties", temp_doc.toString()
@@ -607,10 +617,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         .. note:: This is called on OK click.
         """
+        # Enable progress page on startup
+        self.main_stack.setCurrentIndex(1)
         # Image preview page
         self.preview_stack.setCurrentIndex(0)
         # Enable queue status page
-        self.status_stack.setCurrentIndex(1)
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
@@ -619,6 +630,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             )
 
         self.save_state()
+        self.run_frame.show()
 
         self.render_queue.reset()
         self.last_preview_image = None
@@ -666,6 +678,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     def cancel_processing(self):
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.render_queue.cancel_processing()
+        # Enable progress page
+        self.main_stack.setCurrentIndex(0)
 
     def create_controller(self) -> Optional[AnimationController]:
         """
@@ -728,7 +742,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.output_log_text_edit.append(f"Processing halted: {e}")
                 return None
 
-        controller.data_defined_properties=QgsPropertyCollection(self.data_defined_properties)
+        controller.data_defined_properties = QgsPropertyCollection(
+            self.data_defined_properties
+        )
         return controller
 
     def processing_completed(self, success: bool):
@@ -759,6 +775,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         def show_movie(movie_file: str):
             # Video preview page
+            self.main_stack.setCurrentIndex(1)
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(
                 QMediaContent(QUrl.fromLocalFile(movie_file))
@@ -782,6 +799,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsApplication.taskManager().addTask(self.movie_task)
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
+        self.main_stack.setCurrentIndex(0)
 
     def show_preview_for_frame(self, frame: int):
         if self.radio_sphere.isChecked() or self.radio_planar.isChecked():
@@ -837,12 +855,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.last_preview_image = name
         # Load the preview with the named image file
-        with open(name, "rb") as image_file:
-            content = image_file.read()
-            image = QImage()
-            image.loadFromData(content)
-            pixmap = QPixmap.fromImage(image)
-            self.current_frame_preview.setPixmap(pixmap)
+        try:
+            with open(name, "rb") as image_file:
+                content = image_file.read()
+                image = QImage()
+                image.loadFromData(content)
+                pixmap = QPixmap.fromImage(image)
+                self.current_frame_preview.setPixmap(pixmap)
+        except:
+            pass
 
     def help_toggled(self, flag):
         """Show or hide the help tab in the stacked widget.

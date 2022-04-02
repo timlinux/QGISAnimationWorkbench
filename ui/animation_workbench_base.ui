@@ -6,27 +6,422 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1080</width>
-    <height>832</height>
+    <width>1388</width>
+    <height>918</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_9">
+  <layout class="QGridLayout" name="gridLayout_13">
    <item row="0" column="0">
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+    <widget class="QStackedWidget" name="main_stack">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_7">
-      <item row="3" column="0">
-       <widget class="QGroupBox" name="output_options_group">
-        <property name="toolTip">
-         <string>Select which output format you would like. 
+     <widget class="QWidget" name="options_page">
+      <layout class="QGridLayout" name="gridLayout_19">
+       <item row="0" column="0">
+        <widget class="QFrame" name="options_frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_20">
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="render_mode_group">
+            <property name="toolTip">
+             <string>The render mode determines the behaviour and type of the animation. 
+For 'Sphere' the coordinate reference system (CRS) will 
+be manipulated to create a spinning globe effect. 
+For 'Plane', the CRS will not be altered, but will pan and 
+zoom to each point.</string>
+            </property>
+            <property name="title">
+             <string>Render Mode</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="radio_sphere">
+               <property name="text">
+                <string>Sphere</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QRadioButton" name="radio_planar">
+               <property name="text">
+                <string>Planar</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QRadioButton" name="radio_extent">
+               <property name="text">
+                <string>Fixed Extent</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="1" rowspan="5">
+           <widget class="QFrame" name="easings_frame">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_18">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_easings">
+               <property name="text">
+                <string>Pan and Zoom Easings</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="EasingPreview" name="pan_easing_widget" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>250</width>
+                 <height>150</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="EasingPreview" name="zoom_easing_widget" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>250</width>
+                 <height>150</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>244</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QStackedWidget" name="settings_stack">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="non_fixed_extent_settings">
+             <layout class="QGridLayout" name="gridLayout_15">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <item row="3" column="0">
+               <widget class="QGroupBox" name="animation_frames_group">
+                <property name="title">
+                 <string>Animation Frames</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_8">
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="hover_frames_label">
+                   <property name="text">
+                    <string>Hover frames at each feature</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>hover_frames_spin</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="feature_frames_label">
+                   <property name="text">
+                    <string>Frames between feature</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>feature_frames_spin</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QSpinBox" name="feature_frames_spin">
+                   <property name="toolTip">
+                    <string>This is the number of frames that will be used during
+ animation of the dwell period at each feature. 
+Video generation is done at 30 frames per 
+second, so a value of 30 here would result in a 1 second 
+dwell time. 
+Set to zero to disable.</string>
+                   </property>
+                   <property name="maximum">
+                    <number>999</number>
+                   </property>
+                   <property name="value">
+                    <number>15</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QSpinBox" name="hover_frames_spin">
+                   <property name="toolTip">
+                    <string>This is the number of frames that will 
+be used during animation of the motion from 
+one point to the next. Video generation 
+is done at 30 frames per second, so a value 
+of 30 here would result in a 1 second flight time 
+between two consecutive points. 
+Set to zero to disable.</string>
+                   </property>
+                   <property name="maximum">
+                    <number>999</number>
+                   </property>
+                   <property name="value">
+                    <number>15</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QSpinBox" name="framerate_spin">
+                   <property name="toolTip">
+                    <string>When writing to video or gif, 
+how many frames per second to use.</string>
+                   </property>
+                   <property name="suffix">
+                    <string> fps</string>
+                   </property>
+                   <property name="value">
+                    <number>30</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Frame rate per second</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QGroupBox" name="zoom_range_group">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>The scale range that the animation should 
+move through. The smallest scale will be 
+the zenith of the animation when it zooms 
+out while travelling between points, and the 
+largest scale will be the scale used when 
+we arrive at each point.</string>
+                </property>
+                <property name="title">
+                 <string>Zoom Range</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_10">
+                 <item row="0" column="0">
+                  <widget class="QgsScaleRangeWidget" name="scale_range">
+                   <property name="focusPolicy">
+                    <enum>Qt::StrongFocus</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QGroupBox" name="easings_group">
+                <property name="title">
+                 <string>Animation Layer</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <item row="0" column="0" colspan="2">
+                  <widget class="QgsMapLayerComboBox" name="layer_combo"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QGroupBox" name="groupBox_2">
+                <property name="title">
+                 <string>Data Defined Settings</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_17" columnstretch="0,0,0,0,0,0,1">
+                 <item row="0" column="4">
+                  <widget class="QLabel" name="mCoordYLabel">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Maximum</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="5">
+                  <widget class="QgsPropertyOverrideButton" name="scale_max_dd_btn">
+                   <property name="text">
+                    <string>…</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="mCoordXLabel">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Scale </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QLabel" name="mCoordXLabel_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Minimum</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="3">
+                  <widget class="QgsPropertyOverrideButton" name="scale_min_dd_btn">
+                   <property name="text">
+                    <string>…</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <spacer name="horizontalSpacer_6">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="0" column="6">
+                  <spacer name="horizontalSpacer_7">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="fixed_extent_settings">
+             <layout class="QGridLayout" name="gridLayout_16">
+              <item row="0" column="0">
+               <widget class="QLabel" name="extent_label">
+                <property name="text">
+                 <string>Extent</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QWidget" name="extent_widget_container" native="true"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="extent_frames_label">
+                <property name="text">
+                 <string>Frames</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="extent_frames_spin">
+                <property name="maximum">
+                 <number>9000000</number>
+                </property>
+                <property name="singleStep">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>117</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QGroupBox" name="output_options_group">
+            <property name="toolTip">
+             <string>Select which output format you would like. 
 Regardless of which you choose, a folder 
 of images will be created, one image per frame. 
 For the GIF export to work, you will 
@@ -34,745 +429,385 @@ need to have the ImageMagick 'convert'  application
 available on your system. For the MP4 option to work, 
 you need to have the 'ffmpeg' application on 
 your system.</string>
-        </property>
-        <property name="title">
-         <string>Output Options</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0" colspan="2">
-          <widget class="QCheckBox" name="reuse_cache">
-           <property name="toolTip">
-            <string>Will not erase cached images on disk 
-and will resume processing from last cached image.</string>
-           </property>
-           <property name="text">
-            <string>Re-use cached images where possible</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="radio_gif">
-           <property name="text">
-            <string>Animated GIF</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QRadioButton" name="rad_movie">
-           <property name="text">
-            <string>Movie (MP4)</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QGroupBox" name="output_destination_group">
-        <property name="title">
-         <string>Output Destination</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <item row="0" column="0">
-          <widget class="QLabel" name="movie_file_label">
-           <property name="text">
-            <string>File</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="movie_file_edit">
-           <property name="toolTip">
-            <string>The output folder will be populated with 
-all of the frames of the animation, and 
-the GIF or MP4 as selected above.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QToolButton" name="movie_file_button">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QGroupBox" name="render_mode_group">
-        <property name="toolTip">
-         <string>The render mode determines the behaviour and type of the animation. 
-For 'Sphere' the coordinate reference system (CRS) will 
-be manipulated to create a spinning globe effect. 
-For 'Plane', the CRS will not be altered, but will pan and 
-zoom to each point.</string>
-        </property>
-        <property name="title">
-         <string>Render Mode</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QRadioButton" name="radio_sphere">
-           <property name="text">
-            <string>Sphere</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QRadioButton" name="radio_planar">
-           <property name="text">
-            <string>Planar</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QRadioButton" name="radio_extent">
-           <property name="text">
-            <string>Fixed Extent</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QStackedWidget" name="settings_stack">
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="non_fixed_extent_settings">
-         <layout class="QGridLayout" name="gridLayout_15">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <property name="spacing">
-           <number>6</number>
-          </property>
-          <item row="3" column="0">
-           <widget class="QGroupBox" name="animation_frames_group">
-            <property name="title">
-             <string>Animation Frames</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_8">
-             <item row="2" column="0">
-              <widget class="QLabel" name="hover_frames_label">
-               <property name="text">
-                <string>Hover frames at each feature</string>
+            <property name="title">
+             <string>Output Options</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="0" column="0" colspan="2">
+              <widget class="QCheckBox" name="reuse_cache">
+               <property name="toolTip">
+                <string>Will not erase cached images on disk 
+and will resume processing from last cached image.</string>
                </property>
-               <property name="buddy">
-                <cstring>hover_frames_spin</cstring>
+               <property name="text">
+                <string>Re-use cached images where possible</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="feature_frames_label">
+              <widget class="QRadioButton" name="radio_gif">
                <property name="text">
-                <string>Frames between feature</string>
-               </property>
-               <property name="buddy">
-                <cstring>feature_frames_spin</cstring>
+                <string>Animated GIF</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="feature_frames_spin">
-               <property name="toolTip">
-                <string>This is the number of frames that will be used during
- animation of the dwell period at each feature. 
-Video generation is done at 30 frames per 
-second, so a value of 30 here would result in a 1 second 
-dwell time. 
-Set to zero to disable.</string>
+              <widget class="QRadioButton" name="rad_movie">
+               <property name="text">
+                <string>Movie (MP4)</string>
                </property>
-               <property name="maximum">
-                <number>999</number>
-               </property>
-               <property name="value">
-                <number>15</number>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QSpinBox" name="hover_frames_spin">
-               <property name="toolTip">
-                <string>This is the number of frames that will 
-be used during animation of the motion from 
-one point to the next. Video generation 
-is done at 30 frames per second, so a value 
-of 30 here would result in a 1 second flight time 
-between two consecutive points. 
-Set to zero to disable.</string>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>Soundtrack (optional)</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="2">
+              <widget class="QToolButton" name="music_file_button">
+               <property name="text">
+                <string>...</string>
                </property>
-               <property name="maximum">
-                <number>999</number>
-               </property>
-               <property name="value">
-                <number>15</number>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="music_file_label">
+               <property name="text">
+                <string>File</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QSpinBox" name="framerate_spin">
+              <widget class="QLineEdit" name="music_file_edit"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QGroupBox" name="output_destination_group">
+            <property name="title">
+             <string>Output Destination</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="0" column="0">
+              <widget class="QLabel" name="movie_file_label">
+               <property name="text">
+                <string>File</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="movie_file_edit">
                <property name="toolTip">
-                <string>When writing to video or gif, 
-how many frames per second to use.</string>
-               </property>
-               <property name="suffix">
-                <string> fps</string>
-               </property>
-               <property name="value">
-                <number>30</number>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Frame rate per second</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QGroupBox" name="zoom_range_group">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="toolTip">
-             <string>The scale range that the animation should 
-move through. The smallest scale will be 
-the zenith of the animation when it zooms 
-out while travelling between points, and the 
-largest scale will be the scale used when 
-we arrive at each point.</string>
-            </property>
-            <property name="title">
-             <string>Zoom Range</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_10">
-             <item row="0" column="0">
-              <widget class="QgsScaleRangeWidget" name="scale_range" native="true">
-               <property name="focusPolicy">
-                <enum>Qt::StrongFocus</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QGroupBox" name="easings_group">
-            <property name="title">
-             <string>Animation Layer</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="0" colspan="2">
-              <widget class="QgsMapLayerComboBox" name="layer_combo"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="title">
-             <string>Data Defined Settings</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_17" columnstretch="0,0,0,0,0,0,1">
-             <item row="0" column="4">
-              <widget class="QLabel" name="mCoordYLabel">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Maximum</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="5">
-              <widget class="QgsPropertyOverrideButton" name="scale_max_dd_btn">
-               <property name="text">
-                <string>…</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="mCoordXLabel">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Scale </string>
+                <string>The output folder will be populated with 
+all of the frames of the animation, and 
+the GIF or MP4 as selected above.</string>
                </property>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QLabel" name="mCoordXLabel_2">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
+              <widget class="QToolButton" name="movie_file_button">
                <property name="text">
-                <string>Minimum</string>
+                <string>...</string>
                </property>
               </widget>
-             </item>
-             <item row="0" column="3">
-              <widget class="QgsPropertyOverrideButton" name="scale_min_dd_btn">
-               <property name="text">
-                <string>…</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="0" column="6">
-              <spacer name="horizontalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </widget>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="fixed_extent_settings">
-         <layout class="QGridLayout" name="gridLayout_16">
-          <item row="0" column="0">
-           <widget class="QLabel" name="extent_label">
-            <property name="text">
-             <string>Extent</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QWidget" name="extent_widget_container" native="true"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="extent_frames_label">
-            <property name="text">
-             <string>Frames</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSpinBox" name="extent_frames_spin">
-            <property name="maximum">
-             <number>9000000</number>
-            </property>
-            <property name="singleStep">
-             <number>30</number>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>117</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>Soundtrack (optional)</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="2">
-          <widget class="QToolButton" name="music_file_button">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="music_file_label">
-           <property name="text">
-            <string>File</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="music_file_edit"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QFrame" name="preview_frame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="0">
-       <widget class="QLabel" name="output_log_label">
-        <property name="text">
-         <string>Output Logs</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QStackedWidget" name="preview_stack">
-        <property name="currentIndex">
-         <number>1</number>
-        </property>
-        <widget class="QWidget" name="preview_page">
-         <layout class="QGridLayout" name="gridLayout_11">
-          <item row="0" column="0">
-           <widget class="QLabel" name="current_frame_preview_label">
-            <property name="text">
-             <string>Current Frame Preview</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="current_frame_preview">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>250</width>
-              <height>150</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>9999999</width>
-              <height>999999</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <property name="bottomMargin">
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="progress_page">
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QFrame" name="run_frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_12">
+          <item row="0" column="0" rowspan="2">
+           <widget class="QStackedWidget" name="preview_stack">
+            <property name="currentIndex">
              <number>0</number>
             </property>
-            <item>
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>Frame</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="preview_frame_spin">
-              <property name="maximum">
-               <number>999999999</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="video_page">
-         <layout class="QGridLayout" name="gridLayout_12">
-          <item row="0" column="0" colspan="3">
-           <widget class="QLabel" name="video_preview_label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Video Preview</string>
-            </property>
+            <widget class="QWidget" name="preview_page">
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="1" column="0" colspan="2">
+               <widget class="QLabel" name="current_frame_preview">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>250</width>
+                  <height>150</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>9999999</width>
+                  <height>999999</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="scaledContents">
+                 <bool>true</bool>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="preview_number_label">
+                <property name="text">
+                 <string>Frame</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="preview_frame_spin">
+                <property name="maximum">
+                 <number>999999999</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="frame_preview_label">
+                <property name="text">
+                 <string>Frame Preview</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="video_page">
+             <layout class="QGridLayout" name="gridLayout_11">
+              <item row="0" column="0">
+               <widget class="QLabel" name="video_preview_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Video Preview</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QWidget" name="video_preview_widget" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QToolButton" name="play_button">
+                <property name="text">
+                 <string>&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSlider" name="video_slider">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QToolButton" name="play_button">
-            <property name="text">
-             <string>&gt;</string>
+          <item row="0" column="1">
+           <widget class="QGroupBox" name="progress_group">
+            <property name="title">
+             <string>Progress</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="3">
-           <widget class="QWidget" name="video_preview_widget" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSlider" name="video_slider">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QStackedWidget" name="status_stack">
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="easing_status_page">
-         <layout class="QGridLayout" name="gridLayout_13">
-          <item row="1" column="0">
-           <widget class="EasingPreview" name="pan_easing_widget" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>250</width>
-              <height>150</height>
-             </size>
-            </property>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QLCDNumber" name="total_tasks_lcd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLCDNumber" name="completed_tasks_lcd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="total_tasks_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Total Tasks</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="completed_tasks_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Completed Tasks</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLCDNumber" name="remaining_features_lcd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLCDNumber" name="active_lcd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QLCDNumber" name="completed_features_lcd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="remaining_features_label">
+               <property name="text">
+                <string>Remaining Features</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="active_label">
+               <property name="text">
+                <string>Active Tasks</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLabel" name="completed_label">
+               <property name="text">
+                <string>Features Completed</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="EasingPreview" name="zoom_easing_widget" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QGroupBox" name="logs_group">
+            <property name="title">
+             <string>Logs</string>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>250</width>
-              <height>150</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_easings">
-            <property name="text">
-             <string>Pan and Zoom Easings</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="job_progress_page">
-         <layout class="QGridLayout" name="gridLayout_14">
-          <item row="3" column="0">
-           <widget class="QLabel" name="remaining_features_label">
-            <property name="text">
-             <string>Remaining Features</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignHCenter|Qt::AlignTop</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLCDNumber" name="total_tasks_lcd">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="completed_label">
-            <property name="text">
-             <string>Features Completed</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignHCenter|Qt::AlignTop</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLCDNumber" name="completed_features_lcd">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLCDNumber" name="remaining_features_lcd">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLCDNumber" name="active_lcd">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="active_label">
-            <property name="text">
-             <string>Active Tasks</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignHCenter|Qt::AlignTop</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="total_tasks_label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Total Tasks</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignHCenter|Qt::AlignTop</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLCDNumber" name="completed_tasks_lcd">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="completed_tasks_label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Completed Tasks</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignHCenter|Qt::AlignTop</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QTextEdit" name="output_log_text_edit">
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+            <layout class="QGridLayout" name="gridLayout_21">
+             <item row="0" column="0">
+              <widget class="QTextEdit" name="output_log_text_edit">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="html">
+                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Fira Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Cantarell';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Cantarell'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="1" column="0">
     <widget class="QProgressBar" name="progress_bar">
      <property name="value">
       <number>24</number>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="button_box">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -788,23 +823,23 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgis.gui</header>
+   <header>qgsmaplayercombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsPropertyOverrideButton</class>
+   <extends>QToolButton</extends>
+   <header>qgspropertyoverridebutton.h</header>
   </customwidget>
   <customwidget>
    <class>QgsScaleRangeWidget</class>
    <extends>QWidget</extends>
-   <header>qgis.gui</header>
+   <header>qgsscalerangewidget.h</header>
   </customwidget>
   <customwidget>
    <class>EasingPreview</class>
    <extends>QWidget</extends>
    <header>QGISAnimationWorkbench.easing_preview</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QgsPropertyOverrideButton</class>
-   <extends>QToolButton</extends>
-   <header>qgis.gui</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -818,7 +853,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>rad_movie</tabstop>
   <tabstop>movie_file_edit</tabstop>
   <tabstop>movie_file_button</tabstop>
-  <tabstop>output_log_text_edit</tabstop>
  </tabstops>
  <resources/>
  <connections/>
