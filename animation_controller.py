@@ -150,6 +150,7 @@ class AnimationController(QObject):
         self.feature_layer: Optional[QgsVectorLayer] = None
         self.layer_to_map_transform: Optional[QgsCoordinateTransform] = None
         self.total_feature_count: int = 0
+        self.feature_counter: int = 0
 
         self.total_frame_count: int = 0
         self.dwell_frames: int = 0
@@ -231,21 +232,41 @@ class AnimationController(QObject):
                 )
                 yield job
         else:
-            # Will dwell minium 1 frame per feature
-            self.dwell_frames = int(
-                self.total_frame_count / self.feature_layer.featureCount()
-            )
+            self.feature_counter = 0
+            self.previous_feature = None
+            self.total_feature_count = self.feature_layer.featureCount()
             for feature in self.feature_layer.getFeatures():
-                context = QgsExpressionContext(self.expression_context)
-                context.setFeature(feature)
-                scope = QgsExpressionContextScope()
-                scope.setVariable("from_feature", self.previous_feature, True)
-                scope.setVariable("to_feature", feature, True)
-                context.appendScope(scope)
-                self.map_settings.setExpressionContext(context)
-                self.previous_feature = feature
-                for job in self.dwell_at_feature(feature):
+                self.feature_counter += 1
+                for self.current_frame in range(self.total_frame_count):
+                    name = self.working_directory / "{}-{}.png".format(
+                        self.frame_filename_prefix,
+                        str(
+                            self.current_frame
+                            + (self.total_frame_count * self.feature_counter)
+                        ).rjust(10, "0"),
+                    )
+                    context = QgsExpressionContext(self.expression_context)
+                    context.setFeature(feature)
+                    scope = QgsExpressionContextScope()
+                    scope.setVariable(
+                        "from_feature", self.previous_feature, True
+                    )
+                    scope.setVariable(
+                        "from_feature", self.previous_feature, True
+                    )
+                    scope.setVariable("to_feature", feature, True)
+                    context.appendScope(scope)
+                    self.map_settings.setExpressionContext(context)
+                    self.previous_feature = feature
+                    job = self.create_job(
+                        self.map_settings,
+                        name.as_posix(),
+                        feature.id(),
+                        self.current_frame,
+                        "Fixed Extent",
+                    )
                     yield job
+                self.previous_feature = feature
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
         self._evaluated_min_scale = self.min_scale
