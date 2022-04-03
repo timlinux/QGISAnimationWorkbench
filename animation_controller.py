@@ -189,8 +189,18 @@ class AnimationController(QObject):
 
     def create_jobs(self) -> Iterator[RenderJob]:
         if self.map_mode == MapMode.FIXED_EXTENT:
-            for job in self.create_fixed_extent_job():
-                yield job
+            if self.feature_layer:
+                self.layer_to_map_transform = QgsCoordinateTransform(
+                    self.feature_layer.crs(),
+                    self.map_settings.destinationCrs(),
+                    QgsProject.instance(),
+                )
+                for job in self.create_fixed_extent_job():
+                    yield job
+
+            else:
+                for job in self.create_fixed_extent_job():
+                    yield job
         else:
             self.layer_to_map_transform = QgsCoordinateTransform(
                 self.feature_layer.crs(),
@@ -201,20 +211,41 @@ class AnimationController(QObject):
                 yield job
 
     def create_fixed_extent_job(self) -> Iterator[RenderJob]:
-        for self.current_frame in range(self.total_frame_count):
-            name = self.working_directory / "{}-{}.png".format(
-                self.frame_filename_prefix,
-                str(self.current_frame).rjust(10, "0"),
-            )
+        # If the feature_layer is set we split the job
+        # across the the number of features and the frame
+        # count so that we can set the current feature id
+        # iteratively
+        if not self.feature_layer:
+            for self.current_frame in range(self.total_frame_count):
+                name = self.working_directory / "{}-{}.png".format(
+                    self.frame_filename_prefix,
+                    str(self.current_frame).rjust(10, "0"),
+                )
 
-            job = self.create_job(
-                self.map_settings,
-                name.as_posix(),
-                None,
-                self.current_frame,
-                "Fixed Extent",
+                job = self.create_job(
+                    self.map_settings,
+                    name.as_posix(),
+                    None,
+                    self.current_frame,
+                    "Fixed Extent",
+                )
+                yield job
+        else:
+            # Will dwell minium 1 frame per feature
+            self.dwell_frames = int(
+                self.total_frame_count / self.feature_layer.featureCount()
             )
-            yield job
+            for feature in self.feature_layer.getFeatures():
+                context = QgsExpressionContext(self.expression_context)
+                context.setFeature(feature)
+                scope = QgsExpressionContextScope()
+                scope.setVariable("from_feature", self.previous_feature, True)
+                scope.setVariable("to_feature", feature, True)
+                context.appendScope(scope)
+                self.map_settings.setExpressionContext(context)
+                self.previous_feature = feature
+                for job in self.dwell_at_feature(feature):
+                    yield job
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
         self._evaluated_min_scale = self.min_scale
