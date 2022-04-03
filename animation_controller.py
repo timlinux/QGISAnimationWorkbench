@@ -235,6 +235,7 @@ class AnimationController(QObject):
             self.feature_counter = 0
             self.previous_feature = None
             self.total_feature_count = self.feature_layer.featureCount()
+            self.travel_frames = self.total_frame_count
             for feature in self.feature_layer.getFeatures():
                 self.feature_counter += 1
                 for self.current_frame in range(self.total_frame_count):
