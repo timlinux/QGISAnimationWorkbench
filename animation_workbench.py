@@ -711,6 +711,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if map_mode == MapMode.FIXED_EXTENT:
             controller = AnimationController.create_fixed_extent_controller(
                 map_settings=self.iface.mapCanvas().mapSettings(),
+                feature_layer=self.layer_combo.currentLayer() or None,
                 output_extent=QgsReferencedRectangle(
                     self.extent_group_box.outputExtent(),
                     self.extent_group_box.outputCrs(),

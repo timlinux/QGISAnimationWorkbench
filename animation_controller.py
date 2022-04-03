@@ -87,11 +87,10 @@ class AnimationController(QObject):
         context.appendScope(feature_layer.createExpressionContextScope())
         map_settings.setExpressionContext(context)
 
-        controller = AnimationController(mode, map_settings)
-        controller.feature_layer = feature_layer
-        controller.total_feature_count = feature_layer.featureCount()
-
         controller = AnimationController(MapMode.FIXED_EXTENT, map_settings)
+        if feature_layer:
+            controller.feature_layer = feature_layer
+            controller.total_feature_count = feature_layer.featureCount()
         controller.total_frame_count = total_frames
         controller.frame_rate = frame_rate
 
