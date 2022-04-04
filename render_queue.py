@@ -33,7 +33,7 @@ from qgis.core import (
     QgsProxyProgressTask,
     QgsFeedback,
     Qgis,
-    QgsTask
+    QgsTask,
 )
 
 from .settings import setting
@@ -54,16 +54,18 @@ class RenderJob:
         self,
         annotations_list: Optional[List] = None,
         decorations: Optional[List] = None,
-        hidden: bool = False
+        hidden: bool = False,
     ) -> QgsMapRendererTask:
         # Set the output file name for the render task
 
         if Qgis.QGIS_VERSION_INT >= 32500 and hidden:
             # can only mark tasks as hidden on 3.26+
             task = QgsMapRendererTask(
-                self.map_settings, self.file_name, 
-                "PNG", 
-                flags=QgsTask.Flags(QgsTask.Hidden|QgsTask.CanCancel))
+                self.map_settings,
+                self.file_name,
+                "PNG",
+                flags=QgsTask.Flags(QgsTask.Hidden | QgsTask.CanCancel),
+            )
         else:
             task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
         # We need to clone the annotations because otherwise SIP will
@@ -80,7 +82,6 @@ class RenderJob:
 
 
 class RenderQueueFeedback(QgsFeedback):
-
     def __init__(self, steps: int):
         super().__init__()
         self.steps = steps
@@ -88,7 +89,7 @@ class RenderQueueFeedback(QgsFeedback):
 
     def set_current_step(self, step: int):
         self.current_step = step
-        self.setProgress(100*self.current_step/self.steps)
+        self.setProgress(100 * self.current_step / self.steps)
 
     def set_remaining_steps(self, remaining: int):
         self.set_current_step(self.steps - remaining)
@@ -182,14 +183,16 @@ class RenderQueue(QObject):
 
     def start_processing(self):
         if Qgis.QGIS_VERSION_INT >= 32500:
-            self.proxy_task = QgsProxyProgressTask('Exporting frames', True)
+            self.proxy_task = QgsProxyProgressTask("Exporting frames", True)
             self.proxy_task.canceled.connect(self.cancel_processing)
         else:
             # can't set a proxy task as cancelable in < 3.26 :(
-            self.proxy_task = QgsProxyProgressTask('Exporting frames')
+            self.proxy_task = QgsProxyProgressTask("Exporting frames")
 
         self.proxy_feedback = RenderQueueFeedback(len(self.job_queue))
-        self.proxy_feedback.progressChanged.connect(self.proxy_task.setProxyProgress)
+        self.proxy_feedback.progressChanged.connect(
+            self.proxy_task.setProxyProgress
+        )
 
         QgsApplication.taskManager().addTask(self.proxy_task)
 
@@ -202,7 +205,9 @@ class RenderQueue(QObject):
         if not self.job_queue and not self.active_tasks:
             # all done!
             self.update_status()
-            was_canceled = self.proxy_feedback and self.proxy_feedback.isCanceled()
+            was_canceled = (
+                self.proxy_feedback and self.proxy_feedback.isCanceled()
+            )
             self.processing_completed.emit(not was_canceled)
             if self.proxy_task:
                 self.proxy_task.finalize(not was_canceled)
@@ -220,9 +225,11 @@ class RenderQueue(QObject):
             if self.verbose_mode:
                 self.status_message.emit(f"Rendering: {job.file_name}")
 
-            # create a hidden task, because the proxy wrapper task will be the only one we want
-            # to expose to users
-            task = job.create_task(self.annotations_list, self.decorations, hidden=True)
+            # create a hidden task, because the proxy wrapper task
+            # will be the only one we want to expose to users
+            task = job.create_task(
+                self.annotations_list, self.decorations, hidden=True
+            )
             self.active_tasks[job.file_name] = task
 
             task.taskCompleted.connect(
