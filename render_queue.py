@@ -60,7 +60,10 @@ class RenderJob:
 
         if Qgis.QGIS_VERSION_INT >= 32500 and hidden:
             # can only mark tasks as hidden on 3.26+
-            task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG", flags=QgsTask.Flags(QgsTask.Hidden|QgsTask.CanCancel))
+            task = QgsMapRendererTask(
+                self.map_settings, self.file_name, 
+                "PNG", 
+                flags=QgsTask.Flags(QgsTask.Hidden|QgsTask.CanCancel))
         else:
             task = QgsMapRendererTask(self.map_settings, self.file_name, "PNG")
         # We need to clone the annotations because otherwise SIP will

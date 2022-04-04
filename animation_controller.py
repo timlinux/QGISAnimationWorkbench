@@ -84,7 +84,8 @@ class AnimationController(QObject):
             transformed_output_extent = ct.transformBoundingBox(output_extent)
         map_settings.setExtent(transformed_output_extent)
         context = map_settings.expressionContext()
-        context.appendScope(feature_layer.createExpressionContextScope())
+        if feature_layer:
+            context.appendScope(feature_layer.createExpressionContextScope())
         map_settings.setExpressionContext(context)
 
         controller = AnimationController(MapMode.FIXED_EXTENT, map_settings)
@@ -238,6 +239,10 @@ class AnimationController(QObject):
             self.travel_frames = self.total_frame_count
             for feature in self.feature_layer.getFeatures():
                 self.feature_counter += 1
+                # Need to refactor range param below so that it uses
+                # a frames per feature option rather than the misleadingly
+                # named total_frame_count (which is only storing frames per
+                # feature in this context).
                 for self.current_frame in range(self.total_frame_count):
                     name = self.working_directory / "{}-{}.png".format(
                         self.frame_filename_prefix,
