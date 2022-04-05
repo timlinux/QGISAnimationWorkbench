@@ -516,12 +516,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         if file_path is None or file_path == "":
             return
-        self.music_file_edit.setText(self.music_file)
+        self.music_file_edit.setText(file_path)
 
     def save_state(self):
         """
-        We save some project settings to both QSettings AND the current project, others just to the current project,
-        others just to settings...
+        We save some project settings to both QSettings AND the current project,
+        others just to the current project, others just to settings...
         """
         set_setting(
             key="frames_per_second",
