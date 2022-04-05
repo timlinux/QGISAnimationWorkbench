@@ -58,11 +58,11 @@
                  <bool>true</bool>
                 </property>
                 <property name="toolTip">
-                 <string>The scale range that the animation should 
-move through. The smallest scale will be 
-the zenith of the animation when it zooms 
-out while travelling between points, and the 
-largest scale will be the scale used when 
+                 <string>The scale range that the animation should
+move through. The smallest scale will be
+the zenith of the animation when it zooms
+out while travelling between points, and the
+largest scale will be the scale used when
 we arrive at each point.</string>
                 </property>
                 <property name="title">
@@ -197,10 +197,10 @@ we arrive at each point.</string>
                   <widget class="QSpinBox" name="feature_frames_spin">
                    <property name="toolTip">
                     <string>This is the number of frames that will be used during
- animation of the dwell period at each feature. 
-Video generation is done at 30 frames per 
-second, so a value of 30 here would result in a 1 second 
-dwell time. 
+ animation of the dwell period at each feature.
+Video generation is done at 30 frames per
+second, so a value of 30 here would result in a 1 second
+dwell time.
 Set to zero to disable.</string>
                    </property>
                    <property name="maximum">
@@ -214,12 +214,12 @@ Set to zero to disable.</string>
                  <item row="2" column="1">
                   <widget class="QSpinBox" name="hover_frames_spin">
                    <property name="toolTip">
-                    <string>This is the number of frames that will 
-be used during animation of the motion from 
-one point to the next. Video generation 
-is done at 30 frames per second, so a value 
-of 30 here would result in a 1 second flight time 
-between two consecutive points. 
+                    <string>This is the number of frames that will
+be used during animation of the motion from
+one point to the next. Video generation
+is done at 30 frames per second, so a value
+of 30 here would result in a 1 second flight time
+between two consecutive points.
 Set to zero to disable.</string>
                    </property>
                    <property name="maximum">
@@ -233,7 +233,7 @@ Set to zero to disable.</string>
                  <item row="0" column="1">
                   <widget class="QSpinBox" name="framerate_spin">
                    <property name="toolTip">
-                    <string>When writing to video or gif, 
+                    <string>When writing to video or gif,
 how many frames per second to use.</string>
                    </property>
                    <property name="suffix">
@@ -318,8 +318,8 @@ how many frames per second to use.</string>
              <item row="0" column="1">
               <widget class="QLineEdit" name="movie_file_edit">
                <property name="toolTip">
-                <string>The output folder will be populated with 
-all of the frames of the animation, and 
+                <string>The output folder will be populated with
+all of the frames of the animation, and
 the GIF or MP4 as selected above.</string>
                </property>
               </widget>
@@ -401,13 +401,13 @@ the GIF or MP4 as selected above.</string>
           <item row="3" column="0">
            <widget class="QGroupBox" name="output_options_group">
             <property name="toolTip">
-             <string>Select which output format you would like. 
-Regardless of which you choose, a folder 
-of images will be created, one image per frame. 
-For the GIF export to work, you will 
-need to have the ImageMagick 'convert'  application 
-available on your system. For the MP4 option to work, 
-you need to have the 'ffmpeg' application on 
+             <string>Select which output format you would like.
+Regardless of which you choose, a folder
+of images will be created, one image per frame.
+For the GIF export to work, you will
+need to have the ImageMagick 'convert'  application
+available on your system. For the MP4 option to work,
+you need to have the 'ffmpeg' application on
 your system.</string>
             </property>
             <property name="title">
@@ -417,7 +417,7 @@ your system.</string>
              <item row="0" column="0" colspan="2">
               <widget class="QCheckBox" name="reuse_cache">
                <property name="toolTip">
-                <string>Will not erase cached images on disk 
+                <string>Will not erase cached images on disk
 and will resume processing from last cached image.</string>
                </property>
                <property name="text">
@@ -448,10 +448,10 @@ and will resume processing from last cached image.</string>
           <item row="0" column="0">
            <widget class="QGroupBox" name="render_mode_group">
             <property name="toolTip">
-             <string>The render mode determines the behaviour and type of the animation. 
-For 'Sphere' the coordinate reference system (CRS) will 
-be manipulated to create a spinning globe effect. 
-For 'Plane', the CRS will not be altered, but will pan and 
+             <string>The render mode determines the behaviour and type of the animation.
+For 'Sphere' the coordinate reference system (CRS) will
+be manipulated to create a spinning globe effect.
+For 'Plane', the CRS will not be altered, but will pan and
 zoom to each point.</string>
             </property>
             <property name="title">
@@ -827,22 +827,22 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgsmaplayercombobox.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>QgsPropertyOverrideButton</class>
    <extends>QToolButton</extends>
-   <header>qgspropertyoverridebutton.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>QgsScaleRangeWidget</class>
    <extends>QWidget</extends>
-   <header>qgsscalerangewidget.h</header>
+   <header>qgis.gui</header>
   </customwidget>
   <customwidget>
    <class>EasingPreview</class>
    <extends>QWidget</extends>
-   <header>QGISAnimationWorkbench.easing_preview</header>
+   <header>animation_workbench.easing_preview</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

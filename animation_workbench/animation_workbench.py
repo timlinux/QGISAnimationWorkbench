@@ -43,14 +43,16 @@ from qgis.core import (
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
 
-from .settings import set_setting, setting
 from .utilities import get_ui_class, resources_path
-from .animation_controller import (
-    MapMode,
+from .core import (
     AnimationController,
     InvalidAnimationParametersException,
+    MovieCreationTask,
+    MovieFormat,
+    set_setting,
+    setting,
+    MapMode
 )
-from .movie_creator import MovieCreationTask, MovieFormat
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
 

@@ -13,7 +13,7 @@ import qgis  # NOQA
 
 from qgis.PyQt import QtGui, QtWidgets
 
-from .settings import set_setting, setting
+from .core import set_setting, setting
 from .utilities import get_ui_class, resources_path
 
 

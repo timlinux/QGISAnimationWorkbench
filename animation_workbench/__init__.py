@@ -31,8 +31,10 @@ from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
 from .animation_workbench import AnimationWorkbench
 from .workbench_settings import WorkbenchSettings
 from .utilities import resources_path
-from .render_queue import RenderQueue
-from .settings import setting
+from .core import (
+    RenderQueue,
+    setting
+)
 
 def classFactory(iface):
     return AnimationWorkbenchPlugin(iface)
