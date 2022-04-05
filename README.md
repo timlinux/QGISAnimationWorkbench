@@ -137,7 +137,8 @@ Showing diagnostic information in the QGIS copyright label:
 ```
 Example output:
 
-![copyright-label](https://user-images.githubusercontent.com/178003/161783871-e088a732-2a85-4742-9d25-2132a6f48719.gif)
+![copyright-label](https://user-images.githubusercontent.com/178003/161786902-04bb7fb7-d209-44cc-aaf0-bc80c6f9c130.gif)
+
 
 
 Variably changing the size on a label as we approach it in the animation:
