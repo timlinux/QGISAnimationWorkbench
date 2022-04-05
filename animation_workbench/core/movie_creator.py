@@ -6,7 +6,9 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-import tempfile, os, shutil
+import os
+import shutil
+import tempfile
 from enum import Enum
 from typing import List, Optional
 
@@ -16,9 +18,7 @@ import qgis  # NOQA
 from qgis.PyQt.QtCore import pyqtSignal, QProcess
 from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
 
-from .utilities import get_ui_class, which
-
-FORM_CLASS = get_ui_class("animation_workbench_base.ui")
+from .utilities import CoreUtils
 
 
 class MovieFormat(Enum):
@@ -33,13 +33,13 @@ class MovieCreationTask(QgsTask):
     movie_created = pyqtSignal(str)
 
     def __init__(
-        self,
-        output_file: str,
-        music_file: str,
-        output_format: MovieFormat,
-        work_directory: str,
-        frame_filename_prefix: str,
-        framerate: int,
+            self,
+            output_file: str,
+            music_file: str,
+            output_format: MovieFormat,
+            work_directory: str,
+            frame_filename_prefix: str,
+            framerate: int,
     ):
         super().__init__("Exporting Movie", QgsTask.Flag.CanCancel)
 
@@ -63,7 +63,7 @@ class MovieCreationTask(QgsTask):
 
             on_stdout.buffer += val
             if on_stdout.buffer.endswith("\n") or on_stdout.buffer.endswith(
-                "\r"
+                    "\r"
             ):
                 # flush buffer
                 self.message.emit(on_stdout.buffer.rstrip())
@@ -77,7 +77,7 @@ class MovieCreationTask(QgsTask):
             on_stderr.buffer += val
 
             if on_stderr.buffer.endswith("\n") or on_stderr.buffer.endswith(
-                "\r"
+                    "\r"
             ):
                 # flush buffer
                 self.message.emit(on_stderr.buffer.rstrip())
@@ -93,16 +93,16 @@ class MovieCreationTask(QgsTask):
         if self.feedback.isCanceled() and res != 0:
             self.message.emit("Process was canceled and did not complete")
         elif (
-            not self.feedback.isCanceled()
-            and proc.exitStatus() == QProcess.CrashExit
+                not self.feedback.isCanceled()
+                and proc.exitStatus() == QProcess.CrashExit
         ):
             self.message.emit("Process was unexpectedly terminated")
         elif res == 0:
             self.message.emit("Process completed successfully")
         elif proc.processError() == QProcess.FailedToStart:
             self.message.emit(
-                "Process {} failed to start. Either {} is missing, or you may have insufficient permissions to run the program."
-            ).format(command, command)
+                "Process {} failed to start. Either {} is missing, or you may have insufficient permissions to run the program.".format(command, command)
+            )
         else:
             self.message.emit("Process returned error code {}".format(res))
 
@@ -116,7 +116,7 @@ class MovieCreationTask(QgsTask):
         if self.format == MovieFormat.GIF:
             self.message.emit("Generating GIF")
 
-            convert = which("convert")[0]
+            convert = CoreUtils.which("convert")[0]
             self.message.emit(f"convert found: {convert}")
 
             # Now generate the GIF. If this fails try to run the call from
@@ -167,7 +167,7 @@ class MovieCreationTask(QgsTask):
             self.movie_created.emit(self.output_file)
         else:
             self.message.emit("Generating MP4 Movie")
-            ffmpeg = which("ffmpeg")[0]
+            ffmpeg = CoreUtils.which("ffmpeg")[0]
             # Also, we will make a video of the scene - useful for cases where
             # you have a larger colour palette and gif will not hack it.
             # The Pad option is to deal with cases where ffmpeg complains
@@ -200,7 +200,7 @@ class MovieCreationTask(QgsTask):
                     os.path.join(tmp, "animation_workbench.mp4")
                 )
                 arguments.append(temp_video_path)
-                # This will build the base vide with no sound track
+                # This will build the base vide with no soundtrack
                 # in the above temporary folder
                 self.run_process(ffmpeg, arguments)
                 # windows_command = ("""
@@ -217,7 +217,7 @@ class MovieCreationTask(QgsTask):
 
                 # If there is a music file, we do a second pass and add the
                 # file into the video container. From my testing on the CLI,
-                # this works more smoothly and doesnt have issues like
+                # this works more smoothly and doesn't have issues like
                 # video blanking that doing it in one pass does.
 
                 if self.music_file:
@@ -239,7 +239,7 @@ class MovieCreationTask(QgsTask):
 
                     self.run_process(ffmpeg, arguments)
                     self.message.emit(
-                        f"MP4 with sountrack written to {self.output_file}"
+                        f"MP4 with soundtrack written to {self.output_file}"
                     )
                 else:
                     shutil.copyfile(temp_video_path, self.output_file)

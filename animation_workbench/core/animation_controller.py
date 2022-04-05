@@ -214,7 +214,7 @@ class AnimationController(QObject):
 
     def create_fixed_extent_job(self) -> Iterator[RenderJob]:
         # If the feature_layer is set we split the job
-        # across the the number of features and the frame
+        # across the number of features and the frame
         # count so that we can set the current feature id
         # iteratively
         if not self.feature_layer:
@@ -491,7 +491,7 @@ class AnimationController(QObject):
                     # before apply easing
 
                     if self.flying_up:
-                        # update max scale at the half way point
+                        # update max scale at the halfway point
                         context = QgsExpressionContext(self.expression_context)
                         context.setFeature(end_feature)
                         self.map_settings.setExpressionContext(context)
