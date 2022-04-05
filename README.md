@@ -107,7 +107,7 @@ The animation workbench exposes or modifies a number of different QGIS Expressio
 | Variable                  | Notes                                                                             |
 | ------------------------- | --------------------------------------------------------------------------------- |
 | current_feature_id        | Feature ID for feature we are moving towards.                                     |
-| frames_per_feature        | Total number of frames (including fly and dwell frames) for each feature.         |
+| frames_per_feature        | Total number of flying frames for each feature.                                   |
 | current_frame_for_feature | Frame number within total number of frames for this feature.                      |
 | dwell_frames_per_feature  | Total number of frames to dwell (hover) on each feature for.                      |
 | current_animation_action  | Either "Hovering", "Panning" or "None".                                           |
