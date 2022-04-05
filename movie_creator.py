@@ -6,7 +6,7 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-import os
+import tempfile, os, shutil
 from enum import Enum
 from typing import List, Optional
 
@@ -192,55 +192,57 @@ class MovieCreationTask(QgsTask):
                 "-pix_fmt",
                 "yuv420p",
             ]
-            if self.music_file:
-                arguments.extend(self.output_file + "_")
 
-                self.run_process(ffmpeg, arguments)
-                self.message.emit(
-                    f"MP4 without soundtrack written to {self.output_file}_"
+            # This will create a temporary working dir & filename
+            # that is secure and clean up after itself.
+            with tempfile.TemporaryDirectory() as tmp:
+                temp_video_path = str(
+                    os.path.join(tmp, "animation_workbench.mp4")
                 )
-            else:
-                arguments.extend(self.output_file)
-
+                arguments.append(temp_video_path)
+                # This will build the base vide with no sound track
+                # in the above temporary folder
                 self.run_process(ffmpeg, arguments)
-                self.message.emit(
-                    f"MP4 without soundtrack written to {self.output_file}"
-                )
-            # windows_command = ("""
-            #    %s -y -framerate %s -pattern_type sequence \
-            #    -start_number 0000000001 \
-            #    -i "%s/%s-%00000000010d.png" -vf \
-            #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
-            #    -c:v libx264 -pix_fmt yuv420p %s""" % (
-            #    ffmpeg,
-            #    framerate,
-            #    self.work_directory,
-            #    self.frame_filename_prefix,
-            #    self.output_file))
+                # windows_command = ("""
+                #    %s -y -framerate %s -pattern_type sequence \
+                #    -start_number 0000000001 \
+                #    -i "%s/%s-%00000000010d.png" -vf \
+                #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
+                #    -c:v libx264 -pix_fmt yuv420p %s""" % (
+                #    ffmpeg,
+                #    framerate,
+                #    self.work_directory,
+                #    self.frame_filename_prefix,
+                #    self.output_file))
 
-            # If there is a music file, we do a second pass and add the
-            # file into the video container. From my testing on the CLI,
-            # this works more smoothly and doesnt have issues like
-            # video blanking that doing it in one pass does.
+                # If there is a music file, we do a second pass and add the
+                # file into the video container. From my testing on the CLI,
+                # this works more smoothly and doesnt have issues like
+                # video blanking that doing it in one pass does.
 
-            if self.music_file:
-                self.message.emit(f"Adding sound track to video container")
+                if self.music_file:
+                    self.message.emit(f"Adding sound track to video container")
 
-                arguments = [
-                    "-y",
-                    "-i",
-                    f"{self.output_file}",
-                    "-i",
-                    f"{self.music_file}",
-                    "-c",
-                    "copy",  # Will copy the sound into the video container
-                    f"{self.output_file}_",
-                ]
+                    arguments = [
+                        "-y",
+                        "-i",
+                        f"{temp_video_path}",
+                        "-i",
+                        f"{self.music_file}",
+                        "-c",
+                        "copy",  # Will copy the sound into the video container
+                        f"{self.output_file}",
+                    ]
 
-                self.run_process(ffmpeg, arguments)
-                self.message.emit(
-                    f"MP4 with sountrack written to {self.output_file}"
-                )
+                    self.run_process(ffmpeg, arguments)
+                    self.message.emit(
+                        f"MP4 with sountrack written to {self.output_file}"
+                    )
+                else:
+                    shutil.copyfile(temp_video_path, self.output_file)
+                    self.message.emit(
+                        f"MP4 without soundtrack written to {self.output_file}"
+                    )
 
         self.movie_created.emit(self.output_file)
         self.feedback = None
