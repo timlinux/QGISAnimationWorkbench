@@ -230,7 +230,10 @@ class MovieCreationTask(QgsTask):
                         "-i",
                         f"{self.music_file}",
                         "-c",
-                        "copy",  # Will copy the sound into the video container
+                        # Will copy the sound into the video container
+                        "copy",
+                        # will truncate output to shortest between vid and audio
+                        "-shortest",
                         f"{self.output_file}",
                     ]
 
