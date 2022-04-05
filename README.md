@@ -32,8 +32,8 @@
 
 ## 📦 Packages
 
-| Name                                                                                               | Description                          |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Name                                                                                                 | Description                          |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | [`Alpha Version 2`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-2.zip) | Alpha Release (not production ready) |
 | [`Alpha Version 1`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
 
@@ -126,12 +126,14 @@ Showing diagnostic information in the QGIS copyright label:
 ' \nFrames Per Feature: ' || to_string(coalesce(@frames_per_feature, 0))  ||
 ' \nCurrent Frame For Feature ' || to_string(coalesce(@current_frame_for_feature, 0))  ||
 ' \nDwell Frames per Feature ' || to_string(coalesce(@dwell_frames_per_feature, 0))  ||
-' \nFrame Number ' || to_string(coalesce(@frame_number, 0))  ||
-' \nFrame Rate ' || to_string(coalesce(@frame_rate, 0))  ||
 ' \nTotal Frame Count ' || to_string(coalesce(@total_frame_count, 0))  ||
+' \nFrame Number   (QGIS >= 3.26) ' || to_string(coalesce(@currentFrame, 0))  ||
+' \nFrame Rate (QGIS >= 3.26) ' || to_string(coalesce(@frameRate, 0))  ||
+' \nFrame Number   (QGIS < 3.26) ' || to_string(coalesce(@frame_number, 0))  ||
+' \nFrame Rate  (QGIS < 3.26)' || to_string(coalesce(@frame_rate, 0))  ||
+' \nTotal Frame Count  (QGIS < 3.26)' || to_string(coalesce(@total_frame_count, 0))  ||
 ' \nCurrent Frame ' || to_string(coalesce(@current_frame, 0))  ||
- ' \nwith Current Animation Action: ' || @current_animation_action %]
-
+' \nwith Current Animation Action: ' || @current_animation_action %]
 ```
 Example output:
 
