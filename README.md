@@ -34,7 +34,8 @@
 
 | Name                                                                                               | Description                          |
 | -------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| [`Alpha Version`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
+| [`Alpha Version 2`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-2.zip) | Alpha Release (not production ready) |
+| [`Alpha Version 1`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
 
 
 ## 🤖 Why QGIS Animation Workbench?
@@ -248,6 +249,9 @@ This plugin was developed by:
 ## Contributors:
 
 Thanks to:
+
+*Mathieu Pellerin (@nirvn)
+
 
 We are looking for contributors, add yourself here!
 
