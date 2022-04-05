@@ -1,4 +1,4 @@
-# ![QGIS Animations Plugin]()
+# ![QGIS Animation Workbench]()
 
 > Welcome to the QGIS Animation Workbench!
 
@@ -32,8 +32,8 @@
 
 ## 📦 Packages
 
-| Name | Description |
-| --- | --- |
+| Name                                                                                               | Description                          |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | [`Alpha Version`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
 
 
@@ -99,9 +99,70 @@ QGIS Developers:
 https://user-images.githubusercontent.com/178003/156931066-87ce89e4-f8d7-46d9-9d30-aeba097f6d98.mp4
 
 
+## QGIS Expression Variables
+
+The animation workbench exposes or modifies a number of different QGIS Expression variables that you can use to achieve different dynamic rendering effects.
+
+| Variable                  | Notes                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| current_feature_id        | Feature ID for feature we are moving towards.                                     |
+| frames_per_feature        | Total number of frames (including fly and dwell frames) for each feature.         |
+| current_frame_for_feature | Frame number within total number of frames for this feature.                      |
+| dwell_frames_per_feature  | Total number of frames to dwell (hover) on each feature for.                      |
+| current_animation_action  | Either "Hovering", "Panning" or "None".                                           |
+| frame_number              | Frame number within the current dwell or pan range.                               |
+| frame_rate                | Number of frames per second that the video will be rendered at.                   |
+| total_frame_count         | Total number of frames for the whole animation across all features.               |
+| current_frame             | Deprecated variable, kept temporarily for compatibility with older projects only. |
+
+## Example expressions
+
+Showing diagnostic information in the QGIS copyright label:
+
+```
+[%'Frame ' || to_string(coalesce(@frame_number, 0)) || '/' ||
+     to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
+     to_string(coalesce(@current_feature_id,0)) || 
+     ' with map mode: ' || @current_animation_action %]
+```
+
+Variably changing the size on a label as we approach it in the animation:
+
+```
+40 * ((@frame_number % @frames_per_feature) /  @frames_per_feature)
+```
+
+
+
 ## 🌏 QGIS Support
 
-Should work with QGIS 3.
+Should work with and version of QGIS 3.x. If you have QGIS 3.26 or better you can benefit from the animated icon support (see @nyalldawson's most excellent patch [#48060](https://github.com/qgis/QGIS/pull/48060)).
+
+For QGIS versions below 3.26, you can animate markers by unpacking a GIF image into it's constituent frames and then referencing a specific frame from the symbol data defined property for the image file. Note that to do this extraction below you need to have the [Open Source ImageMagick application](https://imagemagick.org/script/download.php) installed:
+
+First extract a gif to a sequence of images:
+
+```
+convert cat.gif -coalesce cat_%05d.png
+```
+
+Example of how to create a dynamically changing image marker based on the current frame count:
+
+
+```
+@project_home 
+||
+'/gifs/cat_000'
+|| 
+lpad(to_string( @current_frame % 48 ), 2, '0') 
+|| 
+'.png'
+```
+
+Note that for the above, 48 is the number of frames that the GIF was composed of, and it assumes the frames are in the project directory in a subfolder called ``gifs``.
+
+
+
 
 ## 🔧 Pull Request Steps
 
@@ -177,11 +238,11 @@ This software is licensed under the [GPL v2](https://github.com/timlinux/QGISAni
 This plugin was developed by: 
 
 
-Tim Sutton | Nyall Dawson
------------| --------------
-![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | ![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") 
-Coder and Ideas Guy | Genius Guru of Awesomeness
-[timlinux @ github](https://github.com/timlinux/) | [nyalldawson @ github](https://github.com/nyalldawson/)
+| Tim Sutton                                                             | Nyall Dawson                                                                 |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| ![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | ![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") |
+| Coder and Ideas Guy                                                    | Genius Guru of Awesomeness                                                   |
+| [timlinux @ github](https://github.com/timlinux/)                      | [nyalldawson @ github](https://github.com/nyalldawson/)                      |
 
 
 ## Contributors:
