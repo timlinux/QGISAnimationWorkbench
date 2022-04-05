@@ -121,11 +121,22 @@ The animation workbench exposes or modifies a number of different QGIS Expressio
 Showing diagnostic information in the QGIS copyright label:
 
 ```
-[%'Frame ' || to_string(coalesce(@frame_number, 0)) || '/' ||
-     to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
-     to_string(coalesce(@current_feature_id,0)) || 
-     ' with map mode: ' || @current_animation_action %]
+[%
+'Current Feature ID ' || to_string(coalesce(@current_feature_id, 0))  ||
+' \nFrames Per Feature: ' || to_string(coalesce(@frames_per_feature, 0))  ||
+' \nCurrent Frame For Feature ' || to_string(coalesce(@current_frame_for_feature, 0))  ||
+' \nDwell Frames per Feature ' || to_string(coalesce(@dwell_frames_per_feature, 0))  ||
+' \nFrame Number ' || to_string(coalesce(@frame_number, 0))  ||
+' \nFrame Rate ' || to_string(coalesce(@frame_rate, 0))  ||
+' \nTotal Frame Count ' || to_string(coalesce(@total_frame_count, 0))  ||
+' \nCurrent Frame ' || to_string(coalesce(@current_frame, 0))  ||
+ ' \nwith Current Animation Action: ' || @current_animation_action %]
+
 ```
+Example output:
+
+![copyright-label](https://user-images.githubusercontent.com/178003/161783871-e088a732-2a85-4742-9d25-2132a6f48719.gif)
+
 
 Variably changing the size on a label as we approach it in the animation:
 
