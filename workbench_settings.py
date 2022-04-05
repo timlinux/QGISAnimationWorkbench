@@ -33,7 +33,7 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle(self.tr("Animation Workbench"))
-        icon = resources_path("img", "icons", "animation-workshop.svg")
+        icon = resources_path("img", "icons", "animation-workbench.svg")
         self.setWindowIcon(QtGui.QIcon(icon))
         self.parent = parent
 

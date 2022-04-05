@@ -120,7 +120,7 @@ Fork `main` branch into your personal repository. Clone it to local computer. In
 Before starting development, you should check if there are any errors.
 
 ```sh
-$ git clone https://github.com/{your-personal-repo}/QGISAnimationWorkshop.git
+$ git clone https://github.com/{your-personal-repo}/QGISAnimationWorkbench.git
 $ ln -s QGISAnimationWorkbench ~.local/share/QGIS/QGIS3/profiles/<profile>/python/plugins
 ```
 
