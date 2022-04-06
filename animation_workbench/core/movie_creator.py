@@ -111,6 +111,7 @@ class MovieCommandGenerator:
             # -y to force overwrite exising file
 
             arguments = [
+                "-hide_banner",
                 "-y",
                 "-framerate",
                 str(self.framerate),
