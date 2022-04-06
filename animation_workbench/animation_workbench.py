@@ -160,8 +160,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
         self.layer_combo.setFilters(
             QgsMapLayerProxyModel.PointLayer
-            | QgsMapLayerProxyModel.LineLayer  # nopep8
-            | QgsMapLayerProxyModel.PolygonLayer  # nopep8
+            | QgsMapLayerProxyModel.LineLayer
+            | QgsMapLayerProxyModel.PolygonLayer
         )
         self.layer_combo.layerChanged.connect(self._layer_changed)
 
@@ -279,7 +279,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     prefer_project_setting=True,
                 )
             )
-            == 0  # nopep8
+            == 0
         ):
             self.pan_easing_widget.disable()
         else:
@@ -299,7 +299,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     prefer_project_setting=True,
                 )
             )
-            == 0  # nopep8
+            == 0
         ):
             self.zoom_easing_widget.disable()
         else:
@@ -474,7 +474,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.total_tasks_lcd.display(self.render_queue.total_queue_size)
         self.remaining_features_lcd.display(
             self.render_queue.total_feature_count
-            - self.render_queue.completed_feature_count  # nopep8
+            - self.render_queue.completed_feature_count
         )
         self.completed_tasks_lcd.display(self.render_queue.total_completed)
         self.completed_features_lcd.display(self.render_queue.completed_feature_count)
