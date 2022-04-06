@@ -46,7 +46,8 @@ class MovieCreatorTest(unittest.TestCase):
 
         commands = generator.as_commands()
         self.assertEqual(commands, [('/usr/bin/ffmpeg',
-                                     ['-y',
+                                     ['-hide_banner',
+                                      '-y',
                                       '-framerate',
                                       '90',
                                       '-pattern_type',
@@ -77,7 +78,8 @@ class MovieCreatorTest(unittest.TestCase):
 
         commands = generator.as_commands()
         self.assertEqual(commands, [('/usr/bin/ffmpeg',
-                                     ['-y',
+                                     ['-hide_banner',
+                                      '-y',
                                       '-framerate',
                                       '90',
                                       '-pattern_type',
