@@ -71,8 +71,8 @@ jobs:
           pip install -r REQUIREMENTS_TESTING.txt
           pip install pylint pycodestyle
 
-      - name: Pylint
-        run: make pylint
+      #- name: Pylint
+      #  run: make pylint
 
-      - name: Pycodestyle
-        run: make pycodestyle
+      #- name: Pycodestyle
+      #  run: make pycodestyle
