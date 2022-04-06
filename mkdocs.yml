@@ -17,7 +17,7 @@ nav:
   - Architecture:
       - Design: architecture/design.md
   - Tutorials:
-      - QGIS: tutorials/qgis/index.md
+      - QGIS: tutorials/index.md
   - Library:
       - Expression Examples: library/snippets.md
 
