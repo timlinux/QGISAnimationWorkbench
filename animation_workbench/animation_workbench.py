@@ -323,9 +323,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "current_frame", "None"
-        )
-        QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), "total_frame_count", "None"
         )
 

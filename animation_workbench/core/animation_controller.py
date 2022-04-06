@@ -635,7 +635,7 @@ class AnimationController(QObject):
         # cartography etc. to see the progress. Here is an example
         # of a QGS expression you can use in the map decoration copyright
         # widget to show current script progress
-        # [%'Frame ' || to_string(coalesce(@current_frame, 0)) || '/' ||
+        # [%'Frame ' || to_string(coalesce(@frame_number, 0)) || '/' ||
         # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
         # to_string(coalesce(@current_feature_id,0)) ||
         # ' with map mode: ' || @current_animation_action %]
