@@ -1,6 +1,8 @@
 {
+    "editor.fontSize": 18,
+    "pyqt-integration.qtdesigner.path": "/usr/bin/designer-qt5",
     "editor.rulers": [
-        80,
+        88,
         120
     ],
     "python.formatting.provider": "black",
