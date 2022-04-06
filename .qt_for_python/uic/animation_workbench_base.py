@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/timlinux/dev/python/QGISAnimationWorkbench/ui/animation_workbench_base.ui'
+# Form implementation generated from reading ui file '/home/timlinux/dev/python/QGISAnimationWorkbench/animation_workbench/ui/animation_workbench_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -428,11 +428,11 @@ class Ui_animation_workbench_base(object):
     def retranslateUi(self, animation_workbench_base):
         _translate = QtCore.QCoreApplication.translate
         animation_workbench_base.setWindowTitle(_translate("animation_workbench_base", "Dialog"))
-        self.zoom_range_group.setToolTip(_translate("animation_workbench_base", "The scale range that the animation should \n"
-"move through. The smallest scale will be \n"
-"the zenith of the animation when it zooms \n"
-"out while travelling between points, and the \n"
-"largest scale will be the scale used when \n"
+        self.zoom_range_group.setToolTip(_translate("animation_workbench_base", "The scale range that the animation should\n"
+"move through. The smallest scale will be\n"
+"the zenith of the animation when it zooms\n"
+"out while travelling between points, and the\n"
+"largest scale will be the scale used when\n"
 "we arrive at each point."))
         self.zoom_range_group.setTitle(_translate("animation_workbench_base", "Zoom Range"))
         self.groupBox_2.setTitle(_translate("animation_workbench_base", "Data Defined Settings"))
@@ -445,19 +445,19 @@ class Ui_animation_workbench_base(object):
         self.hover_frames_label.setText(_translate("animation_workbench_base", "Hover frames at each feature"))
         self.feature_frames_label.setText(_translate("animation_workbench_base", "Frames between feature"))
         self.feature_frames_spin.setToolTip(_translate("animation_workbench_base", "This is the number of frames that will be used during\n"
-" animation of the dwell period at each feature. \n"
-"Video generation is done at 30 frames per \n"
-"second, so a value of 30 here would result in a 1 second \n"
-"dwell time. \n"
+" animation of the dwell period at each feature.\n"
+"Video generation is done at 30 frames per\n"
+"second, so a value of 30 here would result in a 1 second\n"
+"dwell time.\n"
 "Set to zero to disable."))
-        self.hover_frames_spin.setToolTip(_translate("animation_workbench_base", "This is the number of frames that will \n"
-"be used during animation of the motion from \n"
-"one point to the next. Video generation \n"
-"is done at 30 frames per second, so a value \n"
-"of 30 here would result in a 1 second flight time \n"
-"between two consecutive points. \n"
+        self.hover_frames_spin.setToolTip(_translate("animation_workbench_base", "This is the number of frames that will\n"
+"be used during animation of the motion from\n"
+"one point to the next. Video generation\n"
+"is done at 30 frames per second, so a value\n"
+"of 30 here would result in a 1 second flight time\n"
+"between two consecutive points.\n"
 "Set to zero to disable."))
-        self.framerate_spin.setToolTip(_translate("animation_workbench_base", "When writing to video or gif, \n"
+        self.framerate_spin.setToolTip(_translate("animation_workbench_base", "When writing to video or gif,\n"
 "how many frames per second to use."))
         self.framerate_spin.setSuffix(_translate("animation_workbench_base", " fps"))
         self.label.setText(_translate("animation_workbench_base", "Frame rate per second"))
@@ -465,29 +465,29 @@ class Ui_animation_workbench_base(object):
         self.extent_frames_label.setText(_translate("animation_workbench_base", "Frames"))
         self.output_destination_group.setTitle(_translate("animation_workbench_base", "Output Destination"))
         self.movie_file_label.setText(_translate("animation_workbench_base", "File"))
-        self.movie_file_edit.setToolTip(_translate("animation_workbench_base", "The output folder will be populated with \n"
-"all of the frames of the animation, and \n"
+        self.movie_file_edit.setToolTip(_translate("animation_workbench_base", "The output folder will be populated with\n"
+"all of the frames of the animation, and\n"
 "the GIF or MP4 as selected above."))
         self.movie_file_button.setText(_translate("animation_workbench_base", "..."))
         self.label_easings.setText(_translate("animation_workbench_base", "Pan and Zoom Easings"))
-        self.output_options_group.setToolTip(_translate("animation_workbench_base", "Select which output format you would like. \n"
-"Regardless of which you choose, a folder \n"
-"of images will be created, one image per frame. \n"
-"For the GIF export to work, you will \n"
-"need to have the ImageMagick \'convert\'  application \n"
-"available on your system. For the MP4 option to work, \n"
-"you need to have the \'ffmpeg\' application on \n"
+        self.output_options_group.setToolTip(_translate("animation_workbench_base", "Select which output format you would like.\n"
+"Regardless of which you choose, a folder\n"
+"of images will be created, one image per frame.\n"
+"For the GIF export to work, you will\n"
+"need to have the ImageMagick \'convert\'  application\n"
+"available on your system. For the MP4 option to work,\n"
+"you need to have the \'ffmpeg\' application on\n"
 "your system."))
         self.output_options_group.setTitle(_translate("animation_workbench_base", "Output Options"))
-        self.reuse_cache.setToolTip(_translate("animation_workbench_base", "Will not erase cached images on disk \n"
+        self.reuse_cache.setToolTip(_translate("animation_workbench_base", "Will not erase cached images on disk\n"
 "and will resume processing from last cached image."))
         self.reuse_cache.setText(_translate("animation_workbench_base", "Re-use cached images where possible"))
         self.radio_gif.setText(_translate("animation_workbench_base", "Animated GIF"))
         self.rad_movie.setText(_translate("animation_workbench_base", "Movie (MP4)"))
-        self.render_mode_group.setToolTip(_translate("animation_workbench_base", "The render mode determines the behaviour and type of the animation. \n"
-"For \'Sphere\' the coordinate reference system (CRS) will \n"
-"be manipulated to create a spinning globe effect. \n"
-"For \'Plane\', the CRS will not be altered, but will pan and \n"
+        self.render_mode_group.setToolTip(_translate("animation_workbench_base", "The render mode determines the behaviour and type of the animation.\n"
+"For \'Sphere\' the coordinate reference system (CRS) will\n"
+"be manipulated to create a spinning globe effect.\n"
+"For \'Plane\', the CRS will not be altered, but will pan and\n"
 "zoom to each point."))
         self.render_mode_group.setTitle(_translate("animation_workbench_base", "Render Mode"))
         self.radio_sphere.setText(_translate("animation_workbench_base", "Sphere"))
@@ -514,4 +514,4 @@ class Ui_animation_workbench_base(object):
 "</style></head><body style=\" font-family:\'Cantarell\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
 from qgis import gui
-from QGISAnimationWorkbench.easing_preview import EasingPreview
+from animation_workbench.easing_preview import EasingPreview

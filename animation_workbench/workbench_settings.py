@@ -7,12 +7,8 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 
-from qgis.PyQt.QtGui import (
-    QIcon
-)
-from qgis.PyQt.QtWidgets import (
-    QDialog
-)
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QDialog
 from .core import set_setting, setting
 from .utilities import get_ui_class, resources_path
 

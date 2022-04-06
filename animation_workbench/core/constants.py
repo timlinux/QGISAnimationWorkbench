@@ -4,7 +4,7 @@
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 # -----------------------------------------------------------
 # Copyright (C) 2022 Tim Sutton
@@ -18,4 +18,4 @@ __revision__ = '$Format:%H$'
 # ---------------------------------------------------------------------
 
 # Scope in QSettings
-APPLICATION_NAME = 'AnimationWorkbench'
+APPLICATION_NAME = "AnimationWorkbench"

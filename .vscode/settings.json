@@ -1,9 +1,12 @@
 {
-    "editor.rulers": [80,120],
+    "editor.rulers": [
+        80,
+        120
+    ],
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": [
         "--line-length",
-        "80"
+        "88"
     ],
     "python.linting.enabled": true
 }
