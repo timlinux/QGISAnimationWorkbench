@@ -1,11 +1,15 @@
+"""
+Core classes
+"""
+
 from .constants import APPLICATION_NAME
-from .enumerations import MapMode
 from .settings import (
     setting,
     set_setting
 )
 
 from .animation_controller import (
+    MapMode,
     AnimationController,
     InvalidAnimationParametersException
 )

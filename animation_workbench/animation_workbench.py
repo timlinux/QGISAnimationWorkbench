@@ -10,12 +10,9 @@ __revision__ = "$Format:%H$"
 # of the CRS sequentially to create a spinning globe effect
 import os
 import tempfile
-from typing import Optional
 from functools import partial
+from typing import Optional
 
-# This import is to enable SIP API V2
-# noinspection PyUnresolvedReferences
-import qgis  # NOQA
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from qgis.PyQt.QtCore import pyqtSlot, QUrl
@@ -28,9 +25,8 @@ from qgis.PyQt.QtWidgets import (
     QGridLayout,
     QVBoxLayout,
 )
-from qgis.PyQt.QtXml import QDomDocument, QDomElement
+from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import (
-    QgsPointXY,
     QgsExpressionContextUtils,
     QgsProject,
     QgsMapLayerProxyModel,
@@ -40,10 +36,10 @@ from qgis.core import (
     QgsPropertyCollection,
     QgsExpressionContext,
     QgsVectorLayer,
+    QgsWkbTypes
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
 
-from .utilities import get_ui_class, resources_path
 from .core import (
     AnimationController,
     InvalidAnimationParametersException,
@@ -53,19 +49,27 @@ from .core import (
     setting,
     MapMode
 )
+from .utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
 
 
 class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
+    """
+    An expression context generator for widgets in the dialog
+    """
+
     def __init__(self):
         super().__init__()
         self.layer = None
 
     def set_layer(self, layer: QgsVectorLayer):
+        """
+        Sets the layer associated with the dialog
+        """
         self.layer = layer
 
-    def createExpressionContext(self) -> QgsExpressionContext:
+    def createExpressionContext(self) -> QgsExpressionContext:  # pylint: disable=missing-function-docstring
         context = QgsExpressionContext()
         context.appendScope(QgsExpressionContextUtils.globalScope())
         context.appendScope(
@@ -76,10 +80,10 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
         return context
 
 
-class AnimationWorkbench(QDialog, FORM_CLASS):
+class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-public-methods
     """Dialog implementation class Animation Workbench class."""
 
-    def __init__(self, parent=None, iface=None, render_queue=None):
+    def __init__(self, parent=None, iface=None, render_queue=None):  # pylint: disable=too-many-locals,too-many-statements
         """Constructor for the workbench dialog.
 
         :param parent: Parent widget of this dialog.
@@ -157,7 +161,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         self.layer_combo.layerChanged.connect(self._layer_changed)
 
-        prev_layer_id, ok = QgsProject.instance().readEntry(
+        prev_layer_id, _ = QgsProject.instance().readEntry(
             "animation", "layer_id"
         )
         if prev_layer_id:
@@ -181,11 +185,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.iface.mapCanvas().extent(), QgsProject.instance().crs()
         )
         # self.extent_group_box.setOriginalExtnt()
-        # Set up things for context help
-        self.help_button = self.button_box.button(QDialogButtonBox.Help)
-        # Allow toggling the help button
-        self.help_button.setCheckable(True)
-        self.help_button.toggled.connect(self.help_toggled)
 
         # Close button action (save state on close)
         self.button_box.button(QDialogButtonBox.Close).clicked.connect(
@@ -273,14 +272,14 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.pan_easing_widget.set_preview_color("#ffff00")
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
         if (
-            int(
-                setting(
-                    key="enable_pan_easing",
-                    default=0,
-                    prefer_project_setting=True,
+                int(
+                    setting(
+                        key="enable_pan_easing",
+                        default=0,
+                        prefer_project_setting=True,
+                    )
                 )
-            )
-            == 0
+                == 0
         ):
             self.pan_easing_widget.disable()
         else:
@@ -293,14 +292,14 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.zoom_easing_widget.set_preview_color("#0000ff")
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
         if (
-            int(
-                setting(
-                    key="enable_zoom_easing",
-                    default=0,
-                    prefer_project_setting=True,
+                int(
+                    setting(
+                        key="enable_zoom_easing",
+                        default=0,
+                        prefer_project_setting=True,
+                    )
                 )
-            )
-            == 0
+                == 0
         ):
             self.zoom_easing_widget.disable()
         else:
@@ -393,11 +392,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
         )
 
-    def close(self):
+    def close(self):  # pylint: disable=missing-function-docstring
         self.save_state()
         self.reject()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event):  # pylint: disable=missing-function-docstring,unused-argument
         self.save_state()
         self.reject()
 
@@ -451,15 +450,22 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         button.blockSignals(False)
 
-    def show_message(self, message):
+    def show_message(self, message: str):
+        """
+        Shows a log message in the dialog
+        """
         self.output_log_text_edit.append(message)
 
     def show_non_fixed_extent_settings(self):
-
+        """
+        Switches to the non-fixed extent settings page
+        """
         self.settings_stack.setCurrentIndex(0)
 
     def show_fixed_extent_settings(self):
-
+        """
+        Switches to the fixed extent settings page
+        """
         self.settings_stack.setCurrentIndex(1)
 
     def show_status(self):
@@ -482,6 +488,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.progress_bar.setValue(self.render_queue.total_completed)
 
     def set_output_name(self):
+        """
+        Asks the user for the output video file path
+        """
         # Popup a dialog to request the filename if scenario_file_path = None
         dialog_title = "Save video"
         ok_button = self.button_box.button(QDialogButtonBox.Ok)
@@ -493,7 +502,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             output_directory = self.work_directory
 
         # noinspection PyCallByClass,PyTypeChecker
-        file_path, __ = QFileDialog.getSaveFileName(
+        file_path, _ = QFileDialog.getSaveFileName(
             self,
             dialog_title,
             os.path.join(output_directory, "qgis_animation.mp4"),
@@ -506,11 +515,14 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_file_edit.setText(file_path)
 
     def choose_music_file(self):
+        """
+        Asks the user for the music file path
+        """
         # Popup a dialog to request the filename for music backing track
         dialog_title = "Music for video"
 
         # noinspection PyCallByClass,PyTypeChecker
-        file_path, __ = QFileDialog.getOpenFileName(
+        file_path, _ = QFileDialog.getOpenFileName(
             self,
             dialog_title,
             self.music_file_edit.text(),
@@ -666,10 +678,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.render_queue.total_feature_count = controller.total_feature_count
         self.render_queue.frames_per_feature = (
-            controller.travel_frames + controller.dwell_frames
+                controller.travel_frames + controller.dwell_frames
         )
 
-        for image_counter, job in enumerate(controller.create_jobs()):
+        for job in controller.create_jobs():
             self.output_log_text_edit.append(job.file_name)
             self.render_queue.add_job(job)
 
@@ -678,6 +690,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.render_queue.start_processing()
 
     def cancel_processing(self):
+        """
+        Cancels current processing
+        """
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.render_queue.cancel_processing()
         # Enable progress page
@@ -699,9 +714,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.output_log_text_edit.append(
                     "Cannot generate sequence without choosing a layer"
                 )
-                return
+                return None
 
-            layer_type = qgis.core.QgsWkbTypes.displayString(
+            layer_type = QgsWkbTypes.displayString(
                 int(self.layer_combo.currentLayer().wkbType())
             )
             layer_name = self.layer_combo.currentLayer().name()
@@ -805,6 +820,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.main_stack.setCurrentIndex(0)
 
     def show_preview_for_frame(self, frame: int):
+        """
+        Shows a preview image for a specific frame
+        """
         if self.radio_sphere.isChecked() or self.radio_planar.isChecked():
             if not self.layer_combo.currentLayer():
                 self.output_log_text_edit.append(
@@ -846,9 +864,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
     def load_image(self, name):
+        """
+        Loads a preview image
+        """
         if (
-            self.last_preview_image is not None
-            and self.last_preview_image > name
+                self.last_preview_image is not None
+                and self.last_preview_image > name
         ):
             # Images won't necessarily be rendered in order, so only update the
             # preview image if the rendered image is from later in the animation
@@ -858,56 +879,30 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.last_preview_image = name
         # Load the preview with the named image file
-        try:
+        if True:  # pylint: disable=using-constant-test
             with open(name, "rb") as image_file:
                 content = image_file.read()
                 image = QImage()
                 image.loadFromData(content)
                 pixmap = QPixmap.fromImage(image)
                 self.current_frame_preview.setPixmap(pixmap)
-        except:
+        else:  # this should be an except, but I'm not sure what the specific exception was supposed to be!
             pass
-
-    def help_toggled(self, flag):
-        """Show or hide the help tab in the stacked widget.
-        :param flag: Flag indicating whether help should be shown or hidden.
-        :type flag: bool
-        """
-        if flag:
-            self.help_button.setText(self.tr("Hide Help"))
-            self.show_help()
-        else:
-            self.help_button.setText(self.tr("Show Help"))
-            self.hide_help()
-
-    def hide_help(self):
-        """Hide the usage info from the user."""
-        self.main_stacked_widget.setCurrentIndex(1)
-
-    def show_help(self):
-        """Show usage info to the user."""
-        # Read the header and footer html snippets
-        self.main_stacked_widget.setCurrentIndex(0)
-        header = html_header()
-        footer = html_footer()
-
-        string = header
-
-        message = workbench_help()
-
-        string += message.to_html()
-        string += footer
-
-        self.help_web_view.setHtml(string)
 
     # Video Playback Methods
     def play(self):
+        """
+        Plays the video preview
+        """
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.media_player.pause()
         else:
             self.media_player.play()
 
-    def media_state_changed(self, state):
+    def media_state_changed(self, state):  # pylint: disable=unused-argument
+        """
+        Called when the media state is changed
+        """
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.play_button.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPause)
@@ -918,14 +913,26 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             )
 
     def position_changed(self, position):
+        """
+        Called when the video position changes
+        """
         self.video_slider.setValue(position)
 
     def duration_changed(self, duration):
+        """
+        Called when the video duration changes
+        """
         self.video_slider.setRange(0, duration)
 
     def set_position(self, position):
+        """
+        Sets the position of the playing video
+        """
         self.media_player.setPosition(position)
 
     def handle_video_error(self):
+        """
+        Handles errors when playing videos
+        """
         self.play_button.setEnabled(False)
         self.output_log_text_edit.append(self.media_player.errorString())

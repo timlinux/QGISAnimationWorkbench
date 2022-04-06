@@ -12,9 +12,6 @@ import tempfile
 from enum import Enum
 from typing import List, Optional
 
-# This import is to enable SIP API V2
-# noinspection PyUnresolvedReferences
-import qgis  # NOQA
 from qgis.PyQt.QtCore import pyqtSignal, QProcess
 from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
 
@@ -22,11 +19,17 @@ from .utilities import CoreUtils
 
 
 class MovieFormat(Enum):
+    """
+    Movie formats
+    """
     GIF = 0
     MP4 = 1
 
 
 class MovieCreationTask(QgsTask):
+    """
+    A background task for exporting movies
+    """
     FORMAT_GIF = "FORMAT_GIF"
 
     message = pyqtSignal(str)
@@ -53,9 +56,11 @@ class MovieCreationTask(QgsTask):
         self.feedback: Optional[QgsFeedback] = None
 
     def run_process(self, command: str, arguments: List[str]):
-
+        """
+        Runs a process in a blocking way, reporting the stdout output to the user
+        """
         self.message.emit(
-            f"Generating Movie: " + command + " " + " ".join(arguments)
+            "Generating Movie: {} {}".format(command, " ".join(arguments))
         )
 
         def on_stdout(ba):
@@ -101,7 +106,7 @@ class MovieCreationTask(QgsTask):
             self.message.emit("Process completed successfully")
         elif proc.processError() == QProcess.FailedToStart:
             self.message.emit(
-                "Process {} failed to start. Either {} is missing, or you may have insufficient permissions to run the program.".format(command, command)
+                f"Process {command} failed to start. Either {command} is missing, or you may have insufficient permissions to run the program."
             )
         else:
             self.message.emit("Process returned error code {}".format(res))
@@ -179,7 +184,7 @@ class MovieCreationTask(QgsTask):
 
             arguments = [
                 "-y",
-                f"-framerate",
+                "-framerate",
                 str(self.framerate),
                 "-pattern_type",
                 "glob",
@@ -221,7 +226,7 @@ class MovieCreationTask(QgsTask):
                 # video blanking that doing it in one pass does.
 
                 if self.music_file:
-                    self.message.emit(f"Adding sound track to video container")
+                    self.message.emit("Adding sound track to video container")
 
                     arguments = [
                         "-y",
@@ -251,7 +256,7 @@ class MovieCreationTask(QgsTask):
         self.feedback = None
         return True
 
-    def cancel(self):
+    def cancel(self):  # pylint: disable=missing-function-docstring
         if self.feedback is not None:
             self.feedback.cancel()
 

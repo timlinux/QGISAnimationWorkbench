@@ -6,11 +6,6 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-# This import is to enable SIP API V2
-# noinspection PyUnresolvedReferences
-import qgis  # NOQA
-
-from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtWidgets import QWidget
 from qgis.PyQt.QtCore import (
     QEasingCurve,
@@ -24,10 +19,12 @@ FORM_CLASS = get_ui_class("easing_preview_base.ui")
 
 
 class EasingPreview(QWidget, FORM_CLASS):
+    """
+    A widget for setting an easing mode
+    """
+
     # Signal emitted when the easing is changed
     easing_changed_signal = pyqtSignal(QEasingCurve)
-
-    """Widget implementation for the easing preview class."""
 
     def __init__(self, color="#ff0000", parent=None):
         """Constructor for easing preview.
@@ -40,6 +37,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         """
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.easing = None
         self.easing_preview_animation = None
         self.preview_color = color
         self.load_combo_with_easings()
@@ -48,48 +46,75 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.enable_easing.toggled.connect(self.checkbox_changed)
 
     def checkbox_changed(self, new_state):
+        """
+        Called when the enabled checkbox is toggled
+        """
         if new_state:
             self.enable()
         else:
             self.disable()
 
     def disable(self):
+        """
+        Disables the widget
+        """
         self.enable_easing.setChecked(False)
         self.easing_preview_animation.stop()
 
     def enable(self):
+        """
+        Enables the widget
+        """
         self.enable_easing.setChecked(True)
         self.easing_preview_animation.start()
 
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
+        """
+        Returns True if the easing is enabled
+        """
         return self.enable_easing.isChecked()
 
-    def set_easing_by_name(self, name):
+    def set_easing_by_name(self, name: str):
+        """
+        Sets an easing mode to show in the widget by name
+        """
         combo = self.easing_combo
         index = combo.findText(name)
         if index != -1:
             combo.setCurrentIndex(index)
 
-    def easing_name(self):
+    def easing_name(self) -> str:
+        """
+        Returns the currently selected easing name
+        """
         return self.easing_combo.currentText()
 
     def get_easing(self):
+        """
+        Returns the currently selected easing type
+        """
         easing_type = QEasingCurve.Type(self.easing_combo.currentIndex())
         return QEasingCurve(easing_type)
 
-    def preview_color(self):
-        return self.preview_color
-
-    def set_preview_color(self, color):
+    def set_preview_color(self, color: str):
+        """
+        Sets the widget's preview color
+        """
         self.preview_color = color
         self.easing_preview_icon.setStyleSheet(
             "background-color:%s;border-radius:5px;" % self.preview_color
         )
 
-    def set_checkbox_label(self, label):
+    def set_checkbox_label(self, label: str):
+        """
+        Sets the label for the widget
+        """
         self.enable_easing.setText(label)
 
     def load_combo_with_easings(self):
+        """
+        Populates the combobox with available easing modes
+        """
         # Perhaps we can softcode these items using the logic here
         # https://github.com/baoboa/pyqt5/blob/master/examples/
         # animation/easing/easing.py#L159
@@ -139,8 +164,10 @@ class EasingPreview(QWidget, FORM_CLASS):
         combo.addItem("TCBSpline", QEasingCurve.TCBSpline)
 
     def setup_easing_previews(self):
-        # Set up easing previews
-        self.easing_preview_icon = QtWidgets.QWidget(self.easing_preview)
+        """
+        Set up easing previews
+        """
+        self.easing_preview_icon = QWidget(self.easing_preview)
         height = self.easing_preview.height()
         width = self.easing_preview.width()
         self.preview_color = "red"

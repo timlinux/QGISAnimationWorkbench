@@ -19,10 +19,7 @@ __revision__ = '$Format:%H$'
 # ---------------------------------------------------------------------
 
 import time
-
-# DO NOT REMOVE THIS - it forces sip2
-# noinspection PyUnresolvedReferences
-import qgis  # pylint: disable=unused-import
+from typing import Optional
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
@@ -36,15 +33,23 @@ from .core import (
     setting
 )
 
-def classFactory(iface):
+def classFactory(iface):  # pylint: disable=missing-function-docstring
     return AnimationWorkbenchPlugin(iface)
 
 
 class AnimationWorkbenchPlugin:
+    """
+    Animation workbench plugin interface
+    """
     def __init__(self, iface):
         self.iface = iface
 
-    def initGui(self):
+        self.render_queue: Optional[RenderQueue] = None
+        self.run_action: Optional[QAction] = None
+        self.settings_action: Optional[QAction] = None
+        self.debug_action: Optional[QAction] = None
+
+    def initGui(self):  # pylint: disable=missing-function-docstring
 
         self.render_queue = RenderQueue()
         icon = QIcon(resources_path(
@@ -77,27 +82,33 @@ class AnimationWorkbenchPlugin:
             self.iface.addToolBarIcon(self.debug_action)
 
     def debug(self):
+        """
+        Enters debug mode
+        """
         self.display_information_message_box(
             title='Animation Workbench',
             message='Close this dialog then open VSCode and start your debug client.')
         time.sleep(2)
-        import multiprocessing
+        import multiprocessing  # pylint: disable=import-outside-toplevel
         if multiprocessing.current_process().pid > 1:
 
-            import debugpy
+            import debugpy  # pylint: disable=import-outside-toplevel
             debugpy.listen(("0.0.0.0", 9000))
             debugpy.wait_for_client()
             self.display_information_message_bar(
                 title='Animation Workbench',
                 message='Visual Studio Code debugger is now attached on port 9000')
 
-    def unload(self):
+    def unload(self):  # pylint: disable=missing-function-docstring
         self.iface.removeToolBarIcon(self.run_action)
         self.iface.removeToolBarIcon(self.settings_action)
         del self.run_action
         del self.settings_action
 
     def run(self):
+        """
+        Shows the workbench dialog
+        """
         dialog = AnimationWorkbench(
             parent=self.iface.mainWindow(),
             iface=self.iface,
@@ -106,6 +117,9 @@ class AnimationWorkbenchPlugin:
         dialog.show()
 
     def settings(self):
+        """
+        Shows the settings dialog
+        """
         dialog = WorkbenchSettings()
         dialog.exec_()
 
