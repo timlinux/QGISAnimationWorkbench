@@ -226,7 +226,7 @@ def export_setting(file_path, qsettings=None):
             return ""
         raise TypeError
 
-    with open(file_path, "w") as json_file:
+    with open(file_path, "w", encoding='utf8') as json_file:
         json.dump(settings, json_file, indent=2, default=custom_default)
 
     return settings
@@ -245,7 +245,7 @@ def import_setting(file_path, qsettings=None):
     :returns: A dictionary of the imported settings.
     :rtype: dict
     """
-    with open(file_path, "r") as f:
+    with open(file_path, "r", encoding='utf8') as f:
         settings = json.load(f)
 
     if not qsettings:
