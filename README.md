@@ -71,6 +71,10 @@ And here is the resulting video:
 
 https://youtu.be/1quc3xPdJsU 
 
+## 📚 Documentation
+
+You can find documentation for this plugin on our [GitHub Pages Site](https://timlinux.github.io/QGISAnimationWorkbench/) and the source for this documentations is managed in the [docs](docs) folder.
+
 ## 🐾 Examples
 
 Let's show you some examples!
@@ -100,7 +104,7 @@ QGIS Developers:
 https://user-images.githubusercontent.com/178003/156931066-87ce89e4-f8d7-46d9-9d30-aeba097f6d98.mp4
 
 
-## QGIS Expression Variables
+## 🧮 QGIS Expression Variables
 
 The animation workbench exposes or modifies a number of different QGIS Expression variables that you can use to achieve different dynamic rendering effects.
 
