@@ -13,7 +13,10 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Deploy docs
-        uses: timlinux/QGISAnimationWorkbench@main
+        # This is where we get the material theme from
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        # Wront
+        #uses: timlinux/QGISAnimationWorkbench@main
         env:
           # Read this carefully:
           # https://github.com/marketplace/actions/deploy-mkdocs#building-with-github_token
