@@ -11,9 +11,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional, Iterator
 
-# This import is to enable SIP API V2
-# noinspection PyUnresolvedReferences
-import qgis  # NOQA
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QEasingCurve
 from qgis.core import (
     QgsPointXY,
@@ -38,6 +35,9 @@ from .render_queue import RenderJob
 
 
 class MapMode(Enum):
+    """
+    Map animation modes
+    """
     SPHERE = 1  # CRS will be manipulated to create a spinning globe effect
     PLANAR = 2  # CRS will not be altered, extents will as we pan and zoom
     FIXED_EXTENT = 3  # EASING and ZOOM disabled, extent stays in place
@@ -50,6 +50,9 @@ class InvalidAnimationParametersException(Exception):
 
 
 class AnimationController(QObject):
+    """
+    Creates animation frames
+    """
     normal_message = pyqtSignal(str)
     verbose_message = pyqtSignal(str)
 
@@ -73,6 +76,9 @@ class AnimationController(QObject):
         total_frames: int,
         frame_rate: float,
     ) -> "AnimationController":
+        """
+        Creates an animation controller for a fixed extent animation
+        """
         transformed_output_extent = QgsRectangle(output_extent)
         if output_extent.crs() != map_settings.destinationCrs():
             ct = QgsCoordinateTransform(
@@ -110,6 +116,9 @@ class AnimationController(QObject):
         zoom_easing: Optional[QEasingCurve],
         frame_rate: float,
     ) -> "AnimationController":
+        """
+        Creates an animation controller for a moving extent animation
+        """
 
         if not feature_layer:
             raise InvalidAnimationParametersException("No animation layer set")
@@ -190,6 +199,9 @@ class AnimationController(QObject):
         return job
 
     def create_jobs(self) -> Iterator[RenderJob]:
+        """
+        Yields render jobs for each animation frame
+        """
         if self.map_mode == MapMode.FIXED_EXTENT:
             if self.feature_layer:
                 self.layer_to_map_transform = QgsCoordinateTransform(
@@ -213,6 +225,9 @@ class AnimationController(QObject):
                 yield job
 
     def create_fixed_extent_job(self) -> Iterator[RenderJob]:
+        """
+        Yields render jobs for fixed extent animations
+        """
         # If the feature_layer is set we split the job
         # across the number of features and the frame
         # count so that we can set the current feature id
@@ -275,6 +290,9 @@ class AnimationController(QObject):
                 self.previous_feature = feature
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
+        """
+        Yields render jobs for moving extent animations
+        """
         self._evaluated_min_scale = self.min_scale
 
         self.set_to_scale(self.min_scale)
@@ -329,6 +347,9 @@ class AnimationController(QObject):
                 yield job
 
     def set_extent_center(self, center_x: float, center_y: float):
+        """
+        Sets the animation to a specific map center coordinate
+        """
         prev_extent = self.map_settings.visibleExtent()
         x_min = center_x - prev_extent.width() / 2
         y_min = center_y - prev_extent.height() / 2
@@ -341,12 +362,18 @@ class AnimationController(QObject):
         self.map_settings.setExtent(new_extent)
 
     def set_to_scale(self, scale: float):
+        """
+        Sets the animation to a specific scale
+        """
         scale_factor = scale / self.map_settings.scale()
         r = self.map_settings.extent()
         r.scale(scale_factor)
         self.map_settings.setExtent(r)
 
     def zoom_to_full_extent(self):
+        """
+        Zoom to the full extent of layers in map settings
+        """
         full_extent = QgsMapLayerUtils.combinedExtent(
             self.map_settings.layers(),
             self.map_settings.destinationCrs(),
@@ -358,6 +385,9 @@ class AnimationController(QObject):
             self.map_settings.setExtent(full_extent)
 
     def geometry_to_pointxy(self, feature: QgsFeature) -> Optional[QgsPointXY]:
+        """
+        Converts a feature's geometry to a single point
+        """
         geom = feature.geometry()
 
         # use simplified type, so that we don't have to care
@@ -441,9 +471,13 @@ class AnimationController(QObject):
 
             self.current_frame += 1
 
-    def fly_feature_to_feature(
+    def fly_feature_to_feature(  # pylint: disable=too-many-locals,too-many-branches
         self, start_feature: QgsFeature, end_feature: QgsFeature
     ) -> Iterator[RenderJob]:
+        """
+        Yields render jobs for an animation between two features
+        """
+
         # In case we are iterating over lines or polygons, we
         # need to convert them to points first.
         start_point = self.geometry_to_pointxy(start_feature)
@@ -565,7 +599,10 @@ class AnimationController(QObject):
         current_feature_id: Optional[int],
         current_frame_for_feature: Optional[int] = None,
         action: str = "None",
-    ):
+    ) -> RenderJob:
+        """
+        Creates a render job for the given map settings
+        """
 
         settings = QgsMapSettings(map_settings)
 

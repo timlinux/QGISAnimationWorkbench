@@ -7,12 +7,12 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 
-# This import is to enable SIP API V2
-# noinspection PyUnresolvedReferences
-import qgis  # NOQA
-
-from qgis.PyQt import QtGui, QtWidgets
-
+from qgis.PyQt.QtGui import (
+    QIcon
+)
+from qgis.PyQt.QtWidgets import (
+    QDialog
+)
 from .core import set_setting, setting
 from .utilities import get_ui_class, resources_path
 
@@ -20,7 +20,7 @@ from .utilities import get_ui_class, resources_path
 FORM_CLASS = get_ui_class("workbench_settings_base.ui")
 
 
-class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
+class WorkbenchSettings(QDialog, FORM_CLASS):
     """Dialog implementation class Animation Workbench class."""
 
     def __init__(self, parent=None):
@@ -30,11 +30,11 @@ class WorkbenchSettings(QtWidgets.QDialog, FORM_CLASS):
         :type parent: QWidget
 
         """
-        QtWidgets.QDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle(self.tr("Animation Workbench"))
         icon = resources_path("img", "icons", "animation-workbench.svg")
-        self.setWindowIcon(QtGui.QIcon(icon))
+        self.setWindowIcon(QIcon(icon))
         self.parent = parent
 
         # Close button action

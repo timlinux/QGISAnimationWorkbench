@@ -40,11 +40,17 @@ from .settings import setting
 
 
 class RenderJob:
+    """
+    Encapsulates the settings required for rendering a single animation frame
+    """
     def __init__(self, file_name: str, map_settings: QgsMapSettings):
         self.file_name: str = file_name
         self.map_settings: QgsMapSettings = map_settings
 
     def render_to_image(self) -> QImage:
+        """
+        Renders the frame to an image
+        """
         render_job = QgsMapRendererParallelJob(self.map_settings)
         render_job.start()
         render_job.waitForFinished()
@@ -56,6 +62,10 @@ class RenderJob:
         decorations: Optional[List] = None,
         hidden: bool = False,
     ) -> QgsMapRendererTask:
+        """
+        Creates a map renderer task for the frame
+        """
+
         # Set the output file name for the render task
 
         if Qgis.QGIS_VERSION_INT >= 32500 and hidden:
@@ -82,20 +92,34 @@ class RenderJob:
 
 
 class RenderQueueFeedback(QgsFeedback):
+    """
+    Feedback subclass for render queue, automatically handles calculation of overall render export progress
+    """
     def __init__(self, steps: int):
         super().__init__()
         self.steps = steps
         self.current_step = 0
 
     def set_current_step(self, step: int):
+        """
+        Sets the current step of the export
+        """
         self.current_step = step
         self.setProgress(100 * self.current_step / self.steps)
 
     def set_remaining_steps(self, remaining: int):
+        """
+        Sets the number of remaining steps in the export
+        """
         self.set_current_step(self.steps - remaining)
 
 
 class RenderQueue(QObject):
+    """
+    A queue of render jobs. Handles submission of the jobs as background tasks using a pool of available
+    threads.
+    """
+
     # Signals
     status_changed = pyqtSignal()
     processing_completed = pyqtSignal(bool)
@@ -135,9 +159,15 @@ class RenderQueue(QObject):
         self.frames_per_feature = 0
 
     def active_queue_size(self) -> int:
+        """
+        Returns the number of currently active tasks
+        """
         return len(self.active_tasks)
 
     def reset(self):
+        """
+        Resets the queue
+        """
         self.job_queue.clear()
         self.active_tasks.clear()
         self.proxy_task = None
@@ -155,6 +185,9 @@ class RenderQueue(QObject):
         self.update_status()
 
     def cancel_processing(self):
+        """
+        Cancels any in-progress operation
+        """
         self.job_queue.clear()
         self.total_queue_size = 0
         self.total_completed = 0
@@ -173,15 +206,22 @@ class RenderQueue(QObject):
         self.frames_per_feature = 0
         self.annotations_list = []
         self.decorations = []
-        self.status_message.emit(f"Cancelling...")
+        self.status_message.emit("Cancelling...")
 
     def update_status(self):
+        """
+        Called whenever the status of the queue has changed and listeners should be notified accordingly
+        """
+
         # make sure internal counters are consistent
         # then emit a signal to let watchers know the counts
         # have been updated
         self.status_changed.emit()
 
     def start_processing(self):
+        """
+        Starts processing the queue
+        """
         if Qgis.QGIS_VERSION_INT >= 32500:
             self.proxy_task = QgsProxyProgressTask("Exporting frames", True)
             self.proxy_task.canceled.connect(self.cancel_processing)
@@ -245,10 +285,16 @@ class RenderQueue(QObject):
         self.update_status()
 
     def task_completed(self, file_name: str):
+        """
+        Called whenever an active task is SUCCESSFULLY completed
+        """
         self.image_rendered.emit(file_name)
         self.finalize_task(file_name)
 
     def finalize_task(self, file_name: str):
+        """
+        Finalizes a task -- called for both successful and non-successful tasks
+        """
         del self.active_tasks[file_name]
         self.total_completed += 1
 
@@ -261,11 +307,20 @@ class RenderQueue(QObject):
         self.process_queue()
 
     def set_annotations(self, annotations):
+        """
+        Sets a list of annotations to include in the exported frames
+        """
         self.annotations_list = [a.clone() for a in annotations]
 
     def set_decorations(self, decorations):
+        """
+        Sets a list of decorations to include in the exported frames
+        """
         self.decorations = decorations
 
     def add_job(self, job: RenderJob):
+        """
+        Adds a job to the queue
+        """
         self.job_queue.append(job)
         self.total_queue_size += 1
