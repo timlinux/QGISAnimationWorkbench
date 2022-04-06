@@ -652,9 +652,6 @@ class AnimationController(QObject):
             task_scope.setVariable("frame_number", self.current_frame)
             task_scope.setVariable("frame_rate", self.frame_rate)
 
-        # deprecated variable, kept temporarily for compatibility with older projects only
-        task_scope.setVariable("current_frame", self.current_frame)
-
         task_scope.setVariable("total_frame_count", self.total_frame_count)
 
         context.appendScope(task_scope)
