@@ -122,7 +122,8 @@ class AnimationController(QObject):
         controller = AnimationController(mode, map_settings)
         controller.set_layer(feature_layer)
 
-        controller.total_frame_count = controller.total_feature_count * dwell_frames + (controller.total_feature_count-1) * travel_frames
+        controller.total_frame_count = controller.total_feature_count * dwell_frames + (
+                    controller.total_feature_count - 1) * travel_frames
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
 
