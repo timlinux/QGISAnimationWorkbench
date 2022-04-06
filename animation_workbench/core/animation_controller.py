@@ -178,6 +178,9 @@ class AnimationController(QObject):
         self.flying_up = False
 
     def set_layer(self, layer: QgsVectorLayer):
+        """
+        Sets the layer driving the animation
+        """
         self.feature_layer = layer
         self.total_feature_count = layer.featureCount()
         self.base_expression_context.appendScope(layer.createExpressionContextScope())
@@ -462,7 +465,7 @@ class AnimationController(QObject):
 
             self.current_frame += 1
 
-    def fly_feature_to_feature(  # pylint: disable=too-many-locals,too-many-branches
+    def fly_feature_to_feature(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
             self, start_feature: QgsFeature, end_feature: QgsFeature
     ) -> Iterator[RenderJob]:
         """
