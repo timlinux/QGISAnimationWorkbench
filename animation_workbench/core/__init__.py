@@ -16,6 +16,7 @@ from .animation_controller import (
 from .default_settings import default_settings
 from .movie_creator import (
     MovieFormat,
+    MovieCommandGenerator,
     MovieCreationTask
 )
 from .render_queue import (
