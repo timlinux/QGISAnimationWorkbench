@@ -23,15 +23,17 @@ from typing import Optional
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis
 from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
+from qgis.core import Qgis
+
 from .animation_workbench import AnimationWorkbench
-from .workbench_settings import WorkbenchSettings
-from .utilities import resources_path
 from .core import (
     RenderQueue,
     setting
 )
+from .utilities import resources_path
+from .workbench_settings import WorkbenchSettings
+
 
 def classFactory(iface):  # pylint: disable=missing-function-docstring
     return AnimationWorkbenchPlugin(iface)
@@ -41,6 +43,7 @@ class AnimationWorkbenchPlugin:
     """
     Animation workbench plugin interface
     """
+
     def __init__(self, iface):
         self.iface = iface
 
@@ -91,7 +94,6 @@ class AnimationWorkbenchPlugin:
         time.sleep(2)
         import multiprocessing  # pylint: disable=import-outside-toplevel
         if multiprocessing.current_process().pid > 1:
-
             import debugpy  # pylint: disable=import-outside-toplevel
             debugpy.listen(("0.0.0.0", 9000))
             debugpy.wait_for_client()

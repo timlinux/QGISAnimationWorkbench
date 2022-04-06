@@ -70,11 +70,11 @@ class AnimationController(QObject):
 
     @staticmethod
     def create_fixed_extent_controller(
-        map_settings: QgsMapSettings,
-        feature_layer: QgsVectorLayer,
-        output_extent: QgsReferencedRectangle,
-        total_frames: int,
-        frame_rate: float,
+            map_settings: QgsMapSettings,
+            feature_layer: QgsVectorLayer,
+            output_extent: QgsReferencedRectangle,
+            total_frames: int,
+            frame_rate: float,
     ) -> "AnimationController":
         """
         Creates an animation controller for a fixed extent animation
@@ -105,16 +105,16 @@ class AnimationController(QObject):
 
     @staticmethod
     def create_moving_extent_controller(
-        map_settings: QgsMapSettings,
-        mode: MapMode,
-        feature_layer: QgsVectorLayer,
-        travel_frames: int,
-        dwell_frames: int,
-        min_scale: float,
-        max_scale: float,
-        pan_easing: Optional[QEasingCurve],
-        zoom_easing: Optional[QEasingCurve],
-        frame_rate: float,
+            map_settings: QgsMapSettings,
+            mode: MapMode,
+            feature_layer: QgsVectorLayer,
+            travel_frames: int,
+            dwell_frames: int,
+            min_scale: float,
+            max_scale: float,
+            pan_easing: Optional[QEasingCurve],
+            zoom_easing: Optional[QEasingCurve],
+            frame_rate: float,
     ) -> "AnimationController":
         """
         Creates an animation controller for a moving extent animation
@@ -133,7 +133,7 @@ class AnimationController(QObject):
 
         # Subtract one because we already start at the first feature
         controller.total_frame_count = (controller.total_feature_count - 1) * (
-            dwell_frames + travel_frames
+                dwell_frames + travel_frames
         )
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
@@ -262,8 +262,7 @@ class AnimationController(QObject):
                     name = self.working_directory / "{}-{}.png".format(
                         self.frame_filename_prefix,
                         str(
-                            self.current_frame
-                            + (self.total_frame_count * self.feature_counter)
+                            self.current_frame + (self.total_frame_count * self.feature_counter)
                         ).rjust(10, "0"),
                     )
                     context = QgsExpressionContext(self.expression_context)
@@ -338,7 +337,7 @@ class AnimationController(QObject):
 
             if self.previous_feature is not None:
                 for job in self.fly_feature_to_feature(
-                    self.previous_feature, feature
+                        self.previous_feature, feature
                 ):
                     yield job
 
@@ -472,7 +471,7 @@ class AnimationController(QObject):
             self.current_frame += 1
 
     def fly_feature_to_feature(  # pylint: disable=too-many-locals,too-many-branches
-        self, start_feature: QgsFeature, end_feature: QgsFeature
+            self, start_feature: QgsFeature, end_feature: QgsFeature
     ) -> Iterator[RenderJob]:
         """
         Yields render jobs for an animation between two features
@@ -549,8 +548,8 @@ class AnimationController(QObject):
 
                 zoom_factor = self.zoom_easing.valueForProgress(zoom_factor)
                 scale = (
-                    self._evaluated_min_scale - self._evaluated_max_scale
-                ) * zoom_factor + self._evaluated_max_scale
+                                self._evaluated_min_scale - self._evaluated_max_scale
+                        ) * zoom_factor + self._evaluated_max_scale
                 self.set_to_scale(scale)
 
             # Change CRS if needed
@@ -593,12 +592,12 @@ class AnimationController(QObject):
             self.current_frame += 1
 
     def create_job(
-        self,
-        map_settings: QgsMapSettings,
-        name: str,
-        current_feature_id: Optional[int],
-        current_frame_for_feature: Optional[int] = None,
-        action: str = "None",
+            self,
+            map_settings: QgsMapSettings,
+            name: str,
+            current_feature_id: Optional[int],
+            current_frame_for_feature: Optional[int] = None,
+            action: str = "None",
     ) -> RenderJob:
         """
         Creates a render job for the given map settings

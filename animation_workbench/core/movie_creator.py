@@ -98,8 +98,7 @@ class MovieCreationTask(QgsTask):
         if self.feedback.isCanceled() and res != 0:
             self.message.emit("Process was canceled and did not complete")
         elif (
-                not self.feedback.isCanceled()
-                and proc.exitStatus() == QProcess.CrashExit
+                not self.feedback.isCanceled() and proc.exitStatus() == QProcess.CrashExit
         ):
             self.message.emit("Process was unexpectedly terminated")
         elif res == 0:

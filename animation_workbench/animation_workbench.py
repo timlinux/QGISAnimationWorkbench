@@ -83,7 +83,8 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
 class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-public-methods
     """Dialog implementation class Animation Workbench class."""
 
-    def __init__(self, parent=None, iface=None, render_queue=None):  # pylint: disable=too-many-locals,too-many-statements
+    def __init__(self, parent=None, iface=None,
+                 render_queue=None):  # pylint: disable=too-many-locals,too-many-statements
         """Constructor for the workbench dialog.
 
         :param parent: Parent widget of this dialog.
@@ -155,10 +156,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
         self.layer_combo.setFilters(
-            QgsMapLayerProxyModel.PointLayer
-            | QgsMapLayerProxyModel.LineLayer
-            | QgsMapLayerProxyModel.PolygonLayer
-        )
+            QgsMapLayerProxyModel.PointLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PolygonLayer)
         self.layer_combo.layerChanged.connect(self._layer_changed)
 
         prev_layer_id, _ = QgsProject.instance().readEntry(
@@ -271,16 +269,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         )
         self.pan_easing_widget.set_preview_color("#ffff00")
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
-        if (
-                int(
-                    setting(
-                        key="enable_pan_easing",
-                        default=0,
-                        prefer_project_setting=True,
-                    )
-                )
-                == 0
-        ):
+        if int(setting(
+                key="enable_pan_easing",
+                default=0,
+                prefer_project_setting=True,
+        )) == 0:
             self.pan_easing_widget.disable()
         else:
             self.pan_easing_widget.enable()
@@ -291,16 +284,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         )
         self.zoom_easing_widget.set_preview_color("#0000ff")
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
-        if (
-                int(
-                    setting(
-                        key="enable_zoom_easing",
-                        default=0,
-                        prefer_project_setting=True,
-                    )
-                )
-                == 0
-        ):
+        if int(setting(
+                key="enable_zoom_easing",
+                default=0,
+                prefer_project_setting=True,
+        )) == 0:
             self.zoom_easing_widget.disable()
         else:
             self.zoom_easing_widget.enable()
