@@ -246,10 +246,7 @@ class AnimationController(QObject):
                     str(self.current_frame).rjust(10, "0"),
                 )
 
-                job = self.create_job(
-                    self.map_settings,
-                    name.as_posix()
-                )
+                job = self.create_job(self.map_settings, name.as_posix())
                 yield job
 
                 self.current_frame += 1
@@ -275,8 +272,18 @@ class AnimationController(QObject):
                     )
 
                     scope = QgsExpressionContextScope()
-                    scope.setVariable("from_feature", None if not self.previous_feature else self.previous_feature, True)
-                    scope.setVariable("from_feature_id", None if not self.previous_feature else self.previous_feature.id(), True)
+                    scope.setVariable(
+                        "from_feature",
+                        None if not self.previous_feature else self.previous_feature,
+                        True,
+                    )
+                    scope.setVariable(
+                        "from_feature_id",
+                        None
+                        if not self.previous_feature
+                        else self.previous_feature.id(),
+                        True,
+                    )
 
                     scope.setVariable("hover_feature", feature, True)
                     scope.setVariable("hover_feature_id", feature.id(), True)
@@ -284,7 +291,9 @@ class AnimationController(QObject):
                     scope.setVariable("current_hover_frame", frame_for_feature)
                     scope.setVariable("hover_frames", hover_frames)
 
-                    scope.setVariable("current_animation_action", AnimationController.ACTION_HOVERING)
+                    scope.setVariable(
+                        "current_animation_action", AnimationController.ACTION_HOVERING
+                    )
 
                     job = self.create_job(
                         self.map_settings,
@@ -331,8 +340,16 @@ class AnimationController(QObject):
             context.setFeature(feature)
 
             scope = QgsExpressionContextScope()
-            scope.setVariable("from_feature", None if not self.previous_feature else self.previous_feature, True)
-            scope.setVariable("from_feature_id", None if not self.previous_feature else self.previous_feature.id(), True)
+            scope.setVariable(
+                "from_feature",
+                None if not self.previous_feature else self.previous_feature,
+                True,
+            )
+            scope.setVariable(
+                "from_feature_id",
+                None if not self.previous_feature else self.previous_feature.id(),
+                True,
+            )
             scope.setVariable("to_feature", feature, True)
             scope.setVariable("to_feature_id", feature.id(), True)
             scope.setVariable("hover_feature", feature, True)
@@ -489,13 +506,11 @@ class AnimationController(QObject):
                 scope.setVariable("hover_frames", self.dwell_frames, True)
                 scope.setVariable("travel_frames", None, True)
 
-                scope.setVariable("current_animation_action", AnimationController.ACTION_HOVERING)
-
-                job = self.create_job(
-                    self.map_settings,
-                    file_name.as_posix(),
-                    [scope]
+                scope.setVariable(
+                    "current_animation_action", AnimationController.ACTION_HOVERING
                 )
+
+                job = self.create_job(self.map_settings, file_name.as_posix(), [scope])
                 yield job
 
             self.current_frame += 1
@@ -635,7 +650,9 @@ class AnimationController(QObject):
                 scope.setVariable("hover_frames", None, True)
                 scope.setVariable("travel_frames", self.travel_frames, True)
 
-                scope.setVariable("current_animation_action", AnimationController.ACTION_TRAVELLING)
+                scope.setVariable(
+                    "current_animation_action", AnimationController.ACTION_TRAVELLING
+                )
 
                 job = self.create_job(
                     self.map_settings,
