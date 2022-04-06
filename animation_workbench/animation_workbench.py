@@ -162,7 +162,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             QgsMapLayerProxyModel.PointLayer
             | QgsMapLayerProxyModel.LineLayer
             | QgsMapLayerProxyModel.PolygonLayer
-        )
+        )  # nopep8
         self.layer_combo.layerChanged.connect(self._layer_changed)
 
         prev_layer_id, _ = QgsProject.instance().readEntry("animation", "layer_id")

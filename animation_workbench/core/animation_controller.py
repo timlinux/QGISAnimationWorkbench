@@ -127,7 +127,7 @@ class AnimationController(QObject):
         controller.total_frame_count = (
             controller.total_feature_count * dwell_frames
             + (controller.total_feature_count - 1) * travel_frames
-        )
+        )  # nopep8
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
 
