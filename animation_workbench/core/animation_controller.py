@@ -9,7 +9,7 @@ __revision__ = "$Format:%H$"
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Iterator
+from typing import Optional, Iterator, List
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QEasingCurve
 from qgis.core import (
@@ -29,6 +29,7 @@ from qgis.core import (
     QgsPropertyDefinition,
     QgsPropertyCollection,
     QgsExpressionContext,
+    QgsExpressionContextUtils
 )
 
 from .render_queue import RenderJob
@@ -89,15 +90,10 @@ class AnimationController(QObject):
             ct.setBallparkTransformsAreAppropriate(True)
             transformed_output_extent = ct.transformBoundingBox(output_extent)
         map_settings.setExtent(transformed_output_extent)
-        context = map_settings.expressionContext()
-        if feature_layer:
-            context.appendScope(feature_layer.createExpressionContextScope())
-        map_settings.setExpressionContext(context)
 
         controller = AnimationController(MapMode.FIXED_EXTENT, map_settings)
         if feature_layer:
-            controller.feature_layer = feature_layer
-            controller.total_feature_count = feature_layer.featureCount()
+            controller.set_layer(feature_layer)
         controller.total_frame_count = total_frames
         controller.frame_rate = frame_rate
 
@@ -123,18 +119,10 @@ class AnimationController(QObject):
         if not feature_layer:
             raise InvalidAnimationParametersException("No animation layer set")
 
-        context = map_settings.expressionContext()
-        context.appendScope(feature_layer.createExpressionContextScope())
-        map_settings.setExpressionContext(context)
-
         controller = AnimationController(mode, map_settings)
-        controller.feature_layer = feature_layer
-        controller.total_feature_count = feature_layer.featureCount()
+        controller.set_layer(feature_layer)
 
-        # Subtract one because we already start at the first feature
-        controller.total_frame_count = (controller.total_feature_count - 1) * (
-                dwell_frames + travel_frames
-        )
+        controller.total_frame_count = controller.total_feature_count * dwell_frames + (controller.total_feature_count-1) * travel_frames
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
 
@@ -153,7 +141,9 @@ class AnimationController(QObject):
         self.map_settings: QgsMapSettings = map_settings
         self.map_mode: MapMode = map_mode
 
-        self.expression_context = self.map_settings.expressionContext()
+        self.base_expression_context = QgsExpressionContext()
+        self.base_expression_context.appendScope(QgsExpressionContextUtils.globalScope())
+        self.base_expression_context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
 
         self.data_defined_properties = QgsPropertyCollection()
 
@@ -186,6 +176,11 @@ class AnimationController(QObject):
 
         self.reuse_cache: bool = False
         self.flying_up = False
+
+    def set_layer(self, layer: QgsVectorLayer):
+        self.feature_layer = layer
+        self.total_feature_count = layer.featureCount()
+        self.base_expression_context.appendScope(layer.createExpressionContextScope())
 
     def create_job_for_frame(self, frame: int) -> Optional[RenderJob]:
         """
@@ -252,37 +247,33 @@ class AnimationController(QObject):
             self.total_feature_count = self.feature_layer.featureCount()
             self.travel_frames = self.total_frame_count
             for feature in self.feature_layer.getFeatures():
+                self.base_expression_context.setFeature(feature)
+
                 self.feature_counter += 1
                 # Need to refactor range param below so that it uses
                 # a frames per feature option rather than the misleadingly
                 # named total_frame_count (which is only storing frames per
                 # feature in this context).
-                for self.current_frame in range(self.total_frame_count):
+                for frame_for_feature in range(self.total_frame_count):
                     name = self.working_directory / "{}-{}.png".format(
                         self.frame_filename_prefix,
                         str(
-                            self.current_frame + (self.total_frame_count * self.feature_counter)
+                            self.current_frame
                         ).rjust(10, "0"),
                     )
-                    context = QgsExpressionContext(self.expression_context)
-                    context.setFeature(feature)
                     scope = QgsExpressionContextScope()
                     scope.setVariable(
                         "from_feature", self.previous_feature, True
                     )
-                    scope.setVariable(
-                        "from_feature", self.previous_feature, True
-                    )
                     scope.setVariable("to_feature", feature, True)
-                    context.appendScope(scope)
-                    self.map_settings.setExpressionContext(context)
                     self.previous_feature = feature
                     job = self.create_job(
                         self.map_settings,
                         name.as_posix(),
                         feature.id(),
-                        self.current_frame,
+                        frame_for_feature,
                         "Fixed Extent",
+                        additional_expression_context_scopes=[scope]
                     )
                     yield job
 
@@ -298,11 +289,11 @@ class AnimationController(QObject):
 
         self.set_to_scale(self.min_scale)
         for feature in self.feature_layer.getFeatures():
+            self.base_expression_context.setFeature(feature)
             if self.previous_feature is None:
                 # first feature, need to evaluate the starting scale
-                context = QgsExpressionContext(self.expression_context)
-                context.setFeature(feature)
-                self.map_settings.setExpressionContext(context)
+                context = QgsExpressionContext(self.base_expression_context)
+                context.appendScope(QgsExpressionContextUtils.mapSettingsScope(self.map_settings))
 
                 self._evaluated_max_scale = self.max_scale
                 if self.data_defined_properties.hasActiveProperties():
@@ -315,15 +306,14 @@ class AnimationController(QObject):
                         self.max_scale,
                     )
 
-            context = QgsExpressionContext(self.expression_context)
+            context = QgsExpressionContext(self.base_expression_context)
+            context.appendScope(QgsExpressionContextUtils.mapSettingsScope(self.map_settings))
             context.setFeature(feature)
 
             scope = QgsExpressionContextScope()
             scope.setVariable("from_feature", self.previous_feature, True)
             scope.setVariable("to_feature", feature, True)
             context.appendScope(scope)
-
-            self.map_settings.setExpressionContext(context)
 
             # update min scale as soon as we are ready to move to the next feature
             self._evaluated_min_scale = self.min_scale
@@ -527,9 +517,13 @@ class AnimationController(QObject):
 
                     if self.flying_up:
                         # update max scale at the halfway point
-                        context = QgsExpressionContext(self.expression_context)
+                        context = QgsExpressionContext(self.base_expression_context)
                         context.setFeature(end_feature)
-                        self.map_settings.setExpressionContext(context)
+                        context.appendScope(QgsExpressionContextUtils.mapSettingsScope(self.map_settings))
+                        scope = QgsExpressionContextScope()
+                        scope.setVariable("from_feature", start_feature, True)
+                        scope.setVariable("to_feature", end_feature, True)
+                        context.appendScope(scope)
 
                         self._evaluated_max_scale = self.max_scale
                         if self.data_defined_properties.hasActiveProperties():
@@ -582,12 +576,17 @@ class AnimationController(QObject):
                 # User opted to re-used cached images to do nothing for now
                 pass
             else:
+                scope = QgsExpressionContextScope()
+                scope.setVariable("from_feature", start_feature, True)
+                scope.setVariable("to_feature", end_feature, True)
+
                 job = self.create_job(
                     self.map_settings,
                     file_name.as_posix(),
                     end_feature.id(),
                     travel_frame,
                     "Panning",
+                    [scope]
                 )
                 yield job
 
@@ -600,6 +599,7 @@ class AnimationController(QObject):
             current_feature_id: Optional[int],
             current_frame_for_feature: Optional[int] = None,
             action: str = "None",
+            additional_expression_context_scopes: Optional[List[QgsExpressionContextScope]] = None
     ) -> RenderJob:
         """
         Creates a render job for the given map settings
@@ -610,6 +610,12 @@ class AnimationController(QObject):
         if Qgis.QGIS_VERSION_INT >= 32500:
             settings.setFrameRate(self.frame_rate)
             settings.setCurrentFrame(self.current_frame)
+
+        context = QgsExpressionContext(self.base_expression_context)
+        context.appendScope(QgsExpressionContextUtils.mapSettingsScope(settings))
+        if additional_expression_context_scopes:
+            for scope in additional_expression_context_scopes:
+                context.appendScope(scope)
 
         # The next part sets project variables that you can use in your
         # cartography etc. to see the progress. Here is an example
@@ -639,7 +645,6 @@ class AnimationController(QObject):
 
         task_scope.setVariable("total_frame_count", self.total_frame_count)
 
-        context = settings.expressionContext()
         context.appendScope(task_scope)
         settings.setExpressionContext(context)
 
