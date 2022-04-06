@@ -467,8 +467,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.active_lcd.display(self.render_queue.active_queue_size())
         self.total_tasks_lcd.display(self.render_queue.total_queue_size)
         self.remaining_features_lcd.display(
-            self.render_queue.total_feature_count
-            - self.render_queue.completed_feature_count
+            self.render_queue.total_feature_count - self.render_queue.completed_feature_count
         )
         self.completed_tasks_lcd.display(self.render_queue.total_completed)
         self.completed_features_lcd.display(
@@ -857,10 +856,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         """
         Loads a preview image
         """
-        if (
-                self.last_preview_image is not None
-                and self.last_preview_image > name
-        ):
+        if self.last_preview_image is not None and self.last_preview_image > name:
             # Images won't necessarily be rendered in order, so only update the
             # preview image if the rendered image is from later in the animation
             # vs the one we are currently showing. Avoids the preview jumping
