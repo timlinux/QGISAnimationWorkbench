@@ -71,7 +71,7 @@ class AnimationController(QObject):
     @staticmethod
     def create_fixed_extent_controller(
             map_settings: QgsMapSettings,
-            feature_layer: QgsVectorLayer,
+            feature_layer: Optional[QgsVectorLayer],
             output_extent: QgsReferencedRectangle,
             total_frames: int,
             frame_rate: float,
@@ -209,12 +209,9 @@ class AnimationController(QObject):
                     self.map_settings.destinationCrs(),
                     QgsProject.instance(),
                 )
-                for job in self.create_fixed_extent_job():
-                    yield job
 
-            else:
-                for job in self.create_fixed_extent_job():
-                    yield job
+            for job in self.create_fixed_extent_job():
+                yield job
         else:
             self.layer_to_map_transform = QgsCoordinateTransform(
                 self.feature_layer.crs(),
@@ -247,6 +244,8 @@ class AnimationController(QObject):
                     "Fixed Extent",
                 )
                 yield job
+
+                self.current_frame += 1
         else:
             self.feature_counter = 0
             self.previous_feature = None
@@ -286,6 +285,9 @@ class AnimationController(QObject):
                         "Fixed Extent",
                     )
                     yield job
+
+                    self.current_frame += 1
+
                 self.previous_feature = feature
 
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
