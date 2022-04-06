@@ -69,9 +69,10 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
         """
         self.layer = layer
 
+    # pylint: disable=missing-function-docstring
     def createExpressionContext(
         self,
-    ) -> QgsExpressionContext:  # pylint: disable=missing-function-docstring
+    ) -> QgsExpressionContext:
         context = QgsExpressionContext()
         context.appendScope(QgsExpressionContextUtils.globalScope())
         context.appendScope(
@@ -82,13 +83,13 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
         return context
 
 
-class AnimationWorkbench(
-    QDialog, FORM_CLASS
-):  # pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods
+class AnimationWorkbench(QDialog, FORM_CLASS):
     """Dialog implementation class Animation Workbench class."""
 
+    # pylint: disable=too-many-locals,too-many-statements
     def __init__(
-        self,  # pylint: disable=too-many-locals,too-many-statements
+        self,
         parent=None,
         iface=None,
         render_queue=None,

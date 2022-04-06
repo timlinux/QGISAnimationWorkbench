@@ -52,10 +52,8 @@ def _run_tests(test_suite, package_name, with_coverage=False):
     if with_coverage:
         cov.stop()
         cov.save()
-
-        report = tempfile.NamedTemporaryFile(
-            delete=False
-        )  # pylint: disable=consider-using-with
+        # pylint: disable=consider-using-with
+        report = tempfile.NamedTemporaryFile(delete=False)
         cov.report(file=report)
         # Produce HTML reports in the `htmlcov` folder and open index.html
         # cov.html_report()

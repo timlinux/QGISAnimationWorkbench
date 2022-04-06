@@ -66,7 +66,7 @@ class CoreUtils:
         # gdal binary dir on OSX but it is actually there. (TS)
         if sys.platform == "darwin":  # Mac OS X
             gdal_prefix = (
-                "/Library/Frameworks/GDAL.framework/" "Versions/Current/Programs/"
+                "/Library/Frameworks/GDAL.framework/Versions/Current/Programs/"
             )
             path = "%s:%s" % (path, gdal_prefix)
 
