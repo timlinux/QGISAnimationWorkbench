@@ -43,6 +43,7 @@ class RenderJob:
     """
     Encapsulates the settings required for rendering a single animation frame
     """
+
     def __init__(self, file_name: str, map_settings: QgsMapSettings):
         self.file_name: str = file_name
         self.map_settings: QgsMapSettings = map_settings
@@ -95,6 +96,7 @@ class RenderQueueFeedback(QgsFeedback):
     """
     Feedback subclass for render queue, automatically handles calculation of overall render export progress
     """
+
     def __init__(self, steps: int):
         super().__init__()
         self.steps = steps
@@ -230,9 +232,7 @@ class RenderQueue(QObject):
             self.proxy_task = QgsProxyProgressTask("Exporting frames")
 
         self.proxy_feedback = RenderQueueFeedback(len(self.job_queue))
-        self.proxy_feedback.progressChanged.connect(
-            self.proxy_task.setProxyProgress
-        )
+        self.proxy_feedback.progressChanged.connect(self.proxy_task.setProxyProgress)
 
         QgsApplication.taskManager().addTask(self.proxy_task)
 
@@ -245,9 +245,7 @@ class RenderQueue(QObject):
         if not self.job_queue and not self.active_tasks:
             # all done!
             self.update_status()
-            was_canceled = (
-                self.proxy_feedback and self.proxy_feedback.isCanceled()
-            )
+            was_canceled = self.proxy_feedback and self.proxy_feedback.isCanceled()
             self.processing_completed.emit(not was_canceled)
             if self.proxy_task:
                 self.proxy_task.finalize(not was_canceled)
@@ -267,9 +265,7 @@ class RenderQueue(QObject):
 
             # create a hidden task, because the proxy wrapper task
             # will be the only one we want to expose to users
-            task = job.create_task(
-                self.annotations_list, self.decorations, hidden=True
-            )
+            task = job.create_task(self.annotations_list, self.decorations, hidden=True)
             self.active_tasks[job.file_name] = task
 
             task.taskCompleted.connect(

@@ -5,7 +5,7 @@
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 # -----------------------------------------------------------
 # Copyright (C) 2022 Tim Sutton
@@ -27,10 +27,7 @@ from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
 from qgis.core import Qgis
 
 from .animation_workbench import AnimationWorkbench
-from .core import (
-    RenderQueue,
-    setting
-)
+from .core import RenderQueue, setting
 from .utilities import resources_path
 from .workbench_settings import WorkbenchSettings
 
@@ -55,32 +52,26 @@ class AnimationWorkbenchPlugin:
     def initGui(self):  # pylint: disable=missing-function-docstring
 
         self.render_queue = RenderQueue()
-        icon = QIcon(resources_path(
-            'img', 'icons', 'animation-workbench.svg'))
+        icon = QIcon(resources_path("img", "icons", "animation-workbench.svg"))
 
-        self.run_action = QAction(
-            icon,
-            'Animation Workbench',
-            self.iface.mainWindow())
+        self.run_action = QAction(icon, "Animation Workbench", self.iface.mainWindow())
         self.run_action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.run_action)
 
         self.settings_action = QAction(
-            icon,
-            'Animation Workbench Settings',
-            self.iface.mainWindow())
+            icon, "Animation Workbench Settings", self.iface.mainWindow()
+        )
         self.settings_action.triggered.connect(self.settings)
         self.iface.addToolBarIcon(self.settings_action)
 
         # If you change debug_mode to true, after clicking
         # this toolbutton, QGIS will block until it can attach
         # to the remote debugger
-        debug_mode = int(setting(key='debug_mode', default=0))
+        debug_mode = int(setting(key="debug_mode", default=0))
         if debug_mode:
             self.debug_action = QAction(
-                icon,
-                'Animation Workbench Debug Mode',
-                self.iface.mainWindow())
+                icon, "Animation Workbench Debug Mode", self.iface.mainWindow()
+            )
             self.debug_action.triggered.connect(self.debug)
             self.iface.addToolBarIcon(self.debug_action)
 
@@ -89,17 +80,21 @@ class AnimationWorkbenchPlugin:
         Enters debug mode
         """
         self.display_information_message_box(
-            title='Animation Workbench',
-            message='Close this dialog then open VSCode and start your debug client.')
+            title="Animation Workbench",
+            message="Close this dialog then open VSCode and start your debug client.",
+        )
         time.sleep(2)
         import multiprocessing  # pylint: disable=import-outside-toplevel
+
         if multiprocessing.current_process().pid > 1:
             import debugpy  # pylint: disable=import-outside-toplevel
+
             debugpy.listen(("0.0.0.0", 9000))
             debugpy.wait_for_client()
             self.display_information_message_bar(
-                title='Animation Workbench',
-                message='Visual Studio Code debugger is now attached on port 9000')
+                title="Animation Workbench",
+                message="Visual Studio Code debugger is now attached on port 9000",
+            )
 
     def unload(self):  # pylint: disable=missing-function-docstring
         self.iface.removeToolBarIcon(self.run_action)
@@ -114,7 +109,8 @@ class AnimationWorkbenchPlugin:
         dialog = AnimationWorkbench(
             parent=self.iface.mainWindow(),
             iface=self.iface,
-            render_queue=self.render_queue)
+            render_queue=self.render_queue,
+        )
         dialog.setAttribute(Qt.WA_DeleteOnClose)
         dialog.show()
 
@@ -126,12 +122,13 @@ class AnimationWorkbenchPlugin:
         dialog.exec_()
 
     def display_information_message_bar(
-            self,
-            title=None,
-            message=None,
-            more_details=None,
-            button_text='Show details ...',
-            duration=8):
+        self,
+        title=None,
+        message=None,
+        more_details=None,
+        button_text="Show details ...",
+        duration=8,
+    ):
         """
         Display an information message bar.
         :param title: The title of the message bar.
@@ -153,13 +150,14 @@ class AnimationWorkbenchPlugin:
             button.setText(button_text)
             button.pressed.connect(
                 lambda: self.display_information_message_box(
-                    title=title, message=more_details))
+                    title=title, message=more_details
+                )
+            )
             widget.layout().addWidget(button)
 
         self.iface.messageBar().pushWidget(widget, Qgis.Info, duration)
 
-    def display_information_message_box(
-            self, parent=None, title=None, message=None):
+    def display_information_message_box(self, parent=None, title=None, message=None):
         """
         Display an information message box.
         :param title: The title of the message box.

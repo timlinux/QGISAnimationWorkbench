@@ -5,7 +5,7 @@
 __copyright__ = "Copyright 2022, Tim Sutton"
 __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 # -----------------------------------------------------------
 # Copyright (C) 2022 Tim Sutton
@@ -20,9 +20,7 @@ __revision__ = '$Format:%H$'
 
 import os
 
-from qgis.PyQt.QtCore import (
-    QUrl
-)
+from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt import uic
 
 
@@ -41,8 +39,7 @@ def resources_path(*args):
     :rtype: str
     """
     path = os.path.dirname(__file__)
-    path = os.path.abspath(
-        os.path.join(path, 'resources'))
+    path = os.path.abspath(os.path.join(path, "resources"))
     for item in args:
         path = os.path.abspath(os.path.join(path, item))
 
@@ -75,13 +72,13 @@ def get_ui_class(ui_file):
     :param ui_file: The file of the ui in safe.gui.ui
     :type ui_file: str
     """
-    os.path.sep.join(ui_file.split('/'))
+    os.path.sep.join(ui_file.split("/"))
     ui_file_path = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
             # os.pardir,
-            'ui',
-            ui_file
+            "ui",
+            ui_file,
         )
     )
     return uic.loadUiType(ui_file_path)[0]

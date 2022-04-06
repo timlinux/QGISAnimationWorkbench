@@ -36,7 +36,7 @@ from qgis.core import (
     QgsPropertyCollection,
     QgsExpressionContext,
     QgsVectorLayer,
-    QgsWkbTypes
+    QgsWkbTypes,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
 
@@ -47,7 +47,7 @@ from .core import (
     MovieFormat,
     set_setting,
     setting,
-    MapMode
+    MapMode,
 )
 from .utilities import get_ui_class, resources_path
 
@@ -69,7 +69,9 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
         """
         self.layer = layer
 
-    def createExpressionContext(self) -> QgsExpressionContext:  # pylint: disable=missing-function-docstring
+    def createExpressionContext(
+        self,
+    ) -> QgsExpressionContext:  # pylint: disable=missing-function-docstring
         context = QgsExpressionContext()
         context.appendScope(QgsExpressionContextUtils.globalScope())
         context.appendScope(
@@ -80,13 +82,17 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
         return context
 
 
-class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-public-methods
+class AnimationWorkbench(
+    QDialog, FORM_CLASS
+):  # pylint: disable=too-many-public-methods
     """Dialog implementation class Animation Workbench class."""
 
-    def __init__(self,  # pylint: disable=too-many-locals,too-many-statements
-                 parent=None,
-                 iface=None,
-                 render_queue=None):
+    def __init__(
+        self,  # pylint: disable=too-many-locals,too-many-statements
+        parent=None,
+        iface=None,
+        render_queue=None,
+    ):
         """Constructor for the workbench dialog.
 
         :param parent: Parent widget of this dialog.
@@ -102,9 +108,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.setupUi(self)
         self.expression_context_generator = DialogExpressionContextGenerator()
         self.main_stack.setCurrentIndex(0)
-        self.extent_group_box = QgsExtentWidget(
-            None, QgsExtentWidget.ExpandedStyle
-        )
+        self.extent_group_box = QgsExtentWidget(None, QgsExtentWidget.ExpandedStyle)
         vbox_layout = QVBoxLayout()
         vbox_layout.addWidget(self.extent_group_box)
         self.extent_widget_container.setLayout(vbox_layout)
@@ -121,9 +125,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.extent_group_box.setMapCanvas(self.iface.mapCanvas())
         self.scale_range.setMapCanvas(self.iface.mapCanvas())
 
-        self.output_log_text_edit.append(
-            "Welcome to the QGIS Animation Workbench"
-        )
+        self.output_log_text_edit.append("Welcome to the QGIS Animation Workbench")
         self.output_log_text_edit.append("© Tim Sutton, Feb 2022")
 
         ok_button = self.button_box.button(QDialogButtonBox.Ok)
@@ -147,9 +149,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
 
         self.movie_file_button.clicked.connect(self.set_output_name)
 
-        music_file = setting(
-            key="music_file", default="", prefer_project_setting=True
-        )
+        music_file = setting(key="music_file", default="", prefer_project_setting=True)
         if music_file:
             self.music_file_edit.setText(music_file)
         self.music_file_button.clicked.connect(self.choose_music_file)
@@ -158,12 +158,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
         self.layer_combo.setFilters(
-            QgsMapLayerProxyModel.PointLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PolygonLayer)
+            QgsMapLayerProxyModel.PointLayer
+            | QgsMapLayerProxyModel.LineLayer
+            | QgsMapLayerProxyModel.PolygonLayer
+        )
         self.layer_combo.layerChanged.connect(self._layer_changed)
 
-        prev_layer_id, _ = QgsProject.instance().readEntry(
-            "animation", "layer_id"
-        )
+        prev_layer_id, _ = QgsProject.instance().readEntry("animation", "layer_id")
         if prev_layer_id:
             layer = QgsProject.instance().mapLayer(prev_layer_id)
             if layer:
@@ -187,9 +188,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         # self.extent_group_box.setOriginalExtnt()
 
         # Close button action (save state on close)
-        self.button_box.button(QDialogButtonBox.Close).clicked.connect(
-            self.close
-        )
+        self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
         self.button_box.accepted.connect(self.accept)
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
@@ -271,11 +270,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         )
         self.pan_easing_widget.set_preview_color("#ffff00")
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
-        if int(setting(
-                key="enable_pan_easing",
-                default=0,
-                prefer_project_setting=True,
-        )) == 0:
+        if (
+            int(
+                setting(
+                    key="enable_pan_easing",
+                    default=0,
+                    prefer_project_setting=True,
+                )
+            )
+            == 0
+        ):
             self.pan_easing_widget.disable()
         else:
             self.pan_easing_widget.enable()
@@ -286,11 +290,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         )
         self.zoom_easing_widget.set_preview_color("#0000ff")
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
-        if int(setting(
-                key="enable_zoom_easing",
-                default=0,
-                prefer_project_setting=True,
-        )) == 0:
+        if (
+            int(
+                setting(
+                    key="enable_zoom_easing",
+                    default=0,
+                    prefer_project_setting=True,
+                )
+            )
+            == 0
+        ):
             self.zoom_easing_widget.disable()
         else:
             self.zoom_easing_widget.enable()
@@ -363,17 +372,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.main_stack.setCurrentIndex(0)
         # Enable easing status page on startup
         self.render_queue.status_changed.connect(self.show_status)
-        self.render_queue.processing_completed.connect(
-            self.processing_completed
-        )
+        self.render_queue.processing_completed.connect(self.processing_completed)
         self.render_queue.status_message.connect(self.show_message)
         self.render_queue.image_rendered.connect(self.load_image)
 
         self.movie_task = None
 
-        self.preview_frame_spin.valueChanged.connect(
-            self.show_preview_for_frame
-        )
+        self.preview_frame_spin.valueChanged.connect(self.show_preview_for_frame)
 
         self.register_data_defined_button(
             self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
@@ -386,7 +391,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.save_state()
         self.reject()
 
-    def closeEvent(self, event):  # pylint: disable=missing-function-docstring,unused-argument
+    def closeEvent(
+        self, event
+    ):  # pylint: disable=missing-function-docstring,unused-argument
         self.save_state()
         self.reject()
 
@@ -412,9 +419,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
             False,
         )
         button.changed.connect(self._update_property)
-        button.registerExpressionContextGenerator(
-            self.expression_context_generator
-        )
+        button.registerExpressionContextGenerator(self.expression_context_generator)
         button.setVectorLayer(self.layer_combo.currentLayer())
 
     def _update_property(self):
@@ -467,12 +472,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.active_lcd.display(self.render_queue.active_queue_size())
         self.total_tasks_lcd.display(self.render_queue.total_queue_size)
         self.remaining_features_lcd.display(
-            self.render_queue.total_feature_count - self.render_queue.completed_feature_count
+            self.render_queue.total_feature_count
+            - self.render_queue.completed_feature_count
         )
         self.completed_tasks_lcd.display(self.render_queue.total_completed)
-        self.completed_features_lcd.display(
-            self.render_queue.completed_feature_count
-        )
+        self.completed_features_lcd.display(self.render_queue.completed_feature_count)
 
         self.progress_bar.setValue(self.render_queue.total_completed)
 
@@ -537,9 +541,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         elif self.radio_planar.isChecked():
             set_setting(key="map_mode", value="planar", store_in_project=True)
         else:
-            set_setting(
-                key="map_mode", value="fixed_extent", store_in_project=True
-            )
+            set_setting(key="map_mode", value="fixed_extent", store_in_project=True)
         set_setting(
             key="frames_per_feature",
             value=self.feature_frames_spin.value(),
@@ -628,9 +630,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
-            os.system(
-                "rm %s/%s*" % (self.work_directory, self.frame_filename_prefix)
-            )
+            os.system("rm %s/%s*" % (self.work_directory, self.frame_filename_prefix))
 
         self.save_state()
         self.run_frame.show()
@@ -638,9 +638,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         self.render_queue.reset()
         self.last_preview_image = None
         self.output_log_text_edit.clear()
-        self.output_log_text_edit.append(
-            "Preparing animation run. Please wait."
-        )
+        self.output_log_text_edit.append("Preparing animation run. Please wait.")
         controller = self.create_controller()
         if not controller:
             return
@@ -667,7 +665,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
 
         self.render_queue.total_feature_count = controller.total_feature_count
         self.render_queue.frames_per_feature = (
-                controller.travel_frames + controller.dwell_frames
+            controller.travel_frames + controller.dwell_frames
         )
 
         for job in controller.create_jobs():
@@ -710,8 +708,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
             )
             layer_name = self.layer_combo.currentLayer().name()
             self.output_log_text_edit.append(
-                "Generating flight path for %s layer: %s"
-                % (layer_type, layer_name)
+                "Generating flight path for %s layer: %s" % (layer_type, layer_name)
             )
 
         if map_mode == MapMode.FIXED_EXTENT:
@@ -727,23 +724,21 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
             )
         else:
             try:
-                controller = (
-                    AnimationController.create_moving_extent_controller(
-                        map_settings=self.iface.mapCanvas().mapSettings(),
-                        mode=map_mode,
-                        feature_layer=self.layer_combo.currentLayer(),
-                        travel_frames=self.feature_frames_spin.value(),
-                        dwell_frames=self.hover_frames_spin.value(),
-                        min_scale=self.scale_range.minimumScale(),
-                        max_scale=self.scale_range.maximumScale(),
-                        pan_easing=self.pan_easing_widget.get_easing()
-                        if self.pan_easing_widget.is_enabled()
-                        else None,
-                        zoom_easing=self.zoom_easing_widget.get_easing()
-                        if self.zoom_easing_widget.is_enabled()
-                        else None,
-                        frame_rate=self.framerate_spin.value(),
-                    )
+                controller = AnimationController.create_moving_extent_controller(
+                    map_settings=self.iface.mapCanvas().mapSettings(),
+                    mode=map_mode,
+                    feature_layer=self.layer_combo.currentLayer(),
+                    travel_frames=self.feature_frames_spin.value(),
+                    dwell_frames=self.hover_frames_spin.value(),
+                    min_scale=self.scale_range.minimumScale(),
+                    max_scale=self.scale_range.maximumScale(),
+                    pan_easing=self.pan_easing_widget.get_easing()
+                    if self.pan_easing_widget.is_enabled()
+                    else None,
+                    zoom_easing=self.zoom_easing_widget.get_easing()
+                    if self.zoom_easing_widget.is_enabled()
+                    else None,
+                    frame_rate=self.framerate_spin.value(),
                 )
             except InvalidAnimationParametersException as e:
                 self.output_log_text_edit.append(f"Processing halted: {e}")
@@ -784,9 +779,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
             # Video preview page
             self.main_stack.setCurrentIndex(1)
             self.preview_stack.setCurrentIndex(1)
-            self.media_player.setMedia(
-                QMediaContent(QUrl.fromLocalFile(movie_file))
-            )
+            self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
             self.play_button.setEnabled(True)
             self.play()
 
@@ -848,9 +841,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
             partial(update_preview_image, file_name=job.file_name)
         )
 
-        QgsApplication.taskManager().addTask(
-            self.current_preview_frame_render_job
-        )
+        QgsApplication.taskManager().addTask(self.current_preview_frame_render_job)
 
     def load_image(self, name):
         """
@@ -890,13 +881,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-publi
         Called when the media state is changed
         """
         if self.media_player.state() == QMediaPlayer.PlayingState:
-            self.play_button.setIcon(
-                self.style().standardIcon(QStyle.SP_MediaPause)
-            )
+            self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         else:
-            self.play_button.setIcon(
-                self.style().standardIcon(QStyle.SP_MediaPlay)
-            )
+            self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
 
     def position_changed(self, position):
         """

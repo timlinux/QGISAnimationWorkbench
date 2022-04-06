@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/timlinux/dev/python/QGISAnimationWorkbench/ui/workbench_settings_base.ui'
+# Form implementation generated from reading ui file '/home/timlinux/dev/python/QGISAnimationWorkbench/animation_workbench/ui/workbench_settings_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #

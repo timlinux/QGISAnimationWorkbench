@@ -29,7 +29,7 @@ from qgis.core import (
     QgsPropertyDefinition,
     QgsPropertyCollection,
     QgsExpressionContext,
-    QgsExpressionContextUtils
+    QgsExpressionContextUtils,
 )
 
 from .render_queue import RenderJob
@@ -39,6 +39,7 @@ class MapMode(Enum):
     """
     Map animation modes
     """
+
     SPHERE = 1  # CRS will be manipulated to create a spinning globe effect
     PLANAR = 2  # CRS will not be altered, extents will as we pan and zoom
     FIXED_EXTENT = 3  # EASING and ZOOM disabled, extent stays in place
@@ -54,6 +55,7 @@ class AnimationController(QObject):
     """
     Creates animation frames
     """
+
     normal_message = pyqtSignal(str)
     verbose_message = pyqtSignal(str)
 
@@ -71,11 +73,11 @@ class AnimationController(QObject):
 
     @staticmethod
     def create_fixed_extent_controller(
-            map_settings: QgsMapSettings,
-            feature_layer: Optional[QgsVectorLayer],
-            output_extent: QgsReferencedRectangle,
-            total_frames: int,
-            frame_rate: float,
+        map_settings: QgsMapSettings,
+        feature_layer: Optional[QgsVectorLayer],
+        output_extent: QgsReferencedRectangle,
+        total_frames: int,
+        frame_rate: float,
     ) -> "AnimationController":
         """
         Creates an animation controller for a fixed extent animation
@@ -101,16 +103,16 @@ class AnimationController(QObject):
 
     @staticmethod
     def create_moving_extent_controller(
-            map_settings: QgsMapSettings,
-            mode: MapMode,
-            feature_layer: QgsVectorLayer,
-            travel_frames: int,
-            dwell_frames: int,
-            min_scale: float,
-            max_scale: float,
-            pan_easing: Optional[QEasingCurve],
-            zoom_easing: Optional[QEasingCurve],
-            frame_rate: float,
+        map_settings: QgsMapSettings,
+        mode: MapMode,
+        feature_layer: QgsVectorLayer,
+        travel_frames: int,
+        dwell_frames: int,
+        min_scale: float,
+        max_scale: float,
+        pan_easing: Optional[QEasingCurve],
+        zoom_easing: Optional[QEasingCurve],
+        frame_rate: float,
     ) -> "AnimationController":
         """
         Creates an animation controller for a moving extent animation
@@ -122,8 +124,10 @@ class AnimationController(QObject):
         controller = AnimationController(mode, map_settings)
         controller.set_layer(feature_layer)
 
-        controller.total_frame_count = controller.total_feature_count * dwell_frames + (
-                    controller.total_feature_count - 1) * travel_frames
+        controller.total_frame_count = (
+            controller.total_feature_count * dwell_frames
+            + (controller.total_feature_count - 1) * travel_frames
+        )
         controller.dwell_frames = dwell_frames
         controller.travel_frames = travel_frames
 
@@ -143,8 +147,12 @@ class AnimationController(QObject):
         self.map_mode: MapMode = map_mode
 
         self.base_expression_context = QgsExpressionContext()
-        self.base_expression_context.appendScope(QgsExpressionContextUtils.globalScope())
-        self.base_expression_context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
+        self.base_expression_context.appendScope(
+            QgsExpressionContextUtils.globalScope()
+        )
+        self.base_expression_context.appendScope(
+            QgsExpressionContextUtils.projectScope(QgsProject.instance())
+        )
 
         self.data_defined_properties = QgsPropertyCollection()
 
@@ -261,14 +269,10 @@ class AnimationController(QObject):
                 for frame_for_feature in range(self.total_frame_count):
                     name = self.working_directory / "{}-{}.png".format(
                         self.frame_filename_prefix,
-                        str(
-                            self.current_frame
-                        ).rjust(10, "0"),
+                        str(self.current_frame).rjust(10, "0"),
                     )
                     scope = QgsExpressionContextScope()
-                    scope.setVariable(
-                        "from_feature", self.previous_feature, True
-                    )
+                    scope.setVariable("from_feature", self.previous_feature, True)
                     scope.setVariable("to_feature", feature, True)
                     self.previous_feature = feature
                     job = self.create_job(
@@ -277,7 +281,7 @@ class AnimationController(QObject):
                         feature.id(),
                         frame_for_feature,
                         "Fixed Extent",
-                        additional_expression_context_scopes=[scope]
+                        additional_expression_context_scopes=[scope],
                     )
                     yield job
 
@@ -297,7 +301,9 @@ class AnimationController(QObject):
             if self.previous_feature is None:
                 # first feature, need to evaluate the starting scale
                 context = QgsExpressionContext(self.base_expression_context)
-                context.appendScope(QgsExpressionContextUtils.mapSettingsScope(self.map_settings))
+                context.appendScope(
+                    QgsExpressionContextUtils.mapSettingsScope(self.map_settings)
+                )
 
                 self._evaluated_max_scale = self.max_scale
                 if self.data_defined_properties.hasActiveProperties():
@@ -311,7 +317,9 @@ class AnimationController(QObject):
                     )
 
             context = QgsExpressionContext(self.base_expression_context)
-            context.appendScope(QgsExpressionContextUtils.mapSettingsScope(self.map_settings))
+            context.appendScope(
+                QgsExpressionContextUtils.mapSettingsScope(self.map_settings)
+            )
             context.setFeature(feature)
 
             scope = QgsExpressionContextScope()
@@ -332,9 +340,7 @@ class AnimationController(QObject):
                 )
 
             if self.previous_feature is not None:
-                for job in self.fly_feature_to_feature(
-                        self.previous_feature, feature
-                ):
+                for job in self.fly_feature_to_feature(self.previous_feature, feature):
                     yield job
 
             self.previous_feature = feature
@@ -467,7 +473,7 @@ class AnimationController(QObject):
             self.current_frame += 1
 
     def fly_feature_to_feature(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-            self, start_feature: QgsFeature, end_feature: QgsFeature
+        self, start_feature: QgsFeature, end_feature: QgsFeature
     ) -> Iterator[RenderJob]:
         """
         Yields render jobs for an animation between two features
@@ -490,9 +496,7 @@ class AnimationController(QObject):
 
             if self.pan_easing:
                 # map progress through the easing curve
-                progress_fraction = self.pan_easing.valueForProgress(
-                    progress_fraction
-                )
+                progress_fraction = self.pan_easing.valueForProgress(progress_fraction)
 
             x = start_point.x() + delta_x * progress_fraction
             y = start_point.y() + delta_y * progress_fraction
@@ -523,7 +527,11 @@ class AnimationController(QObject):
                         # update max scale at the halfway point
                         context = QgsExpressionContext(self.base_expression_context)
                         context.setFeature(end_feature)
-                        context.appendScope(QgsExpressionContextUtils.mapSettingsScope(self.map_settings))
+                        context.appendScope(
+                            QgsExpressionContextUtils.mapSettingsScope(
+                                self.map_settings
+                            )
+                        )
                         scope = QgsExpressionContextScope()
                         scope.setVariable("from_feature", start_feature, True)
                         scope.setVariable("to_feature", end_feature, True)
@@ -548,8 +556,8 @@ class AnimationController(QObject):
 
                 zoom_factor = self.zoom_easing.valueForProgress(zoom_factor)
                 scale = (
-                                self._evaluated_min_scale - self._evaluated_max_scale
-                        ) * zoom_factor + self._evaluated_max_scale
+                    self._evaluated_min_scale - self._evaluated_max_scale
+                ) * zoom_factor + self._evaluated_max_scale
                 self.set_to_scale(scale)
 
             # Change CRS if needed
@@ -590,20 +598,22 @@ class AnimationController(QObject):
                     end_feature.id(),
                     travel_frame,
                     "Panning",
-                    [scope]
+                    [scope],
                 )
                 yield job
 
             self.current_frame += 1
 
     def create_job(
-            self,
-            map_settings: QgsMapSettings,
-            name: str,
-            current_feature_id: Optional[int],
-            current_frame_for_feature: Optional[int] = None,
-            action: str = "None",
-            additional_expression_context_scopes: Optional[List[QgsExpressionContextScope]] = None
+        self,
+        map_settings: QgsMapSettings,
+        name: str,
+        current_feature_id: Optional[int],
+        current_frame_for_feature: Optional[int] = None,
+        action: str = "None",
+        additional_expression_context_scopes: Optional[
+            List[QgsExpressionContextScope]
+        ] = None,
     ) -> RenderJob:
         """
         Creates a render job for the given map settings
@@ -632,9 +642,7 @@ class AnimationController(QObject):
         task_scope = QgsExpressionContextScope()
         task_scope.setVariable("current_feature_id", current_feature_id)
         task_scope.setVariable("frames_per_feature", self.travel_frames)
-        task_scope.setVariable(
-            "current_frame_for_feature", current_frame_for_feature
-        )
+        task_scope.setVariable("current_frame_for_feature", current_frame_for_feature)
         task_scope.setVariable("dwell_frames_per_feature", self.dwell_frames)
         task_scope.setVariable("current_animation_action", action)
 

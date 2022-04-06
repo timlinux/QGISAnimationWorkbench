@@ -21,6 +21,7 @@ class MovieFormat(Enum):
     """
     Movie formats
     """
+
     GIF = 0
     MP4 = 1
 
@@ -31,14 +32,14 @@ class MovieCommandGenerator:
     """
 
     def __init__(
-            self,
-            output_file: str,
-            music_file: Optional[str],
-            output_format: MovieFormat,
-            work_directory: str,
-            frame_filename_prefix: str,
-            framerate: int,
-            temp_dir: str
+        self,
+        output_file: str,
+        music_file: Optional[str],
+        output_format: MovieFormat,
+        work_directory: str,
+        frame_filename_prefix: str,
+        framerate: int,
+        temp_dir: str,
     ):
         self.output_file = output_file
         self.music_file = music_file
@@ -61,17 +62,18 @@ class MovieCommandGenerator:
             # ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps
 
-            res.append((
-                convert,
-                [
-                    "-delay",
-                    str(100 / self.framerate),
-                    "-loop",
-                    "0",
-                    f"{self.work_directory}/{self.frame_filename_prefix}-*.png",
-                    self.output_file,
-                ]
-            )
+            res.append(
+                (
+                    convert,
+                    [
+                        "-delay",
+                        str(100 / self.framerate),
+                        "-loop",
+                        "0",
+                        f"{self.work_directory}/{self.frame_filename_prefix}-*.png",
+                        self.output_file,
+                    ],
+                )
             )
 
             # Now do a second pass with image magick to resize and compress the
@@ -80,25 +82,27 @@ class MovieCommandGenerator:
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want
-            res.append((
-                convert,
-                [
-                    self.output_file,
-                    "-coalesce",
-                    "-scale",
-                    "600x600",
-                    "-fuzz",
-                    "2%",
-                    "+dither",
-                    "-remap",
-                    f"{self.output_file}[20]",
-                    "+dither",
-                    "-colors",
-                    "14",
-                    "-layers",
-                    "Optimize",
-                    f"{self.work_directory}/animation_small.gif",
-                ])
+            res.append(
+                (
+                    convert,
+                    [
+                        self.output_file,
+                        "-coalesce",
+                        "-scale",
+                        "600x600",
+                        "-fuzz",
+                        "2%",
+                        "+dither",
+                        "-remap",
+                        f"{self.output_file}[20]",
+                        "+dither",
+                        "-colors",
+                        "14",
+                        "-layers",
+                        "Optimize",
+                        f"{self.work_directory}/animation_small.gif",
+                    ],
+                )
             )
         else:
             ffmpeg = CoreUtils.which("ffmpeg")[0]
@@ -179,19 +183,20 @@ class MovieCreationTask(QgsTask):
     """
     A background task for exporting movies
     """
+
     FORMAT_GIF = "FORMAT_GIF"
 
     message = pyqtSignal(str)
     movie_created = pyqtSignal(str)
 
     def __init__(
-            self,
-            output_file: str,
-            music_file: str,
-            output_format: MovieFormat,
-            work_directory: str,
-            frame_filename_prefix: str,
-            framerate: int,
+        self,
+        output_file: str,
+        music_file: str,
+        output_format: MovieFormat,
+        work_directory: str,
+        frame_filename_prefix: str,
+        framerate: int,
     ):
         super().__init__("Exporting Movie", QgsTask.Flag.CanCancel)
 
@@ -216,9 +221,7 @@ class MovieCreationTask(QgsTask):
             val = ba.data().decode("UTF-8")
 
             on_stdout.buffer += val
-            if on_stdout.buffer.endswith("\n") or on_stdout.buffer.endswith(
-                    "\r"
-            ):
+            if on_stdout.buffer.endswith("\n") or on_stdout.buffer.endswith("\r"):
                 # flush buffer
                 self.message.emit(on_stdout.buffer.rstrip())
                 on_stdout.buffer = ""
@@ -230,9 +233,7 @@ class MovieCreationTask(QgsTask):
             val = ba.data().decode("UTF-8")
             on_stderr.buffer += val
 
-            if on_stderr.buffer.endswith("\n") or on_stderr.buffer.endswith(
-                    "\r"
-            ):
+            if on_stderr.buffer.endswith("\n") or on_stderr.buffer.endswith("\r"):
                 # flush buffer
                 self.message.emit(on_stderr.buffer.rstrip())
                 on_stderr.buffer = ""
@@ -246,9 +247,7 @@ class MovieCreationTask(QgsTask):
         res = proc.run(self.feedback)
         if self.feedback.isCanceled() and res != 0:
             self.message.emit("Process was canceled and did not complete")
-        elif (
-                not self.feedback.isCanceled() and proc.exitStatus() == QProcess.CrashExit
-        ):
+        elif not self.feedback.isCanceled() and proc.exitStatus() == QProcess.CrashExit:
             self.message.emit("Process was unexpectedly terminated")
         elif res == 0:
             self.message.emit("Process completed successfully")
@@ -285,7 +284,7 @@ class MovieCreationTask(QgsTask):
                 work_directory=self.work_directory,
                 frame_filename_prefix=self.frame_filename_prefix,
                 framerate=self.framerate,
-                temp_dir=tmp
+                temp_dir=tmp,
             )
 
             for command, arguments in generator.as_commands():
