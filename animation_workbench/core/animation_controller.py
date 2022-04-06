@@ -71,6 +71,9 @@ class AnimationController(QObject):
         ),
     }
 
+    ACTION_HOVERING = "Hovering"
+    ACTION_TRAVELLING = "Travelling"
+
     @staticmethod
     def create_fixed_extent_controller(
         map_settings: QgsMapSettings,
@@ -245,10 +248,7 @@ class AnimationController(QObject):
 
                 job = self.create_job(
                     self.map_settings,
-                    name.as_posix(),
-                    None,
-                    self.current_frame,
-                    "Fixed Extent",
+                    name.as_posix()
                 )
                 yield job
 
@@ -257,30 +257,38 @@ class AnimationController(QObject):
             self.feature_counter = 0
             self.previous_feature = None
             self.total_feature_count = self.feature_layer.featureCount()
-            self.travel_frames = self.total_frame_count
+
+            # Need to refactor range param below so that it uses
+            # a frames per feature option rather than the misleadingly
+            # named total_frame_count (which is only storing frames per
+            # feature in this context).
+            hover_frames = self.total_frame_count
+
             for feature in self.feature_layer.getFeatures():
                 self.base_expression_context.setFeature(feature)
 
                 self.feature_counter += 1
-                # Need to refactor range param below so that it uses
-                # a frames per feature option rather than the misleadingly
-                # named total_frame_count (which is only storing frames per
-                # feature in this context).
-                for frame_for_feature in range(self.total_frame_count):
+                for frame_for_feature in range(hover_frames):
                     name = self.working_directory / "{}-{}.png".format(
                         self.frame_filename_prefix,
                         str(self.current_frame).rjust(10, "0"),
                     )
+
                     scope = QgsExpressionContextScope()
-                    scope.setVariable("from_feature", self.previous_feature, True)
-                    scope.setVariable("to_feature", feature, True)
-                    self.previous_feature = feature
+                    scope.setVariable("from_feature", None if not self.previous_feature else self.previous_feature, True)
+                    scope.setVariable("from_feature_id", None if not self.previous_feature else self.previous_feature.id(), True)
+
+                    scope.setVariable("hover_feature", feature, True)
+                    scope.setVariable("hover_feature_id", feature.id(), True)
+
+                    scope.setVariable("current_hover_frame", frame_for_feature)
+                    scope.setVariable("hover_frames", hover_frames)
+
+                    scope.setVariable("current_animation_action", AnimationController.ACTION_HOVERING)
+
                     job = self.create_job(
                         self.map_settings,
                         name.as_posix(),
-                        feature.id(),
-                        frame_for_feature,
-                        "Fixed Extent",
                         additional_expression_context_scopes=[scope],
                     )
                     yield job
@@ -323,8 +331,12 @@ class AnimationController(QObject):
             context.setFeature(feature)
 
             scope = QgsExpressionContextScope()
-            scope.setVariable("from_feature", self.previous_feature, True)
+            scope.setVariable("from_feature", None if not self.previous_feature else self.previous_feature, True)
+            scope.setVariable("from_feature_id", None if not self.previous_feature else self.previous_feature.id(), True)
             scope.setVariable("to_feature", feature, True)
+            scope.setVariable("to_feature_id", feature.id(), True)
+            scope.setVariable("hover_feature", feature, True)
+            scope.setVariable("hover_feature_id", feature.id(), True)
             context.appendScope(scope)
 
             # update min scale as soon as we are ready to move to the next feature
@@ -461,12 +473,28 @@ class AnimationController(QObject):
                 # User opted to re-used cached images to do nothing for now
                 pass
             else:
+
+                scope = QgsExpressionContextScope()
+                scope.setVariable("from_feature", None, True)
+                scope.setVariable("from_feature_id", None, True)
+                scope.setVariable("to_feature", None, True)
+                scope.setVariable("to_feature_id", None, True)
+
+                scope.setVariable("hover_feature", feature, True)
+                scope.setVariable("hover_feature_id", feature.id(), True)
+
+                scope.setVariable("current_hover_frame", dwell_frame, True)
+                scope.setVariable("current_travel_frame", None, True)
+
+                scope.setVariable("hover_frames", self.dwell_frames, True)
+                scope.setVariable("travel_frames", None, True)
+
+                scope.setVariable("current_animation_action", AnimationController.ACTION_HOVERING)
+
                 job = self.create_job(
                     self.map_settings,
                     file_name.as_posix(),
-                    feature.id(),
-                    dwell_frame,
-                    "Hovering",
+                    [scope]
                 )
                 yield job
 
@@ -534,7 +562,11 @@ class AnimationController(QObject):
                         )
                         scope = QgsExpressionContextScope()
                         scope.setVariable("from_feature", start_feature, True)
+                        scope.setVariable("from_feature_id", start_feature.id(), True)
                         scope.setVariable("to_feature", end_feature, True)
+                        scope.setVariable("to_feature_id", end_feature.id(), True)
+                        scope.setVariable("hover_feature", end_feature, True)
+                        scope.setVariable("hover_feature_id", end_feature.id(), True)
                         context.appendScope(scope)
 
                         self._evaluated_max_scale = self.max_scale
@@ -590,14 +622,24 @@ class AnimationController(QObject):
             else:
                 scope = QgsExpressionContextScope()
                 scope.setVariable("from_feature", start_feature, True)
+                scope.setVariable("from_feature_id", start_feature.id(), True)
                 scope.setVariable("to_feature", end_feature, True)
+                scope.setVariable("to_feature_id", end_feature.id(), True)
+
+                scope.setVariable("hover_feature", None, True)
+                scope.setVariable("hover_feature_id", None, True)
+
+                scope.setVariable("current_hover_frame", None, True)
+                scope.setVariable("current_travel_frame", travel_frame, True)
+
+                scope.setVariable("hover_frames", None, True)
+                scope.setVariable("travel_frames", self.travel_frames, True)
+
+                scope.setVariable("current_animation_action", AnimationController.ACTION_TRAVELLING)
 
                 job = self.create_job(
                     self.map_settings,
                     file_name.as_posix(),
-                    end_feature.id(),
-                    travel_frame,
-                    "Panning",
                     [scope],
                 )
                 yield job
@@ -608,9 +650,6 @@ class AnimationController(QObject):
         self,
         map_settings: QgsMapSettings,
         name: str,
-        current_feature_id: Optional[int],
-        current_frame_for_feature: Optional[int] = None,
-        action: str = "None",
         additional_expression_context_scopes: Optional[
             List[QgsExpressionContextScope]
         ] = None,
@@ -631,20 +670,7 @@ class AnimationController(QObject):
             for scope in additional_expression_context_scopes:
                 context.appendScope(scope)
 
-        # The next part sets project variables that you can use in your
-        # cartography etc. to see the progress. Here is an example
-        # of a QGS expression you can use in the map decoration copyright
-        # widget to show current script progress
-        # [%'Frame ' || to_string(coalesce(@frame_number, 0)) || '/' ||
-        # to_string(coalesce(@frames_per_feature, 0)) || ' for feature ' ||
-        # to_string(coalesce(@current_feature_id,0)) ||
-        # ' with map mode: ' || @current_animation_action %]
         task_scope = QgsExpressionContextScope()
-        task_scope.setVariable("current_feature_id", current_feature_id)
-        task_scope.setVariable("frames_per_feature", self.travel_frames)
-        task_scope.setVariable("current_frame_for_feature", current_frame_for_feature)
-        task_scope.setVariable("dwell_frames_per_feature", self.dwell_frames)
-        task_scope.setVariable("current_animation_action", action)
 
         if Qgis.QGIS_VERSION_INT < 32500:
             # we only set these variables for older QGIS versions -- since 3.26 they will be automatically
