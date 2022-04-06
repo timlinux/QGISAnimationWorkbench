@@ -39,7 +39,7 @@ def resources_path(*args):
     :rtype: str
     """
     path = os.path.dirname(__file__)
-    path = os.path.abspath(os.path.join(path, "resources"))
+    path = os.path.abspath(path)
     for item in args:
         path = os.path.abspath(os.path.join(path, item))
 

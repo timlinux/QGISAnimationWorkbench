@@ -52,14 +52,17 @@ class AnimationWorkbenchPlugin:
     def initGui(self):  # pylint: disable=missing-function-docstring
 
         self.render_queue = RenderQueue()
-        icon = QIcon(resources_path("img", "icons", "animation-workbench.svg"))
+        icon = QIcon(resources_path("icons", "animation-workbench-main.svg"))
 
         self.run_action = QAction(icon, "Animation Workbench", self.iface.mainWindow())
         self.run_action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.run_action)
 
+        settings_icon = QIcon(
+            resources_path("icons", "animation-workbench-settings.svg")
+        )
         self.settings_action = QAction(
-            icon, "Animation Workbench Settings", self.iface.mainWindow()
+            settings_icon, "Animation Workbench Settings", self.iface.mainWindow()
         )
         self.settings_action.triggered.connect(self.settings)
         self.iface.addToolBarIcon(self.settings_action)
