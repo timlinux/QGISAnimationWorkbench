@@ -130,9 +130,8 @@ Showing diagnostic information in the QGIS copyright label:
 ' \nCurrent Frame For Feature ' || to_string(coalesce(@current_frame_for_feature, 0))  ||
 ' \nDwell Frames per Feature ' || to_string(coalesce(@dwell_frames_per_feature, 0))  ||
 ' \nTotal Frame Count ' || to_string(coalesce(@total_frame_count, 0))  ||
-' \nFrame Rate (QGIS >= 3.26) ' || to_string(coalesce(@frameRate, 0))  ||
 ' \nFrame Number ' || to_string(coalesce(@frame_number, 0))  ||
-' \nFrame Rate  (QGIS < 3.26)' || to_string(coalesce(@frame_rate, 0))  ||
+' \nFrame Rate' || to_string(coalesce(@frame_rate, 0))  ||
 ' \nTotal Frame Count  (QGIS < 3.26)' || to_string(coalesce(@total_frame_count, 0))  ||
 ' \nwith Current Animation Action: ' || @current_animation_action %]
 ```
