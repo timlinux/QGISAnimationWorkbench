@@ -5,6 +5,10 @@ on:
     paths:
     - "animation_workbench/**"
     - ".github/workflows/test_plugin.yaml"
+  pull_request:
+    paths:
+    - "animation_workbench/**"
+    - ".github/workflows/test_plugin.yaml"
 
 env:
   # plugin name/directory where the code for the plugin is stored
