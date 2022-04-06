@@ -83,8 +83,10 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
 class AnimationWorkbench(QDialog, FORM_CLASS):  # pylint: disable=too-many-public-methods
     """Dialog implementation class Animation Workbench class."""
 
-    def __init__(self, parent=None, iface=None,
-                 render_queue=None):  # pylint: disable=too-many-locals,too-many-statements
+    def __init__(self,  # pylint: disable=too-many-locals,too-many-statements
+                 parent=None,
+                 iface=None,
+                 render_queue=None):
         """Constructor for the workbench dialog.
 
         :param parent: Parent widget of this dialog.
