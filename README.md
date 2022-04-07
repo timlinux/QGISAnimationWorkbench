@@ -112,32 +112,32 @@ The animation workbench exposes or modifies a number of different QGIS Expressio
 
 These variables will always be available, regardless of the animation mode
 
-| Variable                  | Notes                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------- |
-| frame_number              | Frame number within the current dwell or pan range.                               |
-| frame_rate                | Number of frames per second that the video will be rendered at.                   |
-| total_frame_count         | Total number of frames for the whole animation across all features.               |
+| Variable          | Notes                                                               |
+| ----------------- | ------------------------------------------------------------------- |
+| frame_number      | Frame number within the current dwell or pan range.                 |
+| frame_rate        | Number of frames per second that the video will be rendered at.     |
+| total_frame_count | Total number of frames for the whole animation across all features. |
 
 ### Fixed extent mode variables (with layer)
 
 These variables are available when in the fixed extent animation mode when a vector layer has been set
 
 | Variable                 | Notes                                                                                                  |
-|--------------------------|--------------------------------------------------------------------------------------------------------|
+| ------------------------ | ------------------------------------------------------------------------------------------------------ |
 | hover_feature            | The feature we are currently hovering over                                                             |
 | hover_feature_id         | Feature ID for the feature we a current hovering over                                                  |
 | from_feature             | The previously visited feature (or NULL if there isn't one)                                            |
 | from_feature_id          | Feature ID for the previously visited feature (or NULL if there isn't one)                             |
 | current_hover_frame      | The frame number for the current feature (i.e. how many frames we have hovered at the current feature) |
 | hover_frames             | Number of frames we will hover at the current feature for                                              |
-| current_animation_action | Always "Hovering"                                                                |
+| current_animation_action | Always "Hovering"                                                                                      |
 
 ### Planar/Sphere modes
 
 These variables are available in the Planar or Sphere mode
 
 | Variable                 | Notes                                                                                                                             |
-|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | hover_feature            | When in hover mode, the feature we are currently hovering over (or NULL if in travel mode)                                        |
 | hover_feature_id         | When in hover mode, the feature ID for the feature we are currently hovering over (or NULL if in travel mode)                     |
 | from_feature             | When in travel mode, the previously visited feature (or NULL if in hover mode)                                                    |
@@ -152,32 +152,7 @@ These variables are available in the Planar or Sphere mode
 
 ## Example expressions
 
-Showing diagnostic information in the QGIS copyright label:
-
-```
-[%
-'Current Feature ID ' || to_string(coalesce(@hover_feature_id, 0))  ||
-' \nTotal Hover Frames ' || to_string(coalesce(@hover_frames, 0))  ||
-' \nCurrent Hover Frame ' || to_string(coalesce(@current_hover_frame, 0))  ||
-' \nTotal Travel Frames ' || to_string(coalesce(@travel_frames, 0))  ||
-' \nCurrent Travel Frame ' || to_string(coalesce(@current_travel_frame, 0))  ||
-' \nTotal Frame Count ' || to_string(coalesce(@total_frame_count, 0))  ||
-' \nFrame Number ' || to_string(coalesce(@frame_number, 0))  ||
-' \nFrame Rate' || to_string(coalesce(@frame_rate, 0))  ||
-' \nwith Current Animation Action: ' || @current_animation_action %]
-```
-Example output:
-
-![copyright-label](https://user-images.githubusercontent.com/178003/161786902-04bb7fb7-d209-44cc-aaf0-bc80c6f9c130.gif)
-
-
-
-Variably changing the size on a label as we approach it in the animation:
-
-```
-40 * ((@frame_number % @hover_frames) /  @hover_frames)
-```
-
+Visit the [snippets section](https://timlinux.github.io/QGISAnimationWorkbench/library/snippets/) of our documentation for example expressions.
 
 
 ## 🌏 QGIS Support
