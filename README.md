@@ -108,17 +108,47 @@ https://user-images.githubusercontent.com/178003/156931066-87ce89e4-f8d7-46d9-9d
 
 The animation workbench exposes or modifies a number of different QGIS Expression variables that you can use to achieve different dynamic rendering effects.
 
+### Common variables
+
+These variables will always be available, regardless of the animation mode
+
 | Variable                  | Notes                                                                             |
 | ------------------------- | --------------------------------------------------------------------------------- |
-| current_feature_id        | Feature ID for feature we are moving towards.                                     |
-| frames_per_feature        | Total number of flying frames for each feature.                                   |
-| current_frame_for_feature | Frame number within total number of frames for this feature.                      |
-| dwell_frames_per_feature  | Total number of frames to dwell (hover) on each feature for.                      |
-| current_animation_action  | Either "Hovering", "Panning" or "None".                                           |
 | frame_number              | Frame number within the current dwell or pan range.                               |
 | frame_rate                | Number of frames per second that the video will be rendered at.                   |
 | total_frame_count         | Total number of frames for the whole animation across all features.               |
-| current_frame             | Deprecated variable, kept temporarily for compatibility with older projects only. |
+
+### Fixed extent mode variables (with layer)
+
+These variables are available when in the fixed extent animation mode when a vector layer has been set
+
+| Variable                 | Notes                                                                                                  |
+|--------------------------|--------------------------------------------------------------------------------------------------------|
+| hover_feature            | The feature we are currently hovering over                                                             |
+| hover_feature_id         | Feature ID for the feature we a current hovering over                                                  |
+| from_feature             | The previously visited feature (or NULL if there isn't one)                                            |
+| from_feature_id          | Feature ID for the previously visited feature (or NULL if there isn't one)                             |
+| current_hover_frame      | The frame number for the current feature (i.e. how many frames we have hovered at the current feature) |
+| hover_frames             | Number of frames we will hover at the current feature for                                              |
+| current_animation_action | Always "Hovering"                                                                |
+
+### Planar/Sphere modes
+
+These variables are available in the Planar or Sphere mode
+
+| Variable                 | Notes                                                                                                                             |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| hover_feature            | When in hover mode, the feature we are currently hovering over (or NULL if in travel mode)                                        |
+| hover_feature_id         | When in hover mode, the feature ID for the feature we are currently hovering over (or NULL if in travel mode)                     |
+| from_feature             | When in travel mode, the previously visited feature (or NULL if in hover mode)                                                    |
+| from_feature_id          | When in travel mode, the feature ID for the previously visited feature (or NULL if in hover mode)                                 |
+| to_feature               | When in travel mode, the feature we are heading toward (or NULL if in hover mode)                                                 |
+| to_feature_id            | When in travel mode, the feature ID for the feature we are heading toward (or NULL if in hover mode)                              |
+| current_hover_frame      | The frame number for the current feature (i.e. how many frames we have hovered at the current feature), or NULL if in travel mode |
+| hover_frames             | Number of frames we will hover at the current feature for (NULL if in travel mode)                                                |
+| current_travel_frame     | The frame number for the current travel operation, or NULL if in hover mode                                                       |
+| travel_frames            | Number of frames we will travel between the current features (NULL if in hover mode)                                              |
+| current_animation_action | Either "Hovering" or "Travelling"                                                                                                 |
 
 ## Example expressions
 
@@ -126,17 +156,14 @@ Showing diagnostic information in the QGIS copyright label:
 
 ```
 [%
-'Current Feature ID ' || to_string(coalesce(@current_feature_id, 0))  ||
-' \nFrames Per Feature: ' || to_string(coalesce(@frames_per_feature, 0))  ||
-' \nCurrent Frame For Feature ' || to_string(coalesce(@current_frame_for_feature, 0))  ||
-' \nDwell Frames per Feature ' || to_string(coalesce(@dwell_frames_per_feature, 0))  ||
+'Current Feature ID ' || to_string(coalesce(@hover_feature_id, 0))  ||
+' \nTotal Hover Frames ' || to_string(coalesce(@hover_frames, 0))  ||
+' \nCurrent Hover Frame ' || to_string(coalesce(@current_hover_frame, 0))  ||
+' \nTotal Travel Frames ' || to_string(coalesce(@travel_frames, 0))  ||
+' \nCurrent Travel Frame ' || to_string(coalesce(@current_travel_frame, 0))  ||
 ' \nTotal Frame Count ' || to_string(coalesce(@total_frame_count, 0))  ||
-' \nFrame Number   (QGIS >= 3.26) ' || to_string(coalesce(@currentFrame, 0))  ||
-' \nFrame Rate (QGIS >= 3.26) ' || to_string(coalesce(@frameRate, 0))  ||
-' \nFrame Number   (QGIS < 3.26) ' || to_string(coalesce(@frame_number, 0))  ||
-' \nFrame Rate  (QGIS < 3.26)' || to_string(coalesce(@frame_rate, 0))  ||
-' \nTotal Frame Count  (QGIS < 3.26)' || to_string(coalesce(@total_frame_count, 0))  ||
-' \nCurrent Frame ' || to_string(coalesce(@current_frame, 0))  ||
+' \nFrame Number ' || to_string(coalesce(@frame_number, 0))  ||
+' \nFrame Rate' || to_string(coalesce(@frame_rate, 0))  ||
 ' \nwith Current Animation Action: ' || @current_animation_action %]
 ```
 Example output:
@@ -148,7 +175,7 @@ Example output:
 Variably changing the size on a label as we approach it in the animation:
 
 ```
-40 * ((@frame_number % @frames_per_feature) /  @frames_per_feature)
+40 * ((@frame_number % @hover_frames) /  @hover_frames)
 ```
 
 
@@ -157,7 +184,7 @@ Variably changing the size on a label as we approach it in the animation:
 
 Should work with and version of QGIS 3.x. If you have QGIS 3.26 or better you can benefit from the animated icon support (see @nyalldawson's most excellent patch [#48060](https://github.com/qgis/QGIS/pull/48060)).
 
-For QGIS versions below 3.26, you can animate markers by unpacking a GIF image into it's constituent frames and then referencing a specific frame from the symbol data defined property for the image file. Note that to do this extraction below you need to have the [Open Source ImageMagick application](https://imagemagick.org/script/download.php) installed:
+For QGIS versions below 3.26, you can animate markers by unpacking a GIF image into its constituent frames and then referencing a specific frame from the symbol data defined property for the image file. Note that to do this extraction below you need to have the [Open Source ImageMagick application](https://imagemagick.org/script/download.php) installed:
 
 First extract a gif to a sequence of images:
 
@@ -173,7 +200,7 @@ Example of how to create a dynamically changing image marker based on the curren
 ||
 '/gifs/cat_000'
 || 
-lpad(to_string( @current_frame % 48 ), 2, '0') 
+lpad(to_string( @frame_number % 48 ), 2, '0')
 || 
 '.png'
 ```
