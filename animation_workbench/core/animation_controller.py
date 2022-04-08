@@ -116,6 +116,7 @@ class AnimationController(QObject):
         pan_easing: Optional[QEasingCurve],
         zoom_easing: Optional[QEasingCurve],
         frame_rate: float,
+        loop: bool = False,
     ) -> "AnimationController":
         """
         Creates an animation controller for a moving extent animation
@@ -126,6 +127,7 @@ class AnimationController(QObject):
 
         controller = AnimationController(mode, map_settings)
         controller.set_layer(feature_layer)
+        controller.loop = loop
 
         hover_frames = hover_duration * frame_rate
         travel_frames = travel_duration * frame_rate
@@ -133,7 +135,12 @@ class AnimationController(QObject):
         controller.total_frame_count = int(
             (
                 controller.total_feature_count * hover_frames
-                + (controller.total_feature_count - 1) * travel_frames
+                + (
+                    (controller.total_feature_count - 1)
+                    if not loop
+                    else controller.total_feature_count
+                )
+                * travel_frames
             )
         )  # nopep8
 
@@ -174,6 +181,7 @@ class AnimationController(QObject):
 
         self.hover_duration: float = 0
         self.travel_duration: float = 0
+        self.loop: bool = False
 
         self.max_scale: float = 0
         self.min_scale: float = 0
@@ -195,6 +203,8 @@ class AnimationController(QObject):
 
         self.reuse_cache: bool = False
         self.flying_up = False
+
+        self._first_feature: Optional[QgsFeature] = None
 
     def set_layer(self, layer: QgsVectorLayer):
         """
@@ -320,7 +330,11 @@ class AnimationController(QObject):
         self._evaluated_min_scale = self.min_scale
 
         self.set_to_scale(self.min_scale)
+        feature = None
         for feature in self.feature_layer.getFeatures():
+            if self._first_feature is None:
+                self._first_feature = feature
+
             self.base_expression_context.setFeature(feature)
             if self.previous_feature is None:
                 # first feature, need to evaluate the starting scale
@@ -381,6 +395,16 @@ class AnimationController(QObject):
 
             self.previous_feature = feature
             for job in self.hover_at_feature(feature):
+                yield job
+
+        if (
+            self.loop
+            and self._first_feature
+            and feature
+            and self._first_feature != feature
+        ):
+            # insert extra loop back to first feature
+            for job in self.fly_feature_to_feature(feature, self._first_feature):
                 yield job
 
     def set_extent_center(self, center_x: float, center_y: float):
