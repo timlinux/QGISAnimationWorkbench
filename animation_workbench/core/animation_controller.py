@@ -109,8 +109,8 @@ class AnimationController(QObject):
         map_settings: QgsMapSettings,
         mode: MapMode,
         feature_layer: QgsVectorLayer,
-        travel_frames: int,
-        dwell_frames: int,
+        travel_duration: float,
+        hover_duration: float,
         min_scale: float,
         max_scale: float,
         pan_easing: Optional[QEasingCurve],
@@ -127,12 +127,16 @@ class AnimationController(QObject):
         controller = AnimationController(mode, map_settings)
         controller.set_layer(feature_layer)
 
+        hover_frames = hover_duration * frame_rate
+        travel_frames = travel_duration * frame_rate
+
         controller.total_frame_count = (
-            controller.total_feature_count * dwell_frames
+            controller.total_feature_count * hover_frames
             + (controller.total_feature_count - 1) * travel_frames
         )  # nopep8
-        controller.dwell_frames = dwell_frames
-        controller.travel_frames = travel_frames
+
+        controller.hover_duration = hover_duration
+        controller.travel_duration = travel_duration
 
         controller.min_scale = min_scale
         controller.max_scale = max_scale
@@ -165,8 +169,9 @@ class AnimationController(QObject):
         self.feature_counter: int = 0
 
         self.total_frame_count: int = 0
-        self.dwell_frames: int = 0
-        self.travel_frames: int = 0
+
+        self.hover_duration: float = 0
+        self.travel_duration: float = 0
 
         self.max_scale: float = 0
         self.min_scale: float = 0
@@ -476,7 +481,8 @@ class AnimationController(QObject):
             if self.zoom_easing is None:
                 self.zoom_to_full_extent()
 
-        for dwell_frame in range(0, self.dwell_frames, 1):
+        hover_frames = self.hover_duration * self.frame_rate
+        for hover_frame in range(hover_frames):
             # Pad the numbers in the name so that they form a
             # 10 digit string with left padding of 0s
 
@@ -500,10 +506,10 @@ class AnimationController(QObject):
                 scope.setVariable("hover_feature", feature, True)
                 scope.setVariable("hover_feature_id", feature.id(), True)
 
-                scope.setVariable("current_hover_frame", dwell_frame, True)
+                scope.setVariable("current_hover_frame", hover_frame, True)
                 scope.setVariable("current_travel_frame", None, True)
 
-                scope.setVariable("hover_frames", self.dwell_frames, True)
+                scope.setVariable("hover_frames", hover_frames, True)
                 scope.setVariable("travel_frames", None, True)
 
                 scope.setVariable(
@@ -533,9 +539,10 @@ class AnimationController(QObject):
         delta_x = end_point.x() - start_point.x()
         delta_y = end_point.y() - start_point.y()
 
-        for travel_frame in range(self.travel_frames):
+        travel_frames = self.travel_duration * self.frame_rate
+        for travel_frame in range(travel_frames):
             # will always be between 0 - 1
-            progress_fraction = travel_frame / (self.travel_frames - 1)
+            progress_fraction = travel_frame / (travel_frames - 1)
 
             if self.pan_easing:
                 # map progress through the easing curve
@@ -648,7 +655,7 @@ class AnimationController(QObject):
                 scope.setVariable("current_travel_frame", travel_frame, True)
 
                 scope.setVariable("hover_frames", None, True)
-                scope.setVariable("travel_frames", self.travel_frames, True)
+                scope.setVariable("travel_frames", travel_frames, True)
 
                 scope.setVariable(
                     "current_animation_action", AnimationController.ACTION_TRAVELLING

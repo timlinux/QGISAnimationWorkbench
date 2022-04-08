@@ -394,19 +394,19 @@ class AnimationControllerTest(unittest.TestCase):
             map_settings=map_settings,
             mode=MapMode.PLANAR,
             feature_layer=vl,
-            travel_frames=4,
-            dwell_frames=2,
+            travel_duration=2,
+            hover_duration=1,
             min_scale=2000000,
             max_scale=1000000,
             pan_easing=QEasingCurve(QEasingCurve.Type.Linear),
             zoom_easing=QEasingCurve(QEasingCurve.Type.Linear),
-            frame_rate=10,
+            frame_rate=2,
         )
 
         it = controller.create_jobs()
 
         job = next(it)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 0)
         self.assertAlmostEqual(job.map_settings.scale(), 1000000, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
@@ -420,7 +420,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 0
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(), 1
@@ -463,7 +463,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         self.assertAlmostEqual(job.map_settings.scale(), 1000000, delta=120000)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 1)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -474,7 +474,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 1
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(), 1
@@ -519,7 +519,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.scale(), 1000000, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -530,7 +530,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 2
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature")
@@ -573,7 +573,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.scale(), 1666666, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 4, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 8, 2)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 3)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -584,7 +584,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 3
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature")
@@ -627,7 +627,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.scale(), 1666666, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 7, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 14, 2)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 4)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -638,7 +638,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 4
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature")
@@ -681,7 +681,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.scale(), 1000000, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 5)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -692,7 +692,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 5
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature")
@@ -737,7 +737,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.scale(), 1000000, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 6)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -748,7 +748,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 6
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(), 2
@@ -792,7 +792,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.scale(), 1000000, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
-        self.assertEqual(job.map_settings.frameRate(), 10)
+        self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 7)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
@@ -803,7 +803,7 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("frame_number"), 7
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("frame_rate"), 10
+            job.map_settings.expressionContext().variable("frame_rate"), 2
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(), 2
