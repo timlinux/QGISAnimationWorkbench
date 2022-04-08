@@ -130,10 +130,12 @@ class AnimationController(QObject):
         hover_frames = hover_duration * frame_rate
         travel_frames = travel_duration * frame_rate
 
-        controller.total_frame_count = int((
-            controller.total_feature_count * hover_frames
-            + (controller.total_feature_count - 1) * travel_frames
-        ))  # nopep8
+        controller.total_frame_count = int(
+            (
+                controller.total_feature_count * hover_frames
+                + (controller.total_feature_count - 1) * travel_frames
+            )
+        )  # nopep8
 
         controller.hover_duration = hover_duration
         controller.travel_duration = travel_duration
