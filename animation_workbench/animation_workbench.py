@@ -836,6 +836,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             image = QImage(file_name)
             if not image.isNull():
                 pixmap = QPixmap.fromImage(image)
+                self.user_defined_preview.setPixmap(pixmap)
                 self.current_frame_preview.setPixmap(pixmap)
 
             self.current_preview_frame_render_job = None
@@ -871,6 +872,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 image = QImage()
                 image.loadFromData(content)
                 pixmap = QPixmap.fromImage(image)
+                self.user_defined_preview.setPixmap(pixmap)
                 self.current_frame_preview.setPixmap(pixmap)
         else:  # this should be an except, but I'm not sure what the specific exception was supposed to be!
             pass
