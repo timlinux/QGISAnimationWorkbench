@@ -659,8 +659,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         # this needs reworking!
         self.render_queue.frames_per_feature = (
-            (controller.travel_duration + controller.hover_duration) * controller.frame_rate
-        )
+            controller.travel_duration + controller.hover_duration
+        ) * controller.frame_rate
 
         for job in controller.create_jobs():
             self.output_log_text_edit.append(job.file_name)
