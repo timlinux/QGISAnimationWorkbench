@@ -204,14 +204,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 )
             )
         )
-        # How many frames to render for each feature pair transition
-        # The output is generated at e.g. 30fps so choosing 30
-        # would fly to each feature for 1s
-        # You can then use the 'current_feature' project variable
-        # to determine the current feature id
-        # and the 'feature_frame' project variable to determine
-        # the frame number for the current feature based on frames_for_interval
 
+        # How many seconds to render for each feature pair transition
         self.hover_duration_spin.setValue(
             float(
                 setting(
@@ -222,7 +216,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             )
         )
 
-        # How many frames to dwell at each feature for (output at e.g. 30fps)
+        # How many seconds to hover at each feature for
         self.travel_duration_spin.setValue(
             float(
                 setting(

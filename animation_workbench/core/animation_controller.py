@@ -378,7 +378,7 @@ class AnimationController(QObject):
                     yield job
 
             self.previous_feature = feature
-            for job in self.dwell_at_feature(feature):
+            for job in self.hover_at_feature(feature):
                 yield job
 
     def set_extent_center(self, center_x: float, center_y: float):
@@ -451,11 +451,11 @@ class AnimationController(QObject):
             center = None
         return center
 
-    def dwell_at_feature(self, feature) -> Iterator[RenderJob]:
+    def hover_at_feature(self, feature) -> Iterator[RenderJob]:
         """
         Wait at a feature to emphasise it in the video.
 
-        :param feature: QgsFeature to dwell at.
+        :param feature: QgsFeature to hover at.
         :type feature: QgsFeature
         """
         center = self.geometry_to_pointxy(feature)
