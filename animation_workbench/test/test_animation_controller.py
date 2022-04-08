@@ -8,6 +8,8 @@
 
 """
 
+# pylint: disable=too-many-lines
+
 __author__ = "(C) 2018 by Nyall Dawson"
 __date__ = "20/04/2018"
 __copyright__ = "Copyright 2018, North Road"
