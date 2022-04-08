@@ -204,30 +204,24 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 )
             )
         )
-        # How many frames to render for each feature pair transition
-        # The output is generated at e.g. 30fps so choosing 30
-        # would fly to each feature for 1s
-        # You can then use the 'current_feature' project variable
-        # to determine the current feature id
-        # and the 'feature_frame' project variable to determine
-        # the frame number for the current feature based on frames_for_interval
 
-        self.feature_frames_spin.setValue(
-            int(
+        # How many seconds to render for each feature pair transition
+        self.hover_duration_spin.setValue(
+            float(
                 setting(
-                    key="frames_per_feature",
-                    default="90",
+                    key="hover_duration",
+                    default="2",
                     prefer_project_setting=True,
                 )
             )
         )
 
-        # How many frames to dwell at each feature for (output at e.g. 30fps)
-        self.hover_frames_spin.setValue(
-            int(
+        # How many seconds to hover at each feature for
+        self.travel_duration_spin.setValue(
+            float(
                 setting(
-                    key="dwell_frames",
-                    default="30",
+                    key="travel_duration",
+                    default="2",
                     prefer_project_setting=True,
                 )
             )
@@ -541,13 +535,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         else:
             set_setting(key="map_mode", value="fixed_extent", store_in_project=True)
         set_setting(
-            key="frames_per_feature",
-            value=self.feature_frames_spin.value(),
+            key="hover_duration",
+            value=self.hover_duration_spin.value(),
             store_in_project=True,
         )
         set_setting(
-            key="dwell_frames",
-            value=self.hover_frames_spin.value(),
+            key="travel_duration",
+            value=self.travel_duration_spin.value(),
             store_in_project=True,
         )
         set_setting(
@@ -662,9 +656,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             controller.verbose_message.connect(log_message)
 
         self.render_queue.total_feature_count = controller.total_feature_count
+
+        # this needs reworking!
         self.render_queue.frames_per_feature = (
-            controller.travel_frames + controller.dwell_frames
-        )
+            controller.travel_duration + controller.hover_duration
+        ) * controller.frame_rate
 
         for job in controller.create_jobs():
             self.output_log_text_edit.append(job.file_name)
@@ -726,8 +722,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     map_settings=self.iface.mapCanvas().mapSettings(),
                     mode=map_mode,
                     feature_layer=self.layer_combo.currentLayer(),
-                    travel_frames=self.feature_frames_spin.value(),
-                    dwell_frames=self.hover_frames_spin.value(),
+                    travel_duration=self.travel_duration_spin.value(),
+                    hover_duration=self.hover_duration_spin.value(),
                     min_scale=self.scale_range.minimumScale(),
                     max_scale=self.scale_range.maximumScale(),
                     pan_easing=self.pan_easing_widget.get_easing()
