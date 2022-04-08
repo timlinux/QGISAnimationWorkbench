@@ -130,10 +130,10 @@ class AnimationController(QObject):
         hover_frames = hover_duration * frame_rate
         travel_frames = travel_duration * frame_rate
 
-        controller.total_frame_count = (
+        controller.total_frame_count = int((
             controller.total_feature_count * hover_frames
             + (controller.total_feature_count - 1) * travel_frames
-        )  # nopep8
+        ))  # nopep8
 
         controller.hover_duration = hover_duration
         controller.travel_duration = travel_duration
@@ -481,7 +481,7 @@ class AnimationController(QObject):
             if self.zoom_easing is None:
                 self.zoom_to_full_extent()
 
-        hover_frames = self.hover_duration * self.frame_rate
+        hover_frames = int(self.hover_duration * self.frame_rate)
         for hover_frame in range(hover_frames):
             # Pad the numbers in the name so that they form a
             # 10 digit string with left padding of 0s
@@ -539,7 +539,7 @@ class AnimationController(QObject):
         delta_x = end_point.x() - start_point.x()
         delta_y = end_point.y() - start_point.y()
 
-        travel_frames = self.travel_duration * self.frame_rate
+        travel_frames = int(self.travel_duration * self.frame_rate)
         for travel_frame in range(travel_frames):
             # will always be between 0 - 1
             progress_fraction = travel_frame / (travel_frames - 1)
