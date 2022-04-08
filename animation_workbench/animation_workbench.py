@@ -226,6 +226,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 )
             )
         )
+
+        self.check_loop_features.setChecked(
+            setting(
+                key="loop",
+                default="false",
+                prefer_project_setting=True,
+            ).lower()
+            == "true"
+        )
         # How many frames to render when we are in static mode
         self.extent_frames_spin.setValue(
             int(
@@ -545,6 +554,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             store_in_project=True,
         )
         set_setting(
+            key="loop",
+            value="true" if self.check_loop_features.isChecked() else "false",
+            store_in_project=True,
+        )
+        set_setting(
             key="frames_for_extent",
             value=self.extent_frames_spin.value(),
             store_in_project=True,
@@ -726,6 +740,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     hover_duration=self.hover_duration_spin.value(),
                     min_scale=self.scale_range.minimumScale(),
                     max_scale=self.scale_range.maximumScale(),
+                    loop=self.check_loop_features.isChecked(),
                     pan_easing=self.pan_easing_widget.get_easing()
                     if self.pan_easing_widget.is_enabled()
                     else None,

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1388</width>
-    <height>918</height>
+    <height>938</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,6 +95,19 @@ zoom to each point.</string>
                  <widget class="QgsMapLayerComboBox" name="layer_combo">
                   <property name="allowEmptyLayer">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QCheckBox" name="check_loop_features">
+                  <property name="toolTip">
+                   <string>If checked, an extra travel stage from the final
+feature back to the first feature
+will be added, resulting in a seamless
+looping animation.</string>
+                  </property>
+                  <property name="text">
+                   <string>Loop from final feature back to first feature</string>
                   </property>
                  </widget>
                 </item>
