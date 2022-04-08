@@ -208,6 +208,9 @@ class AnimationController(QObject):
         """
         Creates a render job corresponding to a specific frame
         """
+        # Catch for case where preview widget asks for an invalid frame
+        if frame > self.total_frame_count:
+            return None
         job = None
         # inefficient, but we can rework later if needed!
         jobs = self.create_jobs()
