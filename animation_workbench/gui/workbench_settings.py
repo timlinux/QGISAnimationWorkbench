@@ -6,17 +6,16 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDialog
-from .core import set_setting, setting
-from .utilities import get_ui_class, resources_path
-
+from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
+from animation_workbench.core import set_setting, setting
+from animation_workbench.utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("workbench_settings_base.ui")
 
 
-class WorkbenchSettings(QDialog, FORM_CLASS):
+class WorkbenchSettings(FORM_CLASS, QgsOptionsPageWidget):
     """Dialog implementation class Animation Workbench class."""
 
     def __init__(self, parent=None):
@@ -26,17 +25,8 @@ class WorkbenchSettings(QDialog, FORM_CLASS):
         :type parent: QWidget
 
         """
-        QDialog.__init__(self, parent)
+        QgsOptionsPageWidget.__init__(self, parent)
         self.setupUi(self)
-        self.setWindowTitle(self.tr("Animation Workbench"))
-        icon = resources_path("img", "icons", "animation-workbench.svg")
-        self.setWindowIcon(QIcon(icon))
-        self.parent = parent
-
-        # Close button action
-        # close_button = self.button_box.button(
-        #    QtWidgets.QDialogButtonBox.Close)
-        # close_button.clicked.connect(self.reject)
 
         # The maximum number of concurrent threads to allow
         # during rendering. Probably setting to the same number
@@ -62,7 +52,7 @@ class WorkbenchSettings(QDialog, FORM_CLASS):
         else:
             self.verbose_mode_checkbox.setChecked(False)
 
-    def accept(self):
+    def apply(self):
         """Process the animation sequence.
 
         .. note:: This is called on OK click.
@@ -81,4 +71,18 @@ class WorkbenchSettings(QDialog, FORM_CLASS):
         else:
             set_setting(key="verbose_mode", value=0)
 
-        self.close()
+
+class AnimationWorkbenchOptionsFactory(QgsOptionsWidgetFactory):
+    """
+    Factory class for Animation Workbench options widget
+    """
+
+    def __init__(self):  # pylint: disable=useless-super-delegation
+        super().__init__()
+        self.setTitle("Animation Workbench")
+
+    def icon(self):  # pylint: disable=missing-function-docstring
+        return QIcon(resources_path("icons", "animation-workbench-settings.svg"))
+
+    def createWidget(self, parent):  # pylint: disable=missing-function-docstring
+        return WorkbenchSettings(parent)

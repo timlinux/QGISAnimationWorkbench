@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>workbench_settings_base</class>
- <widget class="QDialog" name="workbench_settings_base">
+ <widget class="QWidget" name="workbench_settings_base">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,25 +14,33 @@
    <string>QGIS Animation Workbench Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
-    <widget class="QLabel" name="thread_pool_description">
-     <property name="text">
-      <string>The maximum number of concurrent threads to allow during rendering. Setting to the same number of CPU cores you have would be a good conservative approach.  If you want to produce your animation faster, you could probably run 100 or more on a decently specced machine.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_thread_pool_size">
-     <property name="text">
-      <string>Number of concurrent render tasks</string>
-     </property>
-    </widget>
-   </item>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item row="1" column="1" colspan="2">
     <widget class="QSpinBox" name="spin_thread_pool_size"/>
+   </item>
+   <item row="6" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="debug_mode_description">
@@ -41,6 +49,13 @@
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="verbose_mode_checkbox">
+     <property name="text">
+      <string>Verbose logging mode</string>
      </property>
     </widget>
    </item>
@@ -61,71 +76,25 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QCheckBox" name="verbose_mode_checkbox">
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="thread_pool_description">
      <property name="text">
-      <string>Verbose logging mode</string>
+      <string>The maximum number of concurrent threads to allow during rendering. Setting to the same number of CPU cores you have would be a good conservative approach.  If you want to produce your animation faster, you could probably run 100 or more on a decently specced machine.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="7" column="2">
-    <widget class="QDialogButtonBox" name="button_box">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_thread_pool_size">
+     <property name="text">
+      <string>Number of concurrent render tasks</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>button_box</sender>
-   <signal>accepted()</signal>
-   <receiver>workbench_settings_base</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>workbench_settings_base</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

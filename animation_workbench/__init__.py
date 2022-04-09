@@ -29,7 +29,8 @@ from qgis.core import Qgis
 from .animation_workbench import AnimationWorkbench
 from .core import RenderQueue, setting
 from .utilities import resources_path
-from .workbench_settings import WorkbenchSettings
+from .gui import AnimationWorkbenchOptionsFactory
+from animation_workbench.gui.workbench_settings import WorkbenchSettings
 
 
 def classFactory(iface):  # pylint: disable=missing-function-docstring
@@ -46,8 +47,8 @@ class AnimationWorkbenchPlugin:
 
         self.render_queue: Optional[RenderQueue] = None
         self.run_action: Optional[QAction] = None
-        self.settings_action: Optional[QAction] = None
         self.debug_action: Optional[QAction] = None
+        self.options_factory = None
 
     def initGui(self):  # pylint: disable=missing-function-docstring
 
@@ -57,15 +58,6 @@ class AnimationWorkbenchPlugin:
         self.run_action = QAction(icon, "Animation Workbench", self.iface.mainWindow())
         self.run_action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.run_action)
-
-        settings_icon = QIcon(
-            resources_path("icons", "animation-workbench-settings.svg")
-        )
-        self.settings_action = QAction(
-            settings_icon, "Animation Workbench Settings", self.iface.mainWindow()
-        )
-        self.settings_action.triggered.connect(self.settings)
-        self.iface.addToolBarIcon(self.settings_action)
 
         # If you change debug_mode to true, after clicking
         # this toolbutton, QGIS will block until it can attach
@@ -77,6 +69,9 @@ class AnimationWorkbenchPlugin:
             )
             self.debug_action.triggered.connect(self.debug)
             self.iface.addToolBarIcon(self.debug_action)
+
+        self.options_factory = AnimationWorkbenchOptionsFactory()
+        self.iface.registerOptionsWidgetFactory(self.options_factory)
 
     def debug(self):
         """
@@ -101,9 +96,9 @@ class AnimationWorkbenchPlugin:
 
     def unload(self):  # pylint: disable=missing-function-docstring
         self.iface.removeToolBarIcon(self.run_action)
-        self.iface.removeToolBarIcon(self.settings_action)
+        self.iface.unregisterOptionsWidgetFactory(self.options_factory)
+        self.options_factory = None
         del self.run_action
-        del self.settings_action
 
     def run(self):
         """
@@ -116,13 +111,6 @@ class AnimationWorkbenchPlugin:
         )
         dialog.setAttribute(Qt.WA_DeleteOnClose)
         dialog.show()
-
-    def settings(self):
-        """
-        Shows the settings dialog
-        """
-        dialog = WorkbenchSettings()
-        dialog.exec_()
 
     def display_information_message_bar(
         self,
