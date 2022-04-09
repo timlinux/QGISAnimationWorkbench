@@ -116,7 +116,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.render_queue = render_queue
         self.setWindowTitle(self.tr("Animation Workbench"))
-        icon = resources_path("img", "icons", "animation-workbench.svg")
+        icon = resources_path("icons", "animation-workbench.svg")
         self.setWindowIcon(QIcon(icon))
         self.parent = parent
         self.iface = iface
