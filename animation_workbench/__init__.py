@@ -30,7 +30,6 @@ from .animation_workbench import AnimationWorkbench
 from .core import RenderQueue, setting
 from .utilities import resources_path
 from .gui import AnimationWorkbenchOptionsFactory
-from animation_workbench.gui.workbench_settings import WorkbenchSettings
 
 
 def classFactory(iface):  # pylint: disable=missing-function-docstring
