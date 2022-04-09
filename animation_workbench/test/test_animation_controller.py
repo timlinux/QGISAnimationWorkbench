@@ -215,9 +215,17 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("current_hover_frame"),
             0,
         )
-        self.assertIsNone(job.map_settings.expressionContext().variable("from_feature"))
         self.assertIsNone(
-            job.map_settings.expressionContext().variable("from_feature_id")
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature").id(), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature_id"), 2
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(),
@@ -257,9 +265,17 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("current_hover_frame"),
             1,
         )
-        self.assertIsNone(job.map_settings.expressionContext().variable("from_feature"))
         self.assertIsNone(
-            job.map_settings.expressionContext().variable("from_feature_id")
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature").id(), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature_id"), 2
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(),
@@ -300,10 +316,14 @@ class AnimationControllerTest(unittest.TestCase):
             0,
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("from_feature").id(), 1
+            job.map_settings.expressionContext().variable("previous_feature").id(), 1
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("from_feature_id"), 1
+            job.map_settings.expressionContext().variable("previous_feature_id"), 1
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(),
@@ -344,10 +364,14 @@ class AnimationControllerTest(unittest.TestCase):
             1,
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("from_feature").id(), 1
+            job.map_settings.expressionContext().variable("previous_feature").id(), 1
         )
         self.assertEqual(
-            job.map_settings.expressionContext().variable("from_feature_id"), 1
+            job.map_settings.expressionContext().variable("previous_feature_id"), 1
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature").id(),
@@ -428,6 +452,18 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature_id"), 1
         )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature").id(), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature_id"), 2
+        )
         self.assertIsNone(job.map_settings.expressionContext().variable("from_feature"))
         self.assertIsNone(
             job.map_settings.expressionContext().variable("from_feature_id")
@@ -479,6 +515,18 @@ class AnimationControllerTest(unittest.TestCase):
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature_id"), 1
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature").id(), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature_id"), 2
         )
         self.assertIsNone(job.map_settings.expressionContext().variable("from_feature"))
         self.assertIsNone(
@@ -547,6 +595,16 @@ class AnimationControllerTest(unittest.TestCase):
             job.map_settings.expressionContext().variable("to_feature_id"), 2
         )
         self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
+        )
+        self.assertIsNone(
             job.map_settings.expressionContext().variable("current_hover_frame")
         )
         self.assertEqual(
@@ -585,6 +643,16 @@ class AnimationControllerTest(unittest.TestCase):
         )
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature_id")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("from_feature").id(), 1
@@ -638,6 +706,16 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature_id")
         )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
+        )
         self.assertEqual(
             job.map_settings.expressionContext().variable("from_feature").id(), 1
         )
@@ -689,6 +767,16 @@ class AnimationControllerTest(unittest.TestCase):
         )
         self.assertIsNone(
             job.map_settings.expressionContext().variable("hover_feature_id")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature")
+        )
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("previous_feature_id")
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("from_feature").id(), 1
@@ -744,6 +832,16 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature_id"), 2
         )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature").id(), 1
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature_id"), 1
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
+        )
         self.assertIsNone(job.map_settings.expressionContext().variable("from_feature"))
         self.assertIsNone(
             job.map_settings.expressionContext().variable("from_feature_id")
@@ -796,6 +894,16 @@ class AnimationControllerTest(unittest.TestCase):
         )
         self.assertEqual(
             job.map_settings.expressionContext().variable("hover_feature_id"), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature").id(), 1
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature_id"), 1
+        )
+        self.assertIsNone(job.map_settings.expressionContext().variable("next_feature"))
+        self.assertIsNone(
+            job.map_settings.expressionContext().variable("next_feature_id")
         )
         self.assertIsNone(job.map_settings.expressionContext().variable("from_feature"))
         self.assertIsNone(
@@ -880,6 +988,25 @@ class AnimationControllerTest(unittest.TestCase):
             1000000,
             delta=120000,
         )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("hover_feature").id(), 1
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("hover_feature_id"), 1
+        )
+        # make sure previous_feature is set to wrap around back to start
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature").id(), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature_id"), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature").id(), 2
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature_id"), 2
+        )
 
         job = next(it)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
@@ -932,6 +1059,20 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 7)
+
+        # make sure next_feature is set to wrap around back to start
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature").id(), 1
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("previous_feature_id"), 1
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature").id(), 1
+        )
+        self.assertEqual(
+            job.map_settings.expressionContext().variable("next_feature_id"), 1
+        )
 
         # travel from last to first
         job = next(it)
