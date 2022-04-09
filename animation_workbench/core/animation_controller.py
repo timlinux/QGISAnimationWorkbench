@@ -173,9 +173,9 @@ class AnimationController(QObject):
         self.data_defined_properties = QgsPropertyCollection()
 
         self.feature_layer: Optional[QgsVectorLayer] = None
+        self._features: List[QgsFeature] = []
         self.layer_to_map_transform: Optional[QgsCoordinateTransform] = None
         self.total_feature_count: int = 0
-        self.feature_counter: int = 0
 
         self.total_frame_count: int = 0
 
@@ -199,12 +199,7 @@ class AnimationController(QObject):
         self.working_directory: Path = Path(tempfile.gettempdir())
         self.frame_filename_prefix: str = "animation_workbench"
 
-        self.previous_feature: Optional[QgsFeature] = None
-
         self.reuse_cache: bool = False
-        self.flying_up = False
-
-        self._first_feature: Optional[QgsFeature] = None
 
     def set_layer(self, layer: QgsVectorLayer):
         """
@@ -213,6 +208,11 @@ class AnimationController(QObject):
         self.feature_layer = layer
         self.total_feature_count = layer.featureCount()
         self.base_expression_context.appendScope(layer.createExpressionContextScope())
+
+        # preload all features into a list, so that we can easily retrieve previous/next features
+        # This is not so nice for large layers, but it's unlikely that someone will be making
+        # an animation with 10k's of features anyway...!
+        self._features = list(self.feature_layer.getFeatures())
 
     def create_job_for_frame(self, frame: int) -> Optional[RenderJob]:
         """
@@ -271,9 +271,7 @@ class AnimationController(QObject):
 
                 self.current_frame += 1
         else:
-            self.feature_counter = 0
-            self.previous_feature = None
-            self.total_feature_count = self.feature_layer.featureCount()
+            self.total_feature_count = len(self._features)
 
             # Need to refactor range param below so that it uses
             # a frames per feature option rather than the misleadingly
@@ -281,10 +279,9 @@ class AnimationController(QObject):
             # feature in this context).
             hover_frames = self.total_frame_count
 
-            for feature in self.feature_layer.getFeatures():
+            for feature_idx, feature in enumerate(self._features):
                 self.base_expression_context.setFeature(feature)
 
-                self.feature_counter += 1
                 for frame_for_feature in range(hover_frames):
                     name = self.working_directory / "{}-{}.png".format(
                         self.frame_filename_prefix,
@@ -293,15 +290,29 @@ class AnimationController(QObject):
 
                     scope = QgsExpressionContextScope()
                     scope.setVariable(
-                        "from_feature",
-                        None if not self.previous_feature else self.previous_feature,
+                        "previous_feature",
+                        None if feature_idx == 0 else self._features[feature_idx - 1],
                         True,
                     )
                     scope.setVariable(
-                        "from_feature_id",
+                        "previous_feature_id",
                         None
-                        if not self.previous_feature
-                        else self.previous_feature.id(),
+                        if feature_idx == 0
+                        else self._features[feature_idx - 1].id(),
+                        True,
+                    )
+                    scope.setVariable(
+                        "next_feature",
+                        None
+                        if feature_idx == len(self._features) - 1
+                        else self._features[feature_idx + 1],
+                        True,
+                    )
+                    scope.setVariable(
+                        "next_feature_id",
+                        None
+                        if feature_idx == len(self._features) - 1
+                        else self._features[feature_idx + 1].id(),
                         True,
                     )
 
@@ -324,8 +335,6 @@ class AnimationController(QObject):
 
                     self.current_frame += 1
 
-                self.previous_feature = feature
-
     def create_moving_extent_job(self) -> Iterator[RenderJob]:
         """
         Yields render jobs for moving extent animations
@@ -334,12 +343,9 @@ class AnimationController(QObject):
 
         self.set_to_scale(self.min_scale)
         feature = None
-        for feature in self.feature_layer.getFeatures():
-            if self._first_feature is None:
-                self._first_feature = feature
-
+        for feature_idx, feature in enumerate(self._features):
             self.base_expression_context.setFeature(feature)
-            if self.previous_feature is None:
+            if feature_idx == 0:
                 # first feature, need to evaluate the starting scale
                 context = QgsExpressionContext(self.base_expression_context)
                 context.appendScope(
@@ -366,12 +372,12 @@ class AnimationController(QObject):
             scope = QgsExpressionContextScope()
             scope.setVariable(
                 "from_feature",
-                None if not self.previous_feature else self.previous_feature,
+                None if feature_idx == 0 else self._features[feature_idx - 1],
                 True,
             )
             scope.setVariable(
                 "from_feature_id",
-                None if not self.previous_feature else self.previous_feature.id(),
+                None if feature_idx == 0 else self._features[feature_idx - 1].id(),
                 True,
             )
             scope.setVariable("to_feature", feature, True)
@@ -392,22 +398,18 @@ class AnimationController(QObject):
                     self.min_scale,
                 )
 
-            if self.previous_feature is not None:
-                for job in self.fly_feature_to_feature(self.previous_feature, feature):
+            if feature_idx > 0:
+                for job in self.fly_feature_to_feature(
+                    self._features[feature_idx - 1], feature
+                ):
                     yield job
 
-            self.previous_feature = feature
-            for job in self.hover_at_feature(feature):
+            for job in self.hover_at_feature(feature_idx):
                 yield job
 
-        if (
-            self.loop
-            and self._first_feature
-            and feature
-            and self._first_feature != feature
-        ):
+        if self.loop and len(self._features) > 1:
             # insert extra loop back to first feature
-            for job in self.fly_feature_to_feature(feature, self._first_feature):
+            for job in self.fly_feature_to_feature(feature, self._features[0]):
                 yield job
 
     def set_extent_center(self, center_x: float, center_y: float):
@@ -480,13 +482,35 @@ class AnimationController(QObject):
             center = None
         return center
 
-    def hover_at_feature(self, feature) -> Iterator[RenderJob]:
+    def hover_at_feature(self, feature_idx: int) -> Iterator[RenderJob]:
         """
         Wait at a feature to emphasise it in the video.
 
-        :param feature: QgsFeature to hover at.
-        :type feature: QgsFeature
+        :param feature_idx: index of feature to hover at
         """
+        feature = self._features[feature_idx]
+        if not self.loop:
+            previous_feature = (
+                None if feature_idx == 0 else self._features[feature_idx - 1]
+            )
+            next_feature = (
+                None
+                if feature_idx == len(self._features) - 1
+                else self._features[feature_idx + 1]
+            )
+        else:
+            # next and previous features must wrap around
+            previous_feature = (
+                self._features[-1]
+                if feature_idx == 0
+                else self._features[feature_idx - 1]
+            )
+            next_feature = (
+                self._features[0]
+                if feature_idx == len(self._features) - 1
+                else self._features[feature_idx + 1]
+            )
+
         center = self.geometry_to_pointxy(feature)
         if not center:
             self.normal_message.emit("Unsupported geometry, skipping.")
@@ -535,6 +559,27 @@ class AnimationController(QObject):
                 scope.setVariable("hover_feature", feature, True)
                 scope.setVariable("hover_feature_id", feature.id(), True)
 
+                scope.setVariable(
+                    "previous_feature",
+                    previous_feature,
+                    True,
+                )
+                scope.setVariable(
+                    "previous_feature_id",
+                    None if not previous_feature else previous_feature.id(),
+                    True,
+                )
+                scope.setVariable(
+                    "next_feature",
+                    next_feature,
+                    True,
+                )
+                scope.setVariable(
+                    "next_feature_id",
+                    None if not next_feature else next_feature.id(),
+                    True,
+                )
+
                 scope.setVariable("current_hover_frame", hover_frame, True)
                 scope.setVariable("current_travel_frame", None, True)
 
@@ -569,6 +614,7 @@ class AnimationController(QObject):
         delta_y = end_point.y() - start_point.y()
 
         travel_frames = int(self.travel_duration * self.frame_rate)
+        flying_up = True
         for travel_frame in range(travel_frames):
             # will always be between 0 - 1
             progress_fraction = travel_frame / (travel_frames - 1)
@@ -596,13 +642,13 @@ class AnimationController(QObject):
                     zoom_factor = self.zoom_easing.valueForProgress(
                         progress_fraction * 2
                     )
-                    self.flying_up = True
+                    flying_up = True
                 else:
                     # flying down
                     # take progress from 0.5 -> 1.0 and scale to 1 ->0
                     # before apply easing
 
-                    if self.flying_up:
+                    if flying_up:
                         # update max scale at the halfway point
                         context = QgsExpressionContext(self.base_expression_context)
                         context.setFeature(end_feature)
@@ -618,6 +664,10 @@ class AnimationController(QObject):
                         scope.setVariable("to_feature_id", end_feature.id(), True)
                         scope.setVariable("hover_feature", end_feature, True)
                         scope.setVariable("hover_feature_id", end_feature.id(), True)
+                        scope.setVariable("previous_feature", None, True)
+                        scope.setVariable("previous_feature_id", None, True)
+                        scope.setVariable("next_feature", None, True)
+                        scope.setVariable("next_feature_id", None, True)
                         context.appendScope(scope)
 
                         self._evaluated_max_scale = self.max_scale
@@ -631,7 +681,7 @@ class AnimationController(QObject):
                                 self.max_scale,
                             )
 
-                    self.flying_up = False
+                    flying_up = False
 
                     zoom_factor = self.zoom_easing.valueForProgress(
                         (1 - progress_fraction) * 2
