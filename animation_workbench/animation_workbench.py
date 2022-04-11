@@ -108,7 +108,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.expression_context_generator = DialogExpressionContextGenerator()
-        self.main_stack.setCurrentIndex(0)
+        self.main_tab.setCurrentIndex(1)
         self.extent_group_box = QgsExtentWidget(None, QgsExtentWidget.ExpandedStyle)
         vbox_layout = QVBoxLayout()
         vbox_layout.addWidget(self.extent_group_box)
@@ -370,7 +370,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         layout = QGridLayout(self.video_preview_widget)
         layout.addWidget(video_widget)
         # Enable options page on startup
-        self.main_stack.setCurrentIndex(0)
+        self.main_tab.setCurrentIndex(1)
         # Enable easing status page on startup
         self.render_queue.status_changed.connect(self.show_status)
         self.render_queue.processing_completed.connect(self.processing_completed)
@@ -628,8 +628,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         .. note:: This is called on OK click.
         """
-        # Enable progress page on startup
-        self.main_stack.setCurrentIndex(1)
+        # Enable progress page on accept
+        self.main_tab.setCurrentIndex(4)
         # Image preview page
         self.preview_stack.setCurrentIndex(0)
         # Enable queue status page
@@ -639,7 +639,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             os.system("rm %s/%s*" % (self.work_directory, self.frame_filename_prefix))
 
         self.save_state()
-        self.run_frame.show()
 
         self.render_queue.reset()
         self.last_preview_image = None
@@ -691,7 +690,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.render_queue.cancel_processing()
         # Enable progress page
-        self.main_stack.setCurrentIndex(0)
+        self.main_tab.setCurrentIndex(1)
 
     def create_controller(self) -> Optional[AnimationController]:
         """
@@ -786,7 +785,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         def show_movie(movie_file: str):
             # Video preview page
-            self.main_stack.setCurrentIndex(1)
+            self.main_tab.setCurrentIndex(4)
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
             self.play_button.setEnabled(True)
@@ -808,7 +807,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsApplication.taskManager().addTask(self.movie_task)
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
-        self.main_stack.setCurrentIndex(0)
+        self.main_tab.setCurrentIndex(1)
 
     def show_preview_for_frame(self, frame: int):
         """

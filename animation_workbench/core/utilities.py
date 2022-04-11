@@ -18,6 +18,7 @@ __revision__ = "$Format:%H$"
 # (at your option) any later version.
 # ---------------------------------------------------------------------
 
+from math import floor
 import os
 import sys
 
@@ -83,3 +84,31 @@ class CoreUtils:
                     result.append(path_extensions)
 
         return result
+
+
+def calculate_cardinality(angle):
+    """Compute the cardinality of an angle.
+
+    ..versionadded: 1.0
+
+    ..notes: Adapted from original function with the same
+        name I wrote for InaSAFE.
+
+    :param angle: Bearing angle.
+    :type angle: float
+
+    :return: Cardinality text.
+    :rtype: str
+    """
+    # this method could still be improved later, since the acquisition interval
+    # is a bit strange, i.e the input angle of 22.499° will return `N` even
+    # though 22.5° is the direction for `NNE`
+
+    direction_list = ("N,NNE,NE,ENE,E,ESE,SE,SSE,S,SSW,SW,WSW,W,WNW,NW,NNW").split(",")
+
+    bearing = float(angle)
+    direction_count = len(direction_list)
+    direction_interval = 360.0 / direction_count
+    index = int(floor(bearing / direction_interval))
+    index %= direction_count
+    return direction_list[index]
