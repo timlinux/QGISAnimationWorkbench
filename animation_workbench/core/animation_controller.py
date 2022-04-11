@@ -33,7 +33,6 @@ from qgis.core import (
 )
 
 from .render_queue import RenderJob
-from .utilities import calculate_cardinality
 
 
 class MapMode(Enum):
