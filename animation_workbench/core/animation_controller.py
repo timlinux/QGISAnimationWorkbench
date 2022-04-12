@@ -382,6 +382,7 @@ class AnimationController(QObject):
             )
             scope.setVariable("to_feature", feature, True)
             scope.setVariable("to_feature_id", feature.id(), True)
+
             scope.setVariable("hover_feature", feature, True)
             scope.setVariable("hover_feature_id", feature.id(), True)
             context.appendScope(scope)
