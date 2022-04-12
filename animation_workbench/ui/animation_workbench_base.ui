@@ -36,23 +36,6 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="intro_outro_tab">
-      <attribute name="title">
-       <string>Intro/Outro</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_13">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>This page is coming soon. It will let you create a list of media (images and videos) that should be  inserted into the front and back of the output video.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="animation_plan_tab" native="true">
       <attribute name="title">
        <string>Animation Plan</string>
@@ -544,6 +527,23 @@ how many frames per second to use.</string>
            </item>
           </layout>
          </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="intro_outro_tab">
+      <attribute name="title">
+       <string>Intro/Outro</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_13">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>This page is coming soon. It will let you create a list of media (images and videos) that should be  inserted into the front and back of the output video.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
       </layout>

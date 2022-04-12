@@ -108,7 +108,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.expression_context_generator = DialogExpressionContextGenerator()
-        self.main_tab.setCurrentIndex(1)
+        self.main_tab.setCurrentIndex(0)
         self.extent_group_box = QgsExtentWidget(None, QgsExtentWidget.ExpandedStyle)
         vbox_layout = QVBoxLayout()
         vbox_layout.addWidget(self.extent_group_box)
@@ -370,7 +370,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         layout = QGridLayout(self.video_preview_widget)
         layout.addWidget(video_widget)
         # Enable options page on startup
-        self.main_tab.setCurrentIndex(1)
+        self.main_tab.setCurrentIndex(0)
         # Enable easing status page on startup
         self.render_queue.status_changed.connect(self.show_status)
         self.render_queue.processing_completed.connect(self.processing_completed)
@@ -690,7 +690,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.render_queue.cancel_processing()
         # Enable progress page
-        self.main_tab.setCurrentIndex(1)
+        self.main_tab.setCurrentIndex(0)
 
     def create_controller(self) -> Optional[AnimationController]:
         """
@@ -807,7 +807,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsApplication.taskManager().addTask(self.movie_task)
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
-        self.main_tab.setCurrentIndex(1)
+        self.main_tab.setCurrentIndex(0)
 
     def show_preview_for_frame(self, frame: int):
         """
