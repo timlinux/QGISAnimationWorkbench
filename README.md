@@ -123,7 +123,7 @@ These variables will always be available, regardless of the animation mode
 These variables are available when in the fixed extent animation mode when a vector layer has been set
 
 | Variable                 | Notes                                                                                                  |
-|--------------------------|--------------------------------------------------------------------------------------------------------|
+| ------------------------ | ------------------------------------------------------------------------------------------------------ |
 | hover_feature            | The feature we are currently hovering over                                                             |
 | hover_feature_id         | Feature ID for the feature we a current hovering over                                                  |
 | previous_feature         | The previously visited feature (or NULL if there isn't one)                                            |
@@ -139,7 +139,7 @@ These variables are available when in the fixed extent animation mode when a vec
 These variables are available in the Planar or Sphere mode.
 
 | Variable                 | Notes                             |
-|--------------------------|-----------------------------------|
+| ------------------------ | --------------------------------- |
 | current_animation_action | Either "Hovering" or "Travelling" |
 
 #### When hovering
@@ -147,7 +147,7 @@ These variables are available in the Planar or Sphere mode.
 These variables are available in planar or sphere mode, when the animation is currently hovering over a feature
 
 | Variable            | Notes                                                                                                  |
-|---------------------|--------------------------------------------------------------------------------------------------------|
+| ------------------- | ------------------------------------------------------------------------------------------------------ |
 | hover_feature       | The feature we are currently hovering over                                                             |
 | hover_feature_id    | The feature ID for the feature we are currently hovering over                                          |
 | previous_feature    | The previously visited feature (or NULL if there isn't one)                                            |
@@ -163,7 +163,7 @@ These variables are available in planar or sphere mode, when the animation is cu
 These variables are available in planar or sphere mode, when the animation is currently travelling between two features
 
 | Variable             | Notes                                                        |
-|----------------------|--------------------------------------------------------------|
+| -------------------- | ------------------------------------------------------------ |
 | from_feature         | The feature we are travelling away from                      |
 | from_feature_id      | The feature ID for the feature we are travelling away from   |
 | to_feature           | The feature we are heading toward                            |
@@ -255,9 +255,9 @@ $ TODO
 
 Before uploading your PR, run test one last time to check if there are any errors. If it has no errors, commit and then push it!
 
-For more information on PR's steps, please see links in the Contributing section.
+For more information on PR's steps, please see the links in the Contributing section.
 
-### Comit messages
+### Commit messages
 
 Please make this project more fun and easy to scan by using emoji prefixes for your 
 commit messages (see [GitMoji](https://gitmoji.dev/)).

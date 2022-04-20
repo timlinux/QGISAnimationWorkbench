@@ -63,8 +63,9 @@ class AnimationWorkbenchPlugin:
         # to the remote debugger
         debug_mode = int(setting(key="debug_mode", default=0))
         if debug_mode:
+            debug_icon = QIcon(resources_path("icons", "animation-workbench-debug.svg"))
             self.debug_action = QAction(
-                icon, "Animation Workbench Debug Mode", self.iface.mainWindow()
+                debug_icon, "Animation Workbench Debug Mode", self.iface.mainWindow()
             )
             self.debug_action.triggered.connect(self.debug)
             self.iface.addToolBarIcon(self.debug_action)
