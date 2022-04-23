@@ -98,3 +98,30 @@ You can set the angle of rotation for a symbol using this expression:
 ![Rotated Symbol Preview](img/rotated-symbol-properties.png)
 
 ![Rotated Symbol Preview](img/rotated-symbol.png)
+
+Using this technique you can also create an animation effect showing the source
+direction of travel and the new destination.
+
+```python
+scale_linear (
+ @current_hover_frame,
+ 0,
+ @hover_frames,
+ degrees( 
+  azimuth( 
+   geometry(@hover_feature), 
+   geometry(@previous_feature) 
+  )
+ ),
+ degrees( 
+  azimuth( 
+   geometry(@hover_feature), 
+   geometry(@next_feature) 
+  )
+ )
+)
+```
+
+Will produce something like this:
+
+![Animated Rotated Symbol Preview](img/animated-rotating-symbol.gif)
