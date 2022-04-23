@@ -55,3 +55,28 @@ Variably changing the size on a label as we approach it in the animation:
 ```
 40 * ((@frame_number % @hover_frames) /  @hover_frames)
 ```
+
+## Calculating the angle between points
+
+You can calculate the angle between the hover point and the previous point like this:
+
+```python
+coalesce(
+ format_number(
+  degrees( 
+   azimuth( 
+    geometry(@hover_feature), 
+    geometry(@previous_feature) 
+   )
+  )
+ ), 0)
+```
+
+You can set the angle of rotation for a symbol using this expression:
+
+![Rotated Symbol Preview](img/rotated-symbol-properties.png)
+
+
+
+![Rotated Symbol Preview](img/rotated-symbol.png)
+
