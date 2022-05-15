@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>MediaListWidgetBase</class>
+ <widget class="QWidget" name="MediaListWidgetBase">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>565</width>
-    <height>326</height>
+    <width>580</width>
+    <height>333</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,28 +25,31 @@
     </widget>
    </item>
    <item row="0" column="2" colspan="2">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="preview_label">
      <property name="text">
       <string>Preview</string>
      </property>
     </widget>
    </item>
    <item row="0" column="4" colspan="2">
-    <widget class="QRadioButton" name="radioButton">
+    <widget class="QRadioButton" name="collection">
      <property name="text">
       <string>Collection</string>
      </property>
     </widget>
    </item>
    <item row="0" column="6">
-    <widget class="QRadioButton" name="radioButton_2">
+    <widget class="QRadioButton" name="item">
      <property name="text">
       <string>Item</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item row="1" column="0" rowspan="5">
-    <widget class="QListWidget" name="MediaListWidgetBase">
+    <widget class="QListWidget" name="media_list">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -65,7 +68,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QToolButton" name="toolButton">
+    <widget class="QToolButton" name="add_media">
      <property name="text">
       <string>➕</string>
      </property>
@@ -94,7 +97,7 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QToolButton" name="toolButton_2">
+    <widget class="QToolButton" name="remove_media">
      <property name="text">
       <string>➖</string>
      </property>
@@ -114,21 +117,21 @@
     </spacer>
    </item>
    <item row="4" column="1">
-    <widget class="QToolButton" name="toolButton_3">
+    <widget class="QToolButton" name="move_up">
      <property name="text">
-      <string>^</string>
+      <string>↑ </string>
      </property>
     </widget>
    </item>
    <item row="5" column="1">
-    <widget class="QToolButton" name="toolButton_4">
+    <widget class="QToolButton" name="move_down">
      <property name="text">
-      <string>v</string>
+      <string>↓ </string>
      </property>
     </widget>
    </item>
    <item row="6" column="0">
-    <widget class="QLabel" name="label_5">
+    <widget class="QLabel" name="details_label">
      <property name="text">
       <string>Details</string>
      </property>
@@ -145,14 +148,14 @@
     </widget>
    </item>
    <item row="6" column="3" colspan="2">
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="duration_label">
      <property name="text">
       <string>Duration</string>
      </property>
     </widget>
    </item>
    <item row="6" column="5" colspan="2">
-    <widget class="QSpinBox" name="spinBox"/>
+    <widget class="QSpinBox" name="duration"/>
    </item>
   </layout>
  </widget>

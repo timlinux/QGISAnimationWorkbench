@@ -10,6 +10,14 @@ from qgis.PyQt.QtWidgets import QWidget
 from qgis.PyQt.QtCore import (
     pyqtSignal,
 )
+from qgis.PyQt.Qt import UserRole
+from typing import Optional
+
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from qgis.PyQt.QtCore import pyqtSlot, QUrl
+from qgis.PyQt.QtGui import QIcon, QPixmap, QImage
+from qgis.PyQt.QtWidgets import QFileDialog, QListWidgetItem
 from .utilities import get_ui_class
 
 FORM_CLASS = get_ui_class("media_list_widget_base.ui")
@@ -24,7 +32,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         """Constructor for media_list_widget.
 
         :media_type: Types of media that can be managed.
-        :type current_easing: str
+        :type media_type: str
 
         :param parent: Parent widget of this widget.
         :type parent: QWidget
@@ -32,3 +40,29 @@ class MediaListWidget(QWidget, FORM_CLASS):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self.media_type = media_type
+        self.media_list.currentRowChanged.connect(self.media_item_selected)
+        self.add_media.clicked.connect(self.choose_media_file)
+
+    def media_item_selected(self, current_index):
+        value = self.media_list.currentItem().text()
+        self.details_label.setText(str(value))
+
+    def choose_media_file(self):
+        """
+        Asks the user for the a media file path
+        """
+        # Popup a dialog to request the filename for music backing track
+        dialog_title = "Media (jpg, png, mov, mp4) for video"
+
+        # noinspection PyCallByClass,PyTypeChecker
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            dialog_title,
+            None,  # self.music_file_edit.text(),
+            "JPEG (*.jpg);;PNG (*.png);;MOV (*.mov);;MP4 (*.mp4)",
+        )
+        if file_path is None or file_path == "":
+            return
+        item = QListWidgetItem(file_path)
+        item.setData(UserRole, file_path)
+        self.media_list.insertItem(0, item)
