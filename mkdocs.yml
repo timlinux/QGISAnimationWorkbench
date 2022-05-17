@@ -83,40 +83,40 @@ markdown_extensions:
 plugins:
   - search  
   # See https://github.com/orzih/mkdocs-with-pdf#installation
-  - with-pdf
-      author: Tim Sutton, Nyall Dawson
-      copyright: (c) Tim Sutton, Nyall Dawson 2022
+  - with-pdf:
+    author: Tim Sutton, Nyall Dawson
+    copyright: (c) Tim Sutton, Nyall Dawson 2022
 
-      cover: true
-      back_cover: true
-      cover_title: The QGIS Animation Workbench
-      cover_subtitle: A tool to bring your QGIS maps to life.
-      #custom_template_path: TODO
+    cover: true
+    back_cover: true
+    cover_title: The QGIS Animation Workbench
+    cover_subtitle: A tool to bring your QGIS maps to life.
+    #custom_template_path: TODO
 
-      toc_title: Contents
-      heading_shift: false
-      toc_level: 3
-      ordered_chapter_level: 2
-        excludes_children:
-            - 'release-notes/:upgrading'
-            - 'release-notes/:changelog'
+    toc_title: Contents
+    heading_shift: false
+    toc_level: 3
+    ordered_chapter_level: 2
+      excludes_children:
+          - 'release-notes/:upgrading'
+          - 'release-notes/:changelog'
 
-        exclude_pages:
-            - 'bugs/'
-            - 'appendix/contribute/'
-        #convert_iframe:
-        #    - src: IFRAME SRC
-        #      img: POSTER IMAGE URL
-        #      text: ALTERNATE TEXT
-        #    - src: ...
-        two_columns_level: 3
+      exclude_pages:
+          - 'bugs/'
+          - 'appendix/contribute/'
+      #convert_iframe:
+      #    - src: IFRAME SRC
+      #      img: POSTER IMAGE URL
+      #      text: ALTERNATE TEXT
+      #    - src: ...
+      two_columns_level: 3
 
-        #render_js: true
-        #headless_chrome_path: headless-chromium
+      #render_js: true
+      #headless_chrome_path: headless-chromium
 
-        output_path: TheQGISAnimationWorkbench.pdf
-        #enabled_if_env: ENABLE_PDF_EXPORT
+      output_path: TheQGISAnimationWorkbench.pdf
+      #enabled_if_env: ENABLE_PDF_EXPORT
 
-        debug_html: true
-        show_anchors: true
-        verbose: true
+      debug_html: true
+      show_anchors: true
+      verbose: true
