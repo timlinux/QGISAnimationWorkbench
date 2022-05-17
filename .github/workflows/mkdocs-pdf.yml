@@ -20,12 +20,16 @@ jobs:
         with:
           input_dir: docs
           output_dir: pdfs
-          images_dir: docs/assets
-          # for example <img src="./images/file-name.png">
-          image_import: ./assets
+          images_dir: docs
+          # (String) The path you use to import your images that can
+          # be replaced with the server URL. For example if you had 
+          # <img src="./images/something-else/file."> you would pass 
+          # ./images as this is replaced by https://localhost:3000 
+          # during the build process.
+          image_import: ./docs
           # Default is true, can set to false to only get PDF files
           build_html: false
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: docs
           path: pdfs
