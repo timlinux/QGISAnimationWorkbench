@@ -86,13 +86,11 @@ plugins:
   - with-pdf:
     author: Tim Sutton, Nyall Dawson
     copyright: (c) Tim Sutton, Nyall Dawson 2022
-
     cover: true
     back_cover: true
     cover_title: The QGIS Animation Workbench
     cover_subtitle: A tool to bring your QGIS maps to life.
     #custom_template_path: TODO
-
     toc_title: Contents
     heading_shift: false
     toc_level: 3
@@ -100,7 +98,6 @@ plugins:
     excludes_children:
         - 'release-notes/:upgrading'
         - 'release-notes/:changelog'
-
     exclude_pages:
         - 'bugs/'
         - 'appendix/contribute/'
@@ -110,13 +107,10 @@ plugins:
     #      text: ALTERNATE TEXT
     #    - src: ...
     two_columns_level: 3
-
     #render_js: true
     #headless_chrome_path: headless-chromium
-
     output_path: TheQGISAnimationWorkbench.pdf
     #enabled_if_env: ENABLE_PDF_EXPORT
-
     debug_html: true
     show_anchors: true
     verbose: true
