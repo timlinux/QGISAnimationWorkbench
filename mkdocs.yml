@@ -81,19 +81,4 @@ markdown_extensions:
   - admonition
 
 plugins:
-  - search  
-  # See https://github.com/orzih/mkdocs-with-pdf#installation
-  - with-pdf:
-    author: Tim Sutton, Nyall Dawson
-    copyright: (c) Tim Sutton, Nyall Dawson 2022
-    cover: true
-    back_cover: true
-    cover_title: The QGIS Animation Workbench
-    cover_subtitle: A tool to bring your QGIS maps to life.
-    toc_title: Contents
-    heading_shift: false
-    toc_level: 3
-    ordered_chapter_level: 2
-    output_path: ./pdfs/TheQGISAnimationWorkbench.pdf
-    
-    
+  - search
