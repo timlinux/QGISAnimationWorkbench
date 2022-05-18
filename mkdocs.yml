@@ -94,4 +94,4 @@ plugins:
     heading_shift: false
     toc_level: 3
     ordered_chapter_level: 2
-    output_path: TheQGISAnimationWorkbench.pdf
+    output_path: ./pdfs/TheQGISAnimationWorkbench.pdf
