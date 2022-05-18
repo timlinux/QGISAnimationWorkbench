@@ -97,22 +97,22 @@ plugins:
     heading_shift: false
     toc_level: 3
     ordered_chapter_level: 2
-      excludes_children:
-          - 'release-notes/:upgrading'
-          - 'release-notes/:changelog'
+    excludes_children:
+        - 'release-notes/:upgrading'
+        - 'release-notes/:changelog'
 
-      exclude_pages:
-          - 'bugs/'
-          - 'appendix/contribute/'
-      #convert_iframe:
-      #    - src: IFRAME SRC
-      #      img: POSTER IMAGE URL
-      #      text: ALTERNATE TEXT
-      #    - src: ...
-      two_columns_level: 3
+    exclude_pages:
+        - 'bugs/'
+        - 'appendix/contribute/'
+    #convert_iframe:
+    #    - src: IFRAME SRC
+    #      img: POSTER IMAGE URL
+    #      text: ALTERNATE TEXT
+    #    - src: ...
+    two_columns_level: 3
 
-      #render_js: true
-      #headless_chrome_path: headless-chromium
+    #render_js: true
+    #headless_chrome_path: headless-chromium
 
       output_path: TheQGISAnimationWorkbench.pdf
       #enabled_if_env: ENABLE_PDF_EXPORT
