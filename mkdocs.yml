@@ -95,3 +95,5 @@ plugins:
     toc_level: 3
     ordered_chapter_level: 2
     output_path: ./pdfs/TheQGISAnimationWorkbench.pdf
+    
+    
