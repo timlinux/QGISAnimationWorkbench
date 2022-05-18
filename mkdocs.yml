@@ -114,9 +114,9 @@ plugins:
     #render_js: true
     #headless_chrome_path: headless-chromium
 
-      output_path: TheQGISAnimationWorkbench.pdf
-      #enabled_if_env: ENABLE_PDF_EXPORT
+    output_path: TheQGISAnimationWorkbench.pdf
+    #enabled_if_env: ENABLE_PDF_EXPORT
 
-      debug_html: true
-      show_anchors: true
-      verbose: true
+    debug_html: true
+    show_anchors: true
+    verbose: true
