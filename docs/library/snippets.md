@@ -93,6 +93,8 @@ coalesce(
  ), 0)
 ```
 
+## Rotation
+
 You can set the angle of rotation for a symbol using this expression:
 
 ![Rotated Symbol Preview](img/rotated-symbol-properties.png)
@@ -125,3 +127,4 @@ scale_linear (
 Will produce something like this:
 
 ![Animated Rotated Symbol Preview](img/animated-rotating-symbol.gif)
+
