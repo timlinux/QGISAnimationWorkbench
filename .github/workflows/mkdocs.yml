@@ -9,9 +9,12 @@ jobs:
     name: Deploy docs
     runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        run: |
+        python -m pip install --upgrade pip
+        pip install mkdocs-with-pdf mkdocs-material qrcode
       - name: Checkout Main
         uses: actions/checkout@v1
-
       - name: Deploy docs
         # This is where we get the material theme from
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
