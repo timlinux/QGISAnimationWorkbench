@@ -17,6 +17,7 @@ nav:
   - Tutorials:
       - QGIS: tutorials/index.md
   - Library:
+      - Expression Variables: library/variables.md
       - Expression Examples: library/snippets.md
   - Develop:
       - Setup: develop/setup.md
