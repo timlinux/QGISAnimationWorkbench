@@ -16,6 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      # Need to swap this to an action that uses
+      # https://github.com/orzih/mkdocs-with-pdf
+      # but there is no action available for it
+      # so we would need to create that ourselves
+      # The system below just makes a simple one page pdf
+      # and isnt very useful.
+      # To build the docs pdf manually, see the notes in docs/develop/docs.md
       - uses: baileyjm02/markdown-to-pdf@v1
         with:
           input_dir: docs
