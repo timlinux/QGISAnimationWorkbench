@@ -1,5 +1,31 @@
 # Snippets
 
+## 🌏 QGIS Support
+
+Should work with and version of QGIS 3.x. If you have QGIS 3.26 or better you can benefit from the animated icon support (see @nyalldawson's most excellent patch [#48060](https://github.com/qgis/QGIS/pull/48060)).
+
+For QGIS versions below 3.26, you can animate markers by unpacking a GIF image into its constituent frames and then referencing a specific frame from the symbol data defined property for the image file. Note that to do this extraction below you need to have the [Open Source ImageMagick application](https://imagemagick.org/script/download.php) installed:
+
+First extract a gif to a sequence of images:
+
+```
+convert cat.gif -coalesce cat_%05d.png
+```
+
+Example of how to create a dynamically changing image marker based on the current frame count:
+
+```
+@project_home 
+||
+'/gifs/cat_000'
+|| 
+lpad(to_string( @frame_number % 48 ), 2, '0')
+|| 
+'.png'
+```
+
+Note that for the above, 48 is the number of frames that the GIF was composed of, and it assumes the frames are in the project directory in a subfolder called ``gifs``.
+
 ## Line of travel
 
 In this example we use a geometry generator to create a line between the origin point and the destination point:
@@ -92,6 +118,8 @@ coalesce(
   )
  ), 0)
 ```
+
+## Rotation
 
 You can set the angle of rotation for a symbol using this expression:
 
