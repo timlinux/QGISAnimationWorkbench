@@ -6,11 +6,9 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-from qgis.PyQt.QtWidgets import QWidget
-from qgis.PyQt.QtCore import (
-    pyqtSignal,
-)
-from qgis.PyQt.Qt import UserRole
+from qgis.PyQt.QtWidgets import QWidget, QSizePolicy
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import Qt
 from typing import Optional
 
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
@@ -42,6 +40,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.media_type = media_type
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
+        self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
     def media_item_selected(self, current_index):
         value = self.media_list.currentItem().text()
@@ -64,5 +63,13 @@ class MediaListWidget(QWidget, FORM_CLASS):
         if file_path is None or file_path == "":
             return
         item = QListWidgetItem(file_path)
-        item.setData(UserRole, file_path)
+        item.setData(Qt.UserRole, file_path)
         self.media_list.insertItem(0, item)
+        image = QImage(file_path)
+        if not image.isNull():
+            pixmap = QPixmap.fromImage(image)
+            self.preview.setPixmap(
+                pixmap.scaled(
+                    self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
+            )
