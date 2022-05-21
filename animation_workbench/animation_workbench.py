@@ -191,9 +191,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Close button action (save state on close)
         self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
         self.button_box.accepted.connect(self.accept)
-
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
 
+        self.intro_media.set_media_type("images and movies")
+        self.outro_media.set_media_type("images and movies")
+        self.music_media.set_media_type("sounds")
         # Used by ffmpeg and convert to set the fps for rendered videos
         self.framerate_spin.setValue(
             int(
