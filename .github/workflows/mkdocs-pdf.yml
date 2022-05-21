@@ -1,0 +1,42 @@
+name: Docs to PDF
+# This workflow is triggered on pushes to the repository.
+on:
+  push:
+    branches:
+      - main
+    # Paths can be used to only trigger actions when you have edited certain files, such as a file within the /docs directory
+    paths:
+      - '.github/workflows/mkdocs-pdf.yml'
+      - 'docs/**.md'
+      - 'docs/assets/**'
+
+jobs:
+  converttopdf:
+    name: Build PDF
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Need to swap this to an action that uses
+      # https://github.com/orzih/mkdocs-with-pdf
+      # but there is no action available for it
+      # so we would need to create that ourselves
+      # The system below just makes a simple one page pdf
+      # and isnt very useful.
+      # To build the docs pdf manually, see the notes in docs/develop/docs.md
+      - uses: baileyjm02/markdown-to-pdf@v1
+        with:
+          input_dir: docs
+          output_dir: pdfs
+          images_dir: docs
+          # (String) The path you use to import your images that can
+          # be replaced with the server URL. For example if you had 
+          # <img src="./images/something-else/file."> you would pass 
+          # ./images as this is replaced by https://localhost:3000 
+          # during the build process.
+          image_import: ./docs
+          # Default is true, can set to false to only get PDF files
+          build_html: false
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: pdfs

@@ -151,9 +151,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_file_button.clicked.connect(self.set_output_name)
 
         music_file = setting(key="music_file", default="", prefer_project_setting=True)
-        if music_file:
-            self.music_file_edit.setText(music_file)
-        self.music_file_button.clicked.connect(self.choose_music_file)
+        # if music_file:
+        #    self.music_file_edit.setText(music_file)
+        # self.music_file_button.clicked.connect(self.choose_music_file)
 
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo

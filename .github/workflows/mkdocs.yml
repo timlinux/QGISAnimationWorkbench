@@ -9,9 +9,15 @@ jobs:
     name: Deploy docs
     runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        uses: BSFishy/pip-action@v1
+        with:
+            packages: |
+                mkdocs-with-pdf 
+                mkdocs-material 
+                qrcode
       - name: Checkout Main
         uses: actions/checkout@v1
-
       - name: Deploy docs
         # This is where we get the material theme from
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
