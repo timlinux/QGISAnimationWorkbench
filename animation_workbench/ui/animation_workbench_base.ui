@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1389</width>
+    <width>1175</width>
     <height>760</height>
    </rect>
   </property>
@@ -17,9 +17,9 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="main_tab">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
-     <widget class="QWidget" name="animation_plan_tab" native="true">
+     <widget class="QWidget" name="animation_plan_tab">
       <attribute name="title">
        <string>Animation Plan</string>
       </attribute>
@@ -230,7 +230,7 @@ zoom to each point.</string>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0" colspan="2">
            <widget class="QgsMapLayerComboBox" name="layer_combo">
-            <property name="allowEmptyLayer">
+            <property name="allowEmptyLayer" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -258,16 +258,7 @@ looping animation.</string>
          </property>
          <widget class="QWidget" name="non_fixed_extent_settings">
           <layout class="QGridLayout" name="gridLayout_15">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>0</number>
            </property>
            <property name="spacing">
@@ -291,7 +282,7 @@ we arrive at each point.</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_10">
               <item row="0" column="0">
-               <widget class="QgsScaleRangeWidget" name="scale_range">
+               <widget class="QgsScaleRangeWidget" name="scale_range" native="true">
                 <property name="focusPolicy">
                  <enum>Qt::StrongFocus</enum>
                 </property>
@@ -514,39 +505,13 @@ how many frames per second to use.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="intro_outro_tab">
+     <widget class="QWidget" name="intro_tab">
       <attribute name="title">
-       <string>Intro/Outro</string>
+       <string>Intro</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Intro Media</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Outro Media</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
-        <widget class="MediaListWidget" name="widget" native="true">
+        <widget class="MediaListWidget" name="intro_media" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -555,8 +520,57 @@ how many frames per second to use.</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="MediaListWidget" name="widget_2" native="true">
+       <item row="0" column="0">
+        <widget class="QLabel" name="intro_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Intro Media: Add images and movies for the intro section of the generated movie here.
+For images you can set a duration for each (in seconds).
+You can drag and drop items in the list to change the play order.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="outro_tab">
+      <attribute name="title">
+       <string>Outro</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_14">
+       <item row="0" column="0">
+        <widget class="QLabel" name="outro_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Outro Media: Add images and movies for the outro section of the generated movie here.
+For images you can set a duration for each (in seconds).
+You can drag and drop items in the list to change the play order.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="MediaListWidget" name="outro_media" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -567,7 +581,7 @@ how many frames per second to use.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="soundtrack_tab" native="true">
+     <widget class="QWidget" name="soundtrack_tab">
       <attribute name="title">
        <string>Soundtrack</string>
       </attribute>
@@ -603,7 +617,7 @@ how many frames per second to use.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="output_tab" native="true">
+     <widget class="QWidget" name="output_tab">
       <attribute name="title">
        <string>Output</string>
       </attribute>
@@ -693,101 +707,11 @@ the GIF or MP4 as selected above.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="progress_tab" native="true">
+     <widget class="QWidget" name="progress_tab">
       <attribute name="title">
        <string>Progress</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_25">
-       <item row="0" column="0" rowspan="2">
-        <widget class="QStackedWidget" name="preview_stack">
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <widget class="QWidget" name="preview_page">
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="1" column="0" colspan="2">
-            <widget class="QLabel" name="current_frame_preview">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>250</width>
-               <height>150</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>9999999</width>
-               <height>999999</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="scaledContents">
-              <bool>true</bool>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="frame_preview_label">
-             <property name="text">
-              <string>Frame Preview</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="video_page">
-          <layout class="QGridLayout" name="gridLayout_11">
-           <item row="0" column="0">
-            <widget class="QLabel" name="video_preview_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Video Preview</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QWidget" name="video_preview_widget" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QToolButton" name="play_button">
-             <property name="text">
-              <string>&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QSlider" name="video_slider">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QGroupBox" name="progress_group">
          <property name="title">
@@ -906,6 +830,12 @@ the GIF or MP4 as selected above.</string>
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QWidget" name="widget" native="true"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QWidget" name="widget_2" native="true"/>
+          </item>
          </layout>
         </widget>
        </item>
@@ -927,19 +857,116 @@ the GIF or MP4 as selected above.</string>
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Cantarell','Cantarell'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Cantarell';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Cantarell'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
+       <item row="0" column="0" rowspan="2">
+        <widget class="QStackedWidget" name="preview_stack">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="preview_page">
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="1" column="0" colspan="2">
+            <widget class="QLabel" name="current_frame_preview">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>250</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>9999999</width>
+               <height>999999</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="scaledContents">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="frame_preview_label">
+             <property name="text">
+              <string>Frame Preview</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="video_page">
+          <layout class="QGridLayout" name="gridLayout_11">
+           <item row="0" column="0">
+            <widget class="QLabel" name="video_preview_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Video Preview</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QWidget" name="video_preview_widget" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QToolButton" name="play_button">
+             <property name="text">
+              <string>&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSlider" name="video_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QProgressBar" name="progress_bar">
+         <property name="value">
+          <number>24</number>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="button_box">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -950,19 +977,6 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
   </layout>
-  <widget class="QProgressBar" name="progress_bar">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>684</y>
-     <width>103</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>24</number>
-   </property>
-  </widget>
  </widget>
  <customwidgets>
   <customwidget>
