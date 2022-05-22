@@ -51,9 +51,6 @@ class MediaListWidget(QWidget, FORM_CLASS):
         :media_type: Types of media that can be managed. Valid options are
             "images", "images and movies", "movies", "sound".
         :type media_type: str
-
-        :param parent: Parent widget of this widget.
-        :type parent: QWidget
         """
         self.media_type = media_type
         self.images = "JPEG (*.jpg);;PNG (*.png)"
@@ -100,3 +97,19 @@ class MediaListWidget(QWidget, FORM_CLASS):
                     self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
             )
+        self.to_json()
+
+    def to_json(self):
+        """Create a json document from the list widget items and their data.
+
+        :returns: str containing the JSON document.
+        """
+        items = {}
+        for index in range(self.media_list.count()):
+            item = {
+                "file": self.media_list.item(index).text(),
+                "duration": self.media_list.item(index).data(Qt.UserRole),
+            }
+            items[index] = item
+        self.preview.setText(str(items))
+        return items
