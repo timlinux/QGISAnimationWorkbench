@@ -103,6 +103,10 @@ class MediaListWidget(QWidget, FORM_CLASS):
             return
         for item in items:
             self.media_list.takeItem(self.media_list.row(item))
+        total = self.total_duration()
+        self.total_duration_label.setText(
+            f"Total duration for all media {total} seconds"
+        )
 
     def create_item(self, file_path, duration=2):
         """Add an item to the list widget.
@@ -118,6 +122,10 @@ class MediaListWidget(QWidget, FORM_CLASS):
         item.setData(Qt.UserRole, duration)
         self.media_list.insertItem(0, item)
         self.load_media(file_path)
+        total = self.total_duration()
+        self.total_duration_label.setText(
+            f"Total duration for all media {total} seconds"
+        )
 
     def load_media(self, file_path):
         """Load an image, movie or sound file.
@@ -128,11 +136,11 @@ class MediaListWidget(QWidget, FORM_CLASS):
         image = QImage(file_path)
         if not image.isNull():
             pixmap = QPixmap.fromImage(image)
-            self.preview.setPixmap(
-                pixmap.scaled(
-                    self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            )
+            self.preview.setPixmap(pixmap)
+            #    pixmap.scaled(
+            #        self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+            #    )
+            # )
         self.details_label.setText(str(file_path))
 
     def to_json(self):
