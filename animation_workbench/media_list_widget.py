@@ -6,6 +6,7 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
+import json
 from qgis.PyQt.QtWidgets import QWidget, QSizePolicy
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtCore import Qt
@@ -86,8 +87,20 @@ class MediaListWidget(QWidget, FORM_CLASS):
         )
         if file_path is None or file_path == "":
             return
+        self.create_item(file_path)
+
+    def create_item(self, file_path, duration=2):
+        """Add an item to the list widget.
+
+        :param file_path: Path to an on disk image, movie or sound file.
+        :type file_path: str
+
+        :param duration: Duration for which to play the resource (in seconds).
+            Ignored for sound files.
+        :type duration: int - defaults to 2s
+        """
         item = QListWidgetItem(file_path)
-        item.setData(Qt.UserRole, file_path)
+        item.setData(Qt.UserRole, duration)
         self.media_list.insertItem(0, item)
         image = QImage(file_path)
         if not image.isNull():
@@ -97,7 +110,6 @@ class MediaListWidget(QWidget, FORM_CLASS):
                     self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
             )
-        self.to_json()
 
     def to_json(self):
         """Create a json document from the list widget items and their data.
@@ -111,5 +123,19 @@ class MediaListWidget(QWidget, FORM_CLASS):
                 "duration": self.media_list.item(index).data(Qt.UserRole),
             }
             items[index] = item
-        self.preview.setText(str(items))
-        return items
+        json_object = json.dumps(items, indent=4)
+        return json_object
+
+    def from_json(self, json_document):
+        """Restore the list widget items from a json document.
+
+        :param json_document: Json document containing list state.
+        :type json_document: str
+
+        """
+        items = json.loads(json_document)
+        keys = items.keys()
+
+        for index in keys:
+            item = items[index]
+            self.create_item(item["file"], item["duration"])
