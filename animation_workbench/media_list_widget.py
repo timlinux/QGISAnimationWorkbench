@@ -68,8 +68,10 @@ class MediaListWidget(QWidget, FORM_CLASS):
             self.media_type == self.sounds
 
     def media_item_selected(self, current_index):
-        value = self.media_list.currentItem().text()
-        self.details_label.setText(str(value))
+        file_path = self.media_list.currentItem().text()
+        self.load_media(file_path)
+        duration = self.media_list.currentItem().data(Qt.UserRole)
+        self.duration.setValue(duration)
 
     def choose_media_file(self):
         """
@@ -102,6 +104,14 @@ class MediaListWidget(QWidget, FORM_CLASS):
         item = QListWidgetItem(file_path)
         item.setData(Qt.UserRole, duration)
         self.media_list.insertItem(0, item)
+        self.load_media(file_path)
+
+    def load_media(self, file_path):
+        """Load an image, movie or sound file.
+
+        :param file_path: Path to the media file.
+        :type file_path: str
+        """
         image = QImage(file_path)
         if not image.isNull():
             pixmap = QPixmap.fromImage(image)
@@ -110,6 +120,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
                     self.preview.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
             )
+        self.details_label.setText(str(file_path))
 
     def to_json(self):
         """Create a json document from the list widget items and their data.
