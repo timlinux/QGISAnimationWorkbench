@@ -44,6 +44,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.set_media_type(media_type)
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
+        self.remove_media.clicked.connect(self.remove_media_file)
         self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
     def set_media_type(self, media_type):
@@ -68,6 +69,8 @@ class MediaListWidget(QWidget, FORM_CLASS):
             self.media_type == self.sounds
 
     def media_item_selected(self, current_index):
+        if current_index < 0:
+            return
         file_path = self.media_list.currentItem().text()
         self.load_media(file_path)
         duration = self.media_list.currentItem().data(Qt.UserRole)
@@ -90,6 +93,16 @@ class MediaListWidget(QWidget, FORM_CLASS):
         if file_path is None or file_path == "":
             return
         self.create_item(file_path)
+
+    def remove_media_file(self):
+        """
+        Removes the currentItem from the list.
+        """
+        items = self.media_list.selectedItems()
+        if not items:
+            return
+        for item in items:
+            self.media_list.takeItem(self.media_list.row(item))
 
     def create_item(self, file_path, duration=2):
         """Add an item to the list widget.
@@ -150,3 +163,10 @@ class MediaListWidget(QWidget, FORM_CLASS):
         for index in keys:
             item = items[index]
             self.create_item(item["file"], item["duration"])
+
+    def total_duration(self):
+        """Calculate the total duration of all the added media files."""
+        total = 0
+        for index in range(self.media_list.count()):
+            total += self.media_list.item(index).data(Qt.UserRole)
+        return total
