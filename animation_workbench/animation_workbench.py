@@ -640,7 +640,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         .. note:: This is called on OK click.
         """
         # Enable progress page on accept
-        self.main_tab.setCurrentIndex(4)
+        self.main_tab.setCurrentIndex(5)
         # Image preview page
         self.preview_stack.setCurrentIndex(0)
         # Enable queue status page
@@ -779,10 +779,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.progress_bar.setValue(0)
             self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
             return
-
+        # We assemble first commands needed to make the pieces of the movie
+        intro_command = self.intro_media.video_command()
+        outro_command = self.outro_media.video_command()
+        music_command = self.music_media.video_command()
         self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
-            music_file=self.music_file_edit.text(),
+            intro_command=intro_command,
+            outro_command=outro_command,
+            music_command=music_command,
             output_format=MovieFormat.GIF
             if self.radio_gif.isChecked()
             else MovieFormat.MP4,

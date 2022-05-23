@@ -34,7 +34,9 @@ class MovieCommandGenerator:
     def __init__(
         self,
         output_file: str,
-        music_file: Optional[str],
+        intro_command: Optional[tuple],
+        outro_command: Optional[tuple],
+        music_command: Optional[tuple],
         output_format: MovieFormat,
         work_directory: str,
         frame_filename_prefix: str,
@@ -42,7 +44,9 @@ class MovieCommandGenerator:
         temp_dir: str,
     ):
         self.output_file = output_file
-        self.music_file = music_file
+        self.intro_command = intro_command
+        self.outro_command = outro_command
+        self.music_command = music_command
         self.format = output_format
         self.work_directory = work_directory
         self.frame_filename_prefix = frame_filename_prefix
@@ -53,9 +57,9 @@ class MovieCommandGenerator:
         """
         Returns a list of commands necessary for the movie generation.
 
-        :returns tuble: Returned as tuples of the command and arguments list.
+        :returns tuple: Returned as tuples of the command and arguments list.
         """
-        res = []
+        results = []
         if self.format == MovieFormat.GIF:
             convert = CoreUtils.which("convert")[0]
 
@@ -64,7 +68,7 @@ class MovieCommandGenerator:
             # ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps
 
-            res.append(
+            results.append(
                 (
                     convert,
                     [
@@ -84,7 +88,7 @@ class MovieCommandGenerator:
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want
-            res.append(
+            results.append(
                 (
                     convert,
                     [
@@ -116,6 +120,22 @@ class MovieCommandGenerator:
             # Change to black if needed.
             # -y to force overwrite exising file
 
+            # Generate the intro video, if any
+            if self.intro_command:
+                media_file = str(os.path.join(self.temp_dir, "intro.mp4"))
+                self.intro_command.append(media_file)
+                results.append((ffmpeg, self.intro_command))
+            # Generate the outro video, if any
+            if self.outro_command:
+                media_file = str(os.path.join(self.temp_dir, "outro.mp4"))
+                self.outro_command.append(media_file)
+                results.append((ffmpeg, self.outro_command))
+            # Generate the sound track, if any
+            if self.music_command:
+                media_file = str(os.path.join(self.temp_dir, "outro.mp4"))
+                self.music_command.append(media_file)
+                results.append((ffmpeg, self.music_command))
+
             arguments = [
                 "-hide_banner",
                 "-y",
@@ -133,9 +153,9 @@ class MovieCommandGenerator:
                 "yuv420p",
             ]
 
-            if not self.music_file:
+            if not self.music_command:
                 arguments.append(self.output_file)
-                res.append((ffmpeg, arguments))
+                results.append((ffmpeg, arguments))
             else:
                 temp_video_path = str(
                     os.path.join(self.temp_dir, "animation_workbench.mp4")
@@ -143,7 +163,7 @@ class MovieCommandGenerator:
                 arguments.append(temp_video_path)
                 # This will build the base video with no soundtrack
                 # in the above temporary folder
-                res.append((ffmpeg, arguments))
+                results.append((ffmpeg, arguments))
 
                 # windows_command = ("""
                 #    %s -y -framerate %s -pattern_type sequence \
@@ -176,9 +196,9 @@ class MovieCommandGenerator:
                     f"{self.output_file}",
                 ]
 
-                res.append((ffmpeg, arguments))
+                results.append((ffmpeg, arguments))
 
-        return res
+        return results
 
 
 class MovieCreationTask(QgsTask):
@@ -194,7 +214,9 @@ class MovieCreationTask(QgsTask):
     def __init__(
         self,
         output_file: str,
-        music_file: str,
+        intro_command: str,
+        outro_command: str,
+        music_command: str,
         output_format: MovieFormat,
         work_directory: str,
         frame_filename_prefix: str,
@@ -203,7 +225,9 @@ class MovieCreationTask(QgsTask):
         super().__init__("Exporting Movie", QgsTask.Flag.CanCancel)
 
         self.output_file = output_file
-        self.music_file = music_file
+        self.intro_command = intro_command
+        self.outro_command = outro_command
+        self.music_command = music_command
         self.format = output_format
         self.work_directory = work_directory
         self.frame_filename_prefix = frame_filename_prefix
@@ -283,7 +307,9 @@ class MovieCreationTask(QgsTask):
         with tempfile.TemporaryDirectory() as tmp:
             generator = MovieCommandGenerator(
                 output_file=self.output_file,
-                music_file=self.music_file,
+                intro_command=self.intro_command,
+                outro_command=self.outro_command,
+                music_command=self.music_command,
                 output_format=self.format,
                 work_directory=self.work_directory,
                 frame_filename_prefix=self.frame_filename_prefix,

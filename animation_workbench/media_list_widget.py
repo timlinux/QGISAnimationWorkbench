@@ -76,7 +76,6 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.load_media(file_path)
         duration = self.media_list.currentItem().data(Qt.UserRole)
         self.duration.setValue(duration)
-        self.generate_video()
 
     def choose_media_file(self):
         """
@@ -181,18 +180,38 @@ class MediaListWidget(QWidget, FORM_CLASS):
             total += self.media_list.item(index).data(Qt.UserRole)
         return total
 
-    def generate_video(self):
-        """Generate a video from the media files in the list widget."""
+    def video_command(self):
+        """Generate command for creating a video from the media files.
+
+        ..note:: You need to add an executable and output filename to the command
+            arguments before running this command. This is done in the
+            movie_creator class.
+        """
         count = self.media_list.count()
         if count == 0:
             return
-        args = "-y "
+        args = ["-y "]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
             duration = self.media_list.item(index).data(Qt.UserRole)
-            args += f' -loop 1 -t {duration} -i "{file}"'
+            args.append("-loop")
+            args.append("1")
+            args.append("-t")
+            args.append(str(duration))
+            args.append("-i")
+            args.append(file)
         # Unsafe=1 used to deal with images or vids of different sizes
-        args += f' -filter_complex "concat=n={count}:v=1:a=0:unsafe=1"'
-        args += " -c:v libx264 -pix_fmt yuv420p -r 25 -movflags +faststart"
-        args += " /tmp/intro.mp4"
-        self.preview.setText(args)
+        args.append("-filter_complex")
+        args.append(f'"concat=n={count}:v=1:a=0:unsafe=1"')
+        args.append("-vf")
+        args.append('"pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"')
+        args.append("-c:v")
+        args.append("libx264")
+        args.append("-pix_fmt")
+        args.append("yuv420p")
+        args.append("-r")
+        args.append("25")
+        args.append("-movflags")
+        args.append("+faststart")
+        # consumer of this output needs to add filename as last arg
+        return args
