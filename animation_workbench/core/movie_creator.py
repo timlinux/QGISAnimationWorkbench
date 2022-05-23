@@ -141,7 +141,7 @@ class MovieCommandGenerator:
                     os.path.join(self.temp_dir, "animation_workbench.mp4")
                 )
                 arguments.append(temp_video_path)
-                # This will build the base vide with no soundtrack
+                # This will build the base video with no soundtrack
                 # in the above temporary folder
                 res.append((ffmpeg, arguments))
 
