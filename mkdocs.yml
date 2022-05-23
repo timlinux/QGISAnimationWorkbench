@@ -95,7 +95,7 @@ markdown_extensions:
 plugins:
   - search
   - with-pdf:
-      output_path: ../pdfs/QGISAnimationPlugin.pdf
+      output_path: ../pdfs/QGISAnimationWorkbench.pdf
       author: Tim Sutton, Nyall Dawson
       copyright: '© 2022'
       cover: true

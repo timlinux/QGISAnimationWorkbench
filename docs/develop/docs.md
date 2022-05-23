@@ -11,5 +11,5 @@ pip install mkdocs-with-pdf
 pip install mkdocs-material
 pip install qrcode
 mkdocs build
-xdg-open pdfs/QGISAnimationPlugin.pdf 
+xdg-open pdfs/QGISAnimationWorkbench.pdf 
 ```
