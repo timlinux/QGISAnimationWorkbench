@@ -51,7 +51,9 @@ class MovieCommandGenerator:
 
     def as_commands(self) -> List[Tuple[str, List]]:
         """
-        Returns a list of commands necessary for the movie generation (as tuples of the command and arguments list)
+        Returns a list of commands necessary for the movie generation.
+
+        :returns tuble: Returned as tuples of the command and arguments list.
         """
         res = []
         if self.format == MovieFormat.GIF:
@@ -253,7 +255,9 @@ class MovieCreationTask(QgsTask):
             self.message.emit("Process completed successfully")
         elif proc.processError() == QProcess.FailedToStart:
             self.message.emit(
-                f"Process {command} failed to start. Either {command} is missing, or you may have insufficient permissions to run the program."
+                f"Process {command} failed to start. Either {command} "
+                "is missing, or you may have insufficient permissions to "
+                "run the program."
             )
         else:
             self.message.emit("Process returned error code {}".format(res))

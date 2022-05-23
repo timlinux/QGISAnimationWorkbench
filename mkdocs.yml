@@ -14,16 +14,24 @@ nav:
       - Installation: start/install.md
       - Initial Configuration: start/configure.md
       - Using the Workbench: start/using.md
-  - FAQ: faq/faq.md
+  - Manual:
+      - Preparing your project: manual/project_preparation.md
+      - The workbench user interface: manual/workbench_ui.md
+      - Under the hood: manual/under_the_hood.md
   - Tutorials:
       - QGIS: tutorials/index.md
   - Library:
       - Expression Variables: library/variables.md
       - Expression Examples: library/snippets.md
+  - FAQ: faq/faq.md
   - Develop:
       - Setup: develop/setup.md
       - Design: develop/design.md
       - Documentation: develop/docs.md
+  - Contribute:
+      - Contribute: contribute/contribute.md
+  - Credits:
+      - Credits: credits/credits.md
 
 # Configuration
 theme:
@@ -87,7 +95,7 @@ markdown_extensions:
 plugins:
   - search
   - with-pdf:
-      output_path: ../pdfs/QGISAnimationPlugin.pdf
+      output_path: ../pdfs/QGISAnimationWorkbench.pdf
       author: Tim Sutton, Nyall Dawson
       copyright: '© 2022'
       cover: true

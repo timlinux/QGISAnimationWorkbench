@@ -121,6 +121,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.parent = parent
         self.iface = iface
 
+        self.intro_media.from_json(
+            setting(key="intro_media", default="{}", prefer_project_setting=True)
+        )
+        self.outro_media.from_json(
+            setting(key="outro_media", default="{}", prefer_project_setting=True)
+        )
+        self.music_media.from_json(
+            setting(key="music_media", default="{}", prefer_project_setting=True)
+        )
+
         self.data_defined_properties = QgsPropertyCollection()
 
         self.extent_group_box.setMapCanvas(self.iface.mapCanvas())
@@ -149,11 +159,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             ok_button.setEnabled(True)
 
         self.movie_file_button.clicked.connect(self.set_output_name)
-
-        music_file = setting(key="music_file", default="", prefer_project_setting=True)
-        if music_file:
-            self.music_file_edit.setText(music_file)
-        self.music_file_button.clicked.connect(self.choose_music_file)
 
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
@@ -191,9 +196,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Close button action (save state on close)
         self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
         self.button_box.accepted.connect(self.accept)
-
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
 
+        self.intro_media.set_media_type("images and movies")
+        self.outro_media.set_media_type("images and movies")
+        self.music_media.set_media_type("sounds")
         # Used by ffmpeg and convert to set the fps for rendered videos
         self.framerate_spin.setValue(
             int(
@@ -536,6 +543,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             value=self.framerate_spin.value(),
             store_in_project=True,
         )
+        set_setting(
+            key="intro_media", value=self.intro_media.to_json(), store_in_project=True
+        )
+        set_setting(
+            key="outro_media", value=self.outro_media.to_json(), store_in_project=True
+        )
+        set_setting(
+            key="music_media", value=self.music_media.to_json(), store_in_project=True
+        )
 
         if self.radio_sphere.isChecked():
             set_setting(key="map_mode", value="sphere", store_in_project=True)
@@ -596,11 +612,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         set_setting(
             key="output_file",
             value=self.movie_file_edit.text(),
-            store_in_project=True,
-        )
-        set_setting(
-            key="music_file",
-            value=self.music_file_edit.text(),
             store_in_project=True,
         )
 
