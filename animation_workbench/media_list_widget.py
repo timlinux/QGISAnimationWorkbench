@@ -64,11 +64,12 @@ class MediaListWidget(QWidget, FORM_CLASS):
         if self.media_type == "images":
             self.media_filter = self.images
         if self.media_type == "images and movies":
-            self.media_filter == self.movies_and_images
+            self.media_filter = self.movies_and_images
         if self.media_type == "sounds":
-            self.media_type == self.sounds
+            self.media_type = self.sounds
 
     def media_item_selected(self, current_index):
+        """Handler for when an item is selected in the media list."""
         if current_index < 0:
             return
         file_path = self.media_list.currentItem().text()
