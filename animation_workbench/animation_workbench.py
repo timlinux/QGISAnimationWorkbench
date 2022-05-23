@@ -120,14 +120,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.setWindowIcon(QIcon(icon))
         self.parent = parent
         self.iface = iface
+
         self.intro_media.from_json(
-            setting(key="intro_media", default="", prefer_project_setting=True)
+            setting(key="intro_media", default="{}", prefer_project_setting=True)
         )
         self.outro_media.from_json(
-            setting(key="outro_media", default="", prefer_project_setting=True)
+            setting(key="outro_media", default="{}", prefer_project_setting=True)
         )
         self.music_media.from_json(
-            setting(key="music_media", default="", prefer_project_setting=True)
+            setting(key="music_media", default="{}", prefer_project_setting=True)
         )
 
         self.data_defined_properties = QgsPropertyCollection()
