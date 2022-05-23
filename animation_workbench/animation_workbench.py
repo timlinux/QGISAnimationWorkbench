@@ -15,7 +15,7 @@ from typing import Optional
 
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from qgis.PyQt.QtCore import pyqtSlot, QUrl
+from qgis.PyQt.QtCore import pyqtSlot, QUrl, QSize
 from qgis.PyQt.QtGui import QIcon, QPixmap, QImage
 from qgis.PyQt.QtWidgets import (
     QStyle,
@@ -718,9 +718,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 "Generating flight path for %s layer: %s" % (layer_type, layer_name)
             )
 
+        map_settings = self.iface.mapCanvas().mapSettings()
+        map_settings.setOutputSize(QSize(1920, 1080))
+
         if map_mode == MapMode.FIXED_EXTENT:
             controller = AnimationController.create_fixed_extent_controller(
-                map_settings=self.iface.mapCanvas().mapSettings(),
+                map_settings=map_settings,
                 feature_layer=self.layer_combo.currentLayer() or None,
                 output_extent=QgsReferencedRectangle(
                     self.extent_group_box.outputExtent(),
@@ -732,7 +735,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         else:
             try:
                 controller = AnimationController.create_moving_extent_controller(
-                    map_settings=self.iface.mapCanvas().mapSettings(),
+                    map_settings=map_settings,
                     mode=map_mode,
                     feature_layer=self.layer_combo.currentLayer(),
                     travel_duration=self.travel_duration_spin.value(),
