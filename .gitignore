@@ -136,3 +136,5 @@ resources/example_projects/farm_scene.qgz
 resources/synfig/*.png
 .qt_for_python
 docs/build-notes.txt
+resources/diagrams/.$QGISAnimationWorkbenchDiagrams.drawio.bkp
+resources/diagrams/.$QGISAnimationWorkbenchDiagrams.drawio.dtmp

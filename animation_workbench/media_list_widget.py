@@ -8,14 +8,14 @@ __revision__ = "$Format:%H$"
 
 import json
 from qgis.PyQt.QtWidgets import QWidget, QSizePolicy
-from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtCore import Qt
-from typing import Optional
 
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from qgis.PyQt.QtCore import pyqtSlot, QUrl
-from qgis.PyQt.QtGui import QIcon, QPixmap, QImage
+# from typing import Optional
+
+# from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+# from PyQt5.QtMultimediaWidgets import QVideoWidget
+# from qgis.PyQt.QtCore import pyqtSlot, QUrl
+from qgis.PyQt.QtGui import QPixmap, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QListWidgetItem
 from .utilities import get_ui_class
 
