@@ -13,6 +13,7 @@ nav:
   - Quickstart:
       - Installation: start/install.md
       - Initial Configuration: start/configure.md
+      - Using the Workbench: start/using.md
   - FAQ: faq/faq.md
   - Tutorials:
       - QGIS: tutorials/index.md
