@@ -206,6 +206,12 @@ class MovieCommandGenerator:
                 file_list_path,
                 "-c",
                 "copy",
+                "-vf",
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
+                "-c:v",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
                 combined_file,
             ]
 
