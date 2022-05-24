@@ -206,7 +206,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             int(
                 setting(
                     key="frames_per_second",
-                    default="90",
+                    default="10",
                     prefer_project_setting=True,
                 )
             )
@@ -247,7 +247,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             int(
                 setting(
                     key="frames_for_extent",
-                    default="90",
+                    default="10",
                     prefer_project_setting=True,
                 )
             )
