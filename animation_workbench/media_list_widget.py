@@ -193,18 +193,19 @@ class MediaListWidget(QWidget, FORM_CLASS):
         args = ["-y"]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
+            file = file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
             duration = self.media_list.item(index).data(Qt.UserRole)
             args.append("-loop")
             args.append("1")
             args.append("-t")
             args.append(str(duration))
             args.append("-i")
-            args.append(f'"{file}"')
-        # Unsafe=1 used to deal with images or vids of different sizes
+            args.append(file)
         args.append("-filter_complex")
+        # Unsafe=1 used to deal with images or vids of different sizes
         args.append(
-            f'"concat=n={count}:v=1:a=0:unsafe=1'
-            ',pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"'
+            f"concat=n={count}:v=1:a=0:unsafe=1"
+            ",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"
         )
         args.append("-c:v")
         args.append("libx264")

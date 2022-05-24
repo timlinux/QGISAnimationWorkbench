@@ -121,19 +121,22 @@ class MovieCommandGenerator:
             # -y to force overwrite exising file
 
             # Generate the intro video, if any
+            intro_file = None
+            outro_file = None
+            music_file = None
             if self.intro_command:
-                media_file = str(os.path.join(self.temp_dir, "intro.mp4"))
-                self.intro_command.append(media_file)
+                intro_file = str(os.path.join(self.temp_dir, "intro.mp4"))
+                self.intro_command.append(intro_file)
                 results.append((ffmpeg, self.intro_command))
             # Generate the outro video, if any
             if self.outro_command:
-                media_file = str(os.path.join(self.temp_dir, "outro.mp4"))
-                self.outro_command.append(media_file)
+                outro_file = str(os.path.join(self.temp_dir, "outro.mp4"))
+                self.outro_command.append(outro_file)
                 results.append((ffmpeg, self.outro_command))
             # Generate the sound track, if any
             if self.music_command:
-                media_file = str(os.path.join(self.temp_dir, "outro.mp4"))
-                self.music_command.append(media_file)
+                music_file = str(os.path.join(self.temp_dir, "music.mp4"))
+                self.music_command.append(music_file)
                 results.append((ffmpeg, self.music_command))
 
             arguments = [
@@ -153,50 +156,51 @@ class MovieCommandGenerator:
                 "yuv420p",
             ]
 
-            if not self.music_command:
-                arguments.append(self.output_file)
-                results.append((ffmpeg, arguments))
-            else:
-                temp_video_path = str(
-                    os.path.join(self.temp_dir, "animation_workbench.mp4")
-                )
-                arguments.append(temp_video_path)
-                # This will build the base video with no soundtrack
-                # in the above temporary folder
-                results.append((ffmpeg, arguments))
+            main_file = str(os.path.join(self.temp_dir, "main.mp4"))
+            arguments.append(main_file)
+            # This will build the base video with no soundtrack
+            # in the above temporary folder
+            results.append((ffmpeg, arguments))
 
-                # windows_command = ("""
-                #    %s -y -framerate %s -pattern_type sequence \
-                #    -start_number 0000000001 \
-                #    -i "%s/%s-%00000000010d.png" -vf \
-                #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
-                #    -c:v libx264 -pix_fmt yuv420p %s""" % (
-                #    ffmpeg,
-                #    framerate,
-                #    self.work_directory,
-                #    self.frame_filename_prefix,
-                #    self.output_file))
+            # windows_command = ("""
+            #    %s -y -framerate %s -pattern_type sequence \
+            #    -start_number 0000000001 \
+            #    -i "%s/%s-%00000000010d.png" -vf \
+            #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
+            #    -c:v libx264 -pix_fmt yuv420p %s""" % (
+            #    ffmpeg,
+            #    framerate,
+            #    self.work_directory,
+            #    self.frame_filename_prefix,
+            #    self.output_file))
 
-                # If there is a music file, we do a second pass and add the
-                # file into the video container. From my testing on the CLI,
-                # this works more smoothly and doesn't have issues like
-                # video blanking that doing it in one pass does.
-
-                arguments = [
-                    "-y",
-                    "-i",
-                    f"{temp_video_path}",
-                    "-i",
-                    f"{self.music_file}",
-                    "-c",
-                    # Will copy the sound into the video container
-                    "copy",
-                    # will truncate output to shortest between vid and audio
+            # Second pass - now we add the intro and outro videos to the main
+            # video if they exist.
+            arguments = ["-y"]
+            if intro_file:
+                arguments.append("-i")
+                arguments.append(intro_file)
+            if outro_file:
+                arguments.append("-i")
+                arguments.append(outro_file)
+            arguments.append("-i")
+            arguments.append(main_file)
+            # If there is a music file, we add the
+            # file into the video container. From my testing on the CLI,
+            # this works more smoothly and doesn't have issues like
+            # video blanking that doing it in the first pass does.
+            if music_file:
+                arguments.append("-i")
+                arguments.append(music_file)
+                arguments.append("-c")
+                # Will copy the sound into the video container
+                arguments.append("copy")
+                # will truncate output to shortest between vid and audio
+                arguments.append(
                     "-shortest",
-                    f"{self.output_file}",
-                ]
-
-                results.append((ffmpeg, arguments))
+                )
+            arguments.append(f"{self.output_file}")
+            results.append((ffmpeg, arguments))
 
         return results
 

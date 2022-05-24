@@ -801,7 +801,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         def show_movie(movie_file: str):
             # Video preview page
-            self.main_tab.setCurrentIndex(4)
+            self.main_tab.setCurrentIndex(5)
             self.preview_stack.setCurrentIndex(1)
             self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
             self.play_button.setEnabled(True)
