@@ -190,7 +190,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         count = self.media_list.count()
         if count == 0:
             return
-        args = ["-y "]
+        args = ["-y"]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
             duration = self.media_list.item(index).data(Qt.UserRole)
@@ -199,13 +199,13 @@ class MediaListWidget(QWidget, FORM_CLASS):
             args.append("-t")
             args.append(str(duration))
             args.append("-i")
-            args.append(file)
+            args.append(f'"{file}"')
         # Unsafe=1 used to deal with images or vids of different sizes
         args.append("-filter_complex")
-        args.append(f'"concat=n={count}:v=1:a=0:unsafe=1"')
-        # Next two lines raise compat issue with above two lines....
-        # args.append("-vf")
-        # args.append('"pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"')
+        args.append(
+            f'"concat=n={count}:v=1:a=0:unsafe=1'
+            ',pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"'
+        )
         args.append("-c:v")
         args.append("libx264")
         args.append("-pix_fmt")
