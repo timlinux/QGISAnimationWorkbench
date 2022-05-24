@@ -207,11 +207,13 @@ class MovieCommandGenerator:
                 "-c",
                 "copy",
                 "-vf",
-                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1",
                 "-c:v",
                 "libx264",
                 "-pix_fmt",
                 "yuv420p",
+                "-vf",
+                "scale=1920:1080",  # output resolution
                 combined_file,
             ]
 

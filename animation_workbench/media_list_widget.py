@@ -205,7 +205,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         # Unsafe=1 used to deal with images or vids of different sizes
         args.append(
             f"concat=n={count}:v=1:a=0:unsafe=1"
-            ",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"
+            ",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1"
         )
         args.append("-c:v")
         args.append("libx264")
@@ -216,5 +216,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         args.append("25")
         args.append("-movflags")
         args.append("+faststart")
+        args.append("-vf")
+        args.append("scale=1920:1080")
         # consumer of this output needs to add filename as last arg
         return args
