@@ -175,30 +175,40 @@ class MovieCommandGenerator:
             #    self.output_file))
 
             # Second pass - now we add the intro and outro videos to the main
-            # video if they exist.
-
-            arguments = ["-y", "-f", "concat", "-safe", "0"]
-            if intro_file:
-                arguments.append("-i")
-                arguments.append(intro_file)
-            if outro_file:
-                arguments.append("-i")
-                arguments.append(outro_file)
-            arguments.append("-i")
-            arguments.append(main_file)
-
+            # video if they exist. See https://trac.ffmpeg.org/wiki/Concatenate
             combined_file = None
+
             if music_file:
                 # Write to a temporary file that we will add music to after
                 combined_file = str(os.path.join(self.temp_dir, "combined.mp4"))
             else:
                 # Write to the final output file
                 combined_file = self.output_file
-            arguments.append("-safe")
-            arguments.append("0")
-            arguments.append("-c")
-            arguments.append("copy")
-            arguments.append(combined_file)
+
+            file_list_text = ""
+            if intro_file:
+                file_list_text += f"file {intro_file}\n"
+            if outro_file:
+                file_list_text += f"file {outro_file}\n"
+            file_list_text += f"file {main_file}"
+
+            file_list_path = str(os.path.join(self.temp_dir, "list.txt"))
+            with open(file_list_path, "w") as file_list_file:
+                file_list_file.write(file_list_text)
+
+            arguments = [
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                file_list_path,
+                "-c",
+                "copy",
+                combined_file,
+            ]
+
             # This will build the base video with no soundtrack
             # in the above temporary folder
             results.append((ffmpeg, arguments))
