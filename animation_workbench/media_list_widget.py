@@ -203,13 +203,15 @@ class MediaListWidget(QWidget, FORM_CLASS):
         # Unsafe=1 used to deal with images or vids of different sizes
         args.append("-filter_complex")
         args.append(f'"concat=n={count}:v=1:a=0:unsafe=1"')
-        args.append("-vf")
-        args.append('"pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"')
+        # Next two lines raise compat issue with above two lines....
+        # args.append("-vf")
+        # args.append('"pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"')
         args.append("-c:v")
         args.append("libx264")
         args.append("-pix_fmt")
         args.append("yuv420p")
         args.append("-r")
+        # TODO - set this to the desired frame rate...
         args.append("25")
         args.append("-movflags")
         args.append("+faststart")
