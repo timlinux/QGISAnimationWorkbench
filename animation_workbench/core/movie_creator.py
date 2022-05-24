@@ -176,7 +176,8 @@ class MovieCommandGenerator:
 
             # Second pass - now we add the intro and outro videos to the main
             # video if they exist.
-            arguments = ["-y"]
+
+            arguments = ["-y", "-f", "concat", "-safe", "0"]
             if intro_file:
                 arguments.append("-i")
                 arguments.append(intro_file)
@@ -185,6 +186,25 @@ class MovieCommandGenerator:
                 arguments.append(outro_file)
             arguments.append("-i")
             arguments.append(main_file)
+
+            combined_file = None
+            if music_file:
+                # Write to a temporary file that we will add music to after
+                combined_file = str(os.path.join(self.temp_dir, "combined.mp4"))
+            else:
+                # Write to the final output file
+                combined_file = self.output_file
+            arguments.append("-safe")
+            arguments.append("0")
+            arguments.append("-c")
+            arguments.append("copy")
+            arguments.append(combined_file)
+            # This will build the base video with no soundtrack
+            # in the above temporary folder
+            results.append((ffmpeg, arguments))
+
+            # Third pass - now we add the soundtrack to the main video if it exists
+
             # If there is a music file, we add the
             # file into the video container. From my testing on the CLI,
             # this works more smoothly and doesn't have issues like
@@ -199,8 +219,11 @@ class MovieCommandGenerator:
                 arguments.append(
                     "-shortest",
                 )
-            arguments.append(f"{self.output_file}")
-            results.append((ffmpeg, arguments))
+                arguments.append("-i")
+                arguments.append(combined_file)
+                arguments.append(self.output_file)
+
+                results.append((ffmpeg, arguments))
 
         return results
 
