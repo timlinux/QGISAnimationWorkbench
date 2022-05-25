@@ -45,6 +45,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
         self.remove_media.clicked.connect(self.remove_media_file)
+        self.duration.valueChanged.connect(self.update_duration)
         self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
     def set_media_type(self, media_type):
@@ -76,6 +77,12 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.load_media(file_path)
         duration = self.media_list.currentItem().data(Qt.UserRole)
         self.duration.setValue(duration)
+
+    def update_duration(self):
+        """Set the current item duration when the duration is changed."""
+        duration = self.media_list.currentItem().setData(
+            Qt.UserRole, self.duration.value()
+        )
 
     def choose_media_file(self):
         """
@@ -213,10 +220,10 @@ class MediaListWidget(QWidget, FORM_CLASS):
         args.append("yuv420p")
         args.append("-r")
         # TODO - set this to the desired frame rate...
-        args.append("25")
+        args.append("60")
         args.append("-movflags")
         args.append("+faststart")
-        args.append("-vf")
-        args.append("scale=1920:1080")
+        # args.append("-vf")
+        # args.append("scale=1920:1080")
         # consumer of this output needs to add filename as last arg
         return args

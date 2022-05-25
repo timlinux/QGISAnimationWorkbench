@@ -144,10 +144,9 @@ class MovieCommandGenerator:
                 "-y",
                 "-framerate",
                 str(self.framerate),
-                "-pattern_type",
-                "glob",
                 "-i",
-                f"{self.work_directory}/{self.frame_filename_prefix}-*.png",
+                # Assumes numbers of files are 10 digits
+                f"{self.work_directory}/{self.frame_filename_prefix}-%010d.png",
                 "-vf",
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
                 "-c:v",
@@ -188,7 +187,7 @@ class MovieCommandGenerator:
             file_list_text = ""
             if intro_file:
                 file_list_text += f"file {intro_file}\n"
-            file_list_text += f"file {main_file}"
+            file_list_text += f"file {main_file}\n"
             if outro_file:
                 file_list_text += f"file {outro_file}\n"
 
@@ -212,8 +211,8 @@ class MovieCommandGenerator:
                 "libx264",
                 "-pix_fmt",
                 "yuv420p",
-                "-vf",
-                "scale=1920:1080",  # output resolution
+                # "-vf",
+                # "scale=1920:1080",  # output resolution
                 combined_file,
             ]
 

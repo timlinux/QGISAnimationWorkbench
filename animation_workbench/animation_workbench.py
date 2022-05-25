@@ -823,7 +823,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         QgsApplication.taskManager().addTask(self.movie_task)
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
-        self.main_tab.setCurrentIndex(0)
+        self.main_tab.setCurrentIndex(5)
 
     def show_preview_for_frame(self, frame: int):
         """
