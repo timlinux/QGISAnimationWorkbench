@@ -6,6 +6,7 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
+from encodings import utf_8
 import os
 import tempfile
 from enum import Enum
@@ -192,7 +193,7 @@ class MovieCommandGenerator:
                 file_list_text += f"file {outro_file}\n"
 
             file_list_path = str(os.path.join(self.temp_dir, "list.txt"))
-            with open(file_list_path, "w") as file_list_file:
+            with open(file_list_path, "w", encoding=utf_8) as file_list_file:
                 file_list_file.write(file_list_text)
 
             arguments = [

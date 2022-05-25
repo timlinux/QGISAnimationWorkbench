@@ -80,9 +80,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
 
     def update_duration(self):
         """Set the current item duration when the duration is changed."""
-        duration = self.media_list.currentItem().setData(
-            Qt.UserRole, self.duration.value()
-        )
+        self.media_list.currentItem().setData(Qt.UserRole, self.duration.value())
 
     def choose_media_file(self):
         """
@@ -200,7 +198,6 @@ class MediaListWidget(QWidget, FORM_CLASS):
         args = ["-y"]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
-            file = file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
             duration = self.media_list.item(index).data(Qt.UserRole)
             args.append("-loop")
             args.append("1")
