@@ -193,7 +193,7 @@ class MovieCommandGenerator:
                 file_list_text += f"file {outro_file}\n"
 
             file_list_path = str(os.path.join(self.temp_dir, "list.txt"))
-            with open(file_list_path, "w", encoding=utf_8) as file_list_file:
+            with open(file_list_path, "w", encoding="utf-8") as file_list_file:
                 file_list_file.write(file_list_text)
 
             arguments = [
