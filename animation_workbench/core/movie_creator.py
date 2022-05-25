@@ -188,9 +188,9 @@ class MovieCommandGenerator:
             file_list_text = ""
             if intro_file:
                 file_list_text += f"file {intro_file}\n"
+            file_list_text += f"file {main_file}"
             if outro_file:
                 file_list_text += f"file {outro_file}\n"
-            file_list_text += f"file {main_file}"
 
             file_list_path = str(os.path.join(self.temp_dir, "list.txt"))
             with open(file_list_path, "w") as file_list_file:
