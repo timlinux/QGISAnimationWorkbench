@@ -33,7 +33,9 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
-            music_file=None,
+            intro_command=None,
+            outro_command=None,
+            music_command=None,
             output_format=MovieFormat.MP4,
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
@@ -74,7 +76,9 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
-            music_file="/home/me/music/lalala.mp3",
+            intro_command=None,
+            outro_command=None,
+            music_command=None,
             output_format=MovieFormat.MP4,
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
@@ -129,7 +133,9 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.gif",
-            music_file=None,
+            intro_command=None,
+            outro_command=None,
+            music_command=None,
             output_format=MovieFormat.GIF,
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
