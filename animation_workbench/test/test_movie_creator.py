@@ -40,7 +40,7 @@ class MovieCreatorTest(unittest.TestCase):
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
             framerate=90,
-            temp_dir="/tmp/temp",
+            temp_dir="/tmp",
         )
 
         commands = generator.as_commands()
@@ -83,7 +83,7 @@ class MovieCreatorTest(unittest.TestCase):
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
             framerate=90,
-            temp_dir="/tmp/temp",
+            temp_dir="/tmp",
         )
 
         commands = generator.as_commands()
@@ -107,7 +107,7 @@ class MovieCreatorTest(unittest.TestCase):
                         "libx264",
                         "-pix_fmt",
                         "yuv420p",
-                        "/tmp/temp/animation_workbench.mp4",
+                        "/tmp/animation_workbench.mp4",
                     ],
                 ),
                 (
@@ -115,7 +115,7 @@ class MovieCreatorTest(unittest.TestCase):
                     [
                         "-y",
                         "-i",
-                        "/tmp/temp/animation_workbench.mp4",
+                        "/tmp/animation_workbench.mp4",
                         "-i",
                         "/home/me/music/lalala.mp3",
                         "-c",
@@ -140,7 +140,7 @@ class MovieCreatorTest(unittest.TestCase):
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
             framerate=90,
-            temp_dir="/tmp/temp",
+            temp_dir="/tmp/",
         )
 
         commands = generator.as_commands()
