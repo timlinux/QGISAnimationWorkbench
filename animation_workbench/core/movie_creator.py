@@ -6,7 +6,6 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-from encodings import utf_8
 import os
 import tempfile
 from enum import Enum
@@ -54,7 +53,7 @@ class MovieCommandGenerator:
         self.framerate = framerate
         self.temp_dir = temp_dir
 
-    def as_commands(self) -> List[Tuple[str, List]]:
+    def as_commands(self) -> List[Tuple[str, List]]:  # pylint: Too many statements
         """
         Returns a list of commands necessary for the movie generation.
 
