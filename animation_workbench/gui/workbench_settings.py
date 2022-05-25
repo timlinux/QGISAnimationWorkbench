@@ -32,7 +32,7 @@ class WorkbenchSettings(FORM_CLASS, QgsOptionsPageWidget):
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
         self.spin_thread_pool_size.setValue(
-            int(setting(key="render_thread_pool_size", default=10))
+            int(setting(key="render_thread_pool_size", default=1))
         )
         # This is intended for developers to attach to the plugin using a
         # remote debugger so that they can step through the code. Do not
