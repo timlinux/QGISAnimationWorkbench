@@ -53,7 +53,7 @@ class MovieCommandGenerator:
         self.framerate = framerate
         self.temp_dir = temp_dir
 
-    def as_commands(self) -> List[Tuple[str, List]]:  # pylint: Too many statements
+    def as_commands(self) -> List[Tuple[str, List]]:  # pylint: disable= R0915
         """
         Returns a list of commands necessary for the movie generation.
 
