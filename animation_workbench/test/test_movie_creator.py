@@ -1,5 +1,5 @@
 # coding=utf-8
-"""Movie creator test
+"""Movie creator test.
 
 .. note:: This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -54,10 +54,8 @@ class MovieCreatorTest(unittest.TestCase):
                         "-y",
                         "-framerate",
                         "90",
-                        "-pattern_type",
-                        "glob",
                         "-i",
-                        "/tmp/movies/frames-*.png",
+                        "/tmp/movies/frames-%010d.png",
                         "-vf",
                         "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
                         "-c:v",
@@ -97,10 +95,8 @@ class MovieCreatorTest(unittest.TestCase):
                         "-y",
                         "-framerate",
                         "90",
-                        "-pattern_type",
-                        "glob",
                         "-i",
-                        "/tmp/movies/frames-*.png",
+                        "/tmp/movies/frames-%010d.png",
                         "-vf",
                         "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
                         "-c:v",
