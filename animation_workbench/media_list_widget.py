@@ -194,7 +194,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         """
         count = self.media_list.count()
         if count == 0:
-            return
+            return None
         arguments = ["-y"]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
