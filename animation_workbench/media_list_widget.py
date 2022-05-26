@@ -195,32 +195,32 @@ class MediaListWidget(QWidget, FORM_CLASS):
         count = self.media_list.count()
         if count == 0:
             return
-        args = ["-y"]
+        arguments = ["-y"]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
             duration = self.media_list.item(index).data(Qt.UserRole)
-            args.append("-loop")
-            args.append("1")
-            args.append("-t")
-            args.append(str(duration))
-            args.append("-i")
-            args.append(file)
-        args.append("-filter_complex")
+            arguments.append("-loop")
+            arguments.append("1")
+            arguments.append("-t")
+            arguments.append(str(duration))
+            arguments.append("-i")
+            arguments.append(file)
+        arguments.append("-filter_complex")
         # Unsafe=1 used to deal with images or vids of different sizes
-        args.append(
+        arguments.append(
             f"concat=n={count}:v=1:a=0:unsafe=1"
             ",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1"
         )
-        args.append("-c:v")
-        args.append("libx264")
-        args.append("-pix_fmt")
-        args.append("yuv420p")
-        args.append("-r")
+        arguments.append("-c:v")
+        arguments.append("libx264")
+        arguments.append("-pix_fmt")
+        arguments.append("yuv420p")
+        arguments.append("-r")
         # TODO - set this to the desired frame rate...
-        args.append("60")
-        args.append("-movflags")
-        args.append("+faststart")
+        arguments.append("60")
+        arguments.append("-movflags")
+        arguments.append("+faststart")
         # args.append("-vf")
         # args.append("scale=1920:1080")
         # consumer of this output needs to add filename as last arg
-        return args
+        return arguments
