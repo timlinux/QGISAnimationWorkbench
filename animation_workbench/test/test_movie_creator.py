@@ -72,6 +72,7 @@ class MovieCreatorTest(unittest.TestCase):
         """
         Test mp4 command generation
         """
+        self.maxDiff = None
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
             intro_command=None,
