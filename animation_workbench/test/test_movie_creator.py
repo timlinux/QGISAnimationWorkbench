@@ -44,11 +44,6 @@ class MovieCreatorTest(unittest.TestCase):
         )
 
         commands = generator.as_commands()
-        from pprint import pprint
-
-        print("\n-------------------\n")
-        pprint(commands)
-        print("\n-------------------\n")
         self.assertEqual(
             commands,
             [
