@@ -34,7 +34,9 @@ class MovieCommandGenerator:
     def __init__(
         self,
         output_file: str,
-        music_file: Optional[str],
+        intro_command: Optional[tuple],
+        outro_command: Optional[tuple],
+        music_command: Optional[tuple],
         output_format: MovieFormat,
         work_directory: str,
         frame_filename_prefix: str,
@@ -42,20 +44,22 @@ class MovieCommandGenerator:
         temp_dir: str,
     ):
         self.output_file = output_file
-        self.music_file = music_file
+        self.intro_command = intro_command
+        self.outro_command = outro_command
+        self.music_command = music_command
         self.format = output_format
         self.work_directory = work_directory
         self.frame_filename_prefix = frame_filename_prefix
         self.framerate = framerate
         self.temp_dir = temp_dir
 
-    def as_commands(self) -> List[Tuple[str, List]]:
+    def as_commands(self) -> List[Tuple[str, List]]:  # pylint: disable= R0915
         """
         Returns a list of commands necessary for the movie generation.
 
-        :returns tuble: Returned as tuples of the command and arguments list.
+        :returns tuple: Returned as tuples of the command and arguments list.
         """
-        res = []
+        results = []
         if self.format == MovieFormat.GIF:
             convert = CoreUtils.which("convert")[0]
 
@@ -64,7 +68,7 @@ class MovieCommandGenerator:
             # ImageMagick) is correct...
             # delay of 3.33 makes the output around 30fps
 
-            res.append(
+            results.append(
                 (
                     convert,
                     [
@@ -84,7 +88,7 @@ class MovieCommandGenerator:
             # on you cartography you may also want to bump up the colors param
             # to increase palette size and of course adjust the scale factor to
             # the ultimate image size you want
-            res.append(
+            results.append(
                 (
                     convert,
                     [
@@ -116,15 +120,33 @@ class MovieCommandGenerator:
             # Change to black if needed.
             # -y to force overwrite exising file
 
+            # Generate the intro video, if any
+            intro_file = None
+            outro_file = None
+            music_file = None
+            if self.intro_command:
+                intro_file = str(os.path.join(self.temp_dir, "intro.mp4"))
+                self.intro_command.append(intro_file)
+                results.append((ffmpeg, self.intro_command))
+            # Generate the outro video, if any
+            if self.outro_command:
+                outro_file = str(os.path.join(self.temp_dir, "outro.mp4"))
+                self.outro_command.append(outro_file)
+                results.append((ffmpeg, self.outro_command))
+            # Generate the sound track, if any
+            if self.music_command:
+                music_file = str(os.path.join(self.temp_dir, "music.mp4"))
+                self.music_command.append(music_file)
+                results.append((ffmpeg, self.music_command))
+
             arguments = [
                 "-hide_banner",
                 "-y",
                 "-framerate",
                 str(self.framerate),
-                "-pattern_type",
-                "glob",
                 "-i",
-                f"{self.work_directory}/{self.frame_filename_prefix}-*.png",
+                # Assumes numbers of files are 10 digits
+                f"{self.work_directory}/{self.frame_filename_prefix}-%010d.png",
                 "-vf",
                 "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
                 "-c:v",
@@ -133,52 +155,94 @@ class MovieCommandGenerator:
                 "yuv420p",
             ]
 
-            if not self.music_file:
-                arguments.append(self.output_file)
-                res.append((ffmpeg, arguments))
+            main_file = str(os.path.join(self.temp_dir, "main.mp4"))
+            arguments.append(main_file)
+            # This will build the base video with no soundtrack
+            # in the above temporary folder
+            results.append((ffmpeg, arguments))
+
+            # windows_command = ("""
+            #    %s -y -framerate %s -pattern_type sequence \
+            #    -start_number 0000000001 \
+            #    -i "%s/%s-%00000000010d.png" -vf \
+            #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
+            #    -c:v libx264 -pix_fmt yuv420p %s""" % (
+            #    ffmpeg,
+            #    framerate,
+            #    self.work_directory,
+            #    self.frame_filename_prefix,
+            #    self.output_file))
+
+            # Second pass - now we add the intro and outro videos to the main
+            # video if they exist. See https://trac.ffmpeg.org/wiki/Concatenate
+            combined_file = None
+
+            if music_file:
+                # Write to a temporary file that we will add music to after
+                combined_file = str(os.path.join(self.temp_dir, "combined.mp4"))
             else:
-                temp_video_path = str(
-                    os.path.join(self.temp_dir, "animation_workbench.mp4")
-                )
-                arguments.append(temp_video_path)
-                # This will build the base vide with no soundtrack
-                # in the above temporary folder
-                res.append((ffmpeg, arguments))
+                # Write to the final output file
+                combined_file = self.output_file
 
-                # windows_command = ("""
-                #    %s -y -framerate %s -pattern_type sequence \
-                #    -start_number 0000000001 \
-                #    -i "%s/%s-%00000000010d.png" -vf \
-                #    "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" \
-                #    -c:v libx264 -pix_fmt yuv420p %s""" % (
-                #    ffmpeg,
-                #    framerate,
-                #    self.work_directory,
-                #    self.frame_filename_prefix,
-                #    self.output_file))
+            file_list_text = ""
+            if intro_file:
+                file_list_text += f"file {intro_file}\n"
+            file_list_text += f"file {main_file}\n"
+            if outro_file:
+                file_list_text += f"file {outro_file}\n"
 
-                # If there is a music file, we do a second pass and add the
-                # file into the video container. From my testing on the CLI,
-                # this works more smoothly and doesn't have issues like
-                # video blanking that doing it in one pass does.
+            file_list_path = str(os.path.join(self.temp_dir, "list.txt"))
+            with open(file_list_path, "w", encoding="utf-8") as file_list_file:
+                file_list_file.write(file_list_text)
 
-                arguments = [
-                    "-y",
-                    "-i",
-                    f"{temp_video_path}",
-                    "-i",
-                    f"{self.music_file}",
-                    "-c",
-                    # Will copy the sound into the video container
-                    "copy",
-                    # will truncate output to shortest between vid and audio
+            arguments = [
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                file_list_path,
+                "-c",
+                "copy",
+                "-vf",
+                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1",
+                "-c:v",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
+                # "-vf",
+                # "scale=1920:1080",  # output resolution
+                combined_file,
+            ]
+
+            # This will build the base video with no soundtrack
+            # in the above temporary folder
+            results.append((ffmpeg, arguments))
+
+            # Third pass - now we add the soundtrack to the main video if it exists
+
+            # If there is a music file, we add the
+            # file into the video container. From my testing on the CLI,
+            # this works more smoothly and doesn't have issues like
+            # video blanking that doing it in the first pass does.
+            if music_file:
+                arguments.append("-i")
+                arguments.append(music_file)
+                arguments.append("-c")
+                # Will copy the sound into the video container
+                arguments.append("copy")
+                # will truncate output to shortest between vid and audio
+                arguments.append(
                     "-shortest",
-                    f"{self.output_file}",
-                ]
+                )
+                arguments.append("-i")
+                arguments.append(combined_file)
+                arguments.append(self.output_file)
 
-                res.append((ffmpeg, arguments))
+                results.append((ffmpeg, arguments))
 
-        return res
+        return results
 
 
 class MovieCreationTask(QgsTask):
@@ -194,7 +258,9 @@ class MovieCreationTask(QgsTask):
     def __init__(
         self,
         output_file: str,
-        music_file: str,
+        intro_command: str,
+        outro_command: str,
+        music_command: str,
         output_format: MovieFormat,
         work_directory: str,
         frame_filename_prefix: str,
@@ -203,7 +269,9 @@ class MovieCreationTask(QgsTask):
         super().__init__("Exporting Movie", QgsTask.Flag.CanCancel)
 
         self.output_file = output_file
-        self.music_file = music_file
+        self.intro_command = intro_command
+        self.outro_command = outro_command
+        self.music_command = music_command
         self.format = output_format
         self.work_directory = work_directory
         self.frame_filename_prefix = frame_filename_prefix
@@ -283,7 +351,9 @@ class MovieCreationTask(QgsTask):
         with tempfile.TemporaryDirectory() as tmp:
             generator = MovieCommandGenerator(
                 output_file=self.output_file,
-                music_file=self.music_file,
+                intro_command=self.intro_command,
+                outro_command=self.outro_command,
+                music_command=self.music_command,
                 output_format=self.format,
                 work_directory=self.work_directory,
                 frame_filename_prefix=self.frame_filename_prefix,

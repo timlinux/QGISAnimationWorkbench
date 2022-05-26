@@ -45,6 +45,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
         self.remove_media.clicked.connect(self.remove_media_file)
+        self.duration.valueChanged.connect(self.update_duration)
         self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
     def set_media_type(self, media_type):
@@ -76,6 +77,10 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.load_media(file_path)
         duration = self.media_list.currentItem().data(Qt.UserRole)
         self.duration.setValue(duration)
+
+    def update_duration(self):
+        """Set the current item duration when the duration is changed."""
+        self.media_list.currentItem().setData(Qt.UserRole, self.duration.value())
 
     def choose_media_file(self):
         """
@@ -179,3 +184,43 @@ class MediaListWidget(QWidget, FORM_CLASS):
         for index in range(self.media_list.count()):
             total += self.media_list.item(index).data(Qt.UserRole)
         return total
+
+    def video_command(self):
+        """Generate command for creating a video from the media files.
+
+        ..note:: You need to add an executable and output filename to the command
+            arguments before running this command. This is done in the
+            movie_creator class.
+        """
+        count = self.media_list.count()
+        if count == 0:
+            return None
+        arguments = ["-y"]
+        for index in range(self.media_list.count()):
+            file = self.media_list.item(index).text()
+            duration = self.media_list.item(index).data(Qt.UserRole)
+            arguments.append("-loop")
+            arguments.append("1")
+            arguments.append("-t")
+            arguments.append(str(duration))
+            arguments.append("-i")
+            arguments.append(file)
+        arguments.append("-filter_complex")
+        # Unsafe=1 used to deal with images or vids of different sizes
+        arguments.append(
+            f"concat=n={count}:v=1:a=0:unsafe=1"
+            ",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1"
+        )
+        arguments.append("-c:v")
+        arguments.append("libx264")
+        arguments.append("-pix_fmt")
+        arguments.append("yuv420p")
+        arguments.append("-r")
+        # TODO - set this to the desired frame rate...
+        arguments.append("60")
+        arguments.append("-movflags")
+        arguments.append("+faststart")
+        # args.append("-vf")
+        # args.append("scale=1920:1080")
+        # consumer of this output needs to add filename as last arg
+        return arguments

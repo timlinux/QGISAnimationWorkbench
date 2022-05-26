@@ -1,5 +1,5 @@
 # coding=utf-8
-"""Movie creator test
+"""Movie creator test.
 
 .. note:: This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -33,12 +33,14 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
-            music_file=None,
+            intro_command=None,
+            outro_command=None,
+            music_command=None,
             output_format=MovieFormat.MP4,
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
             framerate=90,
-            temp_dir="/tmp/temp",
+            temp_dir="/tmp",
         )
 
         commands = generator.as_commands()
@@ -52,19 +54,38 @@ class MovieCreatorTest(unittest.TestCase):
                         "-y",
                         "-framerate",
                         "90",
-                        "-pattern_type",
-                        "glob",
                         "-i",
-                        "/tmp/movies/frames-*.png",
+                        "/tmp/movies/frames-%010d.png",
                         "-vf",
                         "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
                         "-c:v",
                         "libx264",
                         "-pix_fmt",
                         "yuv420p",
+                        "/tmp/main.mp4",
+                    ],
+                ),
+                (
+                    "/usr/bin/ffmpeg",
+                    [
+                        "-y",
+                        "-f",
+                        "concat",
+                        "-safe",
+                        "0",
+                        "-i",
+                        "/tmp/list.txt",
+                        "-c",
+                        "copy",
+                        "-vf",
+                        "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1",
+                        "-c:v",
+                        "libx264",
+                        "-pix_fmt",
+                        "yuv420p",
                         "/home/me/videos/test.mp4",
                     ],
-                )
+                ),
             ],
         )
 
@@ -72,14 +93,17 @@ class MovieCreatorTest(unittest.TestCase):
         """
         Test mp4 command generation
         """
+        self.maxDiff = None
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
-            music_file="/home/me/music/lalala.mp3",
+            intro_command=None,
+            outro_command=None,
+            music_command=None,
             output_format=MovieFormat.MP4,
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
             framerate=90,
-            temp_dir="/tmp/temp",
+            temp_dir="/tmp",
         )
 
         commands = generator.as_commands()
@@ -93,30 +117,36 @@ class MovieCreatorTest(unittest.TestCase):
                         "-y",
                         "-framerate",
                         "90",
-                        "-pattern_type",
-                        "glob",
                         "-i",
-                        "/tmp/movies/frames-*.png",
+                        "/tmp/movies/frames-%010d.png",
                         "-vf",
                         "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white",
                         "-c:v",
                         "libx264",
                         "-pix_fmt",
                         "yuv420p",
-                        "/tmp/temp/animation_workbench.mp4",
+                        "/tmp/main.mp4",
                     ],
                 ),
                 (
                     "/usr/bin/ffmpeg",
                     [
                         "-y",
+                        "-f",
+                        "concat",
+                        "-safe",
+                        "0",
                         "-i",
-                        "/tmp/temp/animation_workbench.mp4",
-                        "-i",
-                        "/home/me/music/lalala.mp3",
+                        "/tmp/list.txt",
                         "-c",
                         "copy",
-                        "-shortest",
+                        "-vf",
+                        "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,"
+                        "scale=1920:1080,setsar=1:1",
+                        "-c:v",
+                        "libx264",
+                        "-pix_fmt",
+                        "yuv420p",
                         "/home/me/videos/test.mp4",
                     ],
                 ),
@@ -129,12 +159,14 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.gif",
-            music_file=None,
+            intro_command=None,
+            outro_command=None,
+            music_command=None,
             output_format=MovieFormat.GIF,
             work_directory="/tmp/movies",
             frame_filename_prefix="frames",
             framerate=90,
-            temp_dir="/tmp/temp",
+            temp_dir="/tmp/",
         )
 
         commands = generator.as_commands()
