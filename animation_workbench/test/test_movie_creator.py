@@ -44,6 +44,7 @@ class MovieCreatorTest(unittest.TestCase):
         )
 
         commands = generator.as_commands()
+        print(str(commands)
         self.assertEqual(
             commands,
             [
