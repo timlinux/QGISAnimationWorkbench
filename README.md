@@ -53,10 +53,11 @@ For QGIS versions below 3.26, see the documentation for [QGIS Animation Workbenc
 
 This software is licensed under the [GPL v2](https://github.com/timlinux/QGISAnimationWorkbench/blob/master/LICENSE) © [timlinux](https://github.com/timlinux).
 
-## :yellow_heart: Credits
+## 💛 Credits
 
 - Tim Sutton
 - Nyall Dawson
 - Mathieu Pellerin
 - Jeremy Prior
+- Thiasha Vythilingam
   
