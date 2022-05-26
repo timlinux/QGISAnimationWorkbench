@@ -62,7 +62,7 @@ class MovieCreatorTest(unittest.TestCase):
                         "libx264",
                         "-pix_fmt",
                         "yuv420p",
-                        "/home/me/videos/test.mp4",
+                        "/tmp/main.mp4",
                     ],
                 )
             ],
