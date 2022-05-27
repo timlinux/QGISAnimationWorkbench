@@ -12,10 +12,12 @@ This plugin was developed by:
 
 Thanks to:
 
-*Mathieu Pellerin (@nirvn)
+* Mathieu Pellerin (@nirvn)
+* Jeremy Prior (@Jeremy-Prior)
+* Thiasha Vythilingam (@ThiashaV)
 
 We are looking for contributors, add yourself here!
 
 Also:
 
-- [NHN and Tui Editor](https://raw.githubusercontent.com/nhn/tui.editor) for the great README which I based this one on.
+* [NHN and Tui Editor](https://raw.githubusercontent.com/nhn/tui.editor) for the great README which I based this one on.
