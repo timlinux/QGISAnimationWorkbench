@@ -1198,7 +1198,8 @@ class AnimationControllerTest(unittest.TestCase):
         )
 
         job = next(it)
-        self.assertAlmostEqual(job.map_settings.scale(), 1666666, delta=120000)
+        # was 16
+        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 4, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 8, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
