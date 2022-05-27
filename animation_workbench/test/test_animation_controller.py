@@ -572,7 +572,7 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertEqual(job.map_settings.currentFrame(), 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            444444,
+            266666,
             delta=120000,
         )
         self.assertEqual(
@@ -1052,7 +1052,8 @@ class AnimationControllerTest(unittest.TestCase):
         # back to hovering
 
         job = next(it)
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        # Changed from 44
+        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
