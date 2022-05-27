@@ -121,6 +121,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.parent = parent
         self.iface = iface
 
+        self.intro_media.set_media_type("images and movies")
+        self.outro_media.set_media_type("images and movies")
+        self.music_media.set_media_type("sounds")
+
         self.intro_media.from_json(
             setting(key="intro_media", default="{}", prefer_project_setting=True)
         )
@@ -198,9 +202,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.button_box.accepted.connect(self.accept)
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
 
-        self.intro_media.set_media_type("images and movies")
-        self.outro_media.set_media_type("images and movies")
-        self.music_media.set_media_type("sounds")
         # Used by ffmpeg and convert to set the fps for rendered videos
         self.framerate_spin.setValue(
             int(

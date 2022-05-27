@@ -7,6 +7,8 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 import json
+import os
+from os.path import expanduser
 from qgis.PyQt.QtWidgets import QWidget, QSizePolicy
 from qgis.PyQt.QtCore import Qt
 
@@ -18,6 +20,10 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QPixmap, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QListWidgetItem
 from .utilities import get_ui_class
+from .core import (
+    set_setting,
+    setting,
+)
 
 FORM_CLASS = get_ui_class("media_list_widget_base.ui")
 
@@ -39,17 +45,22 @@ class MediaListWidget(QWidget, FORM_CLASS):
         # media_type:
         # Types of media that can be managed. Valid options are
         # "images", "images and movies", "movies", "sound".
-
         self.media_type = None
         self.media_filter = None
-        self.set_media_type(media_type)
+        self.output_mode = "1920:1080"
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
         self.remove_media.clicked.connect(self.remove_media_file)
         self.duration.valueChanged.connect(self.update_duration)
         self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.images_filter = "JPEG (*.jpg);;PNG (*.png);;All files (*.*)"
+        self.movies_filter = "MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
+        self.movies_and_images_filter = (
+            "JPEG (*.jpg);;PNG (*.png);;MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
+        )
+        self.sounds_filter = "MP3 (*.mp3);;WAV (*.wav);;All files (*.*)"
 
-    def set_media_type(self, media_type):
+    def set_media_type(self, media_type: str):
         """Setter for media_type property.
 
         :media_type: Types of media that can be managed. Valid options are
@@ -57,18 +68,27 @@ class MediaListWidget(QWidget, FORM_CLASS):
         :type media_type: str
         """
         self.media_type = media_type
-        self.images = "JPEG (*.jpg);;PNG (*.png)"
-        self.movies = "MOV (*.mov);;MP4 (*.mp4)"
-        self.movies_and_images = "JPEG (*.jpg);;PNG (*.png);;MOV (*.mov);;MP4 (*.mp4)"
-        self.sounds = "MP3 (*.mp3);;WAV (*.wav)"
-        if self.media_type == "movies":
-            self.media_filter = self.movies
-        if self.media_type == "images":
-            self.media_filter = self.images
-        if self.media_type == "images and movies":
-            self.media_filter = self.movies_and_images
-        if self.media_type == "sounds":
-            self.media_type = self.sounds
+        if media_type == "movies":
+            self.media_filter = self.movies_filter
+        if media_type == "images":
+            self.media_filter = self.images_filter
+        if media_type == "images and movies":
+            self.media_filter = self.movies_and_images_filter
+        if media_type == "sounds":
+            self.media_filter = self.sounds_filter
+
+    def set_output_resolution(self, mode: str):
+        """Set the output resolution for the media list.
+        :param mode: Mode for video - either "720p", "1080p" or "4k"
+        :type mode: str
+
+        """
+        if mode == "720p":
+            self.output_mode = "1280:720"
+        if mode == "1080p":
+            self.output_mode = "1920:1080"
+        else:
+            self.output_mode = "3840:2160"
 
     def media_item_selected(self, current_index):
         """Handler for when an item is selected in the media list."""
@@ -88,17 +108,26 @@ class MediaListWidget(QWidget, FORM_CLASS):
         Asks the user for the a media file path
         """
         # Popup a dialog to request the filename for music backing track
-        dialog_title = "Media (jpg, png, mov, mp4) for video"
-
+        dialog_title = "Select Media File"
+        home = expanduser("~")
+        directory = setting(
+            key="last_directory", default=home, prefer_project_setting=True
+        )
         # noinspection PyCallByClass,PyTypeChecker
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             dialog_title,
+            directory,
             self.media_filter,
-            self.movies_and_images,
         )
         if file_path is None or file_path == "":
             return
+        directory = os.path.abspath(file_path)
+        set_setting(
+            key="last_directory",
+            value=directory,
+            store_in_project=True,
+        )
         self.create_item(file_path)
 
     def remove_media_file(self):

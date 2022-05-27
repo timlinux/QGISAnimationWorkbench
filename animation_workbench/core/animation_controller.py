@@ -11,7 +11,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional, Iterator, List
 
-from qgis.PyQt.QtCore import QObject, pyqtSignal, QEasingCurve
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QEasingCurve, QSize
 from qgis.core import (
     QgsPointXY,
     QgsWkbTypes,
@@ -763,6 +763,9 @@ class AnimationController(QObject):
         """
 
         settings = QgsMapSettings(map_settings)
+
+        settings.setOutputSize(QSize(1920, 1080))
+        settings.setOutputDpi(96)
 
         if Qgis.QGIS_VERSION_INT >= 32500:
             settings.setFrameRate(self.frame_rate)
