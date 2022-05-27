@@ -33,18 +33,19 @@ class MediaListWidget(QWidget, FORM_CLASS):
     A widget for managing a list of media.
     """
 
-    def __init__(self, media_type="images", parent=None):
+    def __init__(self, parent=None):
         """Constructor for media_list_widget.
-
-        :media_type: Types of media that can be managed. Valid options are
-            "images", "images and movies", "movies", "sound".
-        :type media_type: str
 
         :param parent: Parent widget of this widget.
         :type parent: QWidget
         """
         QWidget.__init__(self, parent)
         self.setupUi(self)
+
+        # media_type:
+        # Types of media that can be managed. Valid options are
+        # "images", "images and movies", "movies", "sound".
+        self.media_type = None
         self.media_filter = None
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
@@ -65,7 +66,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
             "images", "images and movies", "movies", "sound".
         :type media_type: str
         """
-
+        self.media_type = media_type
         if media_type == "movies":
             self.media_filter = self.movies_filter
         if media_type == "images":
