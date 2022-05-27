@@ -47,6 +47,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         # "images", "images and movies", "movies", "sound".
         self.media_type = None
         self.media_filter = None
+        self.output_mode = "1920:1080"
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
         self.remove_media.clicked.connect(self.remove_media_file)
@@ -75,6 +76,19 @@ class MediaListWidget(QWidget, FORM_CLASS):
             self.media_filter = self.movies_and_images_filter
         if media_type == "sounds":
             self.media_filter = self.sounds_filter
+
+    def set_output_resolution(self, mode: str):
+        """Set the output resolution for the media list.
+        :param mode: Mode for video - either "720p", "1080p" or "4k"
+        :type mode: str
+
+        """
+        if mode == "720p":
+            self.output_mode = "1280:720"
+        if mode == "1080p":
+            self.output_mode = "1920:1080"
+        else:
+            self.output_mode = "3840:2160"
 
     def media_item_selected(self, current_index):
         """Handler for when an item is selected in the media list."""
