@@ -12,7 +12,9 @@ This plugin was developed by:
 
 Thanks to:
 
-*Mathieu Pellerin (@nirvn)
+* Mathieu Pellerin (@nirvn)
+* Jeremy Prior (@Jeremy-Prior)
+* Thiasha Vythilingam (@ThiashaV)
 
 We are looking for contributors, add yourself here!
 
