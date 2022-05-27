@@ -10,6 +10,6 @@ You can build a copy of the documentation as a PDF file using the following step
 pip install mkdocs-with-pdf
 pip install mkdocs-material
 pip install qrcode
-mkdocs build
+mkdocs build --config-file 
 xdg-open pdfs/QGISAnimationWorkbench.pdf 
 ```
