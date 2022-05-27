@@ -31,7 +31,7 @@ In this section, we describe the general workflow for using the Animation Workbe
     textbox
 
     Style the layers you've added to make your project look a bit better. **`2`** Select the
-    layer you want to style and in the **`3`**. Layer Styling toolbar, style the layer to
+    layer you want to style and in the **`3`** Layer Styling toolbar, style the layer to
     look appealing to you.
 
     ![Style Layers](img/006_StylingLayers_1.png)
