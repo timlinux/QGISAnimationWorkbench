@@ -20,4 +20,4 @@ We are looking for contributors, add yourself here!
 
 Also:
 
-- [NHN and Tui Editor](https://raw.githubusercontent.com/nhn/tui.editor) for the great README which I based this one on.
+* [NHN and Tui Editor](https://raw.githubusercontent.com/nhn/tui.editor) for the great README which I based this one on.
