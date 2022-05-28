@@ -34,6 +34,7 @@ class MovieCommandGenerator:
     def __init__(
         self,
         output_file: str,
+        output_mode: str,
         intro_command: Optional[tuple],
         outro_command: Optional[tuple],
         music_command: Optional[tuple],
@@ -44,6 +45,7 @@ class MovieCommandGenerator:
         temp_dir: str,
     ):
         self.output_file = output_file
+        self.output_mode = output_mode
         self.intro_command = intro_command
         self.outro_command = outro_command
         self.music_command = music_command
@@ -206,13 +208,11 @@ class MovieCommandGenerator:
                 "-c",
                 "copy",
                 "-vf",
-                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1",
+                f"pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale={self.output_mode},setsar=1:1",
                 "-c:v",
                 "libx264",
                 "-pix_fmt",
                 "yuv420p",
-                # "-vf",
-                # "scale=1920:1080",  # output resolution
                 combined_file,
             ]
 
@@ -258,6 +258,7 @@ class MovieCreationTask(QgsTask):
     def __init__(
         self,
         output_file: str,
+        output_mode: str,
         intro_command: str,
         outro_command: str,
         music_command: str,
@@ -269,6 +270,7 @@ class MovieCreationTask(QgsTask):
         super().__init__("Exporting Movie", QgsTask.Flag.CanCancel)
 
         self.output_file = output_file
+        self.output_mode = output_mode
         self.intro_command = intro_command
         self.outro_command = outro_command
         self.music_command = music_command
@@ -351,6 +353,7 @@ class MovieCreationTask(QgsTask):
         with tempfile.TemporaryDirectory() as tmp:
             generator = MovieCommandGenerator(
                 output_file=self.output_file,
+                output_mode=self.output_mode,
                 intro_command=self.intro_command,
                 outro_command=self.outro_command,
                 music_command=self.music_command,

@@ -733,6 +733,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if map_mode == MapMode.FIXED_EXTENT:
             controller = AnimationController.create_fixed_extent_controller(
                 map_settings=self.iface.mapCanvas().mapSettings(),
+                output_mode=self.output_mode_ffmpeg(),
                 feature_layer=self.layer_combo.currentLayer() or None,
                 output_extent=QgsReferencedRectangle(
                     self.extent_group_box.outputExtent(),
@@ -745,6 +746,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             try:
                 controller = AnimationController.create_moving_extent_controller(
                     map_settings=self.iface.mapCanvas().mapSettings(),
+                    output_mode=self.output_mode_ffmpeg(),
                     mode=map_mode,
                     feature_layer=self.layer_combo.currentLayer(),
                     travel_duration=self.travel_duration_spin.value(),
@@ -784,8 +786,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         intro_command = self.intro_media.video_command()
         outro_command = self.outro_media.video_command()
         music_command = self.music_media.video_command()
+        output_mode = self.output_mode_ffmpeg()
         self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
+            output_mode=output_mode,
             intro_command=intro_command,
             outro_command=outro_command,
             music_command=music_command,
@@ -825,6 +829,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.main_tab.setCurrentIndex(5)
+
+    def output_mode_ffmpeg(self):
+        output_mode = None
+        if self.low_res.isChecked():
+            output_mode = "1280:720"
+        elif self.medium_res.isChecked():
+            output_mode = "1920:1080"
+        else:  # 4k
+            output_mode = "3840:2160"
+        return output_mode
 
     def show_preview_for_frame(self, frame: int):
         """
