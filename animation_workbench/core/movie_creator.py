@@ -227,6 +227,7 @@ class MovieCommandGenerator:
             # this works more smoothly and doesn't have issues like
             # video blanking that doing it in the first pass does.
             if music_file:
+                arguments = []
                 arguments.append("-i")
                 arguments.append(music_file)
                 arguments.append("-c")

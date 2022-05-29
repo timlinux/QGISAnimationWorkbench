@@ -783,6 +783,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
             return
         # We assemble first commands needed to make the pieces of the movie
+        self.intro_media.set_output_resolution(self.output_mode_name)
+        self.outro_media.set_output_resolution(self.output_mode_name)
+        self.music_media.set_output_resolution(self.output_mode_name)
         intro_command = self.intro_media.video_command()
         outro_command = self.outro_media.video_command()
         music_command = self.music_media.video_command()
@@ -838,6 +841,17 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             output_mode = "1920:1080"
         else:  # 4k
             output_mode = "3840:2160"
+        return output_mode
+
+    def output_mode_name(self):
+        """Return the output mode name like 1080p, 720p etc."""
+        output_mode = None
+        if self.low_res.isChecked():
+            output_mode = "720p"
+        elif self.medium_res.isChecked():
+            output_mode = "1080p"
+        else:  # 4k
+            output_mode = "4k"
         return output_mode
 
     def show_preview_for_frame(self, frame: int):

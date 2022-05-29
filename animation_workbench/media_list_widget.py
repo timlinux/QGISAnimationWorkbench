@@ -47,7 +47,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         # "images", "images and movies", "movies", "sound".
         self.media_type = None
         self.media_filter = None
-        self.output_mode = "1920:1080"
+        self.output_mode = None
         self.media_list.currentRowChanged.connect(self.media_item_selected)
         self.add_media.clicked.connect(self.choose_media_file)
         self.remove_media.clicked.connect(self.remove_media_file)
@@ -64,7 +64,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         """Setter for media_type property.
 
         :media_type: Types of media that can be managed. Valid options are
-            "images", "images and movies", "movies", "sound".
+            "images", "images and movies", "movies", "sounds".
         :type media_type: str
         """
         self.media_type = media_type
@@ -123,6 +123,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         if file_path is None or file_path == "":
             return
         directory = os.path.abspath(file_path)
+        directory = os.path.dirname(directory)
         set_setting(
             key="last_directory",
             value=directory,
@@ -229,28 +230,31 @@ class MediaListWidget(QWidget, FORM_CLASS):
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
             duration = self.media_list.item(index).data(Qt.UserRole)
-            arguments.append("-loop")
-            arguments.append("1")
-            arguments.append("-t")
-            arguments.append(str(duration))
+            if self.media_type == "images":
+                # Images need to loop for a certain duration
+                arguments.append("-loop")
+                arguments.append("1")
+                arguments.append("-t")
+                arguments.append(str(duration))
             arguments.append("-i")
             arguments.append(file)
-        arguments.append("-filter_complex")
-        # Unsafe=1 used to deal with images or vids of different sizes
-        arguments.append(
-            f"concat=n={count}:v=1:a=0:unsafe=1"
-            ",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1"
-        )
-        arguments.append("-c:v")
-        arguments.append("libx264")
-        arguments.append("-pix_fmt")
-        arguments.append("yuv420p")
-        arguments.append("-r")
-        # TODO - set this to the desired frame rate...
-        arguments.append("60")
-        arguments.append("-movflags")
-        arguments.append("+faststart")
+        if self.media_type != "sounds":
+            arguments.append("-filter_complex")
+            # Unsafe=1 used to deal with images or vids of different sizes
+            arguments.append(
+                f"concat=n={count}:v=1:a=0:unsafe=1"
+                f",pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale={self.output_mode},setsar=1:1"
+            )
+            arguments.append("-c:v")
+            arguments.append("libx264")
+            arguments.append("-pix_fmt")
+            arguments.append("yuv420p")
+            arguments.append("-r")
+            # TODO - set this to the desired frame rate...
+            arguments.append("60")
+            arguments.append("-movflags")
+            arguments.append("+faststart")
         # args.append("-vf")
-        # args.append("scale=1920:1080")
+        # args.append("scale={self.output_mode}")
         # consumer of this output needs to add filename as last arg
         return arguments

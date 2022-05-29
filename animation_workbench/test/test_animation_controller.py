@@ -54,6 +54,7 @@ class AnimationControllerTest(unittest.TestCase):
         )
         controller = AnimationController.create_fixed_extent_controller(
             map_settings=map_settings,
+            output_mode="1920:1080",
             feature_layer=None,
             output_extent=extent,
             total_frames=5,
