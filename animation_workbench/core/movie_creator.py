@@ -137,7 +137,7 @@ class MovieCommandGenerator:
                 results.append((ffmpeg, self.outro_command))
             # Generate the sound track, if any
             if self.music_command:
-                music_file = str(os.path.join(self.temp_dir, "music.mp4"))
+                music_file = str(os.path.join(self.temp_dir, "music.mp3"))
                 self.music_command.append(music_file)
                 results.append((ffmpeg, self.music_command))
 

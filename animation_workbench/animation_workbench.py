@@ -24,6 +24,7 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QGridLayout,
     QVBoxLayout,
+    QPushButton,
 )
 from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import (
@@ -150,6 +151,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
         self.cancel_button.clicked.connect(self.cancel_processing)
+
+        # Show commands button only shown in debug mode
+        debug_mode = int(setting(key="debug_mode", default=0))
+        if debug_mode:
+            self.debug_button = QPushButton("Show Commands", default=True)
+            self.debug_button.clicked.connect(self.debug_button_clicked)
+            self.button_box.addButton(self.debug_button, QDialogButtonBox.ActionRole)
 
         # place where working files are stored
         self.work_directory = tempfile.gettempdir()
@@ -395,6 +403,20 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.register_data_defined_button(
             self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
         )
+
+    def debug_button_clicked(self):
+        """Show the different ffmpeg commands that will be run to process the images."""
+        self.output_log_text_edit.clear()
+        self.intro_media.set_output_resolution(self.output_mode_name)
+        self.outro_media.set_output_resolution(self.output_mode_name)
+        self.music_media.set_output_resolution(self.output_mode_name)
+        intro_command = self.intro_media.video_command()
+        outro_command = self.outro_media.video_command()
+        music_command = self.music_media.video_command()
+
+        self.output_log_text_edit.append(" ".join(intro_command))
+        self.output_log_text_edit.append(" ".join(outro_command))
+        self.output_log_text_edit.append(" ".join(music_command))
 
     def close(self):  # pylint: disable=missing-function-docstring
         self.save_state()
