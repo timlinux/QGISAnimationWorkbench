@@ -38,7 +38,6 @@ from qgis.core import (
     QgsExpressionContext,
     QgsVectorLayer,
     QgsWkbTypes,
-    QgsMapSettings,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
 
