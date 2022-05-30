@@ -13,9 +13,8 @@ from typing import List, Optional, Tuple
 
 from qgis.PyQt.QtCore import pyqtSignal, QProcess
 from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
-
-from .utilities import CoreUtils
 from animation_workbench.core import setting
+from .utilities import CoreUtils
 
 
 class MovieFormat(Enum):
