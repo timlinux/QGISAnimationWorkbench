@@ -120,16 +120,19 @@ Edit the outro section of the generated movie here.
     application available on your system.
   - **`3`** Movie (MP4): For this option to work, you need to have the 'ffmpeg' application
     on your system.
-  - **`4`**. File selection (ellipsis): This lets a user select the location where the output
+  - **`4`** Output Resolution: Allows a user to specify one of three image resolutions for
+    the output animation. The numbers in brackets represent the width and height of the
+    output in pixels (i.e. width x height).
+  - **`5`** File selection (ellipsis): This lets a user select the location where the output
     will be stored.
 
 ## Progress
 
 ![Progress Tab](img/007_ProgressTab_1.png)
 
-- **`1`**. Frame Preview: A preview of what each frame of the animation will look like.
+- **`1`** Frame Preview: A preview of what each frame of the animation will look like.
             It changes automatically as the workbench runs.
-- **`2`**. Progress: This provides a detailed look at what is happening while the workbench
+- **`2`** Progress: This provides a detailed look at what is happening while the workbench
             runs.
   - Total Tasks: This number represents the total number of frames that will be generated
     by the workbench.

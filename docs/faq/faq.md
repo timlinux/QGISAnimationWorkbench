@@ -6,9 +6,7 @@
 
 #### I have an older, less powerful, computer, will it handle running this workbench?
 
-- If you open the standard QGIS settings dialog and select the Animation Workbench options you can follow the advice with regards to lowering the number of threads allowed during rendering to help you computer cope. Rendering shorter movies or GIFs (i.e. fewer frames) will also help.
-
-If you open the standard QGIS settings dialog and select the Animation Workbench options
+- If you open the standard QGIS settings dialog and select the Animation Workbench options
 you can follow the advice with regards to lowering the number of threads allowed during
 rendering to help you computer cope. Rendering shorter movies or GIFs (i.e. fewer frames)
 will also help. Below is an example of running a job with 9000 frames at 60fps and 999
