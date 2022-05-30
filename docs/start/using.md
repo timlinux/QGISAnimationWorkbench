@@ -17,7 +17,7 @@ In this section, we describe the general workflow for using the Animation Workbe
 
 1. Create a QGIS Project
    &nbsp;<!--Adds blank space for formatting-->
-   Open QGIS and click on `Project` -> `New`
+   Open QGIS and click on `Project` ➔ `New`
 
    ![New Project](img/004_NewProject_1.png)
 

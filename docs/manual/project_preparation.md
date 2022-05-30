@@ -2,7 +2,7 @@
 
 - The first step for getting an output using the Workbench is to create a QGIS Project
     &nbsp;<!--Adds blank space for formatting-->
-   Open QGIS and click on `Project` -> `New`
+   Open QGIS and click on `Project` ➔ `New`
 
     ![New Project](img/008_NewProject_1.png)
 
@@ -21,7 +21,7 @@
     ![Add Layers](img/008_AddLayers_1.png)
 
     Once you have added your layers you need to add features to the layers. This is done
-    by selecting a layer and then clicking **`1`**  `Toggle Editing` -> **`2`**  `Add PointFeature`.
+    by selecting a layer and then clicking **`1`**  `Toggle Editing` ➔ **`2`**  `Add PointFeature`.
     Then click around on your map to add as few, or as many, features as you need.
 
     ![Add Features](img/009_AddFeatures_1.png)
