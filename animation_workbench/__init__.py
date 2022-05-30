@@ -99,6 +99,9 @@ class AnimationWorkbenchPlugin:
         self.iface.unregisterOptionsWidgetFactory(self.options_factory)
         self.options_factory = None
         del self.run_action
+        if self.debug_action:
+            self.iface.removeToolBarIcon(self.debug_action)
+            del self.debug_action
 
     def run(self):
         """
