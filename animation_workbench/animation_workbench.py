@@ -420,9 +420,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     def debug_button_clicked(self):
         """Show the different ffmpeg commands that will be run to process the images."""
         self.output_log_text_edit.clear()
-        self.intro_media.set_output_resolution(self.output_mode_name)
-        self.outro_media.set_output_resolution(self.output_mode_name)
-        self.music_media.set_output_resolution(self.output_mode_name)
+        self.intro_media.set_output_resolution(self.output_mode_name())
+        self.outro_media.set_output_resolution(self.output_mode_name())
+        self.music_media.set_output_resolution(self.output_mode_name())
         intro_command = self.intro_media.video_command()
         outro_command = self.outro_media.video_command()
         music_command = self.music_media.video_command()
