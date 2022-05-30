@@ -38,6 +38,7 @@ from qgis.core import (
     QgsExpressionContext,
     QgsVectorLayer,
     QgsWkbTypes,
+    QgsMapSettings,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
 
@@ -425,10 +426,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         intro_command = self.intro_media.video_command()
         outro_command = self.outro_media.video_command()
         music_command = self.music_media.video_command()
-
-        self.output_log_text_edit.append(" ".join(intro_command))
-        self.output_log_text_edit.append(" ".join(outro_command))
-        self.output_log_text_edit.append(" ".join(music_command))
+        if intro_command:
+            self.output_log_text_edit.append(" ".join(intro_command))
+        if outro_command:
+            self.output_log_text_edit.append(" ".join(outro_command))
+        if music_command:
+            self.output_log_text_edit.append(" ".join(music_command))
 
     def close(self):  # pylint: disable=missing-function-docstring
         self.save_state()
@@ -878,12 +881,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def output_mode_ffmpeg(self):
         output_mode = None
-        if self.low_res.isChecked():
+        if self.radio_low_res.isChecked():
             output_mode = "1280:720"
-        elif self.medium_res.isChecked():
+        elif self.radio_medium_res.isChecked():
             output_mode = "1920:1080"
-        else:  # 4k
+        elif self.radio_high_res.isChecked():
             output_mode = "3840:2160"
+        else:  # Map canvas size
+            map_settings = self.iface.mapCanvas().mapSettings()
+            size = map_settings.outputSize()
+            output_mode = "%s:%s" % (size.width(), size.height())
         return output_mode
 
     def output_mode_name(self):
@@ -893,8 +900,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             output_mode = "720p"
         elif self.medium_res.isChecked():
             output_mode = "1080p"
-        else:  # 4k
+        elif self.radio_high_res.isChecked():
             output_mode = "4k"
+        else:  # Map canvas size
+            map_settings = self.iface.mapCanvas().mapSettings()
+            size = map_settings.outputSize()
+            output_mode = "%s:%s" % (size.width(), size.height())
+
         return output_mode
 
     def show_preview_for_frame(self, frame: int):

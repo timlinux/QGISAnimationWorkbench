@@ -85,10 +85,12 @@ class MediaListWidget(QWidget, FORM_CLASS):
         """
         if mode == "720p":
             self.output_mode = "1280:720"
-        if mode == "1080p":
+        elif mode == "1080p":
             self.output_mode = "1920:1080"
-        else:
+        elif mode == "4k":
             self.output_mode = "3840:2160"
+        else:  # Map canvas size
+            self.output_mode = str(mode)
 
     def media_item_selected(self, current_index):
         """Handler for when an item is selected in the media list."""
