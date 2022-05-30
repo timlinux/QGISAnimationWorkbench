@@ -15,6 +15,7 @@ from qgis.PyQt.QtCore import pyqtSignal, QProcess
 from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
 
 from .utilities import CoreUtils
+from animation_workbench.core import setting
 
 
 class MovieFormat(Enum):
@@ -228,21 +229,24 @@ class MovieCommandGenerator:
             # video blanking that doing it in the first pass does.
             if music_file:
                 arguments = []
+                arguments.append("-y")
+                arguments.append("-i")
+                arguments.append(combined_file)
                 arguments.append("-i")
                 arguments.append(music_file)
                 arguments.append("-c")
                 # Will copy the sound into the video container
                 arguments.append("copy")
+                arguments.append("-map")
+                # Take the video from the first input (0)
+                arguments.append("0:v:0")
+                arguments.append("-map")
+                # And the audio from the second (1)
+                arguments.append("1:a:0")
                 # will truncate output to shortest between vid and audio
-                arguments.append(
-                    "-shortest",
-                )
-                arguments.append("-i")
-                arguments.append(combined_file)
+                arguments.append("-shortest")
                 arguments.append(self.output_file)
-
                 results.append((ffmpeg, arguments))
-
         return results
 
 
@@ -351,7 +355,12 @@ class MovieCreationTask(QgsTask):
 
         # This will create a temporary working dir & filename
         # that is secure and clean up after itself.
+        debug_mode = int(setting(key="debug_mode", default=0))
         with tempfile.TemporaryDirectory() as tmp:
+            # Don't use an ephemeral dir if we are in debug mode
+            # This way we can inspect the intermediate outputs if needed
+            if debug_mode:
+                tmp = "/tmp"
             generator = MovieCommandGenerator(
                 output_file=self.output_file,
                 output_mode=self.output_mode,

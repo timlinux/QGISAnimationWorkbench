@@ -122,8 +122,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.parent = parent
         self.iface = iface
 
-        self.intro_media.set_media_type("images and movies")
-        self.outro_media.set_media_type("images and movies")
+        self.intro_media.set_media_type("images")
+        self.outro_media.set_media_type("images")
         self.music_media.set_media_type("sounds")
 
         self.intro_media.from_json(
