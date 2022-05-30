@@ -345,6 +345,18 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             QgsProject.instance(), "total_frame_count", "None"
         )
 
+        resolution_string = setting(
+            key="resolution", default="map_canvas", prefer_project_setting=True
+        )
+        if resolution_string == "low_res":
+            self.radio_low_res.setChecked(True)
+        elif resolution_string == "medium_res":
+            self.radio_medium_res.setChecked(True)
+        elif resolution_string == "high_res":
+            self.radio_high_res.setChecked(True)
+        else:  # map_canvas
+            self.radio_map_canvas.setChecked(True)
+
         mode_string = setting(
             key="map_mode", default="sphere", prefer_project_setting=True
         )
@@ -575,6 +587,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         set_setting(
             key="music_media", value=self.music_media.to_json(), store_in_project=True
         )
+
+        if self.radio_low_res.isChecked():
+            set_setting(key="resolution", value="low_res", store_in_project=True)
+        elif self.radio_medium_res.isChecked():
+            set_setting(key="resolution", value="medium_res", store_in_project=True)
+        elif self.radio_high_res.isChecked():
+            set_setting(key="resolution", value="high_res", store_in_project=True)
+        else:
+            set_setting(key="resolution", value="map_canvas", store_in_project=True)
 
         if self.radio_sphere.isChecked():
             set_setting(key="map_mode", value="sphere", store_in_project=True)
