@@ -33,10 +33,7 @@ from qgis.core import (
     QgsMapLayerProxyModel,
     QgsReferencedRectangle,
     QgsApplication,
-    QgsExpressionContextGenerator,
     QgsPropertyCollection,
-    QgsExpressionContext,
-    QgsVectorLayer,
     QgsWkbTypes,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
@@ -50,39 +47,10 @@ from .core import (
     setting,
     MapMode,
 )
+from .dialog_expression_context_generator import DialogExpressionContextGenerator
 from .utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
-
-
-class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
-    """
-    An expression context generator for widgets in the dialog
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.layer = None
-
-    def set_layer(self, layer: QgsVectorLayer):
-        """
-        Sets the layer associated with the dialog
-        """
-        self.layer = layer
-
-    # pylint: disable=missing-function-docstring
-    def createExpressionContext(
-        self,
-    ) -> QgsExpressionContext:
-        context = QgsExpressionContext()
-        context.appendScope(QgsExpressionContextUtils.globalScope())
-        context.appendScope(
-            QgsExpressionContextUtils.projectScope(QgsProject.instance())
-        )
-        if self.layer:
-            context.appendScope(self.layer.createExpressionContextScope())
-        return context
-
 
 # pylint: disable=too-many-public-methods
 class AnimationWorkbench(QDialog, FORM_CLASS):
@@ -879,6 +847,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.main_tab.setCurrentIndex(5)
 
     def output_mode_ffmpeg(self):
+        """Get the output mode (resolution) in ffmpeg format.
+
+        Will map to 480p, 720p, 1080p, etc. or canvas size.
+        """
         output_mode = None
         if self.radio_low_res.isChecked():
             output_mode = "1280:720"

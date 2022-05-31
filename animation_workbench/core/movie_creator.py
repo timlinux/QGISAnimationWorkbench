@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple
 
 from qgis.PyQt.QtCore import pyqtSignal, QProcess
 from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
-from animation_workbench.core import setting
+from .settings import setting
 from .utilities import CoreUtils
 
 
