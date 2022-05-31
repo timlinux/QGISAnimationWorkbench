@@ -183,8 +183,7 @@ class AnimationController(QObject):
         elif self.output_mode == "3840:2160":
             self.size = QSize(3840, 2160)  # 4k
         else:
-            map_settings = self.iface.mapCanvas().mapSettings()
-            self.size = map_settings.outputSize()
+            self.size = self.map_settings.outputSize()
 
         self.data_defined_properties = QgsPropertyCollection()
 
