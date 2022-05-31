@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="main_tab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="animation_plan_tab">
       <attribute name="title">
@@ -698,26 +698,36 @@ and will resume processing from last cached image.</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="0" column="0">
-              <widget class="QRadioButton" name="low_res">
+              <widget class="QRadioButton" name="radio_low_res">
                <property name="text">
                 <string>720p (1280×720)</string>
                </property>
               </widget>
              </item>
+             <item row="0" column="2">
+              <widget class="QRadioButton" name="radio_high_res">
+               <property name="text">
+                <string>4k (3840 x 2160)</string>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="1">
-              <widget class="QRadioButton" name="medium_res">
+              <widget class="QRadioButton" name="radio_medium_res">
                <property name="text">
                 <string>1080p (1920x1080)</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
-             <item row="0" column="2">
-              <widget class="QRadioButton" name="high_res">
+             <item row="0" column="3">
+              <widget class="QRadioButton" name="radio_map_canvas">
                <property name="text">
-                <string>4k (3840 x 2160)</string>
+                <string>Map Canvas</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -946,8 +956,8 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="maximumSize">
               <size>
-               <width>9999999</width>
-               <height>999999</height>
+               <width>800</width>
+               <height>600</height>
               </size>
              </property>
              <property name="text">
@@ -992,6 +1002,12 @@ p, li { white-space: pre-wrap; }
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>800</width>
+               <height>600</height>
+              </size>
              </property>
             </widget>
            </item>

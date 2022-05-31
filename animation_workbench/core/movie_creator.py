@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple
 
 from qgis.PyQt.QtCore import pyqtSignal, QProcess
 from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
-
+from .settings import setting
 from .utilities import CoreUtils
 
 
@@ -34,6 +34,7 @@ class MovieCommandGenerator:
     def __init__(
         self,
         output_file: str,
+        output_mode: str,
         intro_command: Optional[tuple],
         outro_command: Optional[tuple],
         music_command: Optional[tuple],
@@ -44,6 +45,7 @@ class MovieCommandGenerator:
         temp_dir: str,
     ):
         self.output_file = output_file
+        self.output_mode = output_mode
         self.intro_command = intro_command
         self.outro_command = outro_command
         self.music_command = music_command
@@ -135,7 +137,7 @@ class MovieCommandGenerator:
                 results.append((ffmpeg, self.outro_command))
             # Generate the sound track, if any
             if self.music_command:
-                music_file = str(os.path.join(self.temp_dir, "music.mp4"))
+                music_file = str(os.path.join(self.temp_dir, "music.mp3"))
                 self.music_command.append(music_file)
                 results.append((ffmpeg, self.music_command))
 
@@ -206,13 +208,11 @@ class MovieCommandGenerator:
                 "-c",
                 "copy",
                 "-vf",
-                "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale=1920:1080,setsar=1:1",
+                f"pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,scale={self.output_mode},setsar=1:1",
                 "-c:v",
                 "libx264",
                 "-pix_fmt",
                 "yuv420p",
-                # "-vf",
-                # "scale=1920:1080",  # output resolution
                 combined_file,
             ]
 
@@ -227,21 +227,25 @@ class MovieCommandGenerator:
             # this works more smoothly and doesn't have issues like
             # video blanking that doing it in the first pass does.
             if music_file:
+                arguments = []
+                arguments.append("-y")
+                arguments.append("-i")
+                arguments.append(combined_file)
                 arguments.append("-i")
                 arguments.append(music_file)
                 arguments.append("-c")
                 # Will copy the sound into the video container
                 arguments.append("copy")
+                arguments.append("-map")
+                # Take the video from the first input (0)
+                arguments.append("0:v:0")
+                arguments.append("-map")
+                # And the audio from the second (1)
+                arguments.append("1:a:0")
                 # will truncate output to shortest between vid and audio
-                arguments.append(
-                    "-shortest",
-                )
-                arguments.append("-i")
-                arguments.append(combined_file)
+                arguments.append("-shortest")
                 arguments.append(self.output_file)
-
                 results.append((ffmpeg, arguments))
-
         return results
 
 
@@ -258,6 +262,7 @@ class MovieCreationTask(QgsTask):
     def __init__(
         self,
         output_file: str,
+        output_mode: str,
         intro_command: str,
         outro_command: str,
         music_command: str,
@@ -269,6 +274,7 @@ class MovieCreationTask(QgsTask):
         super().__init__("Exporting Movie", QgsTask.Flag.CanCancel)
 
         self.output_file = output_file
+        self.output_mode = output_mode
         self.intro_command = intro_command
         self.outro_command = outro_command
         self.music_command = music_command
@@ -348,9 +354,15 @@ class MovieCreationTask(QgsTask):
 
         # This will create a temporary working dir & filename
         # that is secure and clean up after itself.
+        debug_mode = int(setting(key="debug_mode", default=0))
         with tempfile.TemporaryDirectory() as tmp:
+            # Don't use an ephemeral dir if we are in debug mode
+            # This way we can inspect the intermediate outputs if needed
+            if debug_mode:
+                tmp = "/tmp"
             generator = MovieCommandGenerator(
                 output_file=self.output_file,
+                output_mode=self.output_mode,
                 intro_command=self.intro_command,
                 outro_command=self.outro_command,
                 music_command=self.music_command,

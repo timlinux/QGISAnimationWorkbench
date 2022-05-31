@@ -6,6 +6,8 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
+# pylint: disable=too-many-lines
+
 # This will make the QGIS use a world projection and then move the center
 # of the CRS sequentially to create a spinning globe effect
 import os
@@ -24,6 +26,7 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QGridLayout,
     QVBoxLayout,
+    QPushButton,
 )
 from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import (
@@ -32,10 +35,7 @@ from qgis.core import (
     QgsMapLayerProxyModel,
     QgsReferencedRectangle,
     QgsApplication,
-    QgsExpressionContextGenerator,
     QgsPropertyCollection,
-    QgsExpressionContext,
-    QgsVectorLayer,
     QgsWkbTypes,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
@@ -49,39 +49,10 @@ from .core import (
     setting,
     MapMode,
 )
+from .dialog_expression_context_generator import DialogExpressionContextGenerator
 from .utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
-
-
-class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
-    """
-    An expression context generator for widgets in the dialog
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.layer = None
-
-    def set_layer(self, layer: QgsVectorLayer):
-        """
-        Sets the layer associated with the dialog
-        """
-        self.layer = layer
-
-    # pylint: disable=missing-function-docstring
-    def createExpressionContext(
-        self,
-    ) -> QgsExpressionContext:
-        context = QgsExpressionContext()
-        context.appendScope(QgsExpressionContextUtils.globalScope())
-        context.appendScope(
-            QgsExpressionContextUtils.projectScope(QgsProject.instance())
-        )
-        if self.layer:
-            context.appendScope(self.layer.createExpressionContextScope())
-        return context
-
 
 # pylint: disable=too-many-public-methods
 class AnimationWorkbench(QDialog, FORM_CLASS):
@@ -121,19 +92,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.parent = parent
         self.iface = iface
 
-        self.intro_media.set_media_type("images and movies")
-        self.outro_media.set_media_type("images and movies")
-        self.music_media.set_media_type("sounds")
-
-        self.intro_media.from_json(
-            setting(key="intro_media", default="{}", prefer_project_setting=True)
-        )
-        self.outro_media.from_json(
-            setting(key="outro_media", default="{}", prefer_project_setting=True)
-        )
-        self.music_media.from_json(
-            setting(key="music_media", default="{}", prefer_project_setting=True)
-        )
+        self.setup_media_widgets()
 
         self.data_defined_properties = QgsPropertyCollection()
 
@@ -150,6 +109,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
         self.cancel_button.clicked.connect(self.cancel_processing)
+
+        # Show commands button only shown in debug mode
+        debug_mode = int(setting(key="debug_mode", default=0))
+        if debug_mode:
+            self.debug_button = QPushButton("Show Commands", default=True)
+            self.debug_button.clicked.connect(self.debug_button_clicked)
+            self.button_box.addButton(self.debug_button, QDialogButtonBox.ActionRole)
 
         # place where working files are stored
         self.work_directory = tempfile.gettempdir()
@@ -273,6 +239,91 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # the scale widget from overriding our preferred values
         self.last_preview_image = None
 
+        self.setup_easings()
+
+        self.setup_expression_contexts()
+
+        resolution_string = setting(
+            key="resolution", default="map_canvas", prefer_project_setting=True
+        )
+        if resolution_string == "low_res":
+            self.radio_low_res.setChecked(True)
+        elif resolution_string == "medium_res":
+            self.radio_medium_res.setChecked(True)
+        elif resolution_string == "high_res":
+            self.radio_high_res.setChecked(True)
+        else:  # map_canvas
+            self.radio_map_canvas.setChecked(True)
+
+        self.setup_render_modes()
+
+        self.current_preview_frame_render_job = None
+        # Set an initial image in the preview based on the current map
+        self.show_preview_for_frame(0)
+
+        self.progress_bar.setValue(0)
+
+        self.reuse_cache.setChecked(False)
+
+        # Video playback stuff - see bottom of file for related methods
+        self.media_player = QMediaPlayer(
+            None, QMediaPlayer.VideoSurface  # .video_preview_widget,
+        )
+        self.setup_video_widget()
+        # Enable options page on startup
+        self.main_tab.setCurrentIndex(0)
+        # Enable easing status page on startup
+        self.render_queue.status_changed.connect(self.show_status)
+        self.render_queue.processing_completed.connect(self.processing_completed)
+        self.render_queue.status_message.connect(self.show_message)
+        self.render_queue.image_rendered.connect(self.load_image)
+
+        self.movie_task = None
+
+        self.preview_frame_spin.valueChanged.connect(self.show_preview_for_frame)
+
+        self.register_data_defined_button(
+            self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
+        )
+        self.register_data_defined_button(
+            self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
+        )
+
+    def setup_video_widget(self):
+        """Set up the video widget."""
+        video_widget = QVideoWidget()
+        # self.video_page.replaceWidget(self.video_preview_widget,video_widget)
+        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.play_button.clicked.connect(self.play)
+        self.media_player.setVideoOutput(video_widget)
+        self.media_player.stateChanged.connect(self.media_state_changed)
+        self.media_player.positionChanged.connect(self.position_changed)
+        self.media_player.durationChanged.connect(self.duration_changed)
+        self.media_player.error.connect(self.handle_video_error)
+        layout = QGridLayout(self.video_preview_widget)
+        layout.addWidget(video_widget)
+
+    def setup_render_modes(self):
+        """Set up the render modes."""
+        mode_string = setting(
+            key="map_mode", default="sphere", prefer_project_setting=True
+        )
+        if mode_string == "sphere":
+            self.radio_sphere.setChecked(True)
+            self.settings_stack.setCurrentIndex(0)
+        elif mode_string == "planar":
+            self.radio_planar.setChecked(True)
+            self.settings_stack.setCurrentIndex(0)
+        else:
+            self.radio_extent.setChecked(True)
+            self.settings_stack.setCurrentIndex(1)
+
+        self.radio_planar.toggled.connect(self.show_non_fixed_extent_settings)
+        self.radio_sphere.toggled.connect(self.show_non_fixed_extent_settings)
+        self.radio_extent.toggled.connect(self.show_fixed_extent_settings)
+
+    def setup_easings(self):
+        """Set up the easing options for the gui."""
         # Note: self.pan_easing_widget and zoom_easing_preview are
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
@@ -316,6 +367,24 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         else:
             self.zoom_easing_widget.enable()
 
+    def setup_media_widgets(self):
+        """Set up the media widgets."""
+        self.intro_media.set_media_type("images")
+        self.outro_media.set_media_type("images")
+        self.music_media.set_media_type("sounds")
+
+        self.intro_media.from_json(
+            setting(key="intro_media", default="{}", prefer_project_setting=True)
+        )
+        self.outro_media.from_json(
+            setting(key="outro_media", default="{}", prefer_project_setting=True)
+        )
+        self.music_media.from_json(
+            setting(key="music_media", default="{}", prefer_project_setting=True)
+        )
+
+    def setup_expression_contexts(self):
+        """Set up all the expression context variables."""
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(), "frames_per_feature", 0
         )
@@ -337,66 +406,24 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             QgsProject.instance(), "total_frame_count", "None"
         )
 
-        mode_string = setting(
-            key="map_mode", default="sphere", prefer_project_setting=True
-        )
-        if mode_string == "sphere":
-            self.radio_sphere.setChecked(True)
-            self.settings_stack.setCurrentIndex(0)
-        elif mode_string == "planar":
-            self.radio_planar.setChecked(True)
-            self.settings_stack.setCurrentIndex(0)
-        else:
-            self.radio_extent.setChecked(True)
-            self.settings_stack.setCurrentIndex(1)
-
-        self.radio_planar.toggled.connect(self.show_non_fixed_extent_settings)
-        self.radio_sphere.toggled.connect(self.show_non_fixed_extent_settings)
-        self.radio_extent.toggled.connect(self.show_fixed_extent_settings)
-
-        self.current_preview_frame_render_job = None
-        # Set an initial image in the preview based on the current map
-        self.show_preview_for_frame(0)
-
-        self.progress_bar.setValue(0)
-
-        self.reuse_cache.setChecked(False)
-
-        # Video playback stuff - see bottom of file for related methods
-        self.media_player = QMediaPlayer(
-            None, QMediaPlayer.VideoSurface  # .video_preview_widget,
-        )
-        video_widget = QVideoWidget()
-        # self.video_page.replaceWidget(self.video_preview_widget,video_widget)
-        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-        self.play_button.clicked.connect(self.play)
-        self.media_player.setVideoOutput(video_widget)
-        self.media_player.stateChanged.connect(self.media_state_changed)
-        self.media_player.positionChanged.connect(self.position_changed)
-        self.media_player.durationChanged.connect(self.duration_changed)
-        self.media_player.error.connect(self.handle_video_error)
-        layout = QGridLayout(self.video_preview_widget)
-        layout.addWidget(video_widget)
-        # Enable options page on startup
-        self.main_tab.setCurrentIndex(0)
-        # Enable easing status page on startup
-        self.render_queue.status_changed.connect(self.show_status)
-        self.render_queue.processing_completed.connect(self.processing_completed)
-        self.render_queue.status_message.connect(self.show_message)
-        self.render_queue.image_rendered.connect(self.load_image)
-
-        self.movie_task = None
-
-        self.preview_frame_spin.valueChanged.connect(self.show_preview_for_frame)
-
-        self.register_data_defined_button(
-            self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
-        )
-        self.register_data_defined_button(
-            self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
-        )
+    def debug_button_clicked(self):
+        """Show the different ffmpeg commands that will be run to process the images."""
+        self.output_log_text_edit.clear()
+        self.intro_media.set_output_resolution(self.output_mode_name())
+        self.outro_media.set_output_resolution(self.output_mode_name())
+        self.music_media.set_output_resolution(self.output_mode_name())
+        intro_command = self.intro_media.video_command()
+        outro_command = self.outro_media.video_command()
+        music_command = self.music_media.video_command()
+        if intro_command:
+            self.output_log_text_edit.append(" ".join(intro_command))
+        if outro_command:
+            self.output_log_text_edit.append(" ".join(outro_command))
+        if music_command:
+            self.output_log_text_edit.append(" ".join(music_command))
 
     def close(self):  # pylint: disable=missing-function-docstring
+        """Handler for the close button."""
         self.save_state()
         self.reject()
 
@@ -553,6 +580,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         set_setting(
             key="music_media", value=self.music_media.to_json(), store_in_project=True
         )
+
+        if self.radio_low_res.isChecked():
+            set_setting(key="resolution", value="low_res", store_in_project=True)
+        elif self.radio_medium_res.isChecked():
+            set_setting(key="resolution", value="medium_res", store_in_project=True)
+        elif self.radio_high_res.isChecked():
+            set_setting(key="resolution", value="high_res", store_in_project=True)
+        else:
+            set_setting(key="resolution", value="map_canvas", store_in_project=True)
 
         if self.radio_sphere.isChecked():
             set_setting(key="map_mode", value="sphere", store_in_project=True)
@@ -733,6 +769,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if map_mode == MapMode.FIXED_EXTENT:
             controller = AnimationController.create_fixed_extent_controller(
                 map_settings=self.iface.mapCanvas().mapSettings(),
+                output_mode=self.output_mode_ffmpeg(),
                 feature_layer=self.layer_combo.currentLayer() or None,
                 output_extent=QgsReferencedRectangle(
                     self.extent_group_box.outputExtent(),
@@ -745,6 +782,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             try:
                 controller = AnimationController.create_moving_extent_controller(
                     map_settings=self.iface.mapCanvas().mapSettings(),
+                    output_mode=self.output_mode_ffmpeg(),
                     mode=map_mode,
                     feature_layer=self.layer_combo.currentLayer(),
                     travel_duration=self.travel_duration_spin.value(),
@@ -781,11 +819,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
             return
         # We assemble first commands needed to make the pieces of the movie
+        self.intro_media.set_output_resolution(self.output_mode_name)
+        self.outro_media.set_output_resolution(self.output_mode_name)
+        self.music_media.set_output_resolution(self.output_mode_name)
         intro_command = self.intro_media.video_command()
         outro_command = self.outro_media.video_command()
         music_command = self.music_media.video_command()
+        output_mode = self.output_mode_ffmpeg()
         self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
+            output_mode=output_mode,
             intro_command=intro_command,
             outro_command=outro_command,
             music_command=music_command,
@@ -825,6 +868,40 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.main_tab.setCurrentIndex(5)
+
+    def output_mode_ffmpeg(self):
+        """Get the output mode (resolution) in ffmpeg format.
+
+        Will map to 480p, 720p, 1080p, etc. or canvas size.
+        """
+        output_mode = None
+        if self.radio_low_res.isChecked():
+            output_mode = "1280:720"
+        elif self.radio_medium_res.isChecked():
+            output_mode = "1920:1080"
+        elif self.radio_high_res.isChecked():
+            output_mode = "3840:2160"
+        else:  # Map canvas size
+            map_settings = self.iface.mapCanvas().mapSettings()
+            size = map_settings.outputSize()
+            output_mode = "%s:%s" % (size.width(), size.height())
+        return output_mode
+
+    def output_mode_name(self):
+        """Return the output mode name like 1080p, 720p etc."""
+        output_mode = None
+        if self.low_res.isChecked():
+            output_mode = "720p"
+        elif self.medium_res.isChecked():
+            output_mode = "1080p"
+        elif self.radio_high_res.isChecked():
+            output_mode = "4k"
+        else:  # Map canvas size
+            map_settings = self.iface.mapCanvas().mapSettings()
+            size = map_settings.outputSize()
+            output_mode = "%s:%s" % (size.width(), size.height())
+
+        return output_mode
 
     def show_preview_for_frame(self, frame: int):
         """

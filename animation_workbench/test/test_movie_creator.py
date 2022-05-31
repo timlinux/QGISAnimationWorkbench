@@ -33,6 +33,7 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
+            output_mode="1920:1080",
             intro_command=None,
             outro_command=None,
             music_command=None,
@@ -96,6 +97,7 @@ class MovieCreatorTest(unittest.TestCase):
         self.maxDiff = None
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.mp4",
+            output_mode="1920:1080",
             intro_command=None,
             outro_command=None,
             music_command=None,
@@ -159,6 +161,7 @@ class MovieCreatorTest(unittest.TestCase):
         """
         generator = MovieCommandGenerator(
             output_file="/home/me/videos/test.gif",
+            output_mode="720p",
             intro_command=None,
             outro_command=None,
             music_command=None,
