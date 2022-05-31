@@ -14,19 +14,19 @@
     layer.
     &nbsp;<!--Adds blank space for formatting-->
 
-    To add a layer, go to `Layer` -> `Create Layer` and then select the type of layer you
+    To add a layer, go to `Layer` ➔ `Create Layer` and then select the type of layer you
     want to add. The example adds a point layer to a geopackage to make the project more
     portable.
 
     ![Add Layers](img/008_AddLayers_1.png)
 
     Once you have added your layers you need to add features to the layers. This is done
-    by selecting a layer and then clicking **`1`**  `Toggle Editing` ➔ **`2`**  `Add PointFeature`.
+    by selecting a layer and then clicking `Toggle Editing` (**`1`**) ➔ `Add PointFeature` (**`2`**).
     Then click around on your map to add as few, or as many, features as you need.
 
     ![Add Features](img/009_AddFeatures_1.png)
 
-    The example project has four layers: **`3`** two point layers and **`4`** two backing layers.
+    The example project has four layers: two point layers (**`3`**) and two backing layers (**`4`**).
 
     ![Layer List](img/010_LayersList_10.png)
 
@@ -66,7 +66,7 @@
     or if you're using an older version of `QGIS 3.x` follow the instructions below.
 
     The layer should contain a `Raster Image Marker`. Once you have selected the marker you
-    want to use click on the **`5`** QGIS Expressions dropdown menu and click on **`6`**`Edit`.
+    want to use click on the QGIS Expressions dropdown menu (**`5`**) and click on `Edit` (**`6`**).
 
     ![Edit Expression](img/013_EditExpression_1.png)
 
@@ -83,23 +83,23 @@
     Workbench and begin choosing between the different modes and options.
     &nbsp;<!--Adds blank space for formatting-->
 
-    Open the Workbench by clicking the **`7`** `Animation Workbench` icon in the Plugin Toolbar.
+    Open the Workbench by clicking the `Animation Workbench` (**`7`**) icon in the Plugin Toolbar.
 
     ![Open Workbench](img/015_OpenAW_1.png)
     &nbsp;<!--Adds blank space for formatting-->
 
     Configure the settings for your animation. The screenshot below is configured for
-    the example presented in this section. The Animation Layer is selected as **`8`** `route`
-    because that is the path that the output animation will fly along. The **`9`** Zoom Range was
-    selected from the Map Canvas Extent, and the **`10`** Frame rate per second (fps) was set to
+    the example presented in this section. The Animation Layer is selected as `route` (**`8`**)
+    because that is the path that the output animation will fly along. The Zoom Range (**`9`**) was
+    selected from the Map Canvas Extent, and the Frame rate per second (fps) (**`10`**) was set to
     match the number of frames of the animated markers so that they will play nicely in
     the output. The other settings were selected as a personal choice.
 
     ![Animation Plan](img/016_AnimationPlan_1.png)
     &nbsp;<!--Adds blank space for formatting-->
 
-    Select the **`11`** Output Resolution and a location for your output by clicking on the
-    **`12`** ellipsis (three dots) or by typing in the desired file path.
+    Select the Output Resolution (**`11`**) and a location for your output by clicking on the
+    ellipsis (three dots) or by typing in the desired file path (**`12`**).
 
     ![Output Location](img/017_Output_1.png)
     &nbsp;<!--Adds blank space for formatting-->
