@@ -6,7 +6,7 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-# pylint: disable=Too many lines in module
+# pylint: disable=too-many-lines
 
 # This will make the QGIS use a world projection and then move the center
 # of the CRS sequentially to create a spinning globe effect
