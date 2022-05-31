@@ -288,6 +288,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
     def setup_video_widget(self):
+        """Set up the video widget."""
         video_widget = QVideoWidget()
         # self.video_page.replaceWidget(self.video_preview_widget,video_widget)
         self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
@@ -301,6 +302,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         layout.addWidget(video_widget)
 
     def setup_render_modes(self):
+        """Set up the render modes."""
         mode_string = setting(
             key="map_mode", default="sphere", prefer_project_setting=True
         )
@@ -319,10 +321,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.radio_extent.toggled.connect(self.show_fixed_extent_settings)
 
     def setup_easings(self):
+        """Set up the easing options for the gui."""
         # Note: self.pan_easing_widget and zoom_easing_preview are
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
-                self.pan_easing_widget.set_checkbox_label("Enable Pan Easing")
+        self.pan_easing_widget.set_checkbox_label("Enable Pan Easing")
         pan_easing_name = setting(
             key="pan_easing", default="Linear", prefer_project_setting=True
         )
@@ -363,6 +366,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.zoom_easing_widget.enable()
 
     def setup_media_widgets(self):
+        """Set up the media widgets."""
         self.intro_media.set_media_type("images")
         self.outro_media.set_media_type("images")
         self.music_media.set_media_type("sounds")
@@ -417,6 +421,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append(" ".join(music_command))
 
     def close(self):  # pylint: disable=missing-function-docstring
+        """Handler for the close button."""
         self.save_state()
         self.reject()
 
