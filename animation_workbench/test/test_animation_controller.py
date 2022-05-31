@@ -54,7 +54,7 @@ class AnimationControllerTest(unittest.TestCase):
         )
         controller = AnimationController.create_fixed_extent_controller(
             map_settings=map_settings,
-            output_mode="1920:1080",
+            output_mode=None,  # Will use map canvas dimensions
             feature_layer=None,
             output_extent=extent,
             total_frames=5,
@@ -188,6 +188,7 @@ class AnimationControllerTest(unittest.TestCase):
         )
         controller = AnimationController.create_fixed_extent_controller(
             map_settings=map_settings,
+            output_mode=None,  # Will use map canvas dimensions
             feature_layer=vl,
             output_extent=extent,
             total_frames=2,
@@ -419,6 +420,7 @@ class AnimationControllerTest(unittest.TestCase):
         map_settings.setOutputSize(QSize(400, 300))
         controller = AnimationController.create_moving_extent_controller(
             map_settings=map_settings,
+            output_mode=None,  # Will use map canvas dimensions
             mode=MapMode.PLANAR,
             feature_layer=vl,
             travel_duration=2,
@@ -974,6 +976,7 @@ class AnimationControllerTest(unittest.TestCase):
         map_settings.setOutputSize(QSize(400, 300))
         controller = AnimationController.create_moving_extent_controller(
             map_settings=map_settings,
+            output_mode=None,  # Will use map canvas dimensions
             mode=MapMode.PLANAR,
             feature_layer=vl,
             travel_duration=2,
