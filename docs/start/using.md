@@ -27,11 +27,11 @@ In this section, we describe the general workflow for using the Animation Workbe
 
    ![Add Layers](img/005_AddLayers_1.png)
 
-   > Note: A simple way to add a base layer is to type **`1`** "world" into the coordinate
+   > Note: A simple way to add a base layer is to type "world" (**`1`**) into the coordinate
    textbox
 
-   Style the layers you've added to make your project look a bit better. **`2`** Select the
-   layer you want to style and in the **`3`** Layer Styling toolbar, style the layer to
+   Style the layers you've added to make your project look a bit better. Select the
+   layer (**`2`**) you want to style and in the Layer Styling toolbar (**`3`**), style the layer to
    look appealing to you.
 
    ![Style Layers](img/006_StylingLayers_1.png)
@@ -55,10 +55,10 @@ In this section, we describe the general workflow for using the Animation Workbe
    Select the layer you want to animate and open the Layer Styling toolbar.
 
    > Note: If you are using `QGIS 3.26` you can simply use the new animated point symbol,
-   or if you're using an older version of `QGIS` follow the instructions below.
+   or if you're using an older version of `QGIS 3.x` follow the instructions below.
 
    The layer should be a `Raster Image Marker`. Once you have selected the image you
-   want to use click on the **`4`** QGIS Expressions dropdown menu and click on **`5`** `Edit`.
+   want to use click on the QGIS Expressions dropdown menu (**`4`**) and click on `Edit` (**`5`**).
 
    ![Edit Expression](img/008_EditExpression_1.png)
 
@@ -73,21 +73,21 @@ In this section, we describe the general workflow for using the Animation Workbe
    different modes and options.
    &nbsp;<!--Adds blank space for formatting-->
 
-   Open the Workbench by clicking the **`6`** `Animation Workbench` icon in the Plugin Toolbar.
+   Open the Workbench by clicking the `Animation Workbench` (**`6`**) icon in the Plugin Toolbar.
 
    ![Open Workbench](img/010_OpenAW_1.png)
    &nbsp;<!--Adds blank space for formatting-->
 
    Configure the settings for your animation. The screenshot below is configured for
-   the example presented in this section. The Animation Layer is selected as **`7`** route
-   because that is the path the animation will fly along, the **`8`** Zoom Range was selected
-   from the Map Canvas Extent, and **`9`** the Frame rate per second was set to 9 to match
+   the example presented in this section. The Animation Layer is selected as route (**`7`**)
+   because that is the path the animation will fly along, the Zoom Range (**`8`**) was selected
+   from the Map Canvas Extent, and the Frame rate per second (**`9`**) was set to 9 to match
    the bird animation.
 
    ![Output Setup](img/011_OutputSetup_1.png)
    &nbsp;<!--Adds blank space for formatting-->
 
-   **`10`** Select a location for your output.
+   Select a location for your output (**`10`**).
 
    ![Output Location](img/012_Output_1.png)
    &nbsp;<!--Adds blank space for formatting-->
