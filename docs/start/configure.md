@@ -10,13 +10,13 @@ QGIS Setting dialog and clicking on the animation workbench tab.
 
 ![Settings Dialog](img/013_Configure_1.png)
 
-- **`1`** **Animation Workbench plugin Options**
+- **Animation Workbench plugin Options (`1`)**
 
 Currently there are just three configuration options:
 
-- **`2`** **Number of concurrent render tasks:** This is the number of concurrent tasks
+- **Number of concurrent render tasks (`2`):** This is the number of concurrent tasks
 that will be used to render animations. The default is 10.
-- **`3`** **Enable developer mode:** This is a developer option that enables the developers
+- **Enable developer mode (`3`):** This is a developer option that enables the developers
 to see an icon in the toolbar which will start the debug remote server.
-- **`4`** **Verbose logging mode:** This will add extra messages in the logging pane to
+- **Verbose logging mode (`4`):** This will add extra messages in the logging pane to
 help you understand what is going on during the rendering process.
