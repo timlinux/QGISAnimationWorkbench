@@ -1,6 +1,7 @@
 # What is the Workbench doing?
 
 - **What does the workbench do?**
+
     The workbench creates animations from QGIS by generating multiple static frames (images)
     and then combining those frames into an animation. The user tells QGIS how the frames
     should change from one to the other. In `QGIS 3.26` and later the animated markers
@@ -12,7 +13,17 @@
     In the code snippet below, the user tells QGIS that as the frame count increments by
     one the `Raster Image Marker` should change to the next image in the sequence.
 
-    ![Code Snippet](img/014_FishExpression_1.png)
+    ![Code Snippet](img/015_FishExpression_1.png)
+
+    ```py
+        @project_home
+        || 
+        '/fish/fish_00'
+        ||
+        lpad(to_string( @frame_number % 32), 2, '0')
+        || 
+        '.png'
+    ```
 
     The user specifies the path of the image (`@project_home/fish/fish_00`). Then the
     `lpad(to_string( @frame_number % 32), 2, '0')` tells QGIS to convert the frame
