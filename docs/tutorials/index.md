@@ -18,13 +18,13 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     &nbsp;<!--Blank Space-->
 
 4. In the `Browser`, expand the **tutorial_1.gpkg** and add the three pre-made layers
-    (VaalDam, SouthAfrica, and route) (**`1`**) to your project.
+    (VaalDam, SouthAfrica, and route) (**`A`**) to your project.
 
-    ![Add Backing Layers](img/tut_1/002_AddBackingLayers_2.png)
+    ![Add Backing Layers](img/tut_1/002_AddBackingLayers_1.png)
     &nbsp;<!--Blank Space-->
 
 5. In the `Layers` Panel, arrange the layers in the following order: `route`, `VaalDam`,
-    `SouthAfrica`. Then right-click on the `VaalDam` layer and `Zoom to Layer(s)` (**`2`**)
+    `SouthAfrica`. Then right-click on the `VaalDam` layer and `Zoom to Layer(s)` (**`B`**)
 
     ![Zoom to Dam](img/tut_1/003_ZoomToDam_1.png)
 
@@ -32,22 +32,21 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     &nbsp;<!--Blank Space-->
 
 6. Now create a new layer in the **tutorial_1.gpkg** by clicking `Layer`➔`Create Layer`➔
-    `New Geopackage Layer...` (**`3`**).
+    `New Geopackage Layer...` (**`C`**).
 
     ![Create New Layer](img/tut_1/004_AddNewLayer_1.png)
+    &nbsp;<!--Blank Space-->
 
-    Click on the `Ellipsis` (**`4`**), navigate to and select the **tutorial_1.gpkg**, and
-    click `Save`
-
-    Change the table name to **fish** (**`5`**), set the geometry type as **Point** (**`6`**), and change
-    the CRS to match the **Project CRS** (**`7`**).
+    Click on the `Ellipsis` (**`D`**), navigate to and select the **tutorial_1.gpkg**, and
+    click `Save`. Change the table name to **fish** (**`E`**), set the geometry type as **Point** (**`F`**), and
+    change the CRS to match the **Project CRS** (**`G`**).
 
     ![Layer Settings](img/tut_1/005_LayerSettings_1.png)
 
     Click on `OK` and then click `Add New Layer` on the window that pops up.
     &nbsp;<!--Blank Space-->
 
-7. Select the `fish` layer and then click on `Toggle Editing`➔`Add Point Feature` (**`8`**).
+7. Select the `fish` layer and then click on `Toggle Editing`➔`Add Point Feature` (**`H`**).
 
    ![Edit Layer Points](img/tut_1/006_EditLayerPoints_1.png)
 
@@ -61,18 +60,18 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
    button. Then stop editing the layer.
    &nbsp;<!--Blank Space-->
 
-8. Repeat steps 6\. and 7\. but change the table name to **bird** and add the points over
+8. Repeat steps **6\.** and **7\.** but change the table name to **bird** and add the points over
     the land areas.
 
     ![Both Layers Added](img/tut_1/008_BothLayersAdded_1.png)
     &nbsp;<!--Blank Space-->
 
-9. Select the `fish` layer and then in the `Layer styling` toolbar (**`9`**) change the
-    `Symbol layer type` to `Raster Image Marker` (**`10`**).
+9. Select the `fish` layer and then in the `Layer styling` toolbar (**`I`**) change the
+    `Symbol layer type` to `Raster Image Marker` (**`J`**).
 
     ![Change to RIM](img/tut_1/009_ChangetoRIM_1.png)
 
-    Select the marker image by clicking the `Dropdown menu`➔`Select File...` (**`11`**)
+    Select the marker image by clicking the `Dropdown menu`➔`Select File...` (**`K`**)
     and then choosing `fish`➔`fish_0000.png`.
 
     ![Select Image](img/tut_1/010_SelectImage_1.png)
@@ -80,22 +79,22 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     Click `Open`
     &nbsp;<!--Blank Space-->
 
-10. Change the marker's **Size Unit** to `Meters at Scale` (**`12`**)
+10. Change the marker's **Size Unit** to `Meters at Scale` (**`L`**)
 
     ![Change Size to MAS](img/tut_1/011_ChangeSizeToMAS_1.png)
 
     and set the *Width* and *Height* to *1000*.
     &nbsp;<!--Blank Space-->
 
-11. Repeat steps 9\. and 10\. with the `bird` layer but instead choosing `bird`➔`bird_0000.png`
+11. Repeat Steps 9\. and 10\. with the `bird` layer but instead choosing `bird`➔`bird_0000.png`
     and setting the *Width* and *Height* to *3000*.
 
     &nbsp;<!--Blank Space-->
     >Note: in `QGIS 3.26`, or later, the `Symbol layer type` can simply be selected as
-    `Animated Marker` and step 12\. can be skipped.
+    `Animated Marker` and Step 12\. can be skipped.
 
 12. To animate the `fish` and `bird` layers using the `QGIS Expressions` system click the
-    `Dropdown Menu`➔`Edit...` (**`13`**).
+    `Dropdown Menu`➔`Edit...` (**`M`**).
 
     ![Edit Expression](img/tut_1/012_EditExpression_1.png)
 
@@ -134,12 +133,12 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     if you are unsure how to open the Workbench).
 
     In the `Animation Plan` tab set:
-    - the `Render Mode` to `Planar` (**`14`**),
-    - the `Animation Layer` to `route` (**`15`**) using the dropdown menu,
-    - the `Zoom Range` (**`16`**) to *1:270000* for the *Minimum* and *1:135000* for the *Maximum*,
-    - the `Frame rate per second` to *9 fps* (**`17`**),
-    - the `Travel duration` to *4,00 s* (**`18`**),
-    - and the `Feature hover duration` to *2,00 s* (**`19`**)
+    - the `Render Mode` to `Planar` (**`N`**),
+    - the `Animation Layer` to `route` (**`O`**) using the dropdown menu,
+    - the `Zoom Range` (**`P`**) to *1:270000* for the *Minimum* and *1:135000* for the *Maximum*,
+    - the `Frame rate per second` to *9 fps* (**`Q`**),
+    - the `Travel duration` to *4,00 s* (**`R`**),
+    - and the `Feature hover duration` to *2,00 s* (**`S`**)
 
     Enable both the `Pan` and `Zoom` easings and set them to linear.
 
@@ -147,10 +146,10 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     &nbsp;<!--Blank Space-->
 
 14. Skip past the `Intro`, `Outro`, and `Soundtrack` tabs to the `Output` tab. Set the
-    `Output Format` as `Animated Gif` (**`20`**) and the `Output Resolution` to
-    `720p (1280x720)` (**`21`**). The `Output Resolution` can be set as any of the three
+    `Output Format` as `Animated Gif` (**`T`**) and the `Output Resolution` to
+    `720p (1280x720)` (**`U`**). The `Output Resolution` can be set as any of the three
     choices but was set at `720` for this tutorial for the sake of speed. Set the output
-    location to one you can find easily (**`22`**)
+    location to one you can find easily (**`V`**)
 
     ![Output Tab](img/tut_1/016_Output_1.png)
     &nbsp;<!--Blank Space-->
