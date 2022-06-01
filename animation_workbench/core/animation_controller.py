@@ -77,6 +77,7 @@ class AnimationController(QObject):
     @staticmethod
     def create_fixed_extent_controller(
         map_settings: QgsMapSettings,
+        output_mode: str,
         feature_layer: Optional[QgsVectorLayer],
         output_extent: QgsReferencedRectangle,
         total_frames: int,
@@ -96,7 +97,9 @@ class AnimationController(QObject):
             transformed_output_extent = ct.transformBoundingBox(output_extent)
         map_settings.setExtent(transformed_output_extent)
 
-        controller = AnimationController(MapMode.FIXED_EXTENT, map_settings)
+        controller = AnimationController(
+            MapMode.FIXED_EXTENT, output_mode, map_settings
+        )
         if feature_layer:
             controller.set_layer(feature_layer)
         controller.total_frame_count = total_frames
@@ -108,6 +111,7 @@ class AnimationController(QObject):
     def create_moving_extent_controller(
         map_settings: QgsMapSettings,
         mode: MapMode,
+        output_mode: str,
         feature_layer: QgsVectorLayer,
         travel_duration: float,
         hover_duration: float,
@@ -125,7 +129,7 @@ class AnimationController(QObject):
         if not feature_layer:
             raise InvalidAnimationParametersException("No animation layer set")
 
-        controller = AnimationController(mode, map_settings)
+        controller = AnimationController(mode, output_mode, map_settings)
         controller.set_layer(feature_layer)
         controller.loop = loop
 
@@ -157,11 +161,13 @@ class AnimationController(QObject):
 
         return controller
 
-    def __init__(self, map_mode: MapMode, map_settings: QgsMapSettings):
+    def __init__(
+        self, map_mode: MapMode, output_mode: str, map_settings: QgsMapSettings
+    ):
         super().__init__()
         self.map_settings: QgsMapSettings = map_settings
         self.map_mode: MapMode = map_mode
-
+        self.output_mode: str = output_mode
         self.base_expression_context = QgsExpressionContext()
         self.base_expression_context.appendScope(
             QgsExpressionContextUtils.globalScope()
@@ -169,6 +175,15 @@ class AnimationController(QObject):
         self.base_expression_context.appendScope(
             QgsExpressionContextUtils.projectScope(QgsProject.instance())
         )
+
+        if output_mode == "1280:720":
+            self.size = QSize(1280, 720)
+        elif self.output_mode == "1920:1080":
+            self.size = QSize(1920, 1080)
+        elif self.output_mode == "3840:2160":
+            self.size = QSize(3840, 2160)  # 4k
+        else:
+            self.size = self.map_settings.outputSize()
 
         self.data_defined_properties = QgsPropertyCollection()
 
@@ -763,8 +778,8 @@ class AnimationController(QObject):
         """
 
         settings = QgsMapSettings(map_settings)
+        settings.setOutputSize(self.size)
 
-        settings.setOutputSize(QSize(1920, 1080))
         settings.setOutputDpi(96)
 
         if Qgis.QGIS_VERSION_INT >= 32500:

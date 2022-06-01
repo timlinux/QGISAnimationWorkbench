@@ -150,11 +150,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.movie_file_button.clicked.connect(self.set_output_name)
 
-        music_file = setting(key="music_file", default="", prefer_project_setting=True)
-        if music_file:
-            self.music_file_edit.setText(music_file)
-        self.music_file_button.clicked.connect(self.choose_music_file)
-
         # Work around for not being able to set the layer
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
@@ -508,24 +503,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         ok_button.setEnabled(True)
         self.movie_file_edit.setText(file_path)
 
-    def choose_music_file(self):
-        """
-        Asks the user for the music file path
-        """
-        # Popup a dialog to request the filename for music backing track
-        dialog_title = "Music for video"
-
-        # noinspection PyCallByClass,PyTypeChecker
-        file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            dialog_title,
-            self.music_file_edit.text(),
-            "Mp3 (*.mp3);;Wav (*.wav)",
-        )
-        if file_path is None or file_path == "":
-            return
-        self.music_file_edit.setText(file_path)
-
     def save_state(self):
         """
         We save some project settings to both QSettings AND the current project,
@@ -596,11 +573,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         set_setting(
             key="output_file",
             value=self.movie_file_edit.text(),
-            store_in_project=True,
-        )
-        set_setting(
-            key="music_file",
-            value=self.music_file_edit.text(),
             store_in_project=True,
         )
 
@@ -771,7 +743,6 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.movie_task = MovieCreationTask(
             output_file=self.movie_file_edit.text(),
-            music_file=self.music_file_edit.text(),
             output_format=MovieFormat.GIF
             if self.radio_gif.isChecked()
             else MovieFormat.MP4,
@@ -829,6 +800,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             return
 
         def update_preview_image(file_name):
+            """Update the preview image."""
             if not self.current_preview_frame_render_job:
                 return
 

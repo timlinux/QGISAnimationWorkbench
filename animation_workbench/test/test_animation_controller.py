@@ -54,6 +54,7 @@ class AnimationControllerTest(unittest.TestCase):
         )
         controller = AnimationController.create_fixed_extent_controller(
             map_settings=map_settings,
+            output_mode="1280:720",
             feature_layer=None,
             output_extent=extent,
             total_frames=5,
@@ -66,10 +67,10 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 0)
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1122330, delta=120000)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            1122330,
             delta=120000,
         )
         self.assertEqual(
@@ -83,12 +84,12 @@ class AnimationControllerTest(unittest.TestCase):
         )
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1122330, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 1)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            1122330,
             delta=120000,
         )
         self.assertEqual(
@@ -102,12 +103,12 @@ class AnimationControllerTest(unittest.TestCase):
         )
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1122330, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            1122330,
             delta=1200003,
         )
         self.assertEqual(
@@ -121,12 +122,12 @@ class AnimationControllerTest(unittest.TestCase):
         )
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1122330, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 3)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            1122330,
             delta=120000,
         )
         self.assertEqual(
@@ -140,12 +141,12 @@ class AnimationControllerTest(unittest.TestCase):
         )
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1122330, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 4)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            1122330,
             delta=120000,
         )
         self.assertEqual(
@@ -187,6 +188,7 @@ class AnimationControllerTest(unittest.TestCase):
         )
         controller = AnimationController.create_fixed_extent_controller(
             map_settings=map_settings,
+            output_mode=None,  # Will use map canvas dimensions
             feature_layer=vl,
             output_extent=extent,
             total_frames=2,
@@ -199,10 +201,10 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 0)
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 2693593, delta=120000)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            2693593,
             delta=120000,
         )
         self.assertEqual(
@@ -247,12 +249,12 @@ class AnimationControllerTest(unittest.TestCase):
         # self.assertEqual(job.map_settings.expressionContext().variable('total_frame_count'), 4)
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 2693593, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 1)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            2693593,
             delta=120000,
         )
         self.assertEqual(
@@ -297,12 +299,12 @@ class AnimationControllerTest(unittest.TestCase):
         # self.assertEqual(job.map_settings.expressionContext().variable('total_frame_count'), 4)
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 2693593, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            2693593,
             delta=120000,
         )
         self.assertEqual(
@@ -345,12 +347,12 @@ class AnimationControllerTest(unittest.TestCase):
         # self.assertEqual(job.map_settings.expressionContext().variable('total_frame_count'), 4)
         job = next(it)
         self.assertEqual(job.map_settings.extent(), map_settings.extent())
-        self.assertAlmostEqual(job.map_settings.scale(), 748220, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 2693593, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 10)
         self.assertEqual(job.map_settings.currentFrame(), 3)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            748220,
+            2693593,
             delta=120000,
         )
         self.assertEqual(
@@ -418,6 +420,7 @@ class AnimationControllerTest(unittest.TestCase):
         map_settings.setOutputSize(QSize(400, 300))
         controller = AnimationController.create_moving_extent_controller(
             map_settings=map_settings,
+            output_mode=None,  # Will use map canvas dimensions
             mode=MapMode.PLANAR,
             feature_layer=vl,
             travel_duration=2,
@@ -434,12 +437,12 @@ class AnimationControllerTest(unittest.TestCase):
         job = next(it)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 0)
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -499,13 +502,13 @@ class AnimationControllerTest(unittest.TestCase):
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         # Changed from 44
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 1)
         # Changed from 44
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -565,14 +568,14 @@ class AnimationControllerTest(unittest.TestCase):
         # now we start panning
         job = next(it)
         # Changed from 44
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -627,14 +630,14 @@ class AnimationControllerTest(unittest.TestCase):
         )
 
         job = next(it)
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1599999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 4, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 8, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 3)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            444444,
+            1599999,
             delta=120000,
         )
         self.assertEqual(
@@ -690,7 +693,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # was 16666
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1599999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 7, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 14, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -698,7 +701,7 @@ class AnimationControllerTest(unittest.TestCase):
         # Was 1666666
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            444444,
+            1599999,
             delta=120000,
         )
         self.assertEqual(
@@ -754,7 +757,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # was 10
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -762,7 +765,7 @@ class AnimationControllerTest(unittest.TestCase):
         # was 10
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -820,7 +823,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # was 10
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -828,7 +831,7 @@ class AnimationControllerTest(unittest.TestCase):
         # was 19
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -885,14 +888,14 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # was 10
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 7)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -973,6 +976,7 @@ class AnimationControllerTest(unittest.TestCase):
         map_settings.setOutputSize(QSize(400, 300))
         controller = AnimationController.create_moving_extent_controller(
             map_settings=map_settings,
+            output_mode=None,  # Will use map canvas dimensions
             mode=MapMode.PLANAR,
             feature_layer=vl,
             travel_duration=2,
@@ -990,12 +994,12 @@ class AnimationControllerTest(unittest.TestCase):
         job = next(it)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 0)
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -1021,28 +1025,28 @@ class AnimationControllerTest(unittest.TestCase):
         job = next(it)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 1)
 
         # now we start panning
         job = next(it)
         # Changed from 44
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 2)
 
         job = next(it)
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1599999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 4, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 8, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 3)
 
         job = next(it)
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1600000, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 7, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 14, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1050,7 +1054,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # Changed from 44
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1060,7 +1064,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # Changed from 44
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1068,7 +1072,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # Was 44444
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1090,8 +1094,8 @@ class AnimationControllerTest(unittest.TestCase):
 
         # travel from last to first
         job = next(it)
-        # was 4444444
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        # was 15999994
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 10, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 20, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1099,7 +1103,7 @@ class AnimationControllerTest(unittest.TestCase):
         # Was 10
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
@@ -1145,7 +1149,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # was 16
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1599999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 7, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 14, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1153,7 +1157,7 @@ class AnimationControllerTest(unittest.TestCase):
         # was 16
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            444444,
+            1599999,
             delta=120000,
         )
         self.assertEqual(
@@ -1199,7 +1203,7 @@ class AnimationControllerTest(unittest.TestCase):
 
         job = next(it)
         # was 16
-        self.assertAlmostEqual(job.map_settings.scale(), 444444, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 1599999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 4, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 8, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
@@ -1207,7 +1211,7 @@ class AnimationControllerTest(unittest.TestCase):
         # was 16
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            444444,
+            1599999,
             delta=120000,
         )
         self.assertEqual(
@@ -1252,14 +1256,14 @@ class AnimationControllerTest(unittest.TestCase):
         )
 
         job = next(it)
-        self.assertAlmostEqual(job.map_settings.scale(), 266666, delta=120000)
+        self.assertAlmostEqual(job.map_settings.scale(), 959999, delta=120000)
         self.assertAlmostEqual(job.map_settings.extent().center().x(), 1, 2)
         self.assertAlmostEqual(job.map_settings.extent().center().y(), 2, 2)
         self.assertEqual(job.map_settings.frameRate(), 2)
         self.assertEqual(job.map_settings.currentFrame(), 11)
         self.assertAlmostEqual(
             job.map_settings.expressionContext().variable("map_scale"),
-            266666,
+            959999,
             delta=120000,
         )
         self.assertEqual(
