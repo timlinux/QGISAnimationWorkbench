@@ -67,7 +67,16 @@ In this section, we describe the general workflow for using the Animation Workbe
    example below works with the bird animation from earlier
 
    ![Expression Snippet](img/009_Expression_1.png)
-   &nbsp;<!--Adds blank space for formatting-->
+
+   ```py
+      @project_home
+      ||
+      '/bird/bird_00'
+      || 
+      lpad(to_string(@frame_number % 9), 2, '0')
+      || 
+      '.png'
+   ```
 
 4. Open the Animation Workbench and configure your animation, choosing between the
    different modes and options.
@@ -87,7 +96,7 @@ In this section, we describe the general workflow for using the Animation Workbe
    ![Output Setup](img/011_OutputSetup_1.png)
    &nbsp;<!--Adds blank space for formatting-->
 
-   Select a location for your output (**`10`**).
+   Set your desired `Output Options` (**`10`**) Select a location for your output (**`11`**).
 
    ![Output Location](img/012_Output_1.png)
    &nbsp;<!--Adds blank space for formatting-->
