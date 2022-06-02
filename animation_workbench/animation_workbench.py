@@ -819,9 +819,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
             return
         # We assemble first commands needed to make the pieces of the movie
-        self.intro_media.set_output_resolution(self.output_mode_name)
-        self.outro_media.set_output_resolution(self.output_mode_name)
-        self.music_media.set_output_resolution(self.output_mode_name)
+        self.intro_media.set_output_resolution(self.output_mode_name())
+        self.outro_media.set_output_resolution(self.output_mode_name())
+        self.music_media.set_output_resolution(self.output_mode_name())
         intro_command = self.intro_media.video_command()
         outro_command = self.outro_media.video_command()
         music_command = self.music_media.video_command()
@@ -890,9 +890,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     def output_mode_name(self):
         """Return the output mode name like 1080p, 720p etc."""
         output_mode = None
-        if self.low_res.isChecked():
+        if self.radio_low_res.isChecked():
             output_mode = "720p"
-        elif self.medium_res.isChecked():
+        elif self.radio_medium_res.isChecked():
             output_mode = "1080p"
         elif self.radio_high_res.isChecked():
             output_mode = "4k"
