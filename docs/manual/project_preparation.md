@@ -15,7 +15,7 @@
     &nbsp;<!--Adds blank space for formatting-->
 
     To add a layer, go to `Layer` ➔ `Create Layer` and then select the type of layer you
-    want to add. The example adds a point layer to a geopackage to make the project more
+    want to add. The example adds a point layer to a GeoPackage to make the project more
     portable.
 
     ![Add Layers](img/009_AddLayers_1.png)
