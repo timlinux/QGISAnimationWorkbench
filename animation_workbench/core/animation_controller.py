@@ -474,7 +474,10 @@ class AnimationController(QObject):
 
         # use simplified type, so that we don't have to care
         # about multipolygons/lines with just single part!
-        raw_geom = geom.constGet().simplifiedTypeRef()
+        try:
+            raw_geom = geom.constGet().simplifiedTypeRef()
+        except AttributeError:
+            return None
         flat_type = QgsWkbTypes.flatType(raw_geom.wkbType())
 
         if flat_type == QgsWkbTypes.Point:
