@@ -1,5 +1,3 @@
-# Tutorials
-
 ## Tutorial 1: The Basics
 
 This tutorial aims to show you the basics of creating, and animating, a static layer to use
@@ -32,14 +30,14 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     &nbsp;<!--Blank Space-->
 
 6. Now create a new layer in the **tutorial_1.gpkg** by clicking `Layer`➔`Create Layer`➔
-    `New Geopackage Layer...` (**`C`**).
+    `New GeoPackage Layer...` (**`C`**).
 
     ![Create New Layer](img/tut_1/004_AddNewLayer_1.png)
     &nbsp;<!--Blank Space-->
 
     Click on the `Ellipsis` (**`D`**), navigate to and select the **tutorial_1.gpkg**, and
-    click `Save`. Change the table name to **fish** (**`E`**), set the geometry type as **Point** (**`F`**), and
-    change the CRS to match the **Project CRS** (**`G`**).
+    click `Save`. Change the *Table name* to **fish** (**`E`**), set the *Geometry type* as **Point** (**`F`**), and
+    change the *CRS* to match the **Project CRS** (**`G`**).
 
     ![Layer Settings](img/tut_1/005_LayerSettings_1.png)
 
@@ -60,7 +58,7 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
    button. Then stop editing the layer.
    &nbsp;<!--Blank Space-->
 
-8. Repeat steps **6\.** and **7\.** but change the table name to **bird** and add the points over
+8. Repeat steps **6\.** and **7\.** but change the Table name to **bird** and add the points over
     the land areas.
 
     ![Both Layers Added](img/tut_1/008_BothLayersAdded_1.png)
@@ -79,7 +77,7 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     Click `Open`
     &nbsp;<!--Blank Space-->
 
-10. Change the marker's **Size Unit** to `Meters at Scale` (**`L`**)
+10. Change the marker's *Size Unit* to `Meters at Scale` (**`L`**)
 
     ![Change Size to MAS](img/tut_1/011_ChangeSizeToMAS_1.png)
 
@@ -126,8 +124,8 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     '.png'
     ```
 
-    > Note: Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for more about the above
-        code
+    > Note: Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for an explanation
+        about what the above code snippet is doing.
 
 13. Open the Animation Workbench (refer to the [Using the Animation Workbench](../start/using.md) section
     if you are unsure how to open the Workbench).
@@ -165,6 +163,195 @@ markers. A key focus is the idea that you can tell versions of `QGIS` before `3.
 change markers using short code snippets. Versions of `QGIS` post `3.26` allow a user to
 simply use the `Animated Marker` feature without editing an expression.
 
-## Tutorial 2
+## Tutorial 2: Flying Points <!-- Working Title: Two-turial-->
+
+1. Download and extract the **[Required Tutorial Zip Folder](https://github.com/timlinux/QGISAnimationWorkbench/blob/main/examples/tutorial_2.zip)**
+    &nbsp;<!--Blank Space-->
+
+2. Open the **tutorial_2.qgz** project file.
+    When you first open the project file you should be greeted with something like this:
+
+    ![Initial Open](img/tut_2/001_InitialOpen_1.png)
+    &nbsp;<!--Blank Space-->
+
+3. Create a new point layer in a new geopackage by clicking `Layer`➔`Create Layer`➔
+    `New GeoPackage Layer...`. Click on the `Ellipsis` (three dots) next to the *Database*
+    textbox and navigate to the folder that the **tutorial_2.qgz** file is located in. Type the *File*
+    *name* **"tutorial_2"** (**`1`**) and ensure the file will be saved as a `GeoPackage` (**`2`**) and click
+    `Save` (**`3`**).
+
+    ![Create New GeoPackage](img/tut_2/002_CreateNewGpkg_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Change the *Table name* to **flying_points** (**`4`**), set the *Geometry type* as **Point** (**`5`**) and
+    change the *CRS* to match the **Project CRS** (**`6`**).
+
+    ![Create New layer](img/tut_2/003_CreateNewLayer_1.png)
+
+    Click `OK` (**`7`**)
+    &nbsp;<!--Blank Space-->
+
+4. Click on `Toggle Editing`➔`Add Point Feature` (**`8`**).
+
+    ![Toggle Editing](img/tut_2/004_1_ToggleEditing_1.png)
+    &nbsp;<!--Blank Space-->
+
+    And randomly add points to your map. Depending on your computer's capabilites, you
+    can add more, or fewer, points than the example below.
+
+    ![Points Added](img/tut_2/004_2_PointsAdded_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Save your Layer Edits and toggle off the Editing tool.
+    &nbsp;<!--Blank Space-->
+
+5. Style the points layer.
+
+    Select the `flying_points` (**`9`**) layer and in the `Layer Styling` toolbar click on the
+    `Add Symbol Layer` (*green plus symbol*) button (**`10`**).
+
+    ![Add Symbol Layer](img/tut_2/005_AddSymbolLayer_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Select the top `Simple Marker` (**`11`**) and change its *Symbol layer type* to
+    `Geometry Generator` (**`12`**)
+
+    ![Geometry Generator](img/tut_2/006_GeometryGenerator_1.png)
+
+    and then set the *Geometry type* to `LineString / MultiLineString` (**`13`**).
+
+    ![Geometry Line](img/tut_2/007_GeomLine_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Change the line's *Symbol layer type* to `Marker Line` (**`14`**).
+
+    ![Marker Line](img/tut_2/008_MarkerLine_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Add a second `Simple marker` to the marker line so that you end up with something like
+    this:
+
+    ![Marker Line Symbol](img/tut_2/009_MarkerLineSymbol_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Style the various `Simple Markers` to your preferred look.
+
+    &nbsp;<!--Blank Space-->
+
+6. Select the `Geometry Generator` symbol layer (**`15`**) and add this code to it:
+
+    ```py
+    wave_randomized(
+    make_line(
+        $geometry, geometry(@hover_feature)), 
+    100, 1000, 1000, 10000, 1)
+    ```
+
+    ![Add Geometry](img/tut_2/010_AddGeometry_1.png)
+    &nbsp;<!--Blank Space-->
+
+    >More information about what changing the numbers will affect can be found in the
+    QGIS expressions editor.
+    &nbsp;<!--Blank Space-->
+
+7. A few options need to be changed in the `Marker Line` symbol layer (**`16`**): The *Marker*
+    *placement* needs to be set to `On first vertex` (**`17`**) and, the *Offset along line* needs to be
+    changed to `Percentage` (**`18`**). The click the `Dropdown menu` next to *Offset along line* and
+    select `Edit...` (**`19`**).
+
+    ![Edit Marker Line](img/tut_2/011_EditMarkerLine_1.png)
+    &nbsp;<!--Blank Space-->
+
+    In the `Expression String Builder` add the following code snippet:
+
+    ```py
+    100 - to_int((@current_hover_frame / @hover_frames) * 100 )
+    ```
+
+    ![Offset Expression](img/tut_2/012_OffsetExpression_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Click `OK`
+    &nbsp;<!--Blank Space-->
+
+8. Select the first `Simple Marker` symbol layer (**`20`**) in the `Marker Line` symbol layer. Scroll
+    down to *Offset* and click on the `Dropdown Menu`➔`Edit..` (**`21`**).
+
+    ![Edit Marker Symbol](img/tut_2/013_EditMarkerSymbol_1.png)
+    &nbsp;<!--Blank Space-->
+
+    In the `Expression String Builder` add the following code snippet:
+
+    ```py
+    -- Taken from https://spicyyoghurt.com/tools/easing-functions
+    --    t = Time - Amount of time that has passed since the beginning of the animation. Usually starts at 0 and is slowly increased using a game loop or other update function.
+    --    b = Beginning value - The starting point of the animation. Usually it's a static value, you can start at 0 for example.
+    --    c = Change in value - The amount of change needed to go from starting point to end point. It's also usually a static value.
+    --    d = Duration - Amount of time the animation will take. Usually a static value aswell.
+    -- Sinusoidal
+    -- -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+
+    -- Use with the animation in static mode
+    if(@hover_feature_id != $id,
+    array(
+        (-@hover_frames / 2) * (cos( (pi() * @frame_number / @hover_frames ) - 1)) ,
+        (-@hover_frames / 2) * (sin( (pi() * @frame_number / @hover_frames ) - 1)) 
+        ),
+        array (0,0))
+    ```
+
+    ![Marker Expression](img/tut_2/014_MarkerExpression_1.png)
+    &nbsp;<!--Blank Space-->
+
+    Click `OK`
+    &nbsp;<!--Blank Space-->
+
+9. Open the `Animation Workbench` (**`22`**)
+
+    ![Open AW](img/tut_2/015_OpenAW_1.png)
+    &nbsp;<!--Blank Space-->
+
+10. Set up the `Animation Plan` with:
+
+    - the `Render Mode` to `Planar` (**`23`**),
+    - the `Animation Layer` to `flying_points` (**`24`**) using the dropdown menu,
+    - the `Zoom Range` (**`25`**) to *1:22000000* for the *Minimum* and *1:11000000* for the 
+        *Maximum*,
+    - the `Frame rate per second` to *9 fps* (**`26`**),
+    - the `Travel duration` to *2,00 s* (**`27`**),
+    - the `Feature hover duration` to *2,00 s* (**`28`**),
+    - and the `Zoom Easing` as *InCirc* (**`29`**)
+
+    ![Animation Plan](img/tut_2/016_AnimationPlan_1.png)
+    &nbsp;<!--Blank Space-->
+
+    > With a decently specced computer you can up the fps and get the points to fly
+    faster in your output.
+    &nbsp;<!--Blank Space-->
+
+11. Add license-free media to the `Intro`, `Outro`, and `Soundtrack`.
+    >Make sure your `Soundtrack` is as long, or longer, than your final animation will be
+    (including the `Intro`, `Animation`, and `Outro`).
+
+    &nbsp;<!--Blank Space-->
+
+12. Set the `Output Format` as `Movie (MP4)` (**`30`**) and the `Output Resolution` to
+    `1080 (1920x1080)` (**`31`**). The `Output Resolution` can be set as any of the three
+    choices but was set at `1080` for this tutorial for the sake of speed. Set the output
+    location (**`32`**) to one you can easily locate.
+
+    ![Output](img/tut_2/017_Output_1.png)
+    &nbsp;<!--Blank Space-->
+
+13. Click `Run` and get an output. The **GIF** below is the visual output of the tutorial if you
+    followed step-by-step and set the parameters to exactly what was stated.
+
+    ![Output Gif](img/tut_2/tutorial_2_output_1.gif)
+    &nbsp;<!--Blank Space-->
+
+    The link to a more complex output (with an `Intro`, an `Outro`, and a `Soundtrack`) can
+    be found [here](https://www.youtube.com/watch?v=yrvHjdVgnSg)
+
+    &nbsp;<!--Blank Space-->
 
 ## Tutorial 3
