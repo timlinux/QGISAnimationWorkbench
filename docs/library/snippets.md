@@ -158,7 +158,7 @@ Will produce something like this:
 
 Here is an example where we animate all the points in a cluster that are **not** the hover point. We use an easing function to make the animation have an interesting circular motion.
 
-![Animated Flying Points Symbol Preview](img/flying-points-symbol.gif)
+![Animated Flying Points Symbol Preview](img/flying-points.gif)
 
 ```sql
 -- Taken from https://spicyyoghurt.com/tools/easing-functions
