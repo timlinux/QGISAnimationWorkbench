@@ -120,9 +120,10 @@ Edit the outro section of the generated movie here.
     application available on your system.
   - Movie (MP4) (**`3`**): For this option to work, you need to have the 'ffmpeg' application
     on your system.
-  - Output Resolution (**`4`**): Allows a user to specify one of three image resolutions for
-    the output animation. The numbers in brackets represent the width and height of the
-    output in pixels (i.e. width x height).
+  - Output Resolution (**`4`**): Allows a user to specify one of four image resolutions
+    for the output animation. The numbers in brackets for the first three options represent
+    the width and height of the output in pixels (i.e. width x height), and the fourth
+    option matches the output's size to the size of the `Map Canvas` on the screen.
   - File selection (ellipsis) (**`5`**): This lets a user select the location where the output
     will be stored.
 

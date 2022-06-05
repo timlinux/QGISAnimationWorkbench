@@ -15,20 +15,20 @@
     &nbsp;<!--Adds blank space for formatting-->
 
     To add a layer, go to `Layer` ➔ `Create Layer` and then select the type of layer you
-    want to add. The example adds a point layer to a geopackage to make the project more
+    want to add. The example adds a point layer to a GeoPackage to make the project more
     portable.
 
-    ![Add Layers](img/008_AddLayers_1.png)
+    ![Add Layers](img/009_AddLayers_1.png)
 
     Once you have added your layers you need to add features to the layers. This is done
     by selecting a layer and then clicking `Toggle Editing` (**`1`**) ➔ `Add PointFeature` (**`2`**).
     Then click around on your map to add as few, or as many, features as you need.
 
-    ![Add Features](img/009_AddFeatures_1.png)
+    ![Add Features](img/010_AddFeatures_1.png)
 
     The example project has four layers: two point layers (**`3`**) and two backing layers (**`4`**).
 
-    ![Layer List](img/010_LayersList_10.png)
+    ![Layer List](img/011_LayersList_10.png)
 
     > Note: A simple way to add a vector base layer is to type "world" into the coordinate
     textbox
@@ -39,7 +39,7 @@
     good practice is to have your backing layers as more muted colours and your desired
     features as more eye-catching colours.
 
-    ![Style Layers](img/011_StyledLayers_1.png)
+    ![Style Layers](img/012_StyledLayers_1.png)
 
     &nbsp;<!--Adds blank space for formatting-->
     You now have a QGIS Project.
@@ -53,7 +53,7 @@
    animations you use. Below is an example of a simple fish animation split into its frames.
    The frames are repeated to slow down the animation's playback speed.
 
-   ![Fish Animation Frames](img/012_FishAnimation_1.png)
+   ![Fish Animation Frames](img/013_FishAnimation_1.png)
     &nbsp;<!--Adds blank space for formatting-->
 
 - Now use the QGIS Expressions system with the variables introduced by the Animation
@@ -68,7 +68,7 @@
     The layer should contain a `Raster Image Marker`. Once you have selected the marker you
     want to use click on the QGIS Expressions dropdown menu (**`5`**) and click on `Edit` (**`6`**).
 
-    ![Edit Expression](img/013_EditExpression_1.png)
+    ![Edit Expression](img/014_EditExpression_1.png)
 
     &nbsp;<!--Adds blank space for formatting-->
     > You can also make a marker move along a line relative to the frame of the animation.
@@ -76,8 +76,17 @@
 
     The example below works with the animation from earlier.
 
-    ![Expression Snippet](img/014_FishExpression_1.png)
-    &nbsp;<!--Adds blank space for formatting-->
+    ![Expression Snippet](img/015_FishExpression_1.png)
+
+    ```py
+        @project_home
+        || 
+        '/fish/fish_00'
+        ||
+        lpad(to_string( @frame_number % 32), 2, '0')
+        ||
+        '.png'
+    ```
 
 - After animating your markers it's time to configure your animation. Open the Animated
     Workbench and begin choosing between the different modes and options.
@@ -85,7 +94,7 @@
 
     Open the Workbench by clicking the `Animation Workbench` (**`7`**) icon in the Plugin Toolbar.
 
-    ![Open Workbench](img/015_OpenAW_1.png)
+    ![Open Workbench](img/016_OpenAW_1.png)
     &nbsp;<!--Adds blank space for formatting-->
 
     Configure the settings for your animation. The screenshot below is configured for
@@ -95,13 +104,13 @@
     match the number of frames of the animated markers so that they will play nicely in
     the output. The other settings were selected as a personal choice.
 
-    ![Animation Plan](img/016_AnimationPlan_1.png)
+    ![Animation Plan](img/017_AnimationPlan_1.png)
     &nbsp;<!--Adds blank space for formatting-->
 
     Select the Output Resolution (**`11`**) and a location for your output by clicking on the
     ellipsis (three dots) or by typing in the desired file path (**`12`**).
 
-    ![Output Location](img/017_Output_1.png)
+    ![Output Location](img/018_Output_1.png)
     &nbsp;<!--Adds blank space for formatting-->
 
     > Note:  Refer to the [Workbench User Interface](../docs/../manual/workbench_ui.md) section for more information about

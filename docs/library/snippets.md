@@ -153,3 +153,32 @@ scale_linear (
 Will produce something like this:
 
 ![Animated Rotated Symbol Preview](img/animated-rotating-symbol.gif)
+
+## Flying points cluster
+
+Here is an example where we animate all the points in a cluster that are **not** the hover point. We use an easing function to make the animation have an interesting circular motion.
+
+![Animated Flying Points Symbol Preview](img/flying-points.gif)
+
+```sql
+-- Taken from https://spicyyoghurt.com/tools/easing-functions
+--    t = Time - Amount of time that has passed since the beginning of the animation. Usually starts at 0 and is slowly increased using a game loop or other update function.
+--    b = Beginning value - The starting point of the animation. Usually it's a static value, you can start at 0 for example.
+--    c = Change in value - The amount of change needed to go from starting point to end point. It's also usually a static value.
+--    d = Duration - Amount of time the animation will take. Usually a static value aswell.
+-- Sinusoidal
+-- -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+
+-- Use with the animation in static mode
+if(@hover_feature_id != $id,
+array(
+  (-@hover_frames / 2) * (cos( (pi() * @frame_number / @hover_frames ) - 1)) ,
+ (-@hover_frames / 2) * (sin( (pi() * @frame_number / @hover_frames ) - 1)) 
+),
+array (0,0))
+
+```
+
+This function should be applied to the offset X,Y property of the symbol.
+
+![Offset](img/marker-offset.png)

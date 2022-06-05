@@ -15,7 +15,7 @@ QGIS Setting dialog and clicking on the animation workbench tab.
 Currently there are just three configuration options:
 
 - **Number of concurrent render tasks (`2`):** This is the number of concurrent tasks
-that will be used to render animations. The default is 10.
+that will be used to render animations. The default is 1.
 - **Enable developer mode (`3`):** This is a developer option that enables the developers
 to see an icon in the toolbar which will start the debug remote server.
 - **Verbose logging mode (`4`):** This will add extra messages in the logging pane to
