@@ -487,8 +487,8 @@ class AnimationController(QObject):
         elif flat_type == QgsWkbTypes.LineString:
             length = geom.length()
             point = geom.interpolate(length / 2.0)
-            x = point.geometry().x()
-            y = point.geometry().y()
+            x = point.asPoint().x()
+            y = point.asPoint().y()
             center = QgsPointXY(x, y)
         elif flat_type == QgsWkbTypes.Polygon:
             center = geom.centroid().asPoint()
