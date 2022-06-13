@@ -1,0 +1,23 @@
+name: Make Package
+# This workflow is triggered on pushes to the repository.
+on:
+  push:
+    branches:
+      - main
+    # Paths can be used to only trigger actions when you have edited certain files, such as a file within the /docs directory
+    paths: 
+      - 'animation_workbench/**'
+
+jobs:
+  converttopdf:
+    name: Build Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: montudor/action-zip@v1
+        with:
+        args: zip -qq -r QGISAnimationWorkbench.zip animation_workbench
+      - uses: actions/upload-artifact@v3
+        with:
+          name: QGISAnimationWorkbench
+          path: QGISAnimationWorkbench.zip
