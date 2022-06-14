@@ -4,7 +4,7 @@ site_author: 'Tim Sutton, Nyall Dawson'
 docs_dir: docs/
 repo_name: 'timlinux/QGISAnimationWorkbench'
 repo_url: 'https://github.com/timlinux/QGISAnimationWorkbench'
-edit_uri: "https://github.com/timlinux/QGISAnimationWorkbench/blob/main/mkdocs/src/"
+edit_uri: "https://github.com/timlinux/QGISAnimationWorkbench/blob/main/docs/src/"
 #site_dir: docs
 copyright: Copyright Tim Sutton and Contributors, 2022
 
