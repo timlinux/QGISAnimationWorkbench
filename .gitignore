@@ -138,3 +138,6 @@ resources/synfig/*.png
 docs/build-notes.txt
 *.drawio.bkp
 *.drawio.dtmp
+resources/diagrams/.$QAW-VideoScript.bkp
+resources/qprompt/intro-script
+resources/diagrams/QAW-VideoScript.drawio
