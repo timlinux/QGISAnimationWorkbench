@@ -20,6 +20,7 @@ About   | Status
 
 | Name                                     | Description                          |
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| [`Alpha Version 3`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-3.zip) | Alpha Release (not production ready) |
 | [`Alpha Version 2`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-2.zip) | Alpha Release (not production ready) |
 | [`Alpha Version 1`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
 
