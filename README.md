@@ -1,18 +1,24 @@
-# ![QGIS Animation Workbench]()
 
-> Welcome to the QGIS Animation Workbench!
+# QGIS Animation Workbench
 
-![Logo](resources/img/logo/animation-workbench-logo.svg)
+![QGIS Animation Workbench](resources/img/logo/animation-workbench-logo.svg)
 
-[![github release version](https://img.shields.io/github/v/release/timlinux/QGISAnimationWorkbench.svg?include_prereleases)](https://github.com/timlinux/QGISAnimationWorkbenchr/releases/latest) [![QGIS Plugin Repository](https://img.shields.io/badge/Powered%20by-QGIS-blue.svg)](https://plugins.qgis.org/FIXME) [![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://github.com/timlinux/QGISAnimationWorkbench/blob/master/LICENSE) [![PRs welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](https://github.com/timlinux/QGISAnimationWorkbench/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) [![code with heart by timlinux](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-timlinux-ff1414.svg)](https://github.com/timlinux)
+Welcome to the QGIS Animation Workbench (QAW). QAW is a [QGIS Plugins](https://qgis.org) that will help you bring your maps to life! Let's start with a quick overview. Click on the image below to view a 14 minute walkthrough on YouTube.
 
-[![Docs to PDF](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs-pdf.yml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs-pdf.yml) [![Lint](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/black.yml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/black.yml) [![Publish docs via GitHub Pages](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs.yml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs.yml) [![Test plugin](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/test_plugin.yaml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/test_plugin.yaml) [![pages-build-deployment](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/pages/pages-build-deployment)
+[![Overview](docs/start/img/QAW-IntroThumbnail.jpg)](https://youtu.be/DkS6yvnuypc)
 
-<img src="https://user-images.githubusercontent.com/178003/156927270-4491b001-43a3-4302-a819-41c4fac8c14c.png" width="800" />
+About   | Status
+--------|-------------
+[![github release version](https://img.shields.io/github/v/release/timlinux/QGISAnimationWorkbench.svg?include_prereleases)](https://github.com/timlinux/QGISAnimationWorkbenchr/releases/latest)        | [![Docs to PDF](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs-pdf.yml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs-pdf.yml)
+[![QGIS Plugin Repository](https://img.shields.io/badge/Powered%20by-QGIS-blue.svg)](https://qgis.org/) |  [![Lint](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/black.yml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/black.yml)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://github.com/timlinux/QGISAnimationWorkbench/blob/master/LICENSE) | [![Publish docs via GitHub Pages](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs.yml/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/mkdocs.yml)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](https://github.com/timlinux/QGISAnimationWorkbench/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)| [![pages-build-deployment](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/timlinux/QGISAnimationWorkbench/actions/workflows/pages/pages-build-deployment)
+[![code with heart by timlinux](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-timlinux-ff1414.svg)](https://github.com/timlinux) |
+[![code with heart by timlinux](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-nyalldawson-ff1414.svg)](https://github.com/nyalldawson) |
 
 ## 📦 Packages
 
-| Name                                                                                                 | Description                          |
+| Name                                     | Description                          |
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | [`Alpha Version 2`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-2.zip) | Alpha Release (not production ready) |
 | [`Alpha Version 1`](https://github.com/timlinux/QGISAnimationWorkbench/archive/refs/tags/apha-1.zip) | Alpha Release (not production ready) |
@@ -47,7 +53,7 @@ For QGIS versions below 3.26, see the documentation for [QGIS Animation Workbenc
 
 ## 🚀 Used By
 
-- [Tell Us)](https://example.com)
+- [Tell Us](https://example.com)
 
 ## 📜 License
 
