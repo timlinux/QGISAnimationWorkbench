@@ -1,4 +1,4 @@
-name: Test plugin
+name: 👨‍⚖️ Run Python Plugin Tests
 
 on:
   push:
