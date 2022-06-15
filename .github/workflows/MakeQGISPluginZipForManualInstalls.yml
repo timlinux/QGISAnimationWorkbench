@@ -18,6 +18,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: QGISAnimationWorkbench
-          working-directory: $GITHUB_WORKSPACE/QGISAnimationWorkbench
           path: animation_workbench
           
