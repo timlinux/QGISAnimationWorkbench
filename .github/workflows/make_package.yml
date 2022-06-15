@@ -1,12 +1,11 @@
-name: Make Package
+name: Make QGIS Plugin Zip for Manual Installs
 # This workflow is triggered on pushes to the repository.
 on:
   push:
     branches:
       - main
-    # Paths can be used to only trigger actions when you have edited certain files, such as a file within the /docs directory
-    paths: 
-      - 'animation_workbench/**'
+  # Allow manually running in the actions tab
+  workflow_dispatch:
 
 jobs:
   buildpackage:
@@ -17,6 +16,7 @@ jobs:
       - uses: montudor/action-zip@v1
         with:
           args: zip -qq -r QGISAnimationWorkbench.zip animation_workbench
+          working-directory: QGISAnimationWorkbench
       - uses: actions/upload-artifact@v3
         with:
           name: QGISAnimationWorkbench
