@@ -12,8 +12,11 @@ jobs:
     name: Build Package
     runs-on: ubuntu-latest
     steps:
-
+      - uses: actions/checkout@v2
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r /tmp/QGISAnimationWorkbench.zip animation_workbench
       - uses: actions/upload-artifact@v3
         with:
           name: QGISAnimationWorkbench
-          path: /home/runner/work/QGISAnimationWorkbench/QGISAnimationWorkbench/animation_workbench
+          path: /tmp/QGISAnimationWorkbench.zip
