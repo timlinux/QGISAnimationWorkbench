@@ -16,4 +16,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: QGISAnimationWorkbench
-          path: animation_workbench
+          path: QGISAnimationWorkbench/animation_workbench
