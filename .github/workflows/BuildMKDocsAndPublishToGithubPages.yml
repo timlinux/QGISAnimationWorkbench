@@ -1,4 +1,4 @@
-name: Publish docs via GitHub Pages
+name: Build MKDocs And Publish To Github Pages.yml
 on:
   push:
     branches:
@@ -16,12 +16,12 @@ jobs:
                 mkdocs-with-pdf 
                 mkdocs-material 
                 qrcode
-      - name: Checkout Main
+      - name: Checkout main from github
         uses: actions/checkout@v1
-      - name: Deploy docs
+      - name: Deploy docs to github pages
         # This is where we get the material theme from
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        # Wront
+        # Wrong
         #uses: timlinux/QGISAnimationWorkbench@main
         env:
           # Read this carefully:
