@@ -17,6 +17,6 @@ jobs:
           fetch-depth: 0
       - uses: actions/upload-artifact@v3
         with:
-          name: QGISAnimationWorkbench
+          name: animation_workbench
           path: animation_workbench
           
