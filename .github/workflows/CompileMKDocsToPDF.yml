@@ -1,4 +1,4 @@
-name: Docs to PDF
+name: 📔 Compile MKDocs to PDF
 # This workflow is triggered on pushes to the repository.
 on:
   push:
