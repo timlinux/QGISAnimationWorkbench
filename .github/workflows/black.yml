@@ -1,4 +1,4 @@
-name: Lint
+name: 🐍 Black python code lint
 
 on: [push, pull_request]
 
