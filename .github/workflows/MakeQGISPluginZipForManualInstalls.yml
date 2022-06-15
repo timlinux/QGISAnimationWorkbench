@@ -1,4 +1,4 @@
-name: Make QGIS Plugin Zip for Manual Installs
+name: 📦 Make QGIS Plugin Zip for Manual Installs
 # This workflow is triggered on pushes to the repository.
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   buildpackage:
-    name: Build Package
+    name: Build Package 🚀
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,4 +19,3 @@ jobs:
         with:
           name: animation_workbench
           path: animation_workbench
-          
