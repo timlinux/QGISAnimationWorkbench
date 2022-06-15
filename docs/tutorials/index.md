@@ -85,64 +85,64 @@ the tutorial to be on the Animation Workbench and not on QGIS as a whole.
     &nbsp;<!--Blank Space-->
 
 11. Repeat Steps 9\. and 10\. with the `bird` layer but instead choosing `bird`➔`bird_0000.png`
-    and setting the *Width* and *Height* to *3000*.
+and setting the *Width* and *Height* to *3000*.
 
-    &nbsp;<!--Blank Space-->
-    >Note: in `QGIS 3.26`, or later, the `Symbol layer type` can simply be selected as
-    `Animated Marker` and Step 12\. can be skipped.
+&nbsp;<!--Blank Space-->
+>Note: in `QGIS 3.26`, or later, the `Symbol layer type` can simply be selected as
+`Animated Marker` and Step 12\. can be skipped.
 
 12. To animate the `fish` and `bird` layers using the `QGIS Expressions` system click the
-    `Dropdown Menu`➔`Edit...` (**`M`**).
+`Dropdown Menu`➔`Edit...` (**`M`**).
 
-    ![Edit Expression](img/tut_1/012_EditExpression_1.png)
+![Edit Expression](img/tut_1/012_EditExpression_1.png)
 
-    For the `fish` layer use the following expression:
+For the `fish` layer use the following expression:
 
-    ![Fish Expression](img/tut_1/013_FishExpression_1.png)
+![Fish Expression](img/tut_1/013_FishExpression_1.png)
 
-    ```py
-    @project_home
-    || 
-    '/fish/fish_00'
-    ||
-    lpad(to_string( @frame_number % 32), 2, '0')
-    ||
-    '.png'
-    ```
+```
+@project_home
+|| 
+'/fish/fish_00'
+||
+lpad(to_string( @frame_number % 32), 2, '0')
+||
+'.png'
+```
 
-    And for the `bird` layer use:
+And for the `bird` layer use:
 
-    ![Bird Expression](img/tut_1/014_BirdExpression_1.png)
+![Bird Expression](img/tut_1/014_BirdExpression_1.png)
 
-    ```py
-    @project_home
-    ||
-    '/bird/bird_00'
-    || 
-    lpad(to_string(@frame_number % 9), 2, '0')
-    || 
-    '.png'
-    ```
+```sql
+@project_home
+||
+'/bird/bird_00'
+|| 
+lpad(to_string(@frame_number % 9), 2, '0')
+|| 
+'.png'
+```
 
-    > Note: Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for an explanation
-        about what the above code snippet is doing.
+> Note: Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for an explanation
+    about what the above code snippet is doing.
 
 13. Open the Animation Workbench (refer to the [Using the Animation Workbench](../start/using.md) section
     if you are unsure how to open the Workbench).
 
-    In the `Animation Plan` tab set:
-    - the `Render Mode` to `Planar` (**`N`**),
-    - the `Animation Layer` to `route` (**`O`**) using the dropdown menu,
-    - the `Zoom Range` (**`P`**) to *1:270000* for the *Minimum* and *1:135000* for the *Maximum*,
-    - the `Frame rate per second` to *9 fps* (**`Q`**),
-    - the `Travel duration` to *4,00 s* (**`R`**),
-    - and the `Feature hover duration` to *2,00 s* (**`S`**)
+In the `Animation Plan` tab set:
 
-    Enable both the `Pan` and `Zoom` easings and set them to linear.
+* the `Render Mode` to `Planar` (**`N`**),
+* the `Animation Layer` to `route` (**`O`**) using the dropdown menu,
+* the `Zoom Range` (**`P`**) to *1:270000* for the *Minimum* and *1:135000* for the *Maximum*,
+* the `Frame rate per second` to *9 fps* (**`Q`**),
+* the `Travel duration` to *4,00 s* (**`R`**),
+* and the `Feature hover duration` to *2,00 s* (**`S`**)
 
-    ![Animation Plan](img/tut_1/015_AnimationPlan_1.png)
-    &nbsp;<!--Blank Space-->
+Enable both the `Pan` and `Zoom` easings and set them to linear.
 
+![Animation Plan](img/tut_1/015_AnimationPlan_1.png)
+  
 14. Skip past the `Intro`, `Outro`, and `Soundtrack` tabs to the `Output` tab. Set the
     `Output Format` as `Animated Gif` (**`T`**) and the `Output Resolution` to
     `720p (1280x720)` (**`U`**). The `Output Resolution` can be set as any of the three
@@ -313,14 +313,14 @@ simply use the `Animated Marker` feature without editing an expression.
 
 10. Set up the `Animation Plan` with:
 
-    - the `Render Mode` to `Planar` (**`23`**),
-    - the `Animation Layer` to `flying_points` (**`24`**) using the dropdown menu,
-    - the `Zoom Range` (**`25`**) to *1:22000000* for the *Minimum* and *1:11000000* for the 
+    * the `Render Mode` to `Planar` (**`23`**),
+    * the `Animation Layer` to `flying_points` (**`24`**) using the dropdown menu,
+    * the `Zoom Range` (**`25`**) to *1:22000000* for the *Minimum* and *1:11000000* for the
         *Maximum*,
-    - the `Frame rate per second` to *9 fps* (**`26`**),
-    - the `Travel duration` to *2,00 s* (**`27`**),
-    - the `Feature hover duration` to *2,00 s* (**`28`**),
-    - and the `Zoom Easing` as *InCirc* (**`29`**)
+    * the `Frame rate per second` to *9 fps* (**`26`**),
+    * the `Travel duration` to *2,00 s* (**`27`**),
+    * the `Feature hover duration` to *2,00 s* (**`28`**),
+    * and the `Zoom Easing` as *InCirc* (**`29`**)
 
     ![Animation Plan](img/tut_2/016_AnimationPlan_1.png)
     &nbsp;<!--Blank Space-->

@@ -1,8 +1,21 @@
 # Installing the QGIS Animation Workbench plugin
 
-We have not yet published the plugin in the QGIS Plugin Repository, but when we
-do you will be able to access it simply by clicking on the "QGIS Animation Workbench"
-option in the QGIS Plugin Manager.
+⚠️ **Please take note**: We have not yet published the plugin in the QGIS Plugin Repository, but when we do you will be able to access it simply by clicking on the "QGIS Animation Workbench" option in the QGIS Plugin Manager.
+
+## Manual install from GitHub (tagged release)
+
+To install, visit the [releases page](https://github.com/timlinux/QGISAnimationWorkbench/releases) and select the latest release. Download the animation_workbench.zip file  and open it in QGIS using the plugin manager as described below.
+
+1. Open QGIS
+2. **Plugins ➡ Manage and install plugins ...**
+3. Choose the **Install from zip** tab
+![image](https://user-images.githubusercontent.com/178003/173777449-a1ddd01e-421a-4dcc-ab98-bb32144de618.png)
+4. Select the **animation_workbench.zip** download
+5. Click the Install **Plugin button**.
+
+## Install from plugin manager
+
+⚠️ **Please take note**: We have not yet published the plugin in the QGIS Plugin Repository, in the mean time please follow the steps above to do the installation.
 
 To access the QGIS Plugin Manager you simply need to select
 `Plugins` -> `Manage and Install Plugins...` (**`1`**) in the Menu Toolbar.
