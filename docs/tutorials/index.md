@@ -425,4 +425,4 @@ be found [here](https://www.youtube.com/watch?v=yrvHjdVgnSg)
 After this tutorial you should have a better idea of how you can use a mixture of built-in
 QGIS functionalites and the workbench's introduced variables to generate interesting outputs.
 
-## Tutorial 4: Flying Point Swarm
+<!--## Tutorial 4: Flying Point Swarm... Still need to finalize this tutorial-->
