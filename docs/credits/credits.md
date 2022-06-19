@@ -2,18 +2,17 @@
 
 This plugin was developed by:
 
-| Tim Sutton                                                             | Nyall Dawson                                                                 |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| ![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | ![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") |
-| Coder and Ideas Guy                                                    | Genius Guru of Awesomeness                                                   |
-| [timlinux @ github](https://github.com/timlinux/)                      | [nyalldawson @ github](https://github.com/nyalldawson/)                      |
+| Tim Sutton                                                             | Nyall Dawson                                                                 | Jeremy Prior                                                                 |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| ![Tim](https://avatars.githubusercontent.com/u/178003?v=4&s=174 "Tim") | ![Nyall Dawson](https://avatars.githubusercontent.com/u/1829991?v=4 "Nyall") | ![Jeremy](https://avatars.githubusercontent.com/u/100694811?v=4 "Jeremy")    |
+| Coder and Ideas Guy                                                    | Genius Guru of Awesomeness                                                   | Document and Logo Guy                                                        |
+| [timlinux @ github](https://github.com/timlinux/)                      | [nyalldawson @ github](https://github.com/nyalldawson/)                      | [Jeremy-Prior @ github](https://github.com/Jeremy-Prior)                     |
 
 ## Contributors
 
 Thanks to:
 
 * Mathieu Pellerin (@nirvn)
-* Jeremy Prior (@Jeremy-Prior)
 * Thiasha Vythilingam (@ThiashaV)
 
 We are looking for contributors, add yourself here!
