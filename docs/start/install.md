@@ -13,7 +13,7 @@ Click on the most recent workflow run (the top one).
 
 ![Install 0001](img/install_0001.png)
 
-Scroll down on the on the page
+Scroll down on the on the page.
 
 ![Install 0002](img/install_0002.png)
 
