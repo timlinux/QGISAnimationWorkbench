@@ -19,6 +19,7 @@ animation progresses? That is what the animation workbench tries to solve...
   - **Sphere**: Creates a spinning globe effect. Like Google Earth might do, but with your own data and cartography.
   - **Planar**: Lets you move from feature to feature on a flat map, pausing at each if you want to.
   - **Static**: The frame of reference stays the same and you can animate the symbology within that scene.
-- [Internationalization (i18n)](https://github.com/nhn/tui.editor/tree/master/docs/en/i18n.md) : Supports English currently - we may add other languages in the future if there is demand.
 - Add music to your exported videos - see the [Creative Commons](https://creativecommons.org/about/program-areas/arts-culture/arts-culture-resources/legalmusicforvideos/) website for a list of places where you can download free music (make sure it does not have a No Derivative Works license).
 - Multithreaded, efficient rendering workflow. The plugin is designed to work well even on very modest hardware. If you have a fast PC, you can crank up the size to the thread pool to process more jobs at the same time.
+
+> **Note:** - Supports only English currently - we may add other languages in the future if there is demand.
