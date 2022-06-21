@@ -9,7 +9,7 @@ Welcome to the QGIS Animation Workbench (QAW). QAW is a [QGIS Plugins](https://q
 ## 🤖 Why QGIS Animation Workbench?
 
 QGIS Animation Bench exists because we wanted to use all the awesome cartography features in [QGIS](https://qgis.org) and make cool, animated maps!
-QGIS already includes the Temporal manager which allows you to produce animations for time-based data. But what if you want to
+QGIS already includes the Temporal Manager which allows you to produce animations for time-based data. But what if you want to
 make animations where you travel around the map, zooming in and out, and perhaps making features on the map wiggle and jiggle as the
 animation progresses? That is what the animation workbench tries to solve.
 
