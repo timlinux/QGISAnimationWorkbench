@@ -1,4 +1,4 @@
-name: release
+name: 📦 Make QGIS Plugin Zip for Release
 
 on:
   push:
