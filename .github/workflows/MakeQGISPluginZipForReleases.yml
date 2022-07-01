@@ -1,0 +1,42 @@
+name: release
+
+on:
+  push:
+    tags:
+      - '*'
+  # Allow manually running in the actions tab
+  workflow_dispatch:
+
+jobs:
+  build_release:
+    name: Build Release 🚀
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛒
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Version 🔢
+        run: echo "::set-output name=version::$(cat animation_workbench/metadata.txt | grep version | sed 's/version=//g')"
+        id: version
+      - name: Release 🔖
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Build Package 🚀
+        runs-on: ubuntu-latest
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: animation_workbench.zip
+          asset_name: animation_workbench
+          asset_content_type: application/gzip
