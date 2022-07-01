@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  buildpackage:
+  build_package:
     name: Build Package 🚀
     runs-on: ubuntu-latest
     steps:
