@@ -34,6 +34,8 @@ jobs:
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip /github/workspace/animation_workbench
+      - name: List Files 📁
+        run: ls -lah    
       - name: Upload Package ⚡
         # runs-on: ubuntu-latest
         uses: actions/upload-release-asset@v1
