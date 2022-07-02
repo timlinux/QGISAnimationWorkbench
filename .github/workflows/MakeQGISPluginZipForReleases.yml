@@ -35,8 +35,8 @@ jobs:
       - name: PWD 📁
         run: pwd
       - name: Build Package 🚀
-        run: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip /github/workspace/animation_workbench
-        working-directory: /github/workspace
+        run: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip animation_workbench
+        working-directory: /home/runner/work/QGISAnimationWorkbench/QGISAnimationWorkbench
       - name: List Files 📁
         run: ls -lah    
       - name: Upload Package ⚡
