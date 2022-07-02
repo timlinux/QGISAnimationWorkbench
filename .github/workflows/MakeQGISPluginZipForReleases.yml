@@ -33,8 +33,7 @@ jobs:
       - name: Build Package 🚀
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip animation_workbench
-          working-directory: QGISAnimationWorkbench
+          args: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip /github/workspace/animation_workbench
       - name: Upload Package ⚡
         # runs-on: ubuntu-latest
         uses: actions/upload-release-asset@v1
