@@ -30,10 +30,11 @@ jobs:
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - name: Build Package 🚀
+      - name: Install Zip 🔧
         uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip /github/workspace/animation_workbench
+      - name: Build Package 🚀
+        run: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip /github/workspace/animation_workbench
+        working-directory: /github/workspace
       - name: List Files 📁
         run: ls -lah    
       - name: Upload Package ⚡
