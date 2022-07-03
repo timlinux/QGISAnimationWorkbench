@@ -11,4 +11,4 @@
 # .github/workflows/CompileMKDocsToPDF.yml
 
 cat mkdocs-base.yml > mkdocs.yml
-cat mkdocs-pdf-yml >> mkdocs.yml
+cat mkdocs-pdf.yml >> mkdocs.yml
