@@ -1,7 +1,48 @@
+/* CSS Reset Rules from https://perishablepress.com/a-killer-collection-of-global-css-reset-styles/ */
+
 * {
-    margin: 0;
+    vertical-align: baseline;
+    font-family: inherit;
+    font-style: inherit;
+    font-size: 100%;
+    border: none;
     padding: 0;
+    margin: 0;
 }
+
+body {
+    padding: 5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre,
+blockquote,
+form,
+ul,
+ol,
+dl {
+    margin: 20px 0;
+}
+
+li,
+dd,
+blockquote {
+    margin-left: 40px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
+/* End of reset */
 
 @font-face {
     src: url(../assets/AvenirLTStd-Book.otf);
@@ -18,26 +59,23 @@
     white-space: normal;
     color: grey;
     @bottom-right {
-        content: 'Copyright © Kartoza';
-        margin-top: -25mm;
+        content: '© 2022';
+        margin-top: -5mm;
         margin-right: 10mm;
     }
     @bottom-center {
         content: "Page " counter(page);
-        margin-top: -25mm;
+        margin-top: -5mm;
     }
-}
-
-@media print {
-    .two {
-        column-count: 2;
-        -webkit-column-count: 2;
-        -moz-column-count: 2;
-    }
-    .one {
-        column-count: 1;
-        -webkit-column-count: 1;
-        -moz-column-count: 1;
+    @bottom-left {
+        background-color: rgb(210, 224, 210);
+        width: 190mm;
+        height: 20mm;
+        left: 0mm;
+        background-repeat: no-repeat;
+        background: url('file:///[TEMPLATE_FOLDER]/animation-workbench-footer.png');
+        /* hack to make it appear as box */
+        content: " ";
     }
 }
 
@@ -46,7 +84,6 @@ body {
     background-size: cover;
     font-family: avenir;
     height: 100vh;
-    counter-reset: h1counter;
 }
 
 
@@ -85,39 +122,48 @@ h6 {
     width: 100%;
     padding-right: 20pt;
     text-align: right;
-    background: gray;
-    color: white;
+    background: white;
+    color: black;
     page-break-after: avoid;
     page-break-inside: avoid;
 }
 
 h1 {
-    background: #e6c180;
-    counter-reset: h2counter;
+    counter-increment: c1;
+    counter-reset: c3;
+    counter-reset: c2;
 }
 
 h2 {
-    background: #92b4c6;
-    counter-reset: h3counter;
+    counter-increment: c2;
+    counter-reset: c3;
 }
 
 h3 {
-    background: #d3d3d3;
+    counter-increment: c3;
+}
+
+h1:before,
+h2:before,
+h3:before {
+    /* Styling of section numbers */
+    color: gray;
+    width: 2cm;
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.25cm;
 }
 
 h1:before {
-    content: counter(h1counter) ".  ";
-    counter-increment: h1counter;
+    content: counter(c1);
 }
 
 h2:before {
-    content: counter(h1counter) "." counter(h2counter) ".  ";
-    counter-increment: h2counter;
+    content: counter(c1) "." counter(c2);
 }
 
 h3:before {
-    content: counter(h2counter) "." counter(h3counter) ".  ";
-    counter-increment: h3counter;
+    content: counter(c1) "." counter(c2) "." counter(c3);
 }
 
 img {
