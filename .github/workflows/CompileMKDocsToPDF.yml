@@ -9,7 +9,9 @@ on:
       - '.github/workflows/mkdocs-pdf.yml'
       - 'docs/**.md'
       - 'docs/assets/**'
-
+  # Allow manually running in the actions tab
+  workflow_dispatch:
+  
 jobs:
   generatepdf:
     name: Build PDF

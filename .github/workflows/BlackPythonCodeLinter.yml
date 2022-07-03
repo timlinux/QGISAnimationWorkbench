@@ -1,7 +1,9 @@
 name: 🐍 Black python code lint
 
 on: [push, pull_request]
-
+  # Allow manually running in the actions tab
+  workflow_dispatch:
+  
 jobs:
   lint:
     runs-on: ubuntu-latest

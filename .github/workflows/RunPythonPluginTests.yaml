@@ -9,6 +9,8 @@ on:
     paths:
     - "animation_workbench/**"
     - ".github/workflows/test_plugin.yaml"
+  # Allow manually running in the actions tab
+  workflow_dispatch:    
 
 env:
   # plugin name/directory where the code for the plugin is stored
