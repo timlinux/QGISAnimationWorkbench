@@ -6,7 +6,7 @@ on:
       - main
     # Paths can be used to only trigger actions when you have edited certain files, such as a file within the /docs directory
     paths:
-      - '.github/workflows/mkdocs-pdf.yml'
+      - '.github/workflows/CompileMKDocsToPDF.yml'
       - 'docs/**.md'
       - 'docs/assets/**'
   # Allow manually running in the actions tab
@@ -26,7 +26,7 @@ jobs:
         # Uses orzih's mkdocs PDF builder
         # https://github.com/orzih/mkdocs-with-pdf
         env:
-          CONFIG_FILE: mkdocs-pdf.yml
+          CONFIG_FILE: mkdocs.yml
           EXTRA_PACKAGES: build-base
           #REQUIREMENTS: folder/requirements.txt
       - name: Upload PDF Artifact ⚡
