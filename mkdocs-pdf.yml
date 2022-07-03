@@ -19,10 +19,12 @@ plugins:
       # Print css is defined in templates/styles.scss
       #custom_template_path: TEMPLATES PATH
       #
-      #toc_title: TOC TITLE TEXT
+      toc_title: Contents
       #heading_shift: false
-      #toc_level: 3
-      #ordered_chapter_level: 2
+      # Set to 0 so that it does not generate chapter numbering
+      # we do the numbering in styles.css rather
+      toc_level: 0
+      ordered_chapter_level: 0
       #excludes_children:
       #    - 'release-notes/:upgrading'
       #    - 'release-notes/:changelog'
@@ -43,5 +45,5 @@ plugins:
       
       #enabled_if_env: ENABLE_PDF_EXPORT
       #
-      #debug_html: true
+      debug_html: true
       #show_anchors: true
