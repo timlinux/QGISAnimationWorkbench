@@ -141,3 +141,6 @@ docs/build-notes.txt
 resources/diagrams/.$QAW-VideoScript.bkp
 resources/qprompt/intro-script
 resources/diagrams/QAW-VideoScript.drawio
+
+# we generate this on the fly so no version control
+mkdocs.yml
