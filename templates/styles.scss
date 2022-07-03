@@ -1,0 +1,137 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+@font-face {
+    src: url(../assets/AvenirLTStd-Book.otf);
+    font-family: avenir;
+}
+
+@page {
+    size: a4 portrait;
+    margin: 0mm;
+    padding: 25mm 10mm 25mm 10mm;
+    counter-increment: page;
+    font-family: avenir;
+    font-size: 8pt;
+    white-space: normal;
+    color: grey;
+    @bottom-right {
+        content: 'Copyright © Kartoza';
+        margin-top: -25mm;
+        margin-right: 10mm;
+    }
+    @bottom-center {
+        content: "Page " counter(page);
+        margin-top: -25mm;
+    }
+}
+
+@media print {
+    .two {
+        column-count: 2;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+    }
+    .one {
+        column-count: 1;
+        -webkit-column-count: 1;
+        -moz-column-count: 1;
+    }
+}
+
+body {
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: avenir;
+    height: 100vh;
+    counter-reset: h1counter;
+}
+
+
+/** Setting margins */
+
+@page {
+    margin: 2cm;
+}
+
+
+/* Or: */
+
+@page :left {
+    margin: 2cm;
+}
+
+@page :right {
+    margin: 2cm;
+}
+
+
+/* The first page of a print can be manipulated as well */
+
+@page :first {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    width: 100%;
+    padding-right: 20pt;
+    text-align: right;
+    background: gray;
+    color: white;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+}
+
+h1 {
+    background: #e6c180;
+    counter-reset: h2counter;
+}
+
+h2 {
+    background: #92b4c6;
+    counter-reset: h3counter;
+}
+
+h3 {
+    background: #d3d3d3;
+}
+
+h1:before {
+    content: counter(h1counter) ".  ";
+    counter-increment: h1counter;
+}
+
+h2:before {
+    content: counter(h1counter) "." counter(h2counter) ".  ";
+    counter-increment: h2counter;
+}
+
+h3:before {
+    content: counter(h2counter) "." counter(h3counter) ".  ";
+    counter-increment: h3counter;
+}
+
+img {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+}
+
+table,
+pre {
+    page-break-inside: avoid;
+}
+
+ul,
+ol,
+dl {
+    page-break-before: avoid;
+}
