@@ -17,6 +17,8 @@ jobs:
                 qrcode
       - name: Checkout main from github
         uses: actions/checkout@v1
+      - name: Create Mkdocs Config 🚀
+        run: ./create-mkdocs-html-config.sh           
       - name: Deploy docs to github pages
         # This is where we get the material theme from
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
