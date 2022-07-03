@@ -11,4 +11,4 @@
 # .github/workflows/BuildMKDocsAndPublishToGithubPages.yml
 
 cat mkdocs-base.yml > mkdocs.yml
-cat mkdocs-html-yml >> mkdocs.yml
+cat mkdocs-html.yml >> mkdocs.yml
