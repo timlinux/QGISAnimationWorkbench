@@ -36,7 +36,7 @@ jobs:
         run: pwd
       - name: Build Package 🚀
         run: zip -qq -r animation_workbench_${{ steps.version.outputs.version }}.zip animation_workbench
-        working-directory: /home/runner/work/QGISAnimationWorkbench/QGISAnimationWorkbench
+        working-directory: /home/runner/work/QGISAnimationWorkbench/QGISAnimationWorkbench/animation_workbench
       - name: List Files 📁
         run: ls -lah    
       - name: Upload Package ⚡
