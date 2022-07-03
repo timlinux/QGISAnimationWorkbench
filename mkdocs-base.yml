@@ -1,0 +1,95 @@
+# See mkdocs base and the create-mkdocs* 
+# scripts for how this is used
+site_name: QGIS Animation Workbench
+site_description: 'A QGIS Plugin to create animated movies using QGIS.'
+site_author: 'Tim Sutton, Nyall Dawson'
+docs_dir: docs/
+repo_name: 'timlinux/QGISAnimationWorkbench'
+repo_url: 'https://github.com/timlinux/QGISAnimationWorkbench'
+edit_uri: "https://github.com/timlinux/QGISAnimationWorkbench/blob/main/mkdocs/src/"
+#site_dir: docs
+copyright: Copyright Tim Sutton and Contributors, 2022
+
+nav:
+  - Home: index.md
+  - Quickstart:
+      - Installation: start/install.md
+      - Initial Configuration: start/configure.md
+      - Using the Workbench: start/using.md
+  - Manual:
+      - Preparing your project: manual/project_preparation.md
+      - The workbench user interface: manual/workbench_ui.md
+      - Under the hood: manual/under_the_hood.md
+  - Tutorials:
+      - QGIS: tutorials/index.md
+  - Library:
+      - Expression Variables: library/variables.md
+      - Expression Examples: library/snippets.md
+  - FAQ: faq/faq.md
+  - Develop:
+      - Setup: develop/setup.md
+      - Design: develop/design.md
+      - Documentation: develop/docs.md
+  - Contribute:
+      - Contribute: contribute/contribute.md
+  - Credits:
+      - Credits: credits/credits.md
+
+# Configuration
+theme:
+  name: material
+  #custom_dir: mkdocs/
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+  language: en
+  features:
+    - content.code.annotate
+    # - content.tabs.link
+    # - header.autohide
+    # - navigation.expand
+    - navigation.indexes
+    # - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    # - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: blue
+      accent: gray
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: gray
+      toggle:
+        icon: material/brightness-6
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/logo.png
+  icon:
+    logo: material/database
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/timlinux/QGISAnimationWorkbench
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.snippets:
+      base_path: .
+  - pymdownx.details
+  - admonition

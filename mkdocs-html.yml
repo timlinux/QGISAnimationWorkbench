@@ -1,0 +1,4 @@
+# See mkdocs base and the create-mkdocs* 
+# scripts for how this is used
+plugins:
+  - search

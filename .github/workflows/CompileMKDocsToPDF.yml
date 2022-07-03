@@ -15,15 +15,20 @@ jobs:
     name: Build PDF
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: kartoza/mkdocs-deploy-build-pdf@master
+      - name: Checkout 🛒
+        uses: actions/checkout@v2
+      - name: Create Mkdocs Config 🚀
+        run: ./create-mkdocs-pdf-config.sh        
+      - name: Build PDF 📃
+        uses: kartoza/mkdocs-deploy-build-pdf@master
         # Uses orzih's mkdocs PDF builder
         # https://github.com/orzih/mkdocs-with-pdf
         env:
           CONFIG_FILE: mkdocs-pdf.yml
           EXTRA_PACKAGES: build-base
           #REQUIREMENTS: folder/requirements.txt
-      - uses: actions/upload-artifact@v3
+      - name: Upload PDF Artifact ⚡
+        uses: actions/upload-artifact@v3
         with:
           name: docs
           path: pdfs
