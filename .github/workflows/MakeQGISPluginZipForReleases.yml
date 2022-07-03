@@ -35,7 +35,7 @@ jobs:
       - name: PWD 📁
         run: pwd
       - name: Build Package 🚀
-        run: zip -qq -r ../animation_workbench_${{ steps.version.outputs.version }}.zip *
+        run: zip -qq -r ../animation_workbench.zip *
         working-directory: /home/runner/work/QGISAnimationWorkbench/QGISAnimationWorkbench/animation_workbench
       - name: List Files 📁
         run: ls -lah    
@@ -46,6 +46,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: animation_workbench_${{ steps.version.outputs.version }}.zip
-          asset_name: animation_workbench_${{ steps.version.outputs.version }}
+          asset_path: animation_workbench.zip
+          asset_name: animation_workbench_${{ steps.version.outputs.version }}.zip
           asset_content_type: application/gzip
