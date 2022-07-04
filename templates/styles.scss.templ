@@ -58,24 +58,32 @@ table {
     font-size: 8pt;
     white-space: normal;
     color: grey;
-    @bottom-right {
-        content: '© 2022';
-        margin-top: -5mm;
-        margin-right: 10mm;
+    /* See https://www.quackit.com/css/at-rules/css_bottom-left-corner_at-rule.cfm
+      for a nice explanation of the margin properties for css print layouts */
+    @top-left {
+        content: 'QGIS Animation Workbench';
     }
     @bottom-center {
-        content: "Page " counter(page);
+        background-color: rgb(211, 211, 211);
+        ;
+        content: "(" counter(page) ")";
         margin-top: -5mm;
     }
     @bottom-left {
-        background-color: rgb(210, 224, 210);
-        width: 190mm;
-        height: 20mm;
-        left: 0mm;
+        background-color: rgb(211, 211, 211);
+        ;
         background-repeat: no-repeat;
+        background-position: 0% 0%;
         background: url('file://[BASE_FOLDER]/templates/animation-workbench-footer.png');
         /* hack to make it appear as box */
         content: " ";
+    }
+    @bottom-right-corner {
+        background-color: rgb(211, 211, 211);
+        ;
+    }
+    @bottom-left-corner {
+        background-color: rgb(211, 211, 211);
     }
 }
 
