@@ -63,30 +63,47 @@ table {
     @top-left {
         content: 'QGIS Animation Workbench';
     }
-    @bottom-center {
-        background-color: rgb(211, 211, 211);
-        ;
-        content: "(" counter(page) ")";
-        margin-top: -5mm;
+    @bottom-left-corner {
+        /* has no effect */
+        max-width: 0mm;
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
     }
     @bottom-left {
-        background-color: rgb(211, 211, 211);
-        min-width: 210mm;
-        min-height: 20mm;
+        background-color: purple;
+        min-width: 200mm;
+        min-height: 22mm;
+        padding-left: -15mm;
         background-repeat: no-repeat;
         background-position: 0% 0%;
         background: url('file://[BASE_FOLDER]/templates/animation-workbench-footer.png');
         /* hack to make it appear as box */
         content: " ";
     }
-    @bottom-right-corner {
-        background-color: rgb(211, 211, 211);
-        ;
-    }
-    @bottom-left-corner {
+    @bottom-center {
+        background-color: orange;
         min-width: 210mm;
-        min-height: 20mm;
-        background-color: rgb(211, 211, 211);
+        min-height: 22mm;
+        background-repeat: no-repeat;
+        background-position: 0% 0%;
+        background: url('file://[BASE_FOLDER]/templates/animation-workbench-footer.png');
+        /* Note you cannot do concatenation in CSS content 
+          except I figured out this little trick below TS */
+        content: "(" counter(page) ")";
+    }
+    @bottom-right {
+        max-width: 0mm;
+        background-color: yellow;
+        /* hack to make it appear as box */
+        content: " ";
+    }
+    @bottom-right-corner {
+        /* has no effect */
+        max-width: 0mm;
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
     }
 }
 
@@ -137,6 +154,8 @@ h6 {
     color: black;
     page-break-after: avoid;
     page-break-inside: avoid;
+    border-bottom: 5px solid black;
+    display: inline-block;
 }
 
 h1 {

@@ -10,7 +10,13 @@ plugins:
       # which is intended to export a single page at a time
       output_path: ../pdfs/QGISAnimationWorkbench.pdf
       author: Tim Sutton, Nyall Dawson
-      copyright: '© 2022'
+      # copyright will draw in page.bottom-right 
+      # do it manually in templates/styles.scss 
+      # for more control
+      # if you comment out here or use an empty string,
+      # the copyright text from mkdocs-base.yml will be
+      # used instead
+      copyright: ' '
       cover: true # see templates/cover.html
       back_cover: true
       cover_title: The QGIS Animation Workbench
