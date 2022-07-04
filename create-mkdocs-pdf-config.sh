@@ -12,3 +12,6 @@
 
 cat mkdocs-base.yml > mkdocs.yml
 cat mkdocs-pdf.yml >> mkdocs.yml
+# This is a kludge: I could not figure out 
+# how to reference image resources using a relative path in the scss...
+cat templates/styles.scss.templ | sed 's/[BASE_FOLDER]/$PWD/g'>> templates/styles.scss
