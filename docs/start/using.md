@@ -68,7 +68,7 @@ In this section, we describe the general workflow for using the Animation Workbe
 
    ![Expression Snippet](img/009_Expression_1.png)
 
-   ```py
+   ```sql
       @project_home
       ||
       '/bird/bird_00'
