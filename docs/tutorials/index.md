@@ -152,7 +152,7 @@ and set the *Width* and *Height* to *1000*.
 and setting the *Width* and *Height* to *3000*.
 
 &nbsp;<!--Blank Space-->
->Note: in `QGIS 3.26`, or later, the `Symbol layer type` can simply be selected as
+>In `QGIS 3.26`, or later, the `Symbol layer type` can simply be selected as
 `Animated Marker` and Step 12\. can be skipped.
 
 12\. To animate the `fish` and `bird` layers using the `QGIS Expressions` system click the
@@ -188,7 +188,7 @@ And for the `bird` layer use:
     '.png'
 ```
 
-> Note: Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for an explanation
+> Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for an explanation
     about what the above code snippet is doing.
 
 13\. Open the Animation Workbench (refer to the [Using the Animation Workbench](../start/using.md) section
