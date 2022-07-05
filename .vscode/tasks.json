@@ -1,0 +1,12 @@
+{
+    "tasks": [
+        {
+            "label": "Compile PDF",
+            "command": "./build-docs-pdf.sh", // Could be any other shell command
+            "args": [
+                ""
+            ],
+            "type": "shell"
+        }
+    ]
+}

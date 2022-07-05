@@ -47,36 +47,36 @@ In this section, we describe the general workflow for using the Animation Workbe
 
    ![Animation Frames](img/007_AnimatedLayer_1.png)
 
-3. Use the QGIS Expressions system with the variables introduced by the Animation
-   Workbench to define behaviours of your symbols during flight and hover modes of your
-   animation.
-   &nbsp;<!--Adds blank space for formatting-->
+3\. Use the QGIS Expressions system with the variables introduced by the Animation
+Workbench to define behaviours of your symbols during flight and hover modes of your
+animation.
+&nbsp;<!--Adds blank space for formatting-->
 
-   Select the layer you want to animate and open the Layer Styling toolbar.
+Select the layer you want to animate and open the Layer Styling toolbar.
 
-   > Note: If you are using `QGIS 3.26` you can simply use the new animated point symbol,
-   or if you're using an older version of `QGIS 3.x` follow the instructions below.
+> Note: If you are using `QGIS 3.26` you can simply use the new animated point symbol,
+or if you're using an older version of `QGIS 3.x` follow the instructions below.
 
-   The layer should be a `Raster Image Marker`. Once you have selected the image you
-   want to use click on the QGIS Expressions dropdown menu (**`4`**) and click on `Edit` (**`5`**).
+The layer should be a `Raster Image Marker`. Once you have selected the image you
+want to use click on the QGIS Expressions dropdown menu (**`4`**) and click on `Edit` (**`5`**).
 
-   ![Edit Expression](img/008_EditExpression_1.png)
+![Edit Expression](img/008_EditExpression_1.png)
 
-   &nbsp;<!--Adds blank space for formatting-->
-   Use the [Code Snippets Section](../library/snippets.md) for more in depth help. The
-   example below works with the bird animation from earlier
+&nbsp;<!--Adds blank space for formatting-->
+Use the [Code Snippets Section](../library/snippets.md) for more in depth help. The
+example below works with the bird animation from earlier
 
-   ![Expression Snippet](img/009_Expression_1.png)
+![Expression Snippet](img/009_Expression_1.png)
 
-   ```sql
-      @project_home
-      ||
-      '/bird/bird_00'
-      || 
-      lpad(to_string(@frame_number % 9), 2, '0')
-      || 
-      '.png'
-   ```
+```sql
+   @project_home
+   ||
+   '/bird/bird_00'
+   || 
+   lpad(to_string(@frame_number % 9), 2, '0')
+   || 
+   '.png'
+```
 
 4. Open the Animation Workbench and configure your animation, choosing between the
    different modes and options.

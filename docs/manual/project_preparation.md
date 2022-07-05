@@ -78,15 +78,15 @@
 
     ![Expression Snippet](img/015_FishExpression_1.png)
 
-    ```sql
-        @project_home
-        || 
-        '/fish/fish_00'
-        ||
-        lpad(to_string( @frame_number % 32), 2, '0')
-        ||
-        '.png'
-    ```
+```sql
+    @project_home
+    || 
+    '/fish/fish_00'
+    ||
+    lpad(to_string( @frame_number % 32), 2, '0')
+    ||
+    '.png'
+```
 
 - After animating your markers it's time to configure your animation. Open the Animated
     Workbench and begin choosing between the different modes and options.

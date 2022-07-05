@@ -213,6 +213,14 @@ table {
 
       See https://www.quackit.com/css/at-rules/css_bottom-left-corner_at-rule.cfm
       for a nice explanation of the margin properties for css print layouts */
+    @top-left-corner {
+        background: url('file://[BASE_FOLDER]/templates/qgis-logo.png');
+        background-repeat: no-repeat;
+        background-position: 0% 0%;
+        background-size: contain;
+        /* Hack needed or image will not show */
+        content: " ";
+    }
     @top-left {
         content: 'QGIS Animation Workbench';
     }
@@ -242,8 +250,7 @@ table {
         size: 210mm 22mm;
         /* BASE FOLDER token will be replaced at compile time by our bash script. */
         background: url('file://[BASE_FOLDER]/templates/animation-workbench-header.svg');
-        /* Note you cannot do concatenation in CSS content 
-          except I figured out this little trick below TS */
+        /* Hack needed or image will not show */
         content: " ";
     }
     @top-right {

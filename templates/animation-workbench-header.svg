@@ -31,8 +31,8 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="0.69575618"
-     inkscape:cx="463.52445"
-     inkscape:cy="-5.7491405"
+     inkscape:cx="427.59232"
+     inkscape:cy="37.369413"
      inkscape:window-width="1920"
      inkscape:window-height="995"
      inkscape:window-x="0"
@@ -159,15 +159,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <rect
-       style="fill:#95bbdd;fill-opacity:0.550223;stroke:#f4972d;stroke-width:0;stroke-linecap:round;stroke-opacity:1"
+    <path
        id="rect885"
-       width="209.98666"
-       height="21.916821"
-       x="0.0805718"
-       y="-0.036724526"
-       inkscape:export-filename="/home/timlinux/dev/python/QGISAnimationWorkbench/templates/animation-workbench-footer.png"
-       inkscape:export-xdpi="79.375"
-       inkscape:export-ydpi="79.375" />
+       style="fill:#95bbdd;fill-opacity:0.550223;stroke:#f4972d;stroke-width:0;stroke-linecap:round"
+       d="M 0.0805718,-0.03672453 H 210.06724 L 209.23925,10.976173 c 0,0 -12.77903,8.10227 -30.67266,3.823045 C 167.00308,9.9372574 138.01874,9.4872476 122.57686,14.348152 114.44153,18.194482 90.503821,5.9898271 69.485848,14.078977 53.374533,22.312857 0.0805718,21.880096 0.0805718,21.880096 Z"
+       sodipodi:nodetypes="cccccccc" />
   </g>
 </svg>

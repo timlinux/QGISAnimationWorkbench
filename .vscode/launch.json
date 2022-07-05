@@ -18,6 +18,13 @@
                     "remoteRoot": "${workspaceFolder}"
                 }
             ]
+        },
+        {
+            "name": "Compile PDF",
+            "type": "shell",
+            // see tasks.json for definition
+            "preLaunchTask": "Compile PDF", // The name of the task defined above
+            "request": "attach"
         }
     ]
 }
