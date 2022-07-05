@@ -78,7 +78,7 @@
 
     ![Expression Snippet](img/015_FishExpression_1.png)
 
-    ```py
+    ```sql
         @project_home
         || 
         '/fish/fish_00'

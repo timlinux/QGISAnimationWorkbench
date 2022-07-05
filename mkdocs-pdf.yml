@@ -50,6 +50,7 @@ plugins:
       #
       
       #enabled_if_env: ENABLE_PDF_EXPORT
-      #
-      debug_html: false
+      # See notes at the top of templates/styles.scss
+      # for debugging workflow details.
+      debug_html: true
       #show_anchors: true
