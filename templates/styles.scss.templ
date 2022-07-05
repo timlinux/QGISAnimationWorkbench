@@ -15,7 +15,8 @@ xdg-open /tmp/output.html
 
 /* Sass property declarations */
 
-$font-size: 14pt;
+$font-size: 10pt;
+$font-color: #000;
 
 /* CSS Reset Rules from https://perishablepress.com/a-killer-collection-of-global-css-reset-styles/ */
 
@@ -24,6 +25,7 @@ $font-size: 14pt;
     font-family: inherit;
     font-style: inherit;
     font-size: 100%;
+    color: $font-color;
     border: none;
     padding: 0;
     margin: 0;
@@ -43,6 +45,7 @@ ul,
 ol,
 dl {
     margin: 0px 0;
+    color: $font-color;
 }
 
 li,
@@ -66,6 +69,7 @@ html {
     padding: 5px;
     font-family: 'Roboto Slab', serif;
     font-size: $font-size;
+    color: $font-color;
 }
 
 
@@ -78,8 +82,9 @@ html {
   */
 
 code {
-    font-family: 'Source Code Pro', monospace;
+    font-family: monospace;
     font-size: inherit;
+    color: $font-color;
 }
 
 
@@ -89,12 +94,19 @@ p>code,
 li>code,
 dd>code,
 td>code {
+    background: black;
+    display: inline;
     background: #fcf1d5;
+    white-space: pre;
+    //max-width: 100%;
+    //min-width: 100px;
+    padding: 0;
     word-wrap: break-word;
     box-decoration-break: clone;
     padding: .1rem .3rem .2rem;
     border-radius: .2rem;
     font-size: $font-size;
+    color: #000 !important;
 }
 
 
@@ -102,10 +114,8 @@ td>code {
 
 pre code {
     display: block;
-    background: none;
+    background: #fcf1d5;
     white-space: pre;
-    -webkit-overflow-scrolling: touch;
-    overflow-x: scroll;
     max-width: 100%;
     min-width: 100px;
     padding: 0;
@@ -123,9 +133,9 @@ blockquote {
     margin-bottom: 1em;
     width: 100%;
     border-left: 5px solid #fce27c;
-    background-color: #f6ebc1;
+    background: #fcf1d5;
     font-size: $font-size;
-    color: #000;
+    color: $font-color;
 }
 
 blockquote p {
@@ -149,9 +159,9 @@ table {
     padding: 25mm 10mm 25mm 10mm;
     counter-increment: page;
     font-family: avenir;
-    font-size: 10pt;
+    font-size: $font-size;
     white-space: normal;
-    color: grey;
+    color: $font-color;
     /* 
       Margin properties next: 
 
