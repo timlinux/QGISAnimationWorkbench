@@ -1,0 +1,23 @@
+ 1249  [2022-04-30 00:45:53] sudo dnf install weasyprint
+ 1250  [2022-04-30 00:47:05] pip install mkdocs-with-pdf
+ 1251  [2022-04-30 00:47:20] cd 
+ 1252  [2022-04-30 00:47:28] cd dev/python/QGISAnimationWorkbench/
+ 1253  [2022-04-30 00:47:31] ls
+ 1254  [2022-04-30 00:48:11] cd docs/
+ 1255  [2022-04-30 00:48:12] ls
+ 1256  [2022-04-30 00:48:16] cd ..
+ 1257  [2022-04-30 00:48:22] vim mkdocs.yml 
+ 1258  [2022-04-30 00:49:18] mkdocs build
+ 1259  [2022-04-30 00:51:04] pip install mkdocs-material
+ 1260  [2022-04-30 00:51:11] mkdocs build
+ 1261  [2022-04-30 00:51:35] xdg-open /home/timlinux/dev/python/QGISAnimationWorkbench/site/pdf/document.pdf
+ 1262  [2022-04-30 00:52:41] vim mkdocs.yml 
+ 1263  [2022-04-30 00:56:48] mkdocs build
+ 1264  [2022-04-30 00:56:53] vim mkdocs.yml 
+ 1265  [2022-04-30 00:57:27] mkdocs build
+ 1266  [2022-04-30 00:57:31] vim mkdocs.yml 
+ 1267  [2022-04-30 00:58:26] mkdocs build
+ 1268  [2022-04-30 00:58:28] vim mkdocs.yml 
+ 1269  [2022-04-30 00:59:09] mkdocs build
+ 1270  [2022-04-30 01:00:41] history
+
