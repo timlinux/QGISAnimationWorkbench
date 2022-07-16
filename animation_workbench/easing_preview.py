@@ -13,6 +13,8 @@ from qgis.PyQt.QtCore import (
     QPoint,
     pyqtSignal,
 )
+from pyqtgraph import PlotWidget
+import pyqtgraph as pg
 from .utilities import get_ui_class
 
 FORM_CLASS = get_ui_class("easing_preview_base.ui")
@@ -201,3 +203,14 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.easing_preview_animation.setEasingCurve(easing_type)
         self.easing = QEasingCurve(easing_type)
         self.easing_changed_signal.emit(self.easing)
+        ## Switch to using white background and black foreground
+        pg.setConfigOption("background", "w")
+        pg.setConfigOption("foreground", "k")
+        self.chart.clear()
+        chart = []
+        for i in range(
+            0,
+            1000,
+        ):
+            chart.append(self.easing.valueForProgress(i / 1000))
+        self.chart.plot(chart)
