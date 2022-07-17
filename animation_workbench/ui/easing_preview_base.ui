@@ -24,7 +24,7 @@
    <item row="2" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="preview_tab">
       <attribute name="title">
@@ -64,7 +64,7 @@
           <bool>false</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true"/>
+          <string notr="true">background: lightgrey;</string>
          </property>
         </widget>
        </item>
