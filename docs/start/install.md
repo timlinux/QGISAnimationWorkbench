@@ -57,3 +57,9 @@ sudo apt install ubuntu-restricted-extras
 sudo apt install PyQt5.QtMultimedia
 sudo apt install libqt5multimedia5-plugins
 ```
+
+You also need the pyqtgraph python packge (which comes bundled by default with the QGIS Windows installer).
+
+```bash
+pip install pyqtgraph
+```
