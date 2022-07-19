@@ -7,7 +7,7 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 from qgis.PyQt.QtWidgets import QWidget
-from qgis.PyQt.QtCore import QVariantAnimation
+from qgis.PyQt.QtGui import QPainter, QPen, QColor
 from qgis.PyQt.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
@@ -16,6 +16,7 @@ from qgis.PyQt.QtCore import (
 )
 from pyqtgraph import PlotWidget
 import pyqtgraph as pg
+from sqlalchemy import true
 from .utilities import get_ui_class
 
 FORM_CLASS = get_ui_class("easing_preview_base.ui")
@@ -45,7 +46,7 @@ class EasingAnimation(QPropertyAnimation):
         x_range = to_point.x() - from_point.x()
         x = (progress * x_range) + from_point.x()
         y_range = to_point.y() - from_point.y()
-        y = y_range * self.easingCurve().valueForProgress(progress) + from_point.y()
+        y = to_point.y() - (y_range * self.easingCurve().valueForProgress(progress))
         return QPoint(int(x), int(y))
 
 
@@ -81,9 +82,11 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.chart.hideAxis("bottom")
         self.chart.hideAxis("left")
 
-    def resizeEvent(self, size):
-        super(EasingPreview, self).resizeEvent(size)
-        self.setup_easing_previews()
+    def resizeEvent(self, new_size):
+        super(EasingPreview, self).resizeEvent(new_size)
+        width = self.easing_preview.width()
+        height = self.easing_preview.height()
+        self.easing_preview_animation.setEndValue(QPoint(width, height))
 
     def checkbox_changed(self, new_state):
         """
@@ -207,9 +210,8 @@ class EasingPreview(QWidget, FORM_CLASS):
         """
         Set up easing previews
         """
+        # Icon is the little dot that animates across the widget
         self.easing_preview_icon = QWidget(self.easing_preview)
-        height = self.easing_preview.height()
-        width = self.easing_preview.width()
         self.easing_preview_icon.setStyleSheet(
             "background-color:%s;border-radius:5px;" % self.preview_color
         )
@@ -220,8 +222,13 @@ class EasingPreview(QWidget, FORM_CLASS):
         )
         self.easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
         self.easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.easing_preview_animation.setEndValue(QPoint(width, height))
-        self.easing_preview_animation.setDuration(3500)
+        self.easing_preview_animation.setEndValue(
+            QPoint(
+                self.easing_preview.width(),
+                self.easing_preview.height(),
+            )
+        )
+        self.easing_preview_animation.setDuration(35000)
         # loop forever ...
         self.easing_preview_animation.setLoopCount(-1)
         self.easing_preview_animation.start()
@@ -238,9 +245,11 @@ class EasingPreview(QWidget, FORM_CLASS):
 
         """
         easing_type = QEasingCurve.Type(index)
+        self.easing_preview_animation.stop()
         self.easing_preview_animation.setEasingCurve(easing_type)
         self.easing = QEasingCurve(easing_type)
         self.easing_changed_signal.emit(self.easing)
+        self.easing_preview_animation.start()
         self.chart.clear()
         chart = []
         for i in range(

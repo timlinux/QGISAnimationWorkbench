@@ -50,8 +50,10 @@ Once the Animation Workbench is installed, you can access it by clicking on the
 
 ![Launch the Workbench](img/003_AWLaunch_1.png)
 
-> Note if you are on Ubuntu, you may need to install the Qt5 multimedia libraries.
+> If you are on Ubuntu, you need to install the Qt5 multimedia libraries and support for mp4 playback.
 
 ```bash
+sudo apt install ubuntu-restricted-extras
 sudo apt install PyQt5.QtMultimedia
+sudo apt install libqt5multimedia5-plugins
 ```
