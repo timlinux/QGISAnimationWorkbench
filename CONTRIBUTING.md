@@ -1,4 +1,4 @@
-# Contributing to TOAST UI
+# Contributing to the QGIS Animation Workbench
 
 First off, thanks for taking the time to contribute! 🎉 😘 ✨
 
