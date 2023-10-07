@@ -1,7 +1,7 @@
 [general]
 name=QGIS Animation Workbench
 description=A plugin to let you build animations in QGIS
-about=I started the work on this plugin as an experimental way to create a spinning globe in QGIS.
+about=QGIS Animation Bench exists because we wanted to use all the awesome cartography features in QGIS and make cool, animated maps! QGIS already includes the Temporal Manager which allows you to produce animations for time-based data. But what if you want to make animations where you travel around the map, zooming in and out, and perhaps making features on the map wiggle and jiggle as the animation progresses? That is what the animation workbench tries to solve...
 version=1.0
 qgisMinimumVersion=3.0
 author=Tim Sutton
