@@ -7,15 +7,46 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 from qgis.PyQt.QtWidgets import QWidget
+from qgis.PyQt.QtGui import QPainter, QPen, QColor
 from qgis.PyQt.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
     QPoint,
     pyqtSignal,
 )
+from pyqtgraph import PlotWidget
+import pyqtgraph as pg
 from .utilities import get_ui_class
 
 FORM_CLASS = get_ui_class("easing_preview_base.ui")
+
+
+class EasingAnimation(QPropertyAnimation):
+    # See documentation here which explains that you should
+    # create your own subclass of QVariantAnimation
+    # if you want to change the animation behaviour. In our
+    # case we want to override the fact that the animation
+    # changes both the x and y coords in each increment
+    # so that we can show the preview as a mock chart
+    # https://doc.qt.io/qt-6/qvariantanimation.html#endValue-prop
+    def __init__(self, target_object, property):
+        parent = None
+        super(EasingAnimation, self).__init__()
+        self.setTargetObject(target_object)
+        self.setPropertyName(property)
+
+    def interpolated(
+        self, from_point: QPoint, to_point: QPoint, progress: float
+    ) -> QPoint:
+        # Linearly interpolate X
+        # and interpolate Y using the easing
+        if not type(from_point) == QPoint:
+            from_point = QPoint(0, 0)
+        x_range = to_point.x() - from_point.x()
+        x = (progress * x_range) + from_point.x()
+        y_range = to_point.y() - from_point.y()
+        y = to_point.y() - (y_range * self.easingCurve().valueForProgress(progress))
+        return QPoint(int(x), int(y))
 
 
 class EasingPreview(QWidget, FORM_CLASS):
@@ -44,6 +75,17 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.setup_easing_previews()
         self.easing_combo.currentIndexChanged.connect(self.easing_changed)
         self.enable_easing.toggled.connect(self.checkbox_changed)
+        ## chart: Switch to using white background and black foreground
+        pg.setConfigOption("background", "w")
+        pg.setConfigOption("foreground", "k")
+        self.chart.hideAxis("bottom")
+        self.chart.hideAxis("left")
+
+    def resizeEvent(self, new_size):
+        super(EasingPreview, self).resizeEvent(new_size)
+        width = self.easing_preview.width()
+        height = self.easing_preview.height()
+        self.easing_preview_animation.setEndValue(QPoint(width, height))
 
     def checkbox_changed(self, new_state):
         """
@@ -167,21 +209,25 @@ class EasingPreview(QWidget, FORM_CLASS):
         """
         Set up easing previews
         """
+        # Icon is the little dot that animates across the widget
         self.easing_preview_icon = QWidget(self.easing_preview)
-        height = self.easing_preview.height()
-        width = self.easing_preview.width()
-        self.preview_color = "red"
         self.easing_preview_icon.setStyleSheet(
             "background-color:%s;border-radius:5px;" % self.preview_color
         )
+        # this is the size of the dot
         self.easing_preview_icon.resize(10, 10)
-        self.easing_preview_animation = QPropertyAnimation(
+        self.easing_preview_animation = EasingAnimation(
             self.easing_preview_icon, b"pos"
         )
         self.easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
         self.easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.easing_preview_animation.setEndValue(QPoint(width, height))
-        self.easing_preview_animation.setDuration(3500)
+        self.easing_preview_animation.setEndValue(
+            QPoint(
+                self.easing_preview.width(),
+                self.easing_preview.height(),
+            )
+        )
+        self.easing_preview_animation.setDuration(35000)
         # loop forever ...
         self.easing_preview_animation.setLoopCount(-1)
         self.easing_preview_animation.start()
@@ -198,6 +244,16 @@ class EasingPreview(QWidget, FORM_CLASS):
 
         """
         easing_type = QEasingCurve.Type(index)
+        self.easing_preview_animation.stop()
         self.easing_preview_animation.setEasingCurve(easing_type)
         self.easing = QEasingCurve(easing_type)
         self.easing_changed_signal.emit(self.easing)
+        self.easing_preview_animation.start()
+        self.chart.clear()
+        chart = []
+        for i in range(
+            0,
+            1000,
+        ):
+            chart.append(self.easing.valueForProgress(i / 1000))
+        self.chart.plot(chart)

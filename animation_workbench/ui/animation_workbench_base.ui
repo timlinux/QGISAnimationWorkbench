@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="main_tab">
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="animation_plan_tab">
       <attribute name="title">
@@ -481,7 +481,7 @@ how many frames per second to use.</string>
            <item row="2" column="0">
             <widget class="QLabel" name="extent_frames_label">
              <property name="text">
-              <string>Frames</string>
+              <string>Frames per feature</string>
              </property>
             </widget>
            </item>

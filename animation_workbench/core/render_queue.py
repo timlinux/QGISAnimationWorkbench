@@ -291,7 +291,8 @@ class RenderQueue(QObject):
         """
         Finalizes a task -- called for both successful and non-successful tasks
         """
-        del self.active_tasks[file_name]
+        if file_name in self.active_tasks:
+          del self.active_tasks[file_name]
         self.total_completed += 1
 
         if self.frames_per_feature:

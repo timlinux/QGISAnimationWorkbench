@@ -145,3 +145,11 @@ resources/diagrams/QAW-VideoScript.drawio
 # we generate this on the fly so no version control
 mkdocs.yml
 templates/styles.scss
+
+
+.direnv
+*.swp
+animation_workbench_
+i*.qgs~
+
+examples/kartoza_staff_example/

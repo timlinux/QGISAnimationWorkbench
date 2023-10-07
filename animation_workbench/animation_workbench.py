@@ -759,7 +759,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 return None
 
             layer_type = QgsWkbTypes.displayString(
-                int(self.layer_combo.currentLayer().wkbType())
+                self.layer_combo.currentLayer().wkbType()
             )
             layer_name = self.layer_combo.currentLayer().name()
             self.output_log_text_edit.append(
