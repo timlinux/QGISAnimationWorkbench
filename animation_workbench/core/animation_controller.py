@@ -180,6 +180,8 @@ class AnimationController(QObject):
             self.size = QSize(1280, 720)
         elif self.output_mode == "1920:1080":
             self.size = QSize(1920, 1080)
+        elif self.output_mode == "1080:1920":
+            self.size = QSize(1080, 1920)
         elif self.output_mode == "3840:2160":
             self.size = QSize(3840, 2160)  # 4k
         else:

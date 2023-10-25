@@ -697,20 +697,6 @@ and will resume processing from last cached image.</string>
              <string>Output Resolution</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_13">
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="radio_low_res">
-               <property name="text">
-                <string>720p (1280×720)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QRadioButton" name="radio_high_res">
-               <property name="text">
-                <string>4k (3840 x 2160)</string>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="1">
               <widget class="QRadioButton" name="radio_medium_res">
                <property name="text">
@@ -721,13 +707,37 @@ and will resume processing from last cached image.</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="3">
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="radio_low_res">
+               <property name="text">
+                <string>720p (1280×720)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
               <widget class="QRadioButton" name="radio_map_canvas">
                <property name="text">
                 <string>Map Canvas</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QRadioButton" name="radio_high_res">
+               <property name="text">
+                <string>4k (3840 x 2160)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QRadioButton" name="radio_1080x1920">
+               <property name="text">
+                <string>1080p vertical (1080x1920)</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
                </property>
               </widget>
              </item>

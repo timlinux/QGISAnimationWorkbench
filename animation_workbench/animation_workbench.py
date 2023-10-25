@@ -250,6 +250,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.radio_low_res.setChecked(True)
         elif resolution_string == "medium_res":
             self.radio_medium_res.setChecked(True)
+        elif resolution_string == "1080x1920":
+            self.radio_medium_res.setChecked(True)
         elif resolution_string == "high_res":
             self.radio_high_res.setChecked(True)
         else:  # map_canvas
@@ -587,6 +589,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             set_setting(key="resolution", value="medium_res", store_in_project=True)
         elif self.radio_high_res.isChecked():
             set_setting(key="resolution", value="high_res", store_in_project=True)
+        elif self.radio_1080x1920.isChecked():
+            set_setting(key="resolution", value="1080x1920",
+                        store_in_project=True)
         else:
             set_setting(key="resolution", value="map_canvas", store_in_project=True)
 
@@ -879,6 +884,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             output_mode = "1280:720"
         elif self.radio_medium_res.isChecked():
             output_mode = "1920:1080"
+        elif self.radio_1080x1920.isChecked():
+            output_mode = "1080:1920"
         elif self.radio_high_res.isChecked():
             output_mode = "3840:2160"
         else:  # Map canvas size
