@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - main
+      - docs
+    # Paths can be used to only trigger actions when you have edited certain files, such as a file within the /docs directory
+    paths:
+      - ".github/workflows/BuildMKDocsAndPublishToGithubPages.yml"
+      - "**.md"
+      - "**.py"
+      - "assets/**"
   # Allow manually running in the actions tab
   workflow_dispatch:
   
@@ -20,10 +27,12 @@ jobs:
       - name: Checkout main from github
         uses: actions/checkout@v1
       - name: Create Mkdocs Config 🚀
+        working-directory: ./docs
         run: ./create-mkdocs-html-config.sh           
       - name: Deploy docs to github pages
         # This is where we get the material theme from
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        #uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        uses: timlinux/mkdocs-deploy-gh-pages@master
         # Wrong
         #uses: timlinux/QGISAnimationWorkbench@main
         env:

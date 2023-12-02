@@ -1,0 +1,36 @@
+# See mkdocs base and the create-mkdocs* 
+# scripts for how this is used
+site_name: QGIS Animation Workbench
+site_description: 'A QGIS Plugin to create animated movies using QGIS.'
+site_author: 'Tim Sutton, Nyall Dawson'
+docs_dir: docs/
+repo_name: 'timlinux/QGISAnimationWorkbench'
+repo_url: 'https://github.com/timlinux/QGISAnimationWorkbench'
+edit_uri: "https://github.com/timlinux/QGISAnimationWorkbench/blob/main/mkdocs/src/"
+#site_dir: docs
+copyright: Copyright Tim Sutton and Contributors, 2022
+
+nav:
+  - Home: index.md
+  - Quickstart:
+      - Installation: start/install.md
+      - Initial Configuration: start/configure.md
+      - Using the Workbench: start/using.md
+  - Manual:
+      - Preparing your project: manual/project_preparation.md
+      - The workbench user interface: manual/workbench_ui.md
+      - Under the hood: manual/under_the_hood.md
+  - Tutorials:
+      - QGIS: tutorials/index.md
+  - Library:
+      - Expression Variables: library/variables.md
+      - Expression Examples: library/snippets.md
+  - FAQ: faq/faq.md
+  - Develop:
+      - Setup: develop/setup.md
+      - Design: develop/design.md
+      - Documentation: develop/docs.md
+  - Contribute:
+      - Contribute: contribute/contribute.md
+  - Credits:
+      - Credits: credits/credits.md
