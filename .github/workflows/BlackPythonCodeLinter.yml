@@ -1,5 +1,4 @@
 name: 🐍 Black python code lint
-
 on:
   push:
     branches:
