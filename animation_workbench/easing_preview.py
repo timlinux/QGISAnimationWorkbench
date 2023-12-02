@@ -22,13 +22,16 @@ FORM_CLASS = get_ui_class("easing_preview_base.ui")
 
 
 class EasingAnimation(QPropertyAnimation):
-    # See documentation here which explains that you should
-    # create your own subclass of QVariantAnimation
-    # if you want to change the animation behaviour. In our
-    # case we want to override the fact that the animation
-    # changes both the x and y coords in each increment
-    # so that we can show the preview as a mock chart
-    # https://doc.qt.io/qt-6/qvariantanimation.html#endValue-prop
+    """Animation settings for easings for natural transitions between states.
+
+    See documentation here which explains that you should
+    create your own subclass of QVariantAnimation
+    if you want to change the animation behaviour. In our
+    case we want to override the fact that the animation
+    changes both the x and y coords in each increment
+    so that we can show the preview as a mock chart
+    https://doc.qt.io/qt-6/qvariantanimation.html#endValue-prop
+    """
     def __init__(self, target_object, property):
         parent = None
         super(EasingAnimation, self).__init__()
