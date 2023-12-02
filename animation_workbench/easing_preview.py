@@ -14,7 +14,7 @@ from qgis.PyQt.QtCore import (
     QPoint,
     pyqtSignal,
 )
-#from pyqtgraph import PlotWidget
+from pyqtgraph import PlotWidget # pylint: disable=unused-import
 import pyqtgraph as pg
 from .utilities import get_ui_class
 
