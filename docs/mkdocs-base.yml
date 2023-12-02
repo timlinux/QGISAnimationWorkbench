@@ -22,10 +22,10 @@ nav:
       - Under the hood: manual/under_the_hood.md
   - Tutorials:
       - QGIS: tutorials/index.md
-      - Tut 1: tutorials/tutorial1.md
-      - Tut 2: tutorials/tutorial2.md
-      - Tut 3: tutorials/tutorial3.md
-      - Tut 4: tutorials/tutorial4.md
+      - 1 Points on a Line: tutorials/tutorial1.md
+      - 2 Dynamic Markers: tutorials/tutorial2.md
+      - 3 Flying Points: tutorials/tutorial3.md
+      - 4 Spinning Globe: tutorials/tutorial4.md
   - Library:
       - Expression Variables: library/variables.md
       - Expression Examples: library/snippets.md
