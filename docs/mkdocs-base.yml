@@ -3,7 +3,7 @@
 site_name: QGIS Animation Workbench
 site_description: 'A QGIS Plugin to create animated movies using QGIS.'
 site_author: 'Tim Sutton, Nyall Dawson'
-docs_dir: docs/
+docs_dir: src/
 repo_name: 'timlinux/QGISAnimationWorkbench'
 repo_url: 'https://github.com/timlinux/QGISAnimationWorkbench'
 edit_uri: "https://github.com/timlinux/QGISAnimationWorkbench/blob/main/mkdocs/src/"
@@ -22,6 +22,10 @@ nav:
       - Under the hood: manual/under_the_hood.md
   - Tutorials:
       - QGIS: tutorials/index.md
+      - Tut 1: tutorials/tutorial1.md
+      - Tut 2: tutorials/tutorial2.md
+      - Tut 3: tutorials/tutorial3.md
+      - Tut 4: tutorials/tutorial4.md
   - Library:
       - Expression Variables: library/variables.md
       - Expression Examples: library/snippets.md
