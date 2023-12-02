@@ -7,14 +7,14 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 from qgis.PyQt.QtWidgets import QWidget
-from qgis.PyQt.QtGui import QPainter, QPen, QColor
+#from qgis.PyQt.QtGui import QPainter, QPen, QColor
 from qgis.PyQt.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
     QPoint,
     pyqtSignal,
 )
-from pyqtgraph import PlotWidget
+#from pyqtgraph import PlotWidget
 import pyqtgraph as pg
 from .utilities import get_ui_class
 
@@ -32,18 +32,17 @@ class EasingAnimation(QPropertyAnimation):
     so that we can show the preview as a mock chart
     https://doc.qt.io/qt-6/qvariantanimation.html#endValue-prop
     """
-    def __init__(self, target_object, property):
-        parent = None
-        super(EasingAnimation, self).__init__()
+    def __init__(self, target_object, property):  # pylint: disable=redefined-builtin
+        #parent = None
+        super(EasingAnimation, self).__init__() # pylint: disable=super-with-arguments
         self.setTargetObject(target_object)
         self.setPropertyName(property)
 
     def interpolated(
         self, from_point: QPoint, to_point: QPoint, progress: float
     ) -> QPoint:
-        # Linearly interpolate X
-        # and interpolate Y using the easing
-        if not type(from_point) == QPoint:
+        """Linearly interpolate X and interpolate Y using the easing."""
+        if not isinstance(from_point) == QPoint:
             from_point = QPoint(0, 0)
         x_range = to_point.x() - from_point.x()
         x = (progress * x_range) + from_point.x()
@@ -54,7 +53,7 @@ class EasingAnimation(QPropertyAnimation):
 
 class EasingPreview(QWidget, FORM_CLASS):
     """
-    A widget for setting an easing mode
+    A widget for setting an easing mode.
     """
 
     # Signal emitted when the easing is changed
@@ -85,7 +84,8 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.chart.hideAxis("left")
 
     def resizeEvent(self, new_size):
-        super(EasingPreview, self).resizeEvent(new_size)
+        """Resize event handler."""
+        super(EasingPreview, self).resizeEvent(new_size) # pylint: disable=super-with-arguments
         width = self.easing_preview.width()
         height = self.easing_preview.height()
         self.easing_preview_animation.setEndValue(QPoint(width, height))
