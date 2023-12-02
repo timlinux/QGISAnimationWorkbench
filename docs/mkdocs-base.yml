@@ -26,6 +26,7 @@ nav:
       - 2 Dynamic Markers: tutorials/tutorial2.md
       - 3 Flying Points: tutorials/tutorial3.md
       - 4 Spinning Globe: tutorials/tutorial4.md
+      - 5 Planar Map: tutorials/tutorial5.md
   - Library:
       - Expression Variables: library/variables.md
       - Expression Examples: library/snippets.md

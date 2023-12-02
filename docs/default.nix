@@ -19,8 +19,21 @@ in pkgs.mkShell rec {
     pythonPackages.numpy
     pythonPackages.requests
     pythonPackages.pygobject3
-    pythonPackages.pyqtgraph
-    qgis
+
+    # In this particular example, in order to compile any binary extensions they may
+    # require, the Python modules listed in the hypothetical requirements.txt need
+    # the following packages to be installed locally:
+    gobject-introspection 
+    gtk3
+    taglib
+    openssl
+    git
+    libxml2
+    libxslt
+    libzip
+    zlib
+    gnused
+    httplz # for serving up the static site while testing
   ];
 
   # Run this command, only after creating the virtual environment
