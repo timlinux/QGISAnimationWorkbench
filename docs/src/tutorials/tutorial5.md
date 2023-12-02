@@ -197,3 +197,69 @@ if (
   $geometry)
 ```
 
+### Subtring the Line
+
+As a much more advanced example, you can extract a substring of the smoothed
+line that connects the previous, current and next features. Don't get put off
+by the ``with_variable`` elements - they just allow us to re-use calculations
+in our expression.
+
+First, let's start with extracting the first half of the smoothed line:
+
+![](img/tut_5/smoothed_line_clipped.png)
+
+```
+if ( 
+    $id = @hover_feature_id,
+    with_variable(
+        'smoothed_line',
+        smooth(
+          make_line(
+              geometry(@previous_feature),
+	            geometry(@hover_feature),
+	            geometry(@next_feature)
+          ),
+	  iterations:=5,
+	  offset:=0.2,
+	  min_length:=-1,
+	  max_angle:=180),
+	      with_variable(
+	          'line_length',
+		  length(@smoothed_line),
+		  line_substring(@smoothed_line, 0, @line_length / 2 ))),
+  $geometry)
+```
+
+### Animating the substring
+
+If we follow the same approach as above, but vary the start and length of the
+line clip, we can create some cool line animation effects.
+
+![](img/tut_5/planar_map_line_shrinks.gif)
+
+```
+if ( 
+    $id = @hover_feature_id,
+    with_variable(
+        'smoothed_line',
+        smooth(
+          make_line(
+              geometry(@previous_feature),
+	            geometry(@hover_feature),
+	            geometry(@next_feature)
+          ),
+	  iterations:=5,
+	  offset:=0.2,
+	  min_length:=-1,
+	  max_angle:=180),
+	      with_variable(
+	          'line_length',
+		  length(@smoothed_line),
+		  line_substring(
+                    @smoothed_line, 
+                    @line_length * (@current_hover_frame/@hover_frames), 
+                    @line_length ))),
+  
+  $geometry)
+
+``` 
