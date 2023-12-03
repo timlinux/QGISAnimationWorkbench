@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 QGIS_PREFIX_PATH=/usr/local/qgis-3.0
 if [ -n "$1" ]; then

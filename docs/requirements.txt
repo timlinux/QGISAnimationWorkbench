@@ -1,5 +1,8 @@
+#Alternative for pdf creation - broken on nixos and lately ubuntu
+#mkdocs-with-pdf
+# Export to pdf - see https://comwes.github.io/mkpdfs-mkdocs-plugin/index.html
+mkpdfs-mkdocs
 
-mkdocs-with-pdf
 mkdocs-material
 mdx_gh_links
 mkdocs-pdf-export-plugin

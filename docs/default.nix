@@ -12,8 +12,16 @@ in pkgs.mkShell rec {
 
     # This executes some shell code to initialize a venv in $venvDir before
     # dropping into the shell
-    pythonPackages.venvShellHook
 
+    # For PDF production  in mkdocs - see https://comwes.github.io/mkpdfs-mkdocs-plugin/index.html
+    pythonPackages.venvShellHook
+    python311Packages.weasyprint
+    cairo
+    pango
+    gdk-pixbuf
+    glib
+    gtk2
+    
     # Those are dependencies that we would like to use from nixpkgs, which will
     # add them to PYTHONPATH and thus make them accessible from within the venv.
     pythonPackages.numpy
