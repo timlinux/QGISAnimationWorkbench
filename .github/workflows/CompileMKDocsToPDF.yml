@@ -20,14 +20,16 @@ jobs:
       - name: Checkout 🛒
         uses: actions/checkout@v2
       - name: Create Mkdocs Config 🚀
+        working-directory: ./docs
         run: ./create-mkdocs-pdf-config.sh        
       - name: Build PDF 📃
         uses: kartoza/mkdocs-deploy-build-pdf@master
         # Uses orzih's mkdocs PDF builder
         # https://github.com/orzih/mkdocs-with-pdf
         env:
-          CONFIG_FILE: mkdocs.yml
           EXTRA_PACKAGES: build-base
+          CONFIG_FILE: docs/mkdocs.yml
+          REQUIREMENTS: docs/requirements.txt
           #REQUIREMENTS: folder/requirements.txt
       - name: Upload PDF Artifact ⚡
         uses: actions/upload-artifact@v3
