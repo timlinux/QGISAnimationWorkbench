@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script will assemble a mkdocs.yml
 # file with plugins section suitable for 
