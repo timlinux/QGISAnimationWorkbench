@@ -1,0 +1,415 @@
+/* To debug and define css rules, run the generator in debug mode
+   by editing mkdocs-pdf.yml and enabling debug mode. Then
+   redirect the generator output to an html file e.g.
+
+./build-docs-pdf.sh > /tmp/output.html
+xdg-open /tmp/output.html
+
+   Then use the inspect tool in your browser to identify the css paths 
+   of styles you want to modify.
+
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&family=Source+Code+Pro&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
+/* Sass property declarations */
+
+$font-size: 10pt;
+$font-color: #000;
+
+/* CSS Reset Rules from https://perishablepress.com/a-killer-collection-of-global-css-reset-styles/ */
+
+* {
+    vertical-align: baseline;
+    font-family: inherit;
+    font-style: inherit;
+    font-size: 100%;
+    color: $font-color;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre,
+blockquote,
+form,
+ul,
+ol,
+dl {
+    margin: 0px 0;
+}
+
+article p {
+    color: $font-color;
+    padding-top: 5px;
+}
+
+li,
+dd,
+blockquote {
+    margin-left: 40px;
+}
+
+
+/* End of resets ------------------------------- */
+
+article h1 {
+    border-bottom: 2px solid #000;
+}
+
+article h2 {
+    border-bottom: 1px solid #000;
+}
+
+html {
+    padding: 5px;
+    font-family: 'Roboto Slab', serif;
+    font-size: $font-size;
+    color: $font-color;
+}
+
+
+/* MKdocs renders code blocks inside a pre element and 
+  inline code simply inside code elements 
+  
+  Code block related items below are based on the article
+  at https://css-tricks.com/styling-code-in-and-out-of-blocks/
+  
+  */
+
+code {
+    font-family: monospace;
+    font-size: inherit;
+    color: $font-color;
+}
+
+
+/* Code in text */
+
+p>code,
+li>code,
+dd>code,
+td>code {
+    background: black;
+    display: inline;
+    background: #dff0b0;
+    white-space: pre;
+    //max-width: 100%;
+    //min-width: 100px;
+    padding: 0;
+    word-wrap: break-word;
+    box-decoration-break: clone;
+    padding: .1rem .3rem .2rem;
+    border-radius: .2rem;
+    font-size: $font-size;
+    color: #000 !important;
+}
+
+
+/* code in blocks */
+
+pre code:before {
+    display: block;
+    width: 25%;
+    position: relative;
+    top: -33px;
+    left: -20px;
+    content: '🧑‍💻 Code:';
+    padding: 1em 1em;
+    margin-left: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-left: 5px solid #9df7a5;
+    background: #cbfab5;
+    font-size: $font-size;
+    color: $font-color;
+    font-weight: bolder;
+}
+
+pre code {
+    display: block;
+    background: #e5ffb6;
+    white-space: pre;
+    max-width: 100%;
+    min-width: 100px;
+    padding: 0;
+    font-size: $font-size;
+    /* margin: 1em 3em; */
+    padding: 1em 1em;
+    margin-left: 8px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    width: 100%;
+    border-left: 5px solid #c3f5bc;
+    background: #e5fcd5;
+    font-size: $font-size;
+    color: $font-color;
+}
+
+
+/* End of code blocks */
+
+blockquote:before {
+    display: block;
+    width: 25%;
+    position: relative;
+    top: -33px;
+    left: -20px;
+    content: '🧑‍🔧 Note:';
+    padding: 1em 1em;
+    margin-left: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-left: 5px solid #ebbd08;
+    background: #f5ce6c;
+    font-size: $font-size;
+    color: $font-color;
+    font-weight: bolder !important;
+}
+
+blockquote {
+    /* margin: 1em 3em; */
+    padding: 1em 1em;
+    margin-left: 8px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    width: 100%;
+    border-left: 5px solid #fce27c;
+    background: #fcf1d5;
+    font-size: $font-size;
+    color: $font-color;
+}
+
+blockquote p {
+    margin: 0;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+@font-face {
+    src: url(../assets/AvenirLTStd-Book.otf);
+    font-family: avenir;
+}
+
+@page {
+    /* size: a4 portrait; */
+    size: 210mm 297mm;
+    margin: 0mm;
+    padding: 25mm 10mm 25mm 10mm;
+    counter-increment: page;
+    font-family: avenir;
+    font-size: $font-size;
+    white-space: normal;
+    color: $font-color;
+    /* 
+      Margin properties next: 
+
+      See https://www.quackit.com/css/at-rules/css_bottom-left-corner_at-rule.cfm
+      for a nice explanation of the margin properties for css print layouts */
+    @top-left-corner {
+        background: url('file:///home/timlinux/dev/python/QGISAnimationWorkbench/docs/templates/qgis-logo.png');
+        background-repeat: no-repeat;
+        background-position: 0% 0%;
+        background-size: contain;
+        /* Hack needed or image will not show */
+        content: " ";
+    }
+    @top-left {
+        content: 'QGIS Animation Workbench';
+    }
+    @top-center {
+        /* Idiosyncratic note: The top center section is the 
+           only one that you can expand out to the full width of the page.
+           Also: The left elements will render under it, the right elements
+           over it (the z order increases as you move right).
+
+           Be careful trying to use a PNG background as the DPI is hard to configure
+           and your graphics will appear pixelated or not scale correctly 
+           so rather use an SVG.
+
+           The setup below will span your SVG across the page, make sure your
+           SVG document has exactly the same dimensions. Leave a pixel or two
+           white space to the very right of your SVG as the right edge is 
+           difficult to page align.
+           */
+        background-color: transparent;
+        /* Dont remove these two lines, they force the center element
+           to the width of the page and height of the footer image. */
+        min-width: 210mm;
+        min-height: 22mm;
+        background-repeat: no-repeat;
+        background-position: 0% 0%;
+        background-size: contain;
+        size: 210mm 22mm;
+        /* BASE FOLDER token will be replaced at compile time by our bash script. */
+        background: url('file:///home/timlinux/dev/python/QGISAnimationWorkbench/docs/templates/header.svg');
+        /* Hack needed or image will not show */
+        content: " ";
+    }
+    @top-right {
+        min-width: 100mm;
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
+    }
+    @bottom-left-corner {
+        /* has no effect on corner elements */
+        max-width: 0mm;
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
+    }
+    @bottom-left {
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
+    }
+    @bottom-center {
+        /* Idiosyncratic note: The bottom center section is the 
+           only one that you can expand out to the full width of the page.
+           Also: The left elements will render under it, the right elements
+           over it (the z order increases as you move right).
+
+           Be careful trying to use a PNG background as the DPI is hard to configure
+           and your graphics will appear pixelated or not scale correctly 
+           so rather use an SVG.
+
+           The setup below will span your SVG across the page, make sure your
+           SVG document has exactly the same dimensions. Leave a pixel or two
+           white space to the very right of your SVG as the right edge is 
+           difficult to page align.
+           */
+        background-color: transparent;
+        /* Dont remove these two lines, they force the center element
+           to the width of the page and height of the footer image. */
+        min-width: 210mm;
+        min-height: 22mm;
+        background-repeat: no-repeat;
+        background-position: 0% 0%;
+        background-size: contain;
+        size: 210mm 22mm;
+        /* BASE FOLDER token will be replaced at compile time by our bash script. */
+        background: url('file:///home/timlinux/dev/python/QGISAnimationWorkbench/docs/templates/footer.svg');
+        /* Note you cannot do concatenation in CSS content 
+          except I figured out this little trick below TS */
+        content: "-" counter(page) "-";
+    }
+    @bottom-right {
+        max-width: 0mm;
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
+    }
+    @bottom-right-corner {
+        /* has no effect on corner elements */
+        max-width: 0mm;
+        background-color: transparent;
+        /* hack to make it appear as box */
+        content: " ";
+    }
+}
+
+body {
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: avenir;
+    height: 100vh;
+}
+
+
+/** Setting margins */
+
+@page {
+    margin: 2cm;
+}
+
+
+/* The first page of a print can be manipulated as well */
+
+@page :first {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    width: 100%;
+    padding-right: 20pt;
+    text-align: right;
+    background: white;
+    color: black;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    border-bottom: 5px solid black;
+    display: inline-block;
+}
+
+h1 {
+    counter-increment: c1;
+    counter-reset: c3;
+    counter-reset: c2;
+}
+
+h2 {
+    counter-increment: c2;
+    counter-reset: c3;
+}
+
+h3 {
+    counter-increment: c3;
+}
+
+h1:before,
+h2:before,
+h3:before {
+    /* Styling of section numbers */
+    color: gray;
+    width: 2cm;
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.25cm;
+}
+
+h1:before {
+    content: counter(c1);
+}
+
+h2:before {
+    content: counter(c1) "." counter(c2);
+}
+
+h3:before {
+    content: counter(c1) "." counter(c2) "." counter(c3);
+}
+
+img {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+}
+
+table,
+pre {
+    page-break-inside: avoid;
+}
+
+ul,
+ol,
+dl {
+    page-break-before: avoid;
+}
