@@ -27,6 +27,8 @@ in pkgs.mkShell rec {
     pythonPackages.numpy
     pythonPackages.requests
     pythonPackages.pygobject3
+    # Doesnt work properly
+    #python311Packages.cffi
 
     # In this particular example, in order to compile any binary extensions they may
     # require, the Python modules listed in the hypothetical requirements.txt need
@@ -41,15 +43,21 @@ in pkgs.mkShell rec {
     libzip
     zlib
     gnused
-    httplz # for serving up the static site while testing
+    rpl
   ];
 
   # Run this command, only after creating the virtual environment
   postVenvCreation = ''
     unset SOURCE_DATE_EPOCH
-    pip install -r requirements.txt
+    pip install -r requirements.txt 
+    # Need to manually install this because of https://github.com/comwes/mkpdfs-mkdocs-plugin/pull/15
+    pip install -e git+https://github.com/jwaschkau/mkpdfs-mkdocs-plugin.git#egg=mkpdfs-mkdocs
+    rpl -R "from weasyprint.fonts import FontConfiguration" "from weasyprint.text.fonts import FontConfiguration" .venv/src/mkpdfs-mkdocs/mkpdfs_mkdocs/mkpdfs.py
+    rpl -R "from weasyprint.fonts import FontConfiguration" "from weasyprint.text.fonts import FontConfiguration" .venv/lib/python3.11/site-packages/mkpdfs_mkdocs/generator.py
   '';
 
+  shellHook = ''
+  '';
   # Now we can execute any commands within the virtual environment.
   # This is optional and can be left out to run pip manually.
   postShellHook = ''

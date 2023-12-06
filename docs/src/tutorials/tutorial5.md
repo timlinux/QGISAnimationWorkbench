@@ -266,7 +266,10 @@ if (
 
 ## Final Render
 
-There are still a few details that would need to be taken care of to reach a final solution - in particular taking care of datelines and the like. Buhere is a little example of what we managed to make thus far (without any debugging text).
+There are still a few details that would need to be taken care of to reach a
+final solution - in particular taking care of datelines and the like. But here is
+a little example of what we managed to make thus far (without any debugging
+text).
 
 
 ![](img/tut_5/planar_map_final.gif)

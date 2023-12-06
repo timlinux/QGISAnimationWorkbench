@@ -413,3 +413,8 @@ ol,
 dl {
     page-break-before: avoid;
 }
+
+.external-link::after {
+  content: " (" attr(href) ")";
+  font-style: italic;
+}
