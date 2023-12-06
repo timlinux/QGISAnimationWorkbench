@@ -50,10 +50,6 @@ in pkgs.mkShell rec {
   postVenvCreation = ''
     unset SOURCE_DATE_EPOCH
     pip install -r requirements.txt 
-    # Need to manually install this because of https://github.com/comwes/mkpdfs-mkdocs-plugin/pull/15
-    pip install -e git+https://github.com/jwaschkau/mkpdfs-mkdocs-plugin.git#egg=mkpdfs-mkdocs
-    rpl -R "from weasyprint.fonts import FontConfiguration" "from weasyprint.text.fonts import FontConfiguration" .venv/src/mkpdfs-mkdocs/mkpdfs_mkdocs/mkpdfs.py
-    rpl -R "from weasyprint.fonts import FontConfiguration" "from weasyprint.text.fonts import FontConfiguration" .venv/lib/python3.11/site-packages/mkpdfs_mkdocs/generator.py
   '';
 
   shellHook = ''
