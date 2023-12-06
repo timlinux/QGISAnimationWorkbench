@@ -13,7 +13,7 @@ in pkgs.mkShell rec {
     # This executes some shell code to initialize a venv in $venvDir before
     # dropping into the shell
 
-    # For PDF production  in mkdocs - see https://comwes.github.io/mkpdfs-mkdocs-plugin/index.html
+    # For PDF production  in mkdocs
     pythonPackages.venvShellHook
     python311Packages.weasyprint
     cairo
@@ -21,18 +21,12 @@ in pkgs.mkShell rec {
     gdk-pixbuf
     glib
     gtk2
-    
     # Those are dependencies that we would like to use from nixpkgs, which will
     # add them to PYTHONPATH and thus make them accessible from within the venv.
-    pythonPackages.numpy
     pythonPackages.requests
     pythonPackages.pygobject3
     # Doesnt work properly
     #python311Packages.cffi
-
-    # In this particular example, in order to compile any binary extensions they may
-    # require, the Python modules listed in the hypothetical requirements.txt need
-    # the following packages to be installed locally:
     gobject-introspection 
     gtk3
     taglib

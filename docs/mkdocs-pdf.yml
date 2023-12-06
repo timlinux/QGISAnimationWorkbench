@@ -2,13 +2,6 @@
 # scripts for how this is used
 
 plugins:
-  #- mkpdfs:
-  #    company: Kartoza
-  #    author: Tim Sutton, Nyall Dawson and Jeremy Prior
-  #    output_path: ../pdfs/QGISAnimationWorkbench.pdf
-  #    design: templates/styles.scss
-  # Alternative PDF creation system but no longer works
-  #
   - with-pdf:
       # Generate the whole site as a single PDF
       # Full details on this plugin here:
@@ -16,7 +9,7 @@ plugins:
       # And don't get it confused with https://github.com/zhaoterryy/mkdocs-pdf-export-plugin
       # which is intended to export a single page at a time
       output_path: ../pdfs/QGISAnimationWorkbench.pdf
-      author: Tim Sutton, Nyall Dawson
+      author: Tim Sutton, Nyall Dawson, Jeremy Prior
       # copyright will draw in page.bottom-right 
       # do it manually in templates/styles.scss 
       # for more control
