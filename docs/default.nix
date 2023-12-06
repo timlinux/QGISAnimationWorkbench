@@ -1,7 +1,10 @@
 with import <nixpkgs> { };
 
 let
-  pythonPackages = python3Packages;
+  # For packages pinned to a specific version
+  pinnedHash = "933d7dc155096e7575d207be6fb7792bc9f34f6d"; 
+  pinnedPkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/${pinnedHash}.tar.gz") { };
+  pythonPackages = pinnedPkgs.python3Packages;
 in pkgs.mkShell rec {
   name = "impurePythonEnv";
   venvDir = "./.venv";
@@ -16,28 +19,28 @@ in pkgs.mkShell rec {
     # For PDF production  in mkdocs
     pythonPackages.venvShellHook
     python311Packages.weasyprint
-    cairo
-    pango
-    gdk-pixbuf
-    glib
-    gtk2
+    pinnedPkgs.cairo
+    pinnedPkgs.pango
+    pinnedPkgs.gdk-pixbuf
+    pinnedPkgs.glib
+    pinnedPkgs.gtk2
     # Those are dependencies that we would like to use from nixpkgs, which will
     # add them to PYTHONPATH and thus make them accessible from within the venv.
     pythonPackages.requests
     pythonPackages.pygobject3
     # Doesnt work properly
     #python311Packages.cffi
-    gobject-introspection 
-    gtk3
-    taglib
-    openssl
-    git
-    libxml2
-    libxslt
-    libzip
-    zlib
-    gnused
-    rpl
+    pinnedPkgs.gobject-introspection 
+    pinnedPkgs.gtk3
+    pinnedPkgs.taglib
+    pinnedPkgs.openssl
+    pinnedPkgs.git
+    pinnedPkgs.libxml2
+    pinnedPkgs.libxslt
+    pinnedPkgs.libzip
+    pinnedPkgs.zlib
+    pinnedPkgs.gnused
+    pinnedPkgs.rpl
   ];
 
   # Run this command, only after creating the virtual environment
