@@ -2,11 +2,11 @@
 
 #### Can I add any image to the intro or outro?
 
-- As long as you can provide the proper attribution for an image you can use it in your project.
+As long as you can provide the proper attribution for an image you can use it in your project.
 
 #### I have an older, less powerful, computer, will it handle running this workbench?
 
-- If you open the standard QGIS settings dialog and select the Animation Workbench options
+If you open the standard QGIS settings dialog and select the Animation Workbench options
 you can follow the advice with regards to lowering the number of threads allowed during
 rendering to help you computer cope. Rendering shorter movies or GIFs (i.e. fewer frames)
 will also help. Below is an example of running a job with 9000 frames at 60fps and 999
@@ -28,7 +28,11 @@ And here is the resulting video:
 
 #### I get an error when rendering because of my intro / outro images
 
-Currently your filenames should not contain spaces or special characters (e.g.(, ), [, ], {, }, <, >, /, \, :, *, ?, |, ", &, etc.).
+Currently your filenames should not contain spaces or special characters 
+
+```
+.(, ), [, ], {, }, <, >, /, \, :, *, ?, |, ", &, etc.).
+```
 
 #### Can I use a movie as the intro / outro media?
 
@@ -40,4 +44,4 @@ This is a fun / hobby project, currently we want other contributors who also wan
 have a fun experience with building this plugin and contribute in-kind efforts to the
 project. Both [Kartoza](https://kartoza.com) and [North-Road](https://north-road.com/)
 offer commercial development services but not for this plugin which is a intended to
-provide an experimental, no-pressire space for us to work on something fun for QGIS.
+provide an experimental, no-pressure space for us to work on something fun for QGIS.

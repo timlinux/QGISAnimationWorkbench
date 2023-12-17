@@ -10,5 +10,5 @@
 #mkdocs build --config-file mkdocs-overview.yml > /tmp/overview-document.html
 mkdocs build --config-file mkdocs-users.yml > /tmp/users-document.html
 #mkdocs build --config-file mkdocs-administrators.yml > /tmp/administrators-document.html
-#mkdocs build --config-file mkdocs-developers.yml > /tmp/developers-document.html
+mkdocs build --config-file mkdocs-developers.yml > /tmp/developers-document.html
 #mkdocs build --config-file mkdocs-devops.yml > /tmp/devops-document.html
