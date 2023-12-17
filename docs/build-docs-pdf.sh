@@ -7,4 +7,8 @@
 # this will create mkdocs.yml
 ./create-mkdocs-pdf-config.sh
 # and this will build the PDF document
-mkdocs build
+mkdocs build --config-file mkdocs-overview.yml > /tmp/overview-document.html
+mkdocs build --config-file mkdocs-users.yml > /tmp/users-document.html
+mkdocs build --config-file mkdocs-administrators.yml > /tmp/administrators-document.html
+mkdocs build --config-file mkdocs-developers.yml > /tmp/developers-document.html
+mkdocs build --config-file mkdocs-devops.yml > /tmp/devops-document.html

@@ -1,0 +1,33 @@
+/* Sass property declarations */
+$document-title: 'QGIS Animation Workbench';
+$document-title-color: #ffffff;
+$show-top-left-corner-logo: true;
+$primary-color: #54a2cc;
+$secondary-color: #f4b751;
+$tertiary-color: #8a8b8b;
+$primary-color-light: #90acc1;
+$secondary-color-light: #f2debd;
+$tertiary-color-light: #d5d5d5;
+$primary-color-dark: #068dd5;
+$secondary-color-dark: #df8c00;
+$tertiary-color-dark: #3e3e3e;
+
+$font-size: 10pt;
+$font-color: #000;
+
+$code-font-size: 8pt;
+$code-font-family: 'Noto Sans Mono', monospace;
+
+$inline-code-background: #bfe9ff;
+
+$codeblock-label-font-color: white;
+$codeblock-label-background: $primary-color;
+$codeblock-label-border: $primary-color-dark;
+$codeblock-background: $inline-code-background;
+$codeblock-border: $primary-color;
+
+$blockquote-label-font-color: white;
+$blockquote-label-background: $secondary-color;
+$blockquote-label-border: $secondary-color-dark;
+$blockquote-background: $secondary-color-light;
+$blockquote-border: $secondary-color;

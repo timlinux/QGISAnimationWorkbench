@@ -1,0 +1,9 @@
+      output_path: ../pdfs/1-SAWPSOverview.pdf
+      cover_subtitle: 'Part 1 - SANBI WPS Overview.'
+      exclude_pages:
+          #- 'about/'
+          - 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          - 'user/'
+

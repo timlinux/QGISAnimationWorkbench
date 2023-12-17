@@ -1,0 +1,9 @@
+      output_path: ../pdfs/2-SAWPSUsers.pdf
+      cover_subtitle: 'Part 1 - SANBI WPS User Documentation.'
+      exclude_pages:
+          - 'about/'
+          - 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          #- 'user/'
+

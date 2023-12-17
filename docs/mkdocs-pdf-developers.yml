@@ -1,0 +1,9 @@
+      output_path: ../pdfs/4-SAWPSDeveloperGuide.pdf
+      cover_subtitle: 'Part 4 - SANBI WPS Developer Guide.'
+      exclude_pages:
+          - 'about/'
+          - 'administrator/'
+          #- 'developer/'
+          - 'devops/'
+          - 'user/'
+

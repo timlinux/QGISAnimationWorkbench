@@ -1,0 +1,9 @@
+      output_path: ../pdfs/3-SAWPSAdministration.pdf
+      cover_subtitle: 'Part 3 - SANBI WPS Administration.'
+      exclude_pages:
+          - 'about/'
+          #- 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          - 'user/'
+
