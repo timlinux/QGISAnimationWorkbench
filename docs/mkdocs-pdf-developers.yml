@@ -1,5 +1,5 @@
-      output_path: ../pdfs/4-SAWPSDeveloperGuide.pdf
-      cover_subtitle: 'Part 4 - SANBI WPS Developer Guide.'
+      output_path: ../pdfs/4-QGISAnimationWorkbench-DeveloperGuide.pdf
+       cover_subtitle: 'Part 4 - QGIS Animation Workbench Developer Guide.'
       exclude_pages:
           - 'about/'
           - 'administrator/'

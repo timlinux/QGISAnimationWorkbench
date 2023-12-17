@@ -1,5 +1,5 @@
-      output_path: ../pdfs/2-SAWPSUsers.pdf
-      cover_subtitle: 'Part 1 - SANBI WPS User Documentation.'
+      output_path: ../pdfs/2-QGISAnimationWorkbench-UserManual.pdf
+      cover_subtitle: 'Part 1 - QGIS Animation Workbench User Documentation.'
       exclude_pages:
           - 'about/'
           - 'administrator/'

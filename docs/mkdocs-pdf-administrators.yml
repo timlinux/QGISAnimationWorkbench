@@ -1,5 +1,5 @@
-      output_path: ../pdfs/3-SAWPSAdministration.pdf
-      cover_subtitle: 'Part 3 - SANBI WPS Administration.'
+      output_path: ../pdfs/3-QGISAnimationWorkbench-Administration.pdf
+      cover_subtitle: 'Part 3 - QGIS Animation Workbench - Administration.'
       exclude_pages:
           - 'about/'
           #- 'administrator/'
