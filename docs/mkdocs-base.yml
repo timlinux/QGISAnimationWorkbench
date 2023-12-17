@@ -63,12 +63,4 @@ nav:
       - developer/documentation/index.md
     - Overview: developer/documentation/overview.md
     - Context Help: developer/documentation/context-help.md
-# - DevOps:
-#   - devops/index.md
-#   - Guide: devops/guide/index.md
-#   - Manual: devops/manual/index.md
-# - About:
-#   - About: about/index.md
-#   - License: about/license.md
-#   - Contributing: about/contributing.md
 
