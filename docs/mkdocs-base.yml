@@ -21,6 +21,7 @@ nav:
   - User:
     - user/index.md
     - Quickstart:
+      - user/quickstart/index.md
       - Installation: user/quickstart/install.md
       - Initial Configuration: user/quickstart/configure.md
       - Using the Workbench: user/quickstart/using.md
@@ -52,13 +53,8 @@ nav:
       - Building: developer/guide/building.md
       - Workflows: developer/guide/workflows.md
       - Testing: developer/guide/testing.md
-      - Documentation: developer/guide/docs.md
     - Manual:
       - developer/manual/index.md
-    - API:
-      - developer/api/index.md
-    - Reference: developer/api/manual/index.md
-    - Guide: developer/api/guide/index.md
     - Documentation Writing:
       - developer/documentation/index.md
       - Overview: developer/documentation/overview.md
