@@ -72,7 +72,7 @@ want to use click on the QGIS Expressions dropdown menu (**`5`**) and click on `
 
 &nbsp;<!--Adds blank space for formatting-->
 > You can also make a marker move along a line relative to the frame of the animation.
-Use the [Code Snippets Section](../library/snippets.md) for more in-depth help.
+Use the [Code Snippets Section](snippets.md) for more in-depth help.
 
 The example below works with the animation from earlier.
 

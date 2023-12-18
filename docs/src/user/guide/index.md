@@ -191,7 +191,7 @@ And for the `bird` layer use:
 > Refer to the [What is the Workbench doing?](../manual/under_the_hood.md) section for an explanation
     about what the above code snippet is doing.
 
-13\. Open the Animation Workbench (refer to the [Using the Animation Workbench](../start/using.md) section
+13\. Open the Animation Workbench (refer to the [Using the Animation Workbench](../quickstart/using.md) section
 if you are unsure how to open the Workbench).
 
 In the `Animation Plan` tab set:

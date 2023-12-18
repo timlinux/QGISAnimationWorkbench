@@ -35,8 +35,8 @@ nav:
       - user/manual/index.md
       - Preparing your project: user/manual/project_preparation.md
       - The workbench user interface: user/manual/workbench_ui.md
-      - Expression Variables: library/variables.md
-      - Expression Examples: library/snippets.md
+      - Expression Variables: user/manual/variables.md
+      - Expression Examples: user/manual/snippets.md
       - Under the hood: user/manual/under_the_hood.md
     - FAQ: user/manual/faq.md
   - Developer:
@@ -61,6 +61,6 @@ nav:
     - Guide: developer/api/guide/index.md
     - Documentation Writing:
       - developer/documentation/index.md
-    - Overview: developer/documentation/overview.md
-    - Context Help: developer/documentation/context-help.md
+      - Overview: developer/documentation/overview.md
+      - Context Help: developer/documentation/context-help.md
 

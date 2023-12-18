@@ -63,7 +63,7 @@ want to use click on the QGIS Expressions dropdown menu (**`4`**) and click on `
 ![Edit Expression](img/008_EditExpression_1.png)
 
 &nbsp;<!--Adds blank space for formatting-->
-Use the [Code Snippets Section](../library/snippets.md) for more in depth help. The
+Use the [Code Snippets Section](../manual/snippets.md) for more in depth help. The
 example below works with the bird animation from earlier
 
 ![Expression Snippet](img/009_Expression_1.png)
@@ -101,7 +101,7 @@ Set your desired `Output Options` (**`10`**) Select a location for your output (
 ![Output Location](img/012_Output_1.png)
 &nbsp;<!--Adds blank space for formatting-->
 
-> Refer to the [Workbench User Interface](../docs/../manual/workbench_ui.md) Section for more information about
+> Refer to the [Workbench User Interface](../manual/workbench_ui.md) Section for more information about
 what various settings and buttons accomplish.
 
 2\. Render your animation!
