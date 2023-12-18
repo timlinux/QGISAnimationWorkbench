@@ -1,5 +1,7 @@
 # Installing the QGIS Animation Workbench plugin
 
+In this section we explain how to install the plugin.
+
 ## Install from plugin manager
 
 To access the QGIS Plugin Manager you simply need to select
