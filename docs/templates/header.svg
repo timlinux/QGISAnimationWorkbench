@@ -7,8 +7,8 @@
    viewBox="0 0 210 22"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   sodipodi:docname="animation-workbench-header.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   sodipodi:docname="header.svg"
    inkscape:export-filename="/home/timlinux/dev/python/QGISAnimationWorkbench/templates/animation-workbench-footer.png"
    inkscape:export-xdpi="79.375"
    inkscape:export-ydpi="79.375"
@@ -30,9 +30,9 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="0.69575618"
-     inkscape:cx="427.59232"
-     inkscape:cy="37.369413"
+     inkscape:zoom="3.584198"
+     inkscape:cx="260.86729"
+     inkscape:cy="-17.995658"
      inkscape:window-width="1920"
      inkscape:window-height="995"
      inkscape:window-x="0"
@@ -40,11 +40,14 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
      showguides="true"
-     inkscape:guide-bbox="true">
+     inkscape:guide-bbox="true"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="-6.3012262,43.402026"
        orientation="1,0"
-       id="guide38054" />
+       id="guide38054"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <defs
      id="defs2">
@@ -162,7 +165,12 @@
     <path
        id="rect885"
        style="fill:#95bbdd;fill-opacity:0.550223;stroke:#f4972d;stroke-width:0;stroke-linecap:round"
-       d="M 0.0805718,-0.03672453 H 210.06724 L 209.23925,10.976173 c 0,0 -12.77903,8.10227 -30.67266,3.823045 C 167.00308,9.9372574 138.01874,9.4872476 122.57686,14.348152 114.44153,18.194482 90.503821,5.9898271 69.485848,14.078977 53.374533,22.312857 0.0805718,21.880096 0.0805718,21.880096 Z"
+       d="M 0.0805718,-0.03672453 H 210.06724 l -0.0601,10.71560153 c 0,0 -13.54692,8.399566 -31.44055,4.120341 -16.81478,-4.114828 -33.32451,-4.611551 -55.98973,-0.451066 -20.91877,3.148218 -32.073039,-8.3583249 -53.091012,-0.269175 -23.58351,8.169 -69.4052762,7.801119 -69.4052762,7.801119 z"
+       sodipodi:nodetypes="cccccccc" />
+    <path
+       id="path1"
+       style="fill:#95bbdd;fill-opacity:0.550223;stroke:#f4972d;stroke-width:0;stroke-linecap:round"
+       d="M 0.0805718,-0.03672453 H 210.06724 l -0.0601,10.71560153 c 0,0 -13.54692,8.399566 -31.44055,4.120341 -16.81478,-4.114828 -33.32451,-4.611551 -55.98973,-0.451066 -20.91877,3.148218 -32.073039,-8.3583249 -53.091012,-0.269175 -23.58351,8.169 -69.4052762,7.801119 -69.4052762,7.801119 z"
        sodipodi:nodetypes="cccccccc" />
   </g>
 </svg>

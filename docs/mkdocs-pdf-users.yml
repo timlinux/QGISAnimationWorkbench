@@ -1,0 +1,9 @@
+      output_path: ../pdfs/2-QGISAnimationWorkbench-UserManual.pdf
+      cover_subtitle: 'Part 1 - QGIS Animation Workbench User Documentation.'
+      exclude_pages:
+          - 'about/'
+          - 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          #- 'user/'
+

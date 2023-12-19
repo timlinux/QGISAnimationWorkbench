@@ -2,7 +2,7 @@
 
 Welcome to the QGIS Animation Workbench (QAW). QAW is a [QGIS Plugin](https://qgis.org) that will help you bring your maps to life! Let's start with a quick overview. Click on the image below to view a 14 minute walkthrough on YouTube.
 
-[![Overview](start/img/QAW-IntroThumbnail.jpg)](https://youtu.be/DkS6yvnuypc)
+[![Overview](user/quickstart/img/QAW-IntroThumbnail.jpg)](https://youtu.be/DkS6yvnuypc)
 
 ## 🤖 Why QGIS Animation Workbench?
 

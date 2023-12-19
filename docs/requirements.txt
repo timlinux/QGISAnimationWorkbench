@@ -17,3 +17,5 @@ shortuuid
 # Needed for mkdocstrings python documentation generator
 black
 cffi
+# Needed for PDF back page QR Code
+qrcode

@@ -1,0 +1,9 @@
+      output_path: ../pdfs/3-QGISAnimationWorkbench-Administration.pdf
+      cover_subtitle: 'Part 3 - QGIS Animation Workbench - Administration.'
+      exclude_pages:
+          - 'about/'
+          #- 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          - 'user/'
+

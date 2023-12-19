@@ -1,2 +1,12 @@
-site
 templates/styles.scss
+templates/graphics.scss
+mkdocs-overview.yml
+mkdocs-users.yml
+mkdocs-administrators.yml
+mkdocs-developers.yml
+mkdocs-devops.yml
+
+site/*
+mkdocs.yml
+.direnv
+pdfs/*.pdf

@@ -6,5 +6,5 @@ version=1.2
 qgisMinimumVersion=3.0
 author=Tim Sutton, Nyall Dawson, Jeremy Prior
 email=tim@kartoza.com
-repository=https://github.com/timlinux/QGISAnimationPlugin
+repository=https://github.com/timlinux/QGISAnimationWorkbench
 license=GPLv2

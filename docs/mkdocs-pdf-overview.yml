@@ -1,0 +1,9 @@
+      output_path: ../pdfs/1-QGISAnimationWorkbenchOverview.pdf
+      cover_subtitle: 'Part 1 - QGIS Animation Workbench Overview.'
+      exclude_pages:
+          #- 'about/'
+          - 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          - 'user/'
+

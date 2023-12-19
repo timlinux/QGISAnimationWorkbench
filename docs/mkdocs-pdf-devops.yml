@@ -1,0 +1,9 @@
+      output_path: ../pdfs/5-QGISAnimationWorkbench-Devops.pdf
+      cover_subtitle: 'Part 5 - QGIS Animation Workbench - Devops Guide.'
+      exclude_pages:
+          #- 'about/'
+          - 'administrator/'
+          - 'developer/'
+          - 'devops/'
+          - 'user/'
+

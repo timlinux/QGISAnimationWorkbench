@@ -1,0 +1,9 @@
+      output_path: ../pdfs/4-QGISAnimationWorkbench-DeveloperGuide.pdf
+      cover_subtitle: 'Part 4 - QGIS Animation Workbench Developer Guide.'
+      exclude_pages:
+          - 'about/'
+          - 'administrator/'
+          #- 'developer/'
+          - 'devops/'
+          - 'user/'
+
