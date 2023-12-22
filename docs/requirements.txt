@@ -1,7 +1,5 @@
-#Alternative for pdf creation - broken on nixos and lately ubuntu
+#Alternative for pdf creation 
 mkdocs-with-pdf
-# Export to pdf - see https://comwes.github.io/mkpdfs-mkdocs-plugin/index.html
-#mkpdfs-mkdocs
 # Rather do
 # pip install -e git+https://github.com/jwaschkau/mkpdfs-mkdocs-plugin.git#egg=mkpdfs-mkdocs
 mkdocs-material

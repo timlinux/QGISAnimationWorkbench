@@ -15,6 +15,7 @@ plugins:
       # the copyright text from mkdocs-base.yml will be
       # used instead
       copyright: " "
+      year: "2022"
       cover: true # see templates/cover.html
       back_cover: true
       # Overrridden by templates/cover.html
