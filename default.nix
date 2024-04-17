@@ -16,6 +16,7 @@ in pkgs.mkShell rec {
     vscode
     xorg.libxcb
     qgis
+    #qgis.override { extraPythonPackages = ps: [ ps.numpy ps.future ps.geopandas ps.rasterio ];}
     qt5.full
     qtcreator
     python3
