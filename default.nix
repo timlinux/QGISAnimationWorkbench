@@ -22,6 +22,7 @@ in pkgs.mkShell rec {
     python3Packages.pyqt5
     python3Packages.gdal
     python3Packages.pytest
+    zip
 
     # This executes some shell code to initialize a venv in $venvDir before
     # dropping into the shell
