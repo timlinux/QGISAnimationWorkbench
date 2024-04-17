@@ -6,5 +6,13 @@ version=1.2
 qgisMinimumVersion=3.0
 author=Tim Sutton, Nyall Dawson, Jeremy Prior
 email=tim@kartoza.com
+<<<<<<< HEAD
 repository=https://github.com/timlinux/QGISAnimationWorkbench
+||||||| 5ec0741
+repository=https://github.com/timlinux/QGISAnimationPlugin
+=======
+repository=https://github.com/timlinux/QGISAnimationWorkbench
+tracker=https://github.com/timlinux/QGISAnimationWorkbench/issues
+homepage=https://timlinux.github.io/QGISAnimationWorkbench/
+>>>>>>> 8a8d08a4bc35d732b1853cf6c4fcd466ed01191e
 license=GPLv2

@@ -240,7 +240,10 @@ class AnimationController(QObject):
         # inefficient, but we can rework later if needed!
         jobs = self.create_jobs()
         for _ in range(frame + 1):
-            job = next(jobs)
+            try: # hacky fix for crash experienced by a user TODO
+                job = next(jobs)
+            except:
+                pass
         return job
 
     def create_jobs(self) -> Iterator[RenderJob]:
