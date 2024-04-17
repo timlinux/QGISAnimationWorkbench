@@ -12,63 +12,31 @@ copyright: Copyright Tim Sutton and Contributors, 2022
 
 
 nav:
-  - Home:
-    - Home: index.md
-    - Code of Conduct: about/code-of-conduct.md
-    - Contribute: about/contribute.md
-    - License: about/license.md
-    - Credits: about/credits.md
-  - User:
-    - user/index.md
-    - Quickstart:
-      - Installation: user/quickstart/install.md
-      - Initial Configuration: user/quickstart/configure.md
-      - Using the Workbench: user/quickstart/using.md
-    - Guide:
-      - user/guide/index.md
-      - 1 Points on a Line: user/guide/tutorial1.md
-      - 2 Dynamic Markers: user/guide/tutorial2.md
-      - 3 Flying Points: user/guide/tutorial3.md
-      - 4 Spinning Globe: user/guide/tutorial4.md
-      - 5 Planar Map: user/guide/tutorial5.md
-    - Manual:
-      - user/manual/index.md
-      - Preparing your project: user/manual/project_preparation.md
-      - The workbench user interface: user/manual/workbench_ui.md
+  - Home: index.md
+  - Quickstart:
+      - Installation: start/install.md
+      - Initial Configuration: start/configure.md
+      - Using the Workbench: start/using.md
+  - Manual:
+      - Preparing your project: manual/project_preparation.md
+      - The workbench user interface: manual/workbench_ui.md
+      - Under the hood: manual/under_the_hood.md
+  - Tutorials:
+      - QGIS: tutorials/index.md
+      - 1 Points on a Line: tutorials/tutorial1.md
+      - 2 Dynamic Markers: tutorials/tutorial2.md
+      - 3 Flying Points: tutorials/tutorial3.md
+      - 4 Spinning Globe: tutorials/tutorial4.md
+      - 5 Planar Map: tutorials/tutorial5.md
+  - Library:
       - Expression Variables: library/variables.md
       - Expression Examples: library/snippets.md
-      - Under the hood: user/manual/under_the_hood.md
-    - FAQ: user/manual/faq.md
-  - Developer:
-    - developer/index.md
-    - Guide:
-      - developer/guide/index.md
-      - Architecture: developer/guide/architecture.md
-      - Prerequisites: developer/guide/prerequisites.md
-      - Design: developer/guide/design.md
-      - IDE Setup: developer/guide/ide-setup.md
-      - Cloning: developer/guide/cloning.md
-      - Configuration: developer/guide/configuration.md
-      - Building: developer/guide/building.md
-      - Workflows: developer/guide/workflows.md
-      - Testing: developer/guide/testing.md
-      - Documentation: developer/guide/docs.md
-    - Manual:
-      - developer/manual/index.md
-    - API:
-      - developer/api/index.md
-    - Reference: developer/api/manual/index.md
-    - Guide: developer/api/guide/index.md
-    - Documentation Writing:
-      - developer/documentation/index.md
-    - Overview: developer/documentation/overview.md
-    - Context Help: developer/documentation/context-help.md
-# - DevOps:
-#   - devops/index.md
-#   - Guide: devops/guide/index.md
-#   - Manual: devops/manual/index.md
-# - About:
-#   - About: about/index.md
-#   - License: about/license.md
-#   - Contributing: about/contributing.md
-
+  - FAQ: faq/faq.md
+  - Develop:
+      - Setup: develop/setup.md
+      - Design: develop/design.md
+      - Documentation: develop/docs.md
+  - Contribute:
+      - Contribute: contribute/contribute.md
+  - Credits:
+      - Credits: credits/credits.md

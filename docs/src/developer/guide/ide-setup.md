@@ -35,14 +35,14 @@ state, stepping through code etc.
 
 To start debugging, you need to put the plugin into developer mode.
 
-![](img/debug_mode.md)
+![](img/debug_mode.png)
 
 Next, open the QGIS Animation Workbench git checkout (as described above), and
 then active the `Run and Debug` tab (1 in the image below). From the list of
 launchers, choose `Python: Remote Attach` and press the green run icon (2 in
 the image below).
 
-![](img/debug_mode.md)
+![](img/debug_mode_vscode.png)
 
 The animation workbench will then resume normal operation, but you will be able
 to set breakpoints and inspect objects in CSCode. Please refer to VSCode
