@@ -14,6 +14,13 @@ from qgis.PyQt.QtCore import (
     QPoint,
     pyqtSignal,
 )
+#TODO: add a gui to prompt the user if they want to install py
+try:
+    import pyqtgraph
+except ModuleNotFoundError:
+    import pip
+    pip.main(['install', 'pyqtgraph'])
+
 from pyqtgraph import PlotWidget # pylint: disable=unused-import
 import pyqtgraph as pg
 from .utilities import get_ui_class
