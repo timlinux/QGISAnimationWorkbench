@@ -1,0 +1,1771 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A QGIS Plugin to create animated movies using QGIS.">
+      
+      
+        <meta name="author" content="Tim Sutton, Nyall Dawson, Jeremy Prior">
+      
+      
+      
+        <link rel="prev" href="../quickstart/using/">
+      
+      
+        <link rel="next" href="tutorial1/">
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Index - QGIS Animation Workbench</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="gray">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-1-point-along-a-line" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="QGIS Animation Workbench" class="md-header__button md-logo" aria-label="QGIS Animation Workbench" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3C7.58 3 4 4.79 4 7s3.58 4 8 4 8-1.79 8-4-3.58-4-8-4M4 9v3c0 2.21 3.58 4 8 4s8-1.79 8-4V9c0 2.21-3.58 4-8 4s-8-1.79-8-4m0 5v3c0 2.21 3.58 4 8 4s8-1.79 8-4v-3c0 2.21-3.58 4-8 4s-8-1.79-8-4Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            QGIS Animation Workbench
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Index
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="gray"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="gray"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/timlinux/QGISAnimationWorkbench" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    timlinux/QGISAnimationWorkbench
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        Home
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../" class="md-tabs__link md-tabs__link--active">
+        User
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../developer/" class="md-tabs__link">
+        Developer
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="QGIS Animation Workbench" class="md-nav__button md-logo" aria-label="QGIS Animation Workbench" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3C7.58 3 4 4.79 4 7s3.58 4 8 4 8-1.79 8-4-3.58-4-8-4M4 9v3c0 2.21 3.58 4 8 4s8-1.79 8-4V9c0 2.21-3.58 4-8 4s-8-1.79-8-4m0 5v3c0 2.21 3.58 4 8 4s8-1.79 8-4v-3c0 2.21-3.58 4-8 4s-8-1.79-8-4Z"/></svg>
+
+    </a>
+    QGIS Animation Workbench
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/timlinux/QGISAnimationWorkbench" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    timlinux/QGISAnimationWorkbench
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1" type="checkbox" id="__nav_1" >
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../..">Home</a>
+          
+            <label for="__nav_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Home" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          Home
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/code-of-conduct/" class="md-nav__link">
+        Code of Conduct
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/contribute/" class="md-nav__link">
+        Contribute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/credits/" class="md-nav__link">
+        Credits
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../">User</a>
+          
+            <label for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="User" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          User
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2_2" tabindex="0" aria-expanded="false">
+          Quickstart
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Quickstart" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Quickstart
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/install/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/configure/" class="md-nav__link">
+        Initial Configuration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/using/" class="md-nav__link">
+        Using the Workbench
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2_3" type="checkbox" id="__nav_2_3" checked>
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index md-nav__link--active">
+          <a href="./">Guide</a>
+          
+            <label for="__nav_2_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Guide" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorial1/" class="md-nav__link">
+        1 Points on a Line
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorial2/" class="md-nav__link">
+        2 Dynamic Markers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorial3/" class="md-nav__link">
+        3 Flying Points
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorial4/" class="md-nav__link">
+        4 Spinning Globe
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorial5/" class="md-nav__link">
+        5 Planar Map
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2_4" type="checkbox" id="__nav_2_4" >
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../manual/">Manual</a>
+          
+            <label for="__nav_2_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Manual" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_4">
+          <span class="md-nav__icon md-icon"></span>
+          Manual
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual/project_preparation/" class="md-nav__link">
+        Preparing your project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual/workbench_ui/" class="md-nav__link">
+        The workbench user interface
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual/variables/" class="md-nav__link">
+        Expression Variables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual/snippets/" class="md-nav__link">
+        Expression Examples
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual/under_the_hood/" class="md-nav__link">
+        Under the hood
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual/faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../developer/">Developer</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Developer" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Developer
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" >
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../developer/guide/">Guide</a>
+          
+            <label for="__nav_3_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Guide" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_2">
+          <span class="md-nav__icon md-icon"></span>
+          Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/architecture/" class="md-nav__link">
+        Architecture
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/prerequisites/" class="md-nav__link">
+        Prerequisites
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/design/" class="md-nav__link">
+        Design
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/ide-setup/" class="md-nav__link">
+        IDE Setup
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/cloning/" class="md-nav__link">
+        Cloning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/configuration/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/building/" class="md-nav__link">
+        Building
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/workflows/" class="md-nav__link">
+        Workflows
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/testing/" class="md-nav__link">
+        Testing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/guide/docs.md" class="md-nav__link">
+        Documentation
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" >
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../developer/manual/">Manual</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Manual" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          Manual
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_4" tabindex="0" aria-expanded="false">
+          API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/api/index.md" class="md-nav__link">
+        None
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/api/manual/index.md" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/api/guide/index.md" class="md-nav__link">
+        Guide
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3_7" type="checkbox" id="__nav_3_7" >
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../developer/documentation/">Documentation Writing</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Documentation Writing" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_7">
+          <span class="md-nav__icon md-icon"></span>
+          Documentation Writing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/documentation/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/documentation/context-help/" class="md-nav__link">
+        Context Help
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tutorial-1-point-along-a-line" class="md-nav__link">
+    Tutorial 1: Point Along A Line
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorial-2-basic-dynamically-changing-markers" class="md-nav__link">
+    Tutorial 2: Basic Dynamically Changing Markers 
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorial-3-flying-points" class="md-nav__link">
+    Tutorial 3: Flying Points
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorial-4-spinning-globe" class="md-nav__link">
+    Tutorial 4: Spinning Globe
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+  <h1>Index</h1>
+
+<h2 id="tutorial-1-point-along-a-line">Tutorial 1: Point Along A Line<a class="headerlink" href="#tutorial-1-point-along-a-line" title="Permanent link">&para;</a></h2>
+<p>This tutorial introduces the concept of moving a point along a line within your animated
+map.</p>
+<p>1. Download and extract the <strong><a href="https://github.com/timlinux/QGISAnimationWorkbench/blob/main/examples/tutorial_1.zip">Required Tutorial Zip Folder</a></strong>
+&nbsp;<!--Blank Space--></p>
+<p>2. Open the <strong>tutorial_1.qgz</strong> project file that is in the folder. When you first open it you
+you see something like this:</p>
+<p><img alt="Initial Open" src="img/tut_1/001_InitialOpen_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>3. Select the premade <code>line</code> layer (<strong><code>1</code></strong>), and click on the <code>Add Symbol Layer</code>
+(<em>green plus symbol</em>) button (<strong><code>2</code></strong>) to it.</p>
+<p><img alt="Add Symbol Layer" src="img/tut_1/002_AddSymbolLayer_1.png" /></p>
+<p>Change the new <code>Symbol Layer</code> (<strong><code>3</code></strong>) type to marker line and then style it (<strong><code>4</code></strong>) so that it is more visible.</p>
+<p><img alt="Style Symbol Layer" src="img/tut_1/003_StyleSymbolLayer_1.png" /></p>
+<p>4. Change the <code>Symbol Layer's</code> settings so that the point is only on the <code>first vertex</code> (<strong><code>5</code></strong>) and
+and not at equidistant intervals.</p>
+<p>Change the offset along the line to be <code>Percentage</code> (<strong><code>6</code></strong>).</p>
+<p><img alt="Symbol Layer Settings" src="img/tut_1/005_EditExpression_1.png" /></p>
+<p>Click the <code>Dropdown Menu</code> (<strong><code>7</code></strong>) ➔<code>Edit...</code> (<strong><code>8</code></strong>) and then add the following code snippet</p>
+<p><img alt="Edit Expression" src="img/tut_1/005_EditExpression_1.png" /></p>
+<pre><code class="language-sql">    -- Point Along Line Code Snippet
+    (@current_hover_frame/@hover_frames) * 100
+</code></pre>
+<p><img alt="Offset along line Snippet" src="img/tut_1/006_OffsetSnippet_1.png" /></p>
+<p>The snippet tells QGIS how far along the line (as a percentage of the line length) to
+render the point in each frame.</p>
+<p>5. Open the Workbench and select <code>Fixed Extent</code> (<strong><code>9</code></strong>).</p>
+<p>Click on <code>Map Canvas Extent</code> (<strong><code>10</code></strong>) and set the the <code>Frames</code> to 300 (<strong><code>11</code></strong>) (for a 10 second
+output at 30 frames per second).</p>
+<p><img alt="Animation Plan" src="img/tut_1/007_AnimationPlan_1.png" /></p>
+<p>6. Skip over the <code>Intro</code>, <code>Outro</code>, and <code>Soundtrack</code> tabs. In the <code>Output</code> tab, set the output
+format (<strong><code>12</code></strong>) and resolution (<strong><code>13</code></strong>), and set the output location's path (<strong><code>14</code></strong>).</p>
+<p><img alt="Output Tab" src="img/tut_1/008_OutputTab_1.png" /></p>
+<p>7. Click <code>Run</code> and render your output.</p>
+<p><img alt="Point Along Line Output GIF" src="img/tut_1/output.gif" /></p>
+<p>After this tutorial you should have a better idea of how to make a point move along a line.
+An expansion to this example would be to make the moving point a dynamically changing
+marker (like the markers in tutorial 1). Go have fun!</p>
+<h2 id="tutorial-2-basic-dynamically-changing-markers">Tutorial 2: Basic Dynamically Changing Markers <!-- The Two-torial--><a class="headerlink" href="#tutorial-2-basic-dynamically-changing-markers" title="Permanent link">&para;</a></h2>
+<p>This tutorial aims to show you the basics of creating, and animating, a static layer to use
+with the Animation Workbench. There are three pre-made layers to allow the main focus of
+the tutorial to be on the Animation Workbench and not on QGIS as a whole.</p>
+<p>1. Download and extract the <strong><a href="https://github.com/timlinux/QGISAnimationWorkbench/blob/main/examples/tutorial_2.zip">Required Tutorial Zip Folder</a></strong>
+&nbsp;<!--Blank Space--></p>
+<p>2. Open the <strong>tutorial_2.qgz</strong> project file that is in the folder.
+&nbsp;<!--Blank Space--></p>
+<p>3. Set the CRS of your project to <strong>WGS84/UTM zone 35S (EPSG: 32735)</strong>.</p>
+<p><img alt="Choose CRS" src="img/tut_2/001_ChooseCRS_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>4. In the <code>Browser</code>, expand the <strong>tutorial_2.gpkg</strong> and add the three pre-made layers
+(VaalDam, SouthAfrica, and route) (<strong><code>A</code></strong>) to your project.</p>
+<p><img alt="Add Backing Layers" src="img/tut_2/002_AddBackingLayers_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>5. In the <code>Layers</code> Panel, arrange the layers in the following order: <code>route</code>, <code>VaalDam</code>,
+<code>SouthAfrica</code>. Then right-click on the <code>VaalDam</code> layer and <code>Zoom to Layer(s)</code> (<strong><code>B</code></strong>)</p>
+<p><img alt="Zoom to Dam" src="img/tut_2/003_ZoomToDam_1.png" /></p>
+<p>Style the three layers to your preferred style.
+&nbsp;<!--Blank Space--></p>
+<p>6. Now create a new layer in the <strong>tutorial_2.gpkg</strong> by clicking <code>Layer</code>➔<code>Create Layer</code>➔
+<code>New GeoPackage Layer...</code> (<strong><code>C</code></strong>).</p>
+<p><img alt="Create New Layer" src="img/tut_2/004_AddNewLayer_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Click on the <code>Ellipsis</code> (<strong><code>D</code></strong>), navigate to and select the <strong>tutorial_2.gpkg</strong>, and
+click <code>Save</code>. Change the <em>Table name</em> to <strong>fish</strong> (<strong><code>E</code></strong>), set the <em>Geometry type</em> as <strong>Point</strong> (<strong><code>F</code></strong>), and
+change the <em>CRS</em> to match the <strong>Project CRS</strong> (<strong><code>G</code></strong>).</p>
+<p><img alt="Layer Settings" src="img/tut_2/005_LayerSettings_1.png" /></p>
+<p>Click on <code>OK</code> and then click <code>Add New Layer</code> on the window that pops up.
+&nbsp;<!--Blank Space--></p>
+<p>7. Select the <code>fish</code> layer and then click on <code>Toggle Editing</code>➔<code>Add Point Feature</code> (<strong><code>H</code></strong>).</p>
+<p><img alt="Edit Layer Points" src="img/tut_2/006_EditLayerPoints_1.png" /></p>
+<p>Add a few points wherever you feel they should go (Hint: This is a fish layer so adding
+them above the dam layer would be best). Don't worry about naming the points, just add
+them.</p>
+<p><img alt="Added Points" src="img/tut_2/007_AddedPoints_1.png" /></p>
+<p>Save your changes by clicking on <code>Save Layer Edits</code> just next to the <code>Toggle Editing</code>
+button. Then stop editing the layer.
+&nbsp;<!--Blank Space--></p>
+<p>8. Repeat steps <strong>6.</strong> and <strong>7.</strong> but change the Table name to <strong>bird</strong> and add the points over
+the land areas.</p>
+<p><img alt="Both Layers Added" src="img/tut_2/008_BothLayersAdded_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>9. Select the <code>fish</code> layer and then in the <code>Layer styling</code> toolbar (<strong><code>I</code></strong>) change the
+<code>Symbol layer type</code> to <code>Raster Image Marker</code> (<strong><code>J</code></strong>).</p>
+<p><img alt="Change to RIM" src="img/tut_2/009_ChangetoRIM_1.png" /></p>
+<p>Select the marker image by clicking the <code>Dropdown menu</code>➔<code>Select File...</code> (<strong><code>K</code></strong>)
+and then choosing <code>fish</code>➔<code>fish_0000.png</code>.</p>
+<p><img alt="Select Image" src="img/tut_2/010_SelectImage_1.png" /></p>
+<p>Click <code>Open</code>
+&nbsp;<!--Blank Space--></p>
+<p>10. Change the marker's <em>Size Unit</em> to <code>Meters at Scale</code> (<strong><code>L</code></strong>)</p>
+<p><img alt="Change Size to MAS" src="img/tut_2/011_ChangeSizeToMAS_1.png" /></p>
+<p>and set the <em>Width</em> and <em>Height</em> to <em>1000</em>.
+&nbsp;<!--Blank Space--></p>
+<p>11. Repeat Steps 9. and 10. with the <code>bird</code> layer but instead choosing <code>bird</code>➔<code>bird_0000.png</code>
+and setting the <em>Width</em> and <em>Height</em> to <em>3000</em>.</p>
+<p>&nbsp;<!--Blank Space--></p>
+<blockquote>
+<p>In <code>QGIS 3.26</code>, or later, the <code>Symbol layer type</code> can simply be selected as
+<code>Animated Marker</code> and Step 12. can be skipped.</p>
+</blockquote>
+<p>12. To animate the <code>fish</code> and <code>bird</code> layers using the <code>QGIS Expressions</code> system click the
+<code>Dropdown Menu</code>➔<code>Edit...</code> (<strong><code>M</code></strong>).</p>
+<p><img alt="Edit Expression" src="img/tut_2/012_EditExpression_1.png" /></p>
+<p>For the <code>fish</code> layer use the following expression:</p>
+<p><img alt="Fish Expression" src="img/tut_2/013_FishExpression_1.png" /></p>
+<pre><code class="language-sql">    @project_home
+    || 
+    '/fish/fish_00'
+    ||
+    lpad(to_string( @frame_number % 32), 2, '0')
+    ||
+    '.png'
+</code></pre>
+<p>And for the <code>bird</code> layer use:</p>
+<p><img alt="Bird Expression" src="img/tut_2/014_BirdExpression_1.png" /></p>
+<pre><code class="language-sql">    @project_home
+    ||
+    '/bird/bird_00'
+    || 
+    lpad(to_string(@frame_number % 9), 2, '0')
+    || 
+    '.png'
+</code></pre>
+<blockquote>
+<p>Refer to the <a href="../manual/under_the_hood/">What is the Workbench doing?</a> section for an explanation
+    about what the above code snippet is doing.</p>
+</blockquote>
+<p>13. Open the Animation Workbench (refer to the <a href="../quickstart/using/">Using the Animation Workbench</a> section
+if you are unsure how to open the Workbench).</p>
+<p>In the <code>Animation Plan</code> tab set:</p>
+<ul>
+<li>the <code>Render Mode</code> to <code>Planar</code> (<strong><code>N</code></strong>),</li>
+<li>the <code>Animation Layer</code> to <code>route</code> (<strong><code>O</code></strong>) using the dropdown menu,</li>
+<li>the <code>Zoom Range</code> (<strong><code>P</code></strong>) to <em>1:270000</em> for the <em>Minimum</em> and <em>1:135000</em> for the <em>Maximum</em>,</li>
+<li>the <code>Frame rate per second</code> to <em>9 fps</em> (<strong><code>Q</code></strong>),</li>
+<li>the <code>Travel duration</code> to <em>4,00 s</em> (<strong><code>R</code></strong>),</li>
+<li>and the <code>Feature hover duration</code> to <em>2,00 s</em> (<strong><code>S</code></strong>)</li>
+</ul>
+<p>Enable both the <code>Pan</code> and <code>Zoom</code> easings and set them to linear.</p>
+<p><img alt="Animation Plan" src="img/tut_2/015_AnimationPlan_1.png" /></p>
+<p>14. Skip past the <code>Intro</code>, <code>Outro</code>, and <code>Soundtrack</code> tabs to the <code>Output</code> tab. Set the
+<code>Output Format</code> as <code>Animated Gif</code> (<strong><code>T</code></strong>) and the <code>Output Resolution</code> to
+<code>720p (1280x720)</code> (<strong><code>U</code></strong>). The <code>Output Resolution</code> can be set as any of the three
+choices but was set at <code>720</code> for this tutorial for the sake of speed. Set the output
+location to one you can find easily (<strong><code>V</code></strong>)</p>
+<p><img alt="Output Tab" src="img/tut_2/016_Output_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>15. Click <code>Run</code> and watch what the Workbench is doing in the <code>Progress</code> tab. Once the
+Workbench is finished running, you should end up with an output similar to this:</p>
+<p><img alt="Output GIF" src="img/tut_2/tut_2_output.gif" /></p>
+<p>After this tutorial you should have a better understanding of how to create a point layer
+in your project and then to change the <code>Single Symbol</code> markers into stationary animated
+markers. A key focus is the idea that you can tell versions of <code>QGIS</code> before <code>3.26</code> to dynamically
+change markers using short code snippets. Versions of <code>QGIS</code> post <code>3.26</code> allow a user to
+simply use the <code>Animated Marker</code> feature without editing an expression.</p>
+<h2 id="tutorial-3-flying-points">Tutorial 3: Flying Points<a class="headerlink" href="#tutorial-3-flying-points" title="Permanent link">&para;</a></h2>
+<p>This tutorial aims to show you how add a flying point animation to points on your map using
+built-in QGIS functionalities (The geometry generator line) and introduced variables from
+the workbench.</p>
+<p>1. Download and extract the <strong><a href="https://github.com/timlinux/QGISAnimationWorkbench/blob/main/examples/tutorial2.zip">Required Tutorial Zip Folder</a></strong>
+&nbsp;<!--Blank Space--></p>
+<p>2. Open the <strong>tutorial_3.qgz</strong> project file.
+When you first open the project file you should be greeted with something like this:</p>
+<p><img alt="Initial Open" src="img/tut_3/001_InitialOpen_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>3. Create a new point layer in a new geopackage by clicking <code>Layer</code>➔<code>Create Layer</code>➔
+ <code>New GeoPackage Layer...</code>. Click on the <code>Ellipsis</code> (three dots) next to the <em>Database</em>
+textbox and navigate to the folder that the <strong>tutorial_3.qgz</strong> file is located in. Type the <em>File</em>
+<em>name</em> <strong>"tutorial_3"</strong> (<strong><code>1</code></strong>) and ensure the file will be saved as a <code>GeoPackage</code> (<strong><code>2</code></strong>) and click
+<code>Save</code> (<strong><code>3</code></strong>).</p>
+<p><img alt="Create New GeoPackage" src="img/tut_3/002_CreateNewGpkg_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Change the <em>Table name</em> to <strong>flying_points</strong> (<strong><code>4</code></strong>), set the <em>Geometry type</em> as <strong>Point</strong> (<strong><code>5</code></strong>) and
+change the <em>CRS</em> to match the <strong>Project CRS</strong> (<strong><code>6</code></strong>).</p>
+<p><img alt="Create New layer" src="img/tut_3/003_CreateNewLayer_1.png" /></p>
+<p>Click <code>OK</code> (<strong><code>7</code></strong>)
+&nbsp;<!--Blank Space--></p>
+<p>4. Click on <code>Toggle Editing</code>➔<code>Add Point Feature</code> (<strong><code>8</code></strong>).</p>
+<p><img alt="Toggle Editing" src="img/tut_3/004_1_ToggleEditing_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>And randomly add points to your map. Depending on your computer's capabilites, you
+can add more, or fewer, points than the example below.</p>
+<p><img alt="Points Added" src="img/tut_3/004_2_PointsAdded_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Save your Layer Edits and toggle off the Editing tool.
+&nbsp;<!--Blank Space--></p>
+<p>5. Style the points layer.</p>
+<p>Select the <code>flying_points</code> (<strong><code>9</code></strong>) layer and in the <code>Layer Styling</code> toolbar click on the
+<code>Add Symbol Layer</code> (<em>green plus symbol</em>) button (<strong><code>10</code></strong>).</p>
+<p><img alt="Add Symbol Layer" src="img/tut_3/005_AddSymbolLayer_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Select the top <code>Simple Marker</code> (<strong><code>11</code></strong>) and change its <em>Symbol layer type</em> to
+<code>Geometry Generator</code> (<strong><code>12</code></strong>)</p>
+<p><img alt="Geometry Generator" src="img/tut_3/006_GeometryGenerator_1.png" /></p>
+<p>and then set the <em>Geometry type</em> to <code>LineString / MultiLineString</code> (<strong><code>13</code></strong>).</p>
+<p><img alt="Geometry Line" src="img/tut_3/007_GeomLine_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Change the line's <em>Symbol layer type</em> to <code>Marker Line</code> (<strong><code>14</code></strong>).</p>
+<p><img alt="Marker Line" src="img/tut_3/008_MarkerLine_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Add a second <code>Simple marker</code> to the marker line so that you end up with something like
+this:</p>
+<p><img alt="Marker Line Symbol" src="img/tut_3/009_MarkerLineSymbol_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Style the various <code>Simple Markers</code> to your preferred look.</p>
+<p>&nbsp;<!--Blank Space--></p>
+<p>6. Select the <code>Geometry Generator</code> symbol layer (<strong><code>15</code></strong>) and add this code to it:</p>
+<pre><code class="language-sql">    wave_randomized(
+    make_line(
+    $geometry, geometry(@hover_feature)), 
+    100, 1000, 1000, 10000, 1)
+</code></pre>
+<p><img alt="Add Geometry" src="img/tut_3/010_AddGeometry_1.png" />
+&nbsp;<!--Blank Space--></p>
+<blockquote>
+<p>More information about what changing the numbers will affect can be found in the
+QGIS expressions editor.
+&nbsp;<!--Blank Space--></p>
+</blockquote>
+<p>7. A few options need to be changed in the <code>Marker Line</code> symbol layer (<strong><code>16</code></strong>): The <em>Marker</em>
+<em>placement</em> needs to be set to <code>On first vertex</code> (<strong><code>17</code></strong>) and, the <em>Offset along line</em> needs to be
+changed to <code>Percentage</code> (<strong><code>18</code></strong>). The click the <code>Dropdown menu</code> next to <em>Offset along line</em> and
+select <code>Edit...</code> (<strong><code>19</code></strong>).</p>
+<p><img alt="Edit Marker Line" src="img/tut_3/011_EditMarkerLine_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>In the <code>Expression String Builder</code> add the following code snippet:</p>
+<pre><code class="language-sql">    100 - to_int((@current_hover_frame / @hover_frames) * 100 )
+</code></pre>
+<p><img alt="Offset Expression" src="img/tut_3/012_OffsetExpression_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Click <code>OK</code>
+&nbsp;<!--Blank Space--></p>
+<p>8. Select the first <code>Simple Marker</code> symbol layer (<strong><code>20</code></strong>) in the <code>Marker Line</code> symbol layer. Scroll
+down to <em>Offset</em> and click on the <code>Dropdown Menu</code>➔<code>Edit..</code> (<strong><code>21</code></strong>).</p>
+<p><img alt="Edit Marker Symbol" src="img/tut_3/013_EditMarkerSymbol_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>In the <code>Expression String Builder</code> add the following code snippet:</p>
+<pre><code class="language-sql">    -- Taken from https://spicyyoghurt.com/tools/easing-functions
+    --    t = Time - Amount of time that has passed since the beginning of the animation. Usually starts at 0 and is slowly increased using a game loop or other update function.
+    --    b = Beginning value - The starting point of the animation. Usually it's a static value, you can start at 0 for example.
+    --    c = Change in value - The amount of change needed to go from starting point to end point. It's also usually a static value.
+    --    d = Duration - Amount of time the animation will take. Usually a static value aswell.
+    -- Sinusoidal
+    -- -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+
+    -- Use with the animation in static mode
+    if(@hover_feature_id != $id,
+    array(
+        (-@hover_frames / 2) * (cos( (pi() * @frame_number / @hover_frames ) - 1)) ,
+        (-@hover_frames / 2) * (sin( (pi() * @frame_number / @hover_frames ) - 1)) 
+        ),
+        array (0,0))
+</code></pre>
+<p><img alt="Marker Expression" src="img/tut_3/014_MarkerExpression_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>Click <code>OK</code>
+&nbsp;<!--Blank Space--></p>
+<p>9. Open the <code>Animation Workbench</code> (<strong><code>22</code></strong>)</p>
+<p><img alt="Open AW" src="img/tut_3/015_OpenAW_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>10. Set up the <code>Animation Plan</code> with:</p>
+<ul>
+<li>the <code>Render Mode</code> to <code>Planar</code> (<strong><code>23</code></strong>),</li>
+<li>the <code>Animation Layer</code> to <code>flying_points</code> (<strong><code>24</code></strong>) using the dropdown menu,</li>
+<li>the <code>Zoom Range</code> (<strong><code>25</code></strong>) to <em>1:22000000</em> for the <em>Minimum</em> and <em>1:11000000</em> for the
+    <em>Maximum</em>,</li>
+<li>the <code>Frame rate per second</code> to <em>9 fps</em> (<strong><code>26</code></strong>),</li>
+<li>the <code>Travel duration</code> to <em>2,00 s</em> (<strong><code>27</code></strong>),</li>
+<li>the <code>Feature hover duration</code> to <em>2,00 s</em> (<strong><code>28</code></strong>),</li>
+<li>and the <code>Zoom Easing</code> as <em>InCirc</em> (<strong><code>29</code></strong>)</li>
+</ul>
+<p><img alt="Animation Plan" src="img/tut_3/016_AnimationPlan_1.png" />
+&nbsp;<!--Blank Space--></p>
+<blockquote>
+<p>With a decently specced computer you can up the fps and get the points to fly
+faster in your output.
+&nbsp;<!--Blank Space--></p>
+</blockquote>
+<p>11. Add license-free media to the <code>Intro</code>, <code>Outro</code>, and <code>Soundtrack</code>.</p>
+<blockquote>
+<p>Make sure your <code>Soundtrack</code> is as long as, or longer than, your final animation will be
+(including the <code>Intro</code>, <code>Animation</code>, and <code>Outro</code>).</p>
+</blockquote>
+<p>&nbsp;<!--Blank Space--></p>
+<p>12. Set the <code>Output Format</code> as <code>Movie (MP4)</code> (<strong><code>30</code></strong>) and the <code>Output Resolution</code> to
+<code>1080 (1920x1080)</code> (<strong><code>31</code></strong>). The <code>Output Resolution</code> can be set as any of the three
+choices but was set at <code>1080</code> for this tutorial for the sake of speed. Set the output
+location (<strong><code>32</code></strong>) to one you can easily locate.</p>
+<p><img alt="Output" src="img/tut_3/017_Output_1.png" />
+&nbsp;<!--Blank Space--></p>
+<p>13. Click <code>Run</code> and get an output. The <strong>GIF</strong> below is the visual output of the tutorial if you
+followed step-by-step and set the parameters to exactly what was stated.</p>
+<p><img alt="Output Gif" src="img/tut_3/tutorial_3_output_1.gif" />
+&nbsp;<!--Blank Space--></p>
+<p>The link to a more complex output (with an <code>Intro</code>, an <code>Outro</code>, and a <code>Soundtrack</code>) can
+be found <a href="https://www.youtube.com/watch?v=yrvHjdVgnSg">here</a></p>
+<p>&nbsp;<!--Blank Space--></p>
+<p>After this tutorial you should have a better idea of how you can use a mixture of built-in
+QGIS functionalites and the workbench's introduced variables to generate interesting outputs.</p>
+<h2 id="tutorial-4-spinning-globe">Tutorial 4: Spinning Globe<a class="headerlink" href="#tutorial-4-spinning-globe" title="Permanent link">&para;</a></h2>
+<p>Given a global point layer and countries layer like this:</p>
+<p><img alt="" src="img/tut_4/0_project.png" /></p>
+<p>You can create a nice spinning globe effect like this:</p>
+<p><img alt="" src="img/tut_4/globe_small.gif" /></p>
+<p>I set up the animation workbench like this:</p>
+<p><img alt="" src="img/tut_4/1_animation_settings.png" /></p>
+<p>For the above animated GIF, I compressed it using imagemagick like this:</p>
+<pre><code>convert globe.gif -coalesce -resize 700x525 -fuzz 2% +dither -layers Optimize +map globe_small.gif
+</code></pre>
+<p>This is a handy technique if you want to generate small file size animations.</p>
+<p>For the points I made a red marker using a quarter circle that spins around the points like this:</p>
+<p><img alt="" src="img/tut_4/expression.png" /></p>
+<p>The rotation field expression is this:</p>
+<pre><code>if (@id = @hover_feature_id, 
+    0-((1440 * (@current_hover_frame/@hover_frames)) % 360),
+    0)
+</code></pre>
+<p>This will spin around 4 times during the hover cycle.</p>
+<p>For the ocean (AOI in the layers list), I generated a grid of 1 degree cells covering the earth. You need to do it as smaller polygons instead of one large polygon because QGIS will run into issues reprojecting a single polygon whose edges lie on the date line.</p>
+<p>Here is how the final video came out:</p>
+<!--## Tutorial 4: Flying Point Swarm... Still need to finalize this tutorial-->
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright Tim Sutton and Contributors, 2022
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/timlinux/QGISAnimationWorkbench" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.indexes", "navigation.sections", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
