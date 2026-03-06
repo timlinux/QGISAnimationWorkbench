@@ -15,13 +15,20 @@ from qgis.PyQt.QtCore import (
 )
 
 try:
-    import pyqtgraph
-except ModuleNotFoundError:
-    import pip
-    pip.main(['install', 'pyqtgraph'])
+    import pyqtgraph as pg
+    from pyqtgraph import PlotWidget  # pylint: disable=unused-import
+except ImportError:
+    # Try to install pyqtgraph using subprocess (modern approach)
+    import subprocess
+    import sys
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtgraph"])
+        import pyqtgraph as pg
+        from pyqtgraph import PlotWidget
+    except Exception:
+        pg = None
+        PlotWidget = None
 
-from pyqtgraph import PlotWidget  # pylint: disable=unused-import
-import pyqtgraph as pg
 from .utilities import get_ui_class
 
 # Kartoza Brand Colors
@@ -80,7 +87,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.animation_progress = 0.0
         self.animation_direction = 1  # 1 = forward, -1 = backward
 
-        # Animation timer - use singleShot for efficiency
+        # Animation timer
         self.animation_timer = QTimer(self)
         self.animation_timer.timeout.connect(self._update_animation)
 
@@ -110,6 +117,9 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def setup_chart(self):
         """Set up the chart with the easing curve and indicator dot."""
+        if pg is None:
+            return
+
         theme = self.get_theme()
 
         # Configure chart appearance
@@ -234,7 +244,7 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def set_preview_color(self, color: str):
         """Sets the widget's dot color."""
-        if self.dot_plot:
+        if self.dot_plot and pg:
             self.dot_plot.setBrush(pg.mkBrush(color))
 
     def set_checkbox_label(self, label: str):
@@ -298,22 +308,16 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.easing = QEasingCurve(easing_type)
         self.easing_changed_signal.emit(self.easing)
 
-        # Update the curve
+        if pg is None:
+            return
+
+        # Update the curve data
         self._generate_curve_data()
 
-        # Update the chart
-        theme = self.get_theme()
-        self.chart.clear()
+        # Update existing curve plot data instead of clearing and recreating
+        if self.curve_plot is not None:
+            # Update curve data in place
+            self.curve_plot.setData(self.curve_data)
 
-        # Re-plot the curve
-        pen = pg.mkPen(color=theme["foreground"], width=3)
-        self.curve_plot = self.chart.plot(self.curve_data, pen=pen)
-
-        # Re-add the dot
-        self.dot_plot = pg.ScatterPlotItem(
-            size=DOT_SIZE,
-            brush=pg.mkBrush(theme["dot_color"]),
-            pen=pg.mkPen(None)
-        )
-        self.chart.addItem(self.dot_plot)
+        # Update dot position
         self._update_dot_position()
