@@ -159,6 +159,7 @@ PROMPT.log
 .pip-install.log
 profile.prof
 profile.callgrind
+pyrightconfig.json
 
 examples/kartoza_staff_example/
 .claude

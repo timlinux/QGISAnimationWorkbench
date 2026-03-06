@@ -341,8 +341,27 @@
               echo "No requirements-dev.txt found, skipping pip install."
             fi
 
-          # Note: QGIS Python path should be set via .nvim-setup.sh when using system QGIS
-          # PyQt stubs can be installed via pip in the venv if needed
+            # Generate pyrightconfig.json for LSP support with QGIS
+            QGIS_STORE_PATH=$(nix path-info .#qgis 2>/dev/null || echo "")
+            VENV_SITE_PACKAGES=$(find .venv/lib -maxdepth 1 -name "python*" -type d 2>/dev/null | head -1)/site-packages
+            if [ -n "$QGIS_STORE_PATH" ]; then
+              QGIS_PYTHON_PATH="$QGIS_STORE_PATH/share/qgis/python"
+              cat > pyrightconfig.json << EOF
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [
+    "$QGIS_PYTHON_PATH",
+    "$VENV_SITE_PACKAGES"
+  ],
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": "none",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic"
+}
+EOF
+              export PYTHONPATH="$QGIS_PYTHON_PATH:$VENV_SITE_PACKAGES:$PYTHONPATH"
+            fi
             # Colors and styling
             CYAN='\033[38;2;83;161;203m'
             GREEN='\033[92m'

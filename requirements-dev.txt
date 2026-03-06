@@ -14,5 +14,8 @@ darglint>=1.8.1
 # Security
 defusedxml>=0.7.1
 
+# Visualization
+pyqtgraph>=0.13.0
+
 # Note: PyQt5, pytest-qt, and qtwebengine-related packages are omitted
 # Use system QGIS PyQt5 instead to avoid security issues with qtwebengine
