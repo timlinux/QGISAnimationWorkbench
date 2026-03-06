@@ -218,15 +218,18 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             == "true"
         )
         # How many frames to render when we are in static mode
-        self.extent_frames_spin.setValue(
-            int(
-                setting(
-                    key="frames_for_extent",
-                    default="10",
-                    prefer_project_setting=True,
-                )
+        initial_frames = int(
+            setting(
+                key="frames_for_extent",
+                default="10",
+                prefer_project_setting=True,
             )
         )
+        self.extent_frames_spin.setValue(initial_frames)
+        # Initialize slider range and connect to keep in sync
+        self.preview_frame_slider.setMaximum(initial_frames)
+        self.preview_frame_spin.setMaximum(initial_frames)
+        self.extent_frames_spin.valueChanged.connect(self._update_slider_range)
         # Keep the scales the same if you dont want it to zoom in an out
         max_scale = float(
             setting(
@@ -289,6 +292,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.movie_task = None
 
         self.preview_frame_spin.valueChanged.connect(self.show_preview_for_frame)
+        self.preview_frame_spin.valueChanged.connect(self._sync_slider_from_spinbox)
+        self.preview_frame_slider.valueChanged.connect(self._sync_spinbox_from_slider)
+        self.preview_frame_slider.valueChanged.connect(self._update_easing_previews)
 
         self.register_data_defined_button(
             self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
@@ -965,6 +971,42 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
         QgsApplication.taskManager().addTask(self.current_preview_frame_render_job)
+
+    def _sync_slider_from_spinbox(self, value: int):
+        """Sync the slider position when spinbox value changes."""
+        max_frames = self.extent_frames_spin.value()
+        if max_frames > 0:
+            self.preview_frame_slider.blockSignals(True)
+            self.preview_frame_slider.setMaximum(max_frames)
+            self.preview_frame_slider.setValue(value)
+            self.preview_frame_slider.blockSignals(False)
+
+    def _sync_spinbox_from_slider(self, value: int):
+        """Sync the spinbox value when slider position changes."""
+        self.preview_frame_spin.blockSignals(True)
+        self.preview_frame_spin.setValue(value)
+        self.preview_frame_spin.blockSignals(False)
+        # Trigger the preview render (since spinbox signals were blocked)
+        self.show_preview_for_frame(value)
+
+    def _update_easing_previews(self, frame: int):
+        """Update easing preview dot positions based on current frame."""
+        max_frames = self.extent_frames_spin.value()
+        if max_frames > 0:
+            progress = frame / max_frames
+            self.pan_easing_widget.set_progress(progress)
+            self.zoom_easing_widget.set_progress(progress)
+
+    def _update_slider_range(self, max_value: int):
+        """Update the slider's maximum value when total frames change."""
+        self.preview_frame_slider.setMaximum(max_value)
+        self.preview_frame_spin.setMaximum(max_value)
+        # Also update easing previews for current position
+        current = self.preview_frame_slider.value()
+        if max_value > 0:
+            progress = current / max_value
+            self.pan_easing_widget.set_progress(progress)
+            self.zoom_easing_widget.set_progress(progress)
 
     def load_image(self, name):
         """

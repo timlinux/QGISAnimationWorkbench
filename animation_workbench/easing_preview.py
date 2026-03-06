@@ -46,14 +46,17 @@ LIGHT_THEME = {
 # Animation settings
 ANIMATION_DURATION_MS = 3000  # Duration for one animation cycle
 ANIMATION_STEPS = 100  # Number of steps in the animation
-DOT_SIZE = 12  # Size of the animated dot
+DOT_SIZE = 12  # Size of the indicator dot
 
 FORM_CLASS = get_ui_class("easing_preview_base.ui")
 
 
 class EasingPreview(QWidget, FORM_CLASS):
     """
-    A widget for setting an easing mode with animated curve visualization.
+    A widget for setting an easing mode with curve visualization.
+
+    The dot position is controlled externally via set_progress() method,
+    allowing it to be linked to a slider or spinbox for smooth scrubbing.
     """
 
     # Signal emitted when the easing is changed
@@ -77,7 +80,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.animation_progress = 0.0
         self.animation_direction = 1  # 1 = forward, -1 = backward
 
-        # Animation timer
+        # Animation timer - use singleShot for efficiency
         self.animation_timer = QTimer(self)
         self.animation_timer.timeout.connect(self._update_animation)
 
@@ -106,7 +109,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         return DARK_THEME if self.is_dark_theme() else LIGHT_THEME
 
     def setup_chart(self):
-        """Set up the chart with the easing curve and animated dot."""
+        """Set up the chart with the easing curve and indicator dot."""
         theme = self.get_theme()
 
         # Configure chart appearance
@@ -129,7 +132,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         pen = pg.mkPen(color=theme["foreground"], width=3)
         self.curve_plot = self.chart.plot(self.curve_data, pen=pen)
 
-        # Create the animated dot as a scatter plot
+        # Create the indicator dot as a scatter plot
         self.dot_plot = pg.ScatterPlotItem(
             size=DOT_SIZE,
             brush=pg.mkBrush(theme["dot_color"]),
@@ -140,7 +143,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         # Set initial dot position
         self._update_dot_position()
 
-        # Start animation
+        # Start animation timer
         interval = ANIMATION_DURATION_MS // ANIMATION_STEPS
         self.animation_timer.start(interval)
 
@@ -165,6 +168,18 @@ class EasingPreview(QWidget, FORM_CLASS):
             self.animation_progress = 0.0
             self.animation_direction = 1
 
+        self._update_dot_position()
+
+    def set_progress(self, progress: float):
+        """Set the dot position based on progress (0.0 to 1.0).
+
+        This method allows external control of the dot position,
+        typically linked to a slider or frame spinbox.
+
+        :param progress: Progress value from 0.0 to 1.0.
+        :type progress: float
+        """
+        self.animation_progress = max(0.0, min(1.0, progress))
         self._update_dot_position()
 
     def _update_dot_position(self):
