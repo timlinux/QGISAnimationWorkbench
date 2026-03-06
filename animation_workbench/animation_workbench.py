@@ -27,6 +27,8 @@ from qgis.PyQt.QtWidgets import (
     QGridLayout,
     QVBoxLayout,
     QPushButton,
+    QSpacerItem,
+    QSizePolicy,
 )
 from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import (
@@ -50,6 +52,7 @@ from .core import (
     MapMode,
 )
 from .dialog_expression_context_generator import DialogExpressionContextGenerator
+from .gui.kartoza_branding import apply_kartoza_styling, KartozaFooter
 from .utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
@@ -78,6 +81,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         QDialog.__init__(self, parent)
         self.setupUi(self)
+
+        # Apply Kartoza branding and styling
+        apply_kartoza_styling(self)
+        self._setup_kartoza_footer()
+
         self.expression_context_generator = DialogExpressionContextGenerator()
         self.main_tab.setCurrentIndex(0)
         self.extent_group_box = QgsExtentWidget(None, QgsExtentWidget.ExpandedStyle)
@@ -288,6 +296,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.register_data_defined_button(
             self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
         )
+
+    def _setup_kartoza_footer(self):
+        """Add the Kartoza branding footer to the dialog."""
+        # Get the main layout
+        main_layout = self.layout()
+        if main_layout:
+            # Add the footer after the button box
+            footer = KartozaFooter(self)
+            main_layout.addWidget(footer)
 
     def setup_video_widget(self):
         """Set up the video widget."""

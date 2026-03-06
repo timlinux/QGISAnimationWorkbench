@@ -24,9 +24,9 @@
       };
 
       extraPythonPackages = ps: [
-        ps.pyqtwebengine
         ps.debugpy
         ps.psutil
+        ps.pyqtgraph
       ];
       qgisWithExtras = geospatial.packages.${system}.qgis.override {
         inherit extraPythonPackages;
@@ -108,7 +108,9 @@
             cd ${toString ./.}
             echo "Running flake8..."
             source .venv/bin/activate 2>/dev/null || true
-            ${pkgs.python3.withPackages (ps: [ ps.flake8 ])}/bin/flake8 animation_workbench/ --max-line-length=120
+            ${
+              pkgs.python3.withPackages (ps: [ ps.flake8 ])
+            }/bin/flake8 animation_workbench/ --max-line-length=120
             echo "Running pyright..."
             ${pkgs.pyright}/bin/pyright animation_workbench/
           ''}";
@@ -127,7 +129,12 @@
           program = "${pkgs.writeShellScript "serve-docs" ''
             cd ${toString ./.}
             source .venv/bin/activate 2>/dev/null || true
-            ${pkgs.python3.withPackages (ps: [ ps.mkdocs ps.mkdocs-material ])}/bin/mkdocs serve
+            ${
+              pkgs.python3.withPackages (ps: [
+                ps.mkdocs
+                ps.mkdocs-material
+              ])
+            }/bin/mkdocs serve
           ''}";
         };
 
@@ -136,7 +143,12 @@
           program = "${pkgs.writeShellScript "build-docs" ''
             cd ${toString ./.}
             source .venv/bin/activate 2>/dev/null || true
-            ${pkgs.python3.withPackages (ps: [ ps.mkdocs ps.mkdocs-material ])}/bin/mkdocs build
+            ${
+              pkgs.python3.withPackages (ps: [
+                ps.mkdocs
+                ps.mkdocs-material
+              ])
+            }/bin/mkdocs build
           ''}";
         };
 
@@ -184,12 +196,44 @@
           ''}";
         };
 
+        symlink = {
+          type = "app";
+          program = "${pkgs.writeShellScript "symlink-plugin" ''
+            PLUGIN_SOURCE="$(pwd)/animation_workbench"
+            PLUGIN_DIR="$HOME/.local/share/QGIS/QGIS3/profiles/${profileName}/python/plugins"
+            PLUGIN_DEST="$PLUGIN_DIR/animation_workbench"
+
+            echo "Creating plugin symlink..."
+            echo "  Source: $PLUGIN_SOURCE"
+            echo "  Destination: $PLUGIN_DEST"
+
+            # Create plugins directory if it doesn't exist
+            mkdir -p "$PLUGIN_DIR"
+
+            # Remove existing plugin (symlink or directory)
+            if [ -L "$PLUGIN_DEST" ]; then
+              echo "Removing existing symlink..."
+              rm "$PLUGIN_DEST"
+            elif [ -d "$PLUGIN_DEST" ]; then
+              echo "Removing existing directory..."
+              rm -rf "$PLUGIN_DEST"
+            fi
+
+            # Create symlink
+            ln -s "$PLUGIN_SOURCE" "$PLUGIN_DEST"
+            echo "Symlink created successfully!"
+            echo ""
+            echo "The plugin is now linked. Changes to the source will be"
+            echo "reflected in QGIS after reloading the plugin or restarting QGIS."
+          ''}";
+        };
+
       };
 
       devShells.${system}.default = pkgs.mkShell {
         packages = [
-
-          qgisWithExtras
+          # Note: QGIS is not included here to avoid qtwebengine security issues
+          # Use system QGIS or run via: nix run .#qgis (with --impure flag)
           pkgs.actionlint # for checking gh actions
           pkgs.bandit
           pkgs.chafa
@@ -203,8 +247,8 @@
           pkgs.gum # UX for TUIs
           pkgs.isort
           pkgs.jq
-          pkgs.libsForQt5.kcachegrind
-          pkgs.libsForQt5.qt5.qtpositioning
+          # kcachegrind removed - pulls in qtwebengine via KDE deps
+          # Use system kcachegrind or qcachegrind instead
           pkgs.markdownlint-cli
           pkgs.nixfmt-rfc-style
           pkgs.pre-commit
@@ -212,52 +256,57 @@
           pkgs.python3
           # Python development essentials
           pkgs.pyright
-          pkgs.qt5.full # so we get designer
-          pkgs.qt5.qtbase
-          pkgs.qt5.qtlocation
-          pkgs.qt5.qtquickcontrols2
-          pkgs.qt5.qtsvg
-          pkgs.qt5.qttools
+          # Qt5 packages removed - many pull in qtwebengine
+          # Use system Qt Designer if needed
+          pkgs.ninja # needed for building numpy
           pkgs.rpl
           pkgs.shellcheck
           pkgs.shfmt
-          pkgs.vscode
+          # vscode removed - uses electron/chromium
           pkgs.yamlfmt
           pkgs.yamllint
           pkgs.nodePackages.cspell
           (pkgs.python3.withPackages (ps: [
+            # Code formatting and linting
             ps.black
             ps.click # needed by black
+            ps.flake8
+            ps.isort
+            ps.mypy
+            ps.bandit
+
+            # Testing
+            ps.pytest
+            # pytest-qt omitted - pulls in qtwebengine
+
+            # Documentation
+            ps.mkdocs
+            ps.mkdocs-material
+
+            # Development tools
             ps.debugpy
             ps.docformatter
-            ps.flake8
+            ps.pip
+            ps.setuptools
+            ps.wheel
+            ps.virtualenv
+            ps.venvShellHook
+
+            # Libraries
             ps.gdal
             ps.httpx
-            ps.mypy
             ps.numpy
-            ps.paver
-            ps.pip
             ps.psutil
-            ps.pyqt5-stubs
-            ps.pytest
-            ps.pytest-qt
-            ps.python
             ps.rich
-            ps.setuptools
-            ps.snakeviz # For visualising cprofiler outputs
             ps.toml
             ps.typer
-            ps.wheel
-            # For autocompletion in vscode
-            ps.pyqt5-stubs
+            ps.pyyaml
+            ps.jinja2
+            ps.requests
+            ps.packaging
 
-            # This executes some shell code to initialize a venv in $venvDir before
-            # dropping into the shell
-            ps.venvShellHook
-            ps.virtualenv
-            # Those are dependencies that we would like to use from nixpkgs, which will
-            # add them to PYTHONPATH and thus make them accessible from within the venv.
-            ps.pyqtwebengine
+            # Profiling
+            ps.snakeviz
           ]))
 
         ];
@@ -293,14 +342,8 @@
               echo "No requirements-dev.txt found, skipping pip install."
             fi
 
-          # Add PyQt and QGIS to python path for neovim
-          pythonWithPackages="${
-            pkgs.python3.withPackages (ps: [
-              ps.pyqt5-stubs
-              ps.pyqtwebengine
-            ])
-          }"
-          export PYTHONPATH="$pythonWithPackages/lib/python*/site-packages:${qgisWithExtras}/share/qgis/python:$PYTHONPATH"
+          # Note: QGIS Python path should be set via .nvim-setup.sh when using system QGIS
+          # PyQt stubs can be installed via pip in the venv if needed
             # Colors and styling
             CYAN='\033[38;2;83;161;203m'
             GREEN='\033[92m'
@@ -335,6 +378,7 @@
             echo -e "   $GRAY>$RESET  $CYAN nix run .#docs-serve$RESET - Serve docs locally"
             echo -e "   $GRAY>$RESET  $CYAN nix run .#docs-build$RESET - Build documentation"
             echo -e "   $GRAY>$RESET  $CYAN nix run .#package$RESET    - Build plugin zip"
+            echo -e "   $GRAY>$RESET  $CYAN nix run .#symlink$RESET    - Symlink plugin to QGIS profile"
             echo -e "   $GRAY>$RESET  $CYAN nix run .#security$RESET   - Run security scan (bandit)"
             echo -e "   $GRAY>$RESET  $CYAN nix run .#clean$RESET      - Clean workspace"
             echo -e "   $GRAY>$RESET  $CYAN nix run .#profile$RESET    - View profiling data (snakeviz)"

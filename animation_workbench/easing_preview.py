@@ -25,6 +25,10 @@ from pyqtgraph import PlotWidget # pylint: disable=unused-import
 import pyqtgraph as pg
 from .utilities import get_ui_class
 
+# Kartoza Brand Colors
+KARTOZA_GREEN_DARK = "#589632"
+KARTOZA_GREEN_LIGHT = "#93b023"
+
 FORM_CLASS = get_ui_class("easing_preview_base.ui")
 
 
@@ -84,11 +88,24 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.setup_easing_previews()
         self.easing_combo.currentIndexChanged.connect(self.easing_changed)
         self.enable_easing.toggled.connect(self.checkbox_changed)
-        ## chart: Switch to using white background and black foreground
-        pg.setConfigOption("background", "w")
-        pg.setConfigOption("foreground", "k")
+
+        # Chart styling with Kartoza branding
+        pg.setConfigOption("background", "#2d2d2d")
+        pg.setConfigOption("foreground", KARTOZA_GREEN_LIGHT)
         self.chart.hideAxis("bottom")
         self.chart.hideAxis("left")
+        self.chart.setBackground("#2d2d2d")
+
+        # Style the easing preview area
+        self.easing_preview.setStyleSheet(f"""
+            background: qlineargradient(
+                x1:0, y1:0, x2:1, y2:1,
+                stop:0 #1a1a1a,
+                stop:1 #2d2d2d
+            );
+            border: 2px solid {KARTOZA_GREEN_DARK};
+            border-radius: 6px;
+        """)
 
     def resizeEvent(self, new_size):
         """Resize event handler."""
@@ -266,4 +283,6 @@ class EasingPreview(QWidget, FORM_CLASS):
             1000,
         ):
             chart.append(self.easing.valueForProgress(i / 1000))
-        self.chart.plot(chart)
+        # Plot with Kartoza green color
+        pen = pg.mkPen(color=KARTOZA_GREEN_LIGHT, width=3)
+        self.chart.plot(chart, pen=pen)

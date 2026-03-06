@@ -7,8 +7,10 @@ __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
 from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QVBoxLayout
 from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from animation_workbench.core import set_setting, setting
+from animation_workbench.gui.kartoza_branding import apply_kartoza_styling, KartozaFooter
 from animation_workbench.utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("workbench_settings_base.ui")
@@ -26,6 +28,10 @@ class WorkbenchSettings(FORM_CLASS, QgsOptionsPageWidget):
         """
         QgsOptionsPageWidget.__init__(self, parent)
         self.setupUi(self)
+
+        # Apply Kartoza branding
+        apply_kartoza_styling(self)
+        self._setup_kartoza_footer()
 
         # The maximum number of concurrent threads to allow
         # during rendering. Probably setting to the same number
@@ -50,6 +56,13 @@ class WorkbenchSettings(FORM_CLASS, QgsOptionsPageWidget):
             self.verbose_mode_checkbox.setChecked(True)
         else:
             self.verbose_mode_checkbox.setChecked(False)
+
+    def _setup_kartoza_footer(self):
+        """Add the Kartoza branding footer to the settings panel."""
+        main_layout = self.layout()
+        if main_layout:
+            footer = KartozaFooter(self)
+            main_layout.addWidget(footer)
 
     def apply(self):
         """Process the animation sequence.

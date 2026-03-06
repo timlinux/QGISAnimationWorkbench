@@ -2,45 +2,486 @@
 -- SPDX-License-Identifier: MIT
 --
 -- QGIS Animation Workbench - Neovim Project Configuration
--- This file contains project-specific settings for LSP, formatting, etc.
+-- All project keybindings are under <leader>p
+--
+-- This file is auto-loaded by neovim with exrc enabled or via neoconf/nvim-config-local
 
 local M = {}
 
 -- ============================================================================
--- PYTHONPATH Configuration for QGIS
+-- Helper Functions
 -- ============================================================================
 
--- Detect QGIS installation path from nix environment
-local function get_qgis_python_path()
-  local handle = io.popen("which qgis 2>/dev/null")
-  if handle then
-    local qgis_bin = handle:read("*a"):gsub("%s+$", "")
-    handle:close()
-    if qgis_bin ~= "" then
-      -- Extract nix store path: /nix/store/xxx-qgis-xxx/bin/qgis -> /nix/store/xxx-qgis-xxx
-      local qgis_prefix = qgis_bin:match("(.+)/bin/qgis")
-      if qgis_prefix then
-        return qgis_prefix .. "/share/qgis/python"
-      end
-    end
+-- Run a command in a new terminal split
+local function run_in_terminal(cmd, opts)
+  opts = opts or {}
+  local direction = opts.direction or "horizontal"
+  local size = opts.size or 15
+
+  if direction == "horizontal" then
+    vim.cmd("botright " .. size .. "split | terminal " .. cmd)
+  elseif direction == "vertical" then
+    vim.cmd("vertical " .. size .. "split | terminal " .. cmd)
+  elseif direction == "float" then
+    vim.cmd("terminal " .. cmd)
   end
-  return nil
+
+  -- Enter insert mode in terminal
+  vim.cmd("startinsert")
 end
 
--- Get virtualenv site-packages path
-local function get_venv_path()
-  local cwd = vim.fn.getcwd()
-  local venv_path = cwd .. "/.venv/lib"
-  -- Find python version directory
-  local handle = io.popen("ls " .. venv_path .. " 2>/dev/null | head -1")
-  if handle then
-    local python_ver = handle:read("*a"):gsub("%s+$", "")
-    handle:close()
-    if python_ver ~= "" then
-      return venv_path .. "/" .. python_ver .. "/site-packages"
-    end
+-- Run a command in background (no terminal output)
+local function run_background(cmd)
+  vim.fn.jobstart(cmd, { detach = true })
+  vim.notify("Started: " .. cmd, vim.log.levels.INFO)
+end
+
+-- ============================================================================
+-- Which-Key Registration
+-- ============================================================================
+
+M.setup_keymaps = function()
+  local ok, wk = pcall(require, "which-key")
+  if not ok then
+    vim.notify("which-key not found, using basic keymaps", vim.log.levels.WARN)
+    M.setup_basic_keymaps()
+    return
   end
-  return nil
+
+  wk.add({
+    { "<leader>p", group = "Project (Animation Workbench)" },
+
+    -- ========================================================================
+    -- QGIS
+    -- ========================================================================
+    { "<leader>pq", group = "QGIS" },
+    {
+      "<leader>pqs",
+      function()
+        run_background("ANIMATION_WORKBENCH_DEBUG=0 nix run .#qgis --impure")
+      end,
+      desc = "QGIS Stable",
+    },
+    {
+      "<leader>pqd",
+      function()
+        run_in_terminal(
+          "ANIMATION_WORKBENCH_DEBUG=1 ANIMATION_WORKBENCH_LOG=$HOME/AnimationWorkbench.log nix run .#qgis --impure",
+          { direction = "horizontal", size = 20 }
+        )
+      end,
+      desc = "QGIS Stable (Debug)",
+    },
+    {
+      "<leader>pql",
+      function()
+        run_background("ANIMATION_WORKBENCH_DEBUG=0 nix run .#qgis-ltr --impure")
+      end,
+      desc = "QGIS LTR",
+    },
+    {
+      "<leader>pqL",
+      function()
+        run_in_terminal(
+          "ANIMATION_WORKBENCH_DEBUG=1 ANIMATION_WORKBENCH_LOG=$HOME/AnimationWorkbench.log nix run .#qgis-ltr --impure",
+          { direction = "horizontal", size = 20 }
+        )
+      end,
+      desc = "QGIS LTR (Debug)",
+    },
+    {
+      "<leader>pqm",
+      function()
+        run_background("ANIMATION_WORKBENCH_DEBUG=0 nix run .#qgis-master --impure")
+      end,
+      desc = "QGIS Master",
+    },
+    {
+      "<leader>pqM",
+      function()
+        run_in_terminal(
+          "ANIMATION_WORKBENCH_DEBUG=1 ANIMATION_WORKBENCH_LOG=$HOME/AnimationWorkbench.log nix run .#qgis-master --impure",
+          { direction = "horizontal", size = 20 }
+        )
+      end,
+      desc = "QGIS Master (Debug)",
+    },
+    {
+      "<leader>pqo",
+      function()
+        vim.cmd("edit $HOME/AnimationWorkbench.log")
+      end,
+      desc = "Open debug log",
+    },
+
+    -- ========================================================================
+    -- Testing
+    -- ========================================================================
+    { "<leader>pt", group = "Test" },
+    {
+      "<leader>ptt",
+      function()
+        run_in_terminal("nix run .#test", { size = 20 })
+      end,
+      desc = "Run all tests",
+    },
+    {
+      "<leader>ptf",
+      function()
+        local file = vim.fn.expand("%")
+        run_in_terminal("pytest " .. file .. " -v", { size = 20 })
+      end,
+      desc = "Test current file",
+    },
+    {
+      "<leader>ptl",
+      function()
+        run_in_terminal("pytest --lf -v", { size = 20 })
+      end,
+      desc = "Re-run last failed",
+    },
+    {
+      "<leader>ptc",
+      function()
+        run_in_terminal("pytest --cov=animation_workbench --cov-report=html && xdg-open htmlcov/index.html", { size = 20 })
+      end,
+      desc = "Run with coverage",
+    },
+
+    -- ========================================================================
+    -- Code Quality
+    -- ========================================================================
+    { "<leader>pc", group = "Code Quality" },
+    {
+      "<leader>pcc",
+      function()
+        run_in_terminal("nix run .#checks", { size = 25 })
+      end,
+      desc = "Pre-commit checks (all)",
+    },
+    {
+      "<leader>pcf",
+      function()
+        run_in_terminal("nix run .#format", { size = 15 })
+      end,
+      desc = "Format all (black + isort)",
+    },
+    {
+      "<leader>pcF",
+      function()
+        local file = vim.fn.expand("%")
+        run_in_terminal("black " .. file .. " && isort " .. file, { size = 10 })
+      end,
+      desc = "Format current file",
+    },
+    {
+      "<leader>pcl",
+      function()
+        run_in_terminal("nix run .#lint", { size = 20 })
+      end,
+      desc = "Lint all (flake8 + pyright)",
+    },
+    {
+      "<leader>pcL",
+      function()
+        local file = vim.fn.expand("%")
+        run_in_terminal("flake8 " .. file .. " && pyright " .. file, { size = 15 })
+      end,
+      desc = "Lint current file",
+    },
+    {
+      "<leader>pcs",
+      function()
+        run_in_terminal("nix run .#security", { size = 20 })
+      end,
+      desc = "Security scan (bandit)",
+    },
+
+    -- ========================================================================
+    -- Documentation
+    -- ========================================================================
+    { "<leader>pd", group = "Documentation" },
+    {
+      "<leader>pds",
+      function()
+        run_in_terminal("nix run .#docs-serve", { size = 10 })
+      end,
+      desc = "Serve docs locally",
+    },
+    {
+      "<leader>pdb",
+      function()
+        run_in_terminal("nix run .#docs-build", { size = 15 })
+      end,
+      desc = "Build docs",
+    },
+    {
+      "<leader>pdo",
+      function()
+        run_background("xdg-open http://localhost:8000")
+      end,
+      desc = "Open docs in browser",
+    },
+
+    -- ========================================================================
+    -- Debugging (DAP)
+    -- ========================================================================
+    { "<leader>px", group = "Debug (DAP)" },
+    {
+      "<leader>pxb",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.toggle_breakpoint()
+        else
+          vim.notify("DAP not available", vim.log.levels.WARN)
+        end
+      end,
+      desc = "Toggle breakpoint",
+    },
+    {
+      "<leader>pxc",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.continue()
+        end
+      end,
+      desc = "Continue",
+    },
+    {
+      "<leader>pxs",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.step_over()
+        end
+      end,
+      desc = "Step over",
+    },
+    {
+      "<leader>pxi",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.step_into()
+        end
+      end,
+      desc = "Step into",
+    },
+    {
+      "<leader>pxo",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.step_out()
+        end
+      end,
+      desc = "Step out",
+    },
+    {
+      "<leader>pxr",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.repl.open()
+        end
+      end,
+      desc = "Open REPL",
+    },
+    {
+      "<leader>pxa",
+      function()
+        local dap_ok, dap = pcall(require, "dap")
+        if dap_ok then
+          dap.run({
+            type = "python",
+            request = "attach",
+            name = "Attach to QGIS",
+            connect = { host = "127.0.0.1", port = 5678 },
+            pathMappings = {
+              {
+                localRoot = vim.fn.getcwd() .. "/animation_workbench",
+                remoteRoot = vim.fn.expand("~/.local/share/QGIS/QGIS3/profiles/AnimationWorkbench/python/plugins/animation_workbench"),
+              },
+            },
+          })
+        end
+      end,
+      desc = "Attach to QGIS (debugpy)",
+    },
+
+    -- ========================================================================
+    -- Packaging
+    -- ========================================================================
+    { "<leader>pp", group = "Package" },
+    {
+      "<leader>ppb",
+      function()
+        run_in_terminal("nix run .#package", { size = 10 })
+      end,
+      desc = "Build plugin zip",
+    },
+    {
+      "<leader>pps",
+      function()
+        run_in_terminal("nix run .#symlink", { size = 12 })
+      end,
+      desc = "Symlink plugin to QGIS profile",
+    },
+    {
+      "<leader>ppi",
+      function()
+        local plugin_dir = vim.fn.expand("~/.local/share/QGIS/QGIS3/profiles/AnimationWorkbench/python/plugins/")
+        run_in_terminal("mkdir -p " .. plugin_dir .. " && cp -r animation_workbench " .. plugin_dir, { size = 10 })
+      end,
+      desc = "Install (copy) to QGIS profile",
+    },
+
+    -- ========================================================================
+    -- Profiling
+    -- ========================================================================
+    { "<leader>pr", group = "Profile" },
+    {
+      "<leader>prp",
+      function()
+        local file = vim.fn.expand("%")
+        run_in_terminal("python -m cProfile -o profile.prof " .. file, { size = 15 })
+      end,
+      desc = "Profile current file",
+    },
+    {
+      "<leader>prv",
+      function()
+        run_in_terminal("nix run .#profile", { size = 10 })
+      end,
+      desc = "View profile (snakeviz)",
+    },
+
+    -- ========================================================================
+    -- Utilities
+    -- ========================================================================
+    { "<leader>pu", group = "Utilities" },
+    {
+      "<leader>puc",
+      function()
+        run_in_terminal("nix run .#clean", { size = 10 })
+      end,
+      desc = "Clean workspace",
+    },
+    {
+      "<leader>pui",
+      function()
+        run_in_terminal("pip install -r requirements-dev.txt", { size = 15 })
+      end,
+      desc = "Install pip deps",
+    },
+    {
+      "<leader>puh",
+      function()
+        run_in_terminal("pre-commit install", { size = 10 })
+      end,
+      desc = "Install pre-commit hooks",
+    },
+    {
+      "<leader>pus",
+      function()
+        run_in_terminal("./scripts/update-strings.sh", { size = 10 })
+      end,
+      desc = "Update translation strings",
+    },
+    {
+      "<leader>put",
+      function()
+        run_in_terminal("./scripts/compile-strings.sh", { size = 10 })
+      end,
+      desc = "Compile translations",
+    },
+    {
+      "<leader>pun",
+      function()
+        run_in_terminal("nix flake show", { size = 20 })
+      end,
+      desc = "Show nix flake",
+    },
+    {
+      "<leader>pue",
+      function()
+        vim.cmd("edit flake.nix")
+      end,
+      desc = "Edit flake.nix",
+    },
+
+    -- ========================================================================
+    -- Git
+    -- ========================================================================
+    { "<leader>pg", group = "Git" },
+    {
+      "<leader>pgs",
+      "<cmd>Git status<cr>",
+      desc = "Git status",
+    },
+    {
+      "<leader>pgd",
+      "<cmd>Git diff<cr>",
+      desc = "Git diff",
+    },
+    {
+      "<leader>pgb",
+      "<cmd>Git blame<cr>",
+      desc = "Git blame",
+    },
+    {
+      "<leader>pgl",
+      "<cmd>Git log --oneline -20<cr>",
+      desc = "Git log (20)",
+    },
+    {
+      "<leader>pgp",
+      function()
+        run_in_terminal("git push", { size = 10 })
+      end,
+      desc = "Git push",
+    },
+  })
+
+  vim.notify("Animation Workbench keymaps loaded (<leader>p)", vim.log.levels.INFO)
+end
+
+-- ============================================================================
+-- Basic Keymaps (fallback without which-key)
+-- ============================================================================
+
+M.setup_basic_keymaps = function()
+  local opts = { noremap = true, silent = true }
+
+  -- QGIS
+  vim.keymap.set("n", "<leader>pqs", function()
+    run_background("nix run .#qgis --impure")
+  end, vim.tbl_extend("force", opts, { desc = "QGIS Stable" }))
+
+  vim.keymap.set("n", "<leader>pqd", function()
+    run_in_terminal("ANIMATION_WORKBENCH_DEBUG=1 nix run .#qgis --impure", { size = 20 })
+  end, vim.tbl_extend("force", opts, { desc = "QGIS Debug" }))
+
+  -- Testing
+  vim.keymap.set("n", "<leader>ptt", function()
+    run_in_terminal("nix run .#test", { size = 20 })
+  end, vim.tbl_extend("force", opts, { desc = "Run tests" }))
+
+  -- Code Quality
+  vim.keymap.set("n", "<leader>pcc", function()
+    run_in_terminal("nix run .#checks", { size = 25 })
+  end, vim.tbl_extend("force", opts, { desc = "Pre-commit checks" }))
+
+  vim.keymap.set("n", "<leader>pcf", function()
+    run_in_terminal("nix run .#format", { size = 15 })
+  end, vim.tbl_extend("force", opts, { desc = "Format code" }))
+
+  -- Docs
+  vim.keymap.set("n", "<leader>pds", function()
+    run_in_terminal("nix run .#docs-serve", { size = 10 })
+  end, vim.tbl_extend("force", opts, { desc = "Serve docs" }))
 end
 
 -- ============================================================================
@@ -53,141 +494,30 @@ M.setup_lsp = function()
     return
   end
 
-  -- Build extra paths for pyright
-  local extra_paths = {}
-
-  local qgis_path = get_qgis_python_path()
-  if qgis_path then
-    table.insert(extra_paths, qgis_path)
-    table.insert(extra_paths, qgis_path .. "/plugins")
-  end
-
-  local venv_path = get_venv_path()
-  if venv_path then
-    table.insert(extra_paths, venv_path)
-  end
-
-  -- Add project root for imports
-  table.insert(extra_paths, vim.fn.getcwd())
-
-  -- Configure pyright with QGIS paths
+  -- Configure pyright for QGIS development
   lspconfig.pyright.setup({
     settings = {
       python = {
         analysis = {
-          extraPaths = extra_paths,
+          extraPaths = {
+            vim.fn.getcwd(),
+            vim.fn.getcwd() .. "/animation_workbench",
+          },
           typeCheckingMode = "basic",
           autoSearchPaths = true,
           useLibraryCodeForTypes = true,
-          diagnosticMode = "workspace",
-          -- Ignore some errors common in QGIS plugins
           diagnosticSeverityOverrides = {
             reportMissingImports = "warning",
             reportMissingModuleSource = "none",
-            reportOptionalMemberAccess = "information",
           },
         },
-        pythonPath = vim.fn.getcwd() .. "/.venv/bin/python",
       },
     },
-    on_attach = function(client, bufnr)
-      -- Enable completion triggered by <c-x><c-o>
-      vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
-
-      -- Buffer local mappings
-      local opts = { buffer = bufnr }
-      vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-      vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-      vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-      vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
-      vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-      vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-    end,
   })
 end
 
 -- ============================================================================
--- Formatting Configuration (conform.nvim)
--- ============================================================================
-
-M.setup_formatting = function()
-  local conform_ok, conform = pcall(require, "conform")
-  if not conform_ok then
-    return
-  end
-
-  conform.setup({
-    formatters_by_ft = {
-      python = { "isort", "black" },
-      lua = { "stylua" },
-      nix = { "nixfmt" },
-      yaml = { "yamlfmt" },
-      json = { "jq" },
-      markdown = { "markdownlint" },
-      sh = { "shfmt" },
-      bash = { "shfmt" },
-    },
-    formatters = {
-      black = {
-        prepend_args = { "--line-length", "120" },
-      },
-      isort = {
-        prepend_args = { "--profile", "black", "--line-length", "120" },
-      },
-      shfmt = {
-        prepend_args = { "-i", "2", "-ci" },
-      },
-    },
-    format_on_save = {
-      timeout_ms = 3000,
-      lsp_fallback = true,
-    },
-  })
-
-  -- Format command
-  vim.api.nvim_create_user_command("Format", function()
-    conform.format({ async = true, lsp_fallback = true })
-  end, { desc = "Format current buffer" })
-end
-
--- ============================================================================
--- Linting Configuration (nvim-lint)
--- ============================================================================
-
-M.setup_linting = function()
-  local lint_ok, lint = pcall(require, "lint")
-  if not lint_ok then
-    return
-  end
-
-  lint.linters_by_ft = {
-    python = { "flake8", "mypy" },
-    yaml = { "yamllint" },
-    markdown = { "markdownlint" },
-    sh = { "shellcheck" },
-    bash = { "shellcheck" },
-    dockerfile = { "hadolint" },
-  }
-
-  -- Configure flake8 to match pyproject.toml
-  lint.linters.flake8.args = {
-    "--max-line-length=120",
-    "--extend-ignore=E501,W503,E203",
-    "--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s",
-  }
-
-  -- Auto-lint on save and insert leave
-  vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave" }, {
-    callback = function()
-      lint.try_lint()
-    end,
-  })
-end
-
--- ============================================================================
--- DAP (Debug Adapter Protocol) Configuration
+-- DAP Configuration for QGIS debugging
 -- ============================================================================
 
 M.setup_dap = function()
@@ -196,27 +526,17 @@ M.setup_dap = function()
     return
   end
 
-  -- Python debugpy configuration
   dap.adapters.python = {
     type = "executable",
-    command = vim.fn.getcwd() .. "/.venv/bin/python",
+    command = "python",
     args = { "-m", "debugpy.adapter" },
   }
 
   dap.configurations.python = {
     {
       type = "python",
-      request = "launch",
-      name = "Launch file",
-      program = "${file}",
-      pythonPath = function()
-        return vim.fn.getcwd() .. "/.venv/bin/python"
-      end,
-    },
-    {
-      type = "python",
       request = "attach",
-      name = "Attach to QGIS (debugpy)",
+      name = "Attach to QGIS (debugpy on 5678)",
       connect = {
         host = "127.0.0.1",
         port = 5678,
@@ -228,97 +548,51 @@ M.setup_dap = function()
         },
       },
     },
+    {
+      type = "python",
+      request = "launch",
+      name = "Launch file",
+      program = "${file}",
+    },
   }
 end
 
 -- ============================================================================
--- Project-specific settings
+-- Project Settings
 -- ============================================================================
 
 M.setup_project = function()
-  -- Set Python 3 as the provider
-  vim.g.python3_host_prog = vim.fn.getcwd() .. "/.venv/bin/python"
-
-  -- File type associations
-  vim.filetype.add({
-    extension = {
-      qml = "xml", -- QGIS QML style files
-      ui = "xml",  -- Qt UI files
-    },
-    pattern = {
-      ["metadata.txt"] = "ini",
-    },
-  })
-
-  -- Project-specific settings
+  -- Python settings
   vim.opt_local.tabstop = 4
   vim.opt_local.shiftwidth = 4
   vim.opt_local.expandtab = true
   vim.opt_local.textwidth = 120
   vim.opt_local.colorcolumn = "120"
 
-  -- Spell checking for documentation
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "markdown", "rst", "text" },
-    callback = function()
-      vim.opt_local.spell = true
-      vim.opt_local.spelllang = "en_us"
-    end,
+  -- File type associations
+  vim.filetype.add({
+    extension = {
+      qml = "xml",
+      ui = "xml",
+    },
+    pattern = {
+      ["metadata.txt"] = "ini",
+    },
   })
 end
 
 -- ============================================================================
--- Telescope project-specific pickers
--- ============================================================================
-
-M.setup_telescope = function()
-  local telescope_ok, telescope = pcall(require, "telescope.builtin")
-  if not telescope_ok then
-    return
-  end
-
-  -- Custom picker for plugin files only
-  vim.api.nvim_create_user_command("PluginFiles", function()
-    telescope.find_files({
-      cwd = vim.fn.getcwd() .. "/animation_workbench",
-      prompt_title = "Plugin Files",
-    })
-  end, { desc = "Find files in plugin directory" })
-
-  -- Custom picker for test files
-  vim.api.nvim_create_user_command("TestFiles", function()
-    telescope.find_files({
-      cwd = vim.fn.getcwd() .. "/animation_workbench/test",
-      prompt_title = "Test Files",
-    })
-  end, { desc = "Find test files" })
-
-  -- Search in plugin code only
-  vim.api.nvim_create_user_command("PluginGrep", function()
-    telescope.live_grep({
-      cwd = vim.fn.getcwd() .. "/animation_workbench",
-      prompt_title = "Search Plugin Code",
-    })
-  end, { desc = "Search in plugin code" })
-end
-
--- ============================================================================
--- Initialize all configurations
+-- Initialize
 -- ============================================================================
 
 M.setup = function()
   M.setup_project()
+  M.setup_keymaps()
   M.setup_lsp()
-  M.setup_formatting()
-  M.setup_linting()
   M.setup_dap()
-  M.setup_telescope()
-
-  -- Notify user
-  vim.notify("Animation Workbench project config loaded", vim.log.levels.INFO)
 end
 
--- Auto-setup when this file is sourced
+-- Auto-setup
 M.setup()
 
 return M
