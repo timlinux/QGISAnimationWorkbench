@@ -15,8 +15,22 @@ import tempfile
 from functools import partial
 from typing import Optional
 
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+from .core.video_player import (
+    is_multimedia_available,
+    open_in_system_player,
+    get_system_player_name,
+    get_video_playback_instructions,
+)
+
+# Import multimedia components with fallback
+_multimedia_available, _multimedia_error = is_multimedia_available()
+if _multimedia_available:
+    from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+    from PyQt5.QtMultimediaWidgets import QVideoWidget
+else:
+    QMediaContent = None
+    QMediaPlayer = None
+    QVideoWidget = None
 from qgis.PyQt.QtCore import pyqtSlot, QUrl
 from qgis.PyQt.QtGui import QIcon, QPixmap, QImage
 from qgis.PyQt.QtWidgets import (
@@ -26,9 +40,14 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QGridLayout,
     QVBoxLayout,
+    QHBoxLayout,
     QPushButton,
+    QToolButton,
     QSpacerItem,
     QSizePolicy,
+    QLabel,
+    QTextBrowser,
+    QMessageBox,
 )
 from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import (
@@ -51,6 +70,7 @@ from .core import (
     setting,
     MapMode,
 )
+from .core.dependency_checker import DependencyChecker
 from .dialog_expression_context_generator import DialogExpressionContextGenerator
 from .gui.kartoza_branding import apply_kartoza_styling, KartozaFooter
 from .utilities import get_ui_class, resources_path
@@ -175,7 +195,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         # Close button action (save state on close)
         self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
+        # Connect both accepted signal AND direct click to ensure accept() is called
         self.button_box.accepted.connect(self.accept)
+        self.run_button.clicked.connect(self.accept)
         self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
 
         # Used by ffmpeg and convert to set the fps for rendered videos
@@ -284,9 +306,14 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.reuse_cache.setChecked(False)
 
         # Video playback stuff - see bottom of file for related methods
-        self.media_player = QMediaPlayer(
-            None, QMediaPlayer.VideoSurface  # .video_preview_widget,
-        )
+        self.current_movie_file = None
+        self._multimedia_available = _multimedia_available
+        if _multimedia_available:
+            self.media_player = QMediaPlayer(
+                None, QMediaPlayer.VideoSurface  # .video_preview_widget,
+            )
+        else:
+            self.media_player = None
         self.setup_video_widget()
         # Enable options page on startup
         self.main_tab.setCurrentIndex(0)
@@ -326,17 +353,63 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def setup_video_widget(self):
         """Set up the video widget."""
-        video_widget = QVideoWidget()
-        # self.video_page.replaceWidget(self.video_preview_widget,video_widget)
-        self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-        self.play_button.clicked.connect(self.play)
-        self.media_player.setVideoOutput(video_widget)
-        self.media_player.stateChanged.connect(self.media_state_changed)
-        self.media_player.positionChanged.connect(self.position_changed)
-        self.media_player.durationChanged.connect(self.duration_changed)
-        self.media_player.error.connect(self.handle_video_error)
         layout = QGridLayout(self.video_preview_widget)
-        layout.addWidget(video_widget)
+
+        if self._multimedia_available and QVideoWidget is not None:
+            # Full video player available
+            video_widget = QVideoWidget()
+            self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+            self.play_button.clicked.connect(self.play)
+            self.media_player.setVideoOutput(video_widget)
+            self.media_player.stateChanged.connect(self.media_state_changed)
+            self.media_player.positionChanged.connect(self.position_changed)
+            self.media_player.durationChanged.connect(self.duration_changed)
+            self.media_player.error.connect(self.handle_video_error)
+            layout.addWidget(video_widget, 0, 0)
+        else:
+            # Multimedia not available - show fallback UI
+            self._setup_fallback_video_ui(layout)
+
+        # Add "Open in System Player" button next to play button
+        self._add_system_player_button()
+
+    def _setup_fallback_video_ui(self, layout):
+        """Set up fallback UI when multimedia is not available."""
+        # Create info display
+        info_widget = QTextBrowser()
+        info_widget.setOpenExternalLinks(True)
+        info_widget.setHtml(get_video_playback_instructions())
+        layout.addWidget(info_widget, 0, 0)
+
+        # Disable the play button and slider since they won't work
+        self.play_button.setEnabled(False)
+        self.play_button.setToolTip("Embedded player not available - use 'Open in System Player'")
+        self.video_slider.setEnabled(False)
+
+    def _add_system_player_button(self):
+        """Add a button to open the video in the system player."""
+        # Find the layout containing play_button
+        parent_layout = self.play_button.parent().layout()
+        if parent_layout is None:
+            return
+
+        # Create the system player button
+        self.open_system_player_button = QToolButton()
+        self.open_system_player_button.setText("Open External")
+        self.open_system_player_button.setToolTip(
+            f"Open video in {get_system_player_name()}"
+        )
+        self.open_system_player_button.setIcon(
+            self.style().standardIcon(QStyle.SP_MediaPlay)
+        )
+        self.open_system_player_button.setToolButtonStyle(2)  # TextBesideIcon
+        self.open_system_player_button.clicked.connect(self._open_in_system_player)
+        self.open_system_player_button.setEnabled(False)
+
+        # Insert after play button
+        if isinstance(parent_layout, QGridLayout):
+            # Find position of play button and add new button
+            parent_layout.addWidget(self.open_system_player_button, 2, 2)
 
     def setup_render_modes(self):
         """Set up the render modes."""
@@ -463,7 +536,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def close(self):  # pylint: disable=missing-function-docstring
         """Handler for the close button."""
-        self.save_state()
+        try:
+            self.save_state()
+        except Exception as e:
+            # Don't let save_state failure prevent closing
+            self.output_log_text_edit.append(f"Warning: Could not save state: {e}")
         self.reject()
 
     def closeEvent(
@@ -717,13 +794,45 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             "animation", "data_defined_properties", temp_doc.toString()
         )
 
-    # Prevent the slot being called twize
+    # Prevent the slot being called twice
     @pyqtSlot()
     def accept(self):
         """Process the animation sequence.
 
         .. note:: This is called on OK click.
         """
+        try:
+            # Check if output file is specified
+            output_file = self.movie_file_edit.text().strip()
+            if not output_file:
+                QMessageBox.warning(
+                    self,
+                    "Output File Required",
+                    "Please specify an output file path before running.\n\n"
+                    "Click the '...' button next to the output field to choose a location."
+                )
+                return
+
+            # Pre-flight dependency check - verify tools are available BEFORE rendering
+            is_gif = self.radio_gif.isChecked()
+            valid, tool_path = DependencyChecker.validate_movie_export(
+                for_gif=is_gif,
+                parent=self
+            )
+            if not valid:
+                self.output_log_text_edit.append(
+                    "Export cancelled: Required tools not found. "
+                    "Please install the missing dependencies and try again."
+                )
+                return
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"An error occurred during pre-flight checks:\n{str(e)}"
+            )
+            return
+
         # Enable progress page on accept
         self.main_tab.setCurrentIndex(5)
         # Image preview page
@@ -892,12 +1001,32 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append(message)
 
         def show_movie(movie_file: str):
+            # Store the movie file path for system player fallback
+            self.current_movie_file = movie_file
+
             # Video preview page
             self.main_tab.setCurrentIndex(5)
             self.preview_stack.setCurrentIndex(1)
-            self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
-            self.play_button.setEnabled(True)
-            self.play()
+
+            # Enable system player button
+            if hasattr(self, 'open_system_player_button'):
+                self.open_system_player_button.setEnabled(True)
+
+            if self._multimedia_available and self.media_player is not None:
+                # Try embedded player
+                self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
+                self.play_button.setEnabled(True)
+                self.play()
+            else:
+                # Multimedia not available - offer to open in system player
+                self.output_log_text_edit.append(
+                    f"Video created successfully: {movie_file}"
+                )
+                self.output_log_text_edit.append(
+                    "Embedded player not available. Click 'Open External' to view."
+                )
+                # Auto-open in system player as a convenience
+                self._open_in_system_player()
 
         def cleanup_movie_task():
             self.movie_task = None
@@ -1090,8 +1219,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     # Video Playback Methods
     def play(self):
         """
-        Plays the video preview
+        Plays the video preview.
+
+        Falls back to system player if embedded player is not available.
         """
+        if not self._multimedia_available or self.media_player is None:
+            # Fallback to system player
+            self._open_in_system_player()
+            return
+
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.media_player.pause()
         else:
@@ -1101,6 +1237,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         Called when the media state is changed
         """
+        if not self._multimedia_available or self.media_player is None:
+            return
+
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         else:
@@ -1122,11 +1261,54 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         Sets the position of the playing video
         """
-        self.media_player.setPosition(position)
+        if self._multimedia_available and self.media_player is not None:
+            self.media_player.setPosition(position)
 
     def handle_video_error(self):
         """
-        Handles errors when playing videos
+        Handles errors when playing videos.
+
+        When the embedded player fails, offers to open in system player.
         """
         self.play_button.setEnabled(False)
-        self.output_log_text_edit.append(self.media_player.errorString())
+        error_string = self.media_player.errorString() if self.media_player else "Unknown error"
+        self.output_log_text_edit.append(f"Video playback error: {error_string}")
+        self.output_log_text_edit.append(
+            "Click 'Open External' to view in your system media player."
+        )
+
+        # Offer to open in system player
+        if self.current_movie_file:
+            reply = QMessageBox.question(
+                self,
+                "Video Playback Error",
+                f"The embedded video player encountered an error:\n{error_string}\n\n"
+                f"Would you like to open the video in {get_system_player_name()}?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if reply == QMessageBox.Yes:
+                self._open_in_system_player()
+
+    def _open_in_system_player(self):
+        """Open the current movie file in the system's default media player."""
+        if not self.current_movie_file:
+            QMessageBox.warning(
+                self,
+                "No Video Available",
+                "No video file is available to open."
+            )
+            return
+
+        success, error = open_in_system_player(self.current_movie_file)
+        if success:
+            self.output_log_text_edit.append(
+                f"Opened video in {get_system_player_name()}"
+            )
+        else:
+            QMessageBox.warning(
+                self,
+                "Could Not Open Video",
+                f"Failed to open video in system player:\n{error}\n\n"
+                f"The video file is located at:\n{self.current_movie_file}"
+            )

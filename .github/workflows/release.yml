@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fix Python command
-        run: apt-get install python-is-python3
+        run: apt-get update && apt-get install -y python-is-python3
 
       - name: Install python
         uses: actions/setup-python@v5
@@ -27,17 +27,6 @@ jobs:
         run: |
            echo "IS_EXPERIMENTAL=$(python -c "import json; f = open('config.json'); data=json.load(f); print(str(data['general']['experimental']).lower())")" >> "$GITHUB_OUTPUT"
 
-      - name: Create release from tag
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          prerelease: ${{ steps.get-experimental.outputs.IS_EXPERIMENTAL }}
-          draft: false
-
       - name: Generate zip
         run: python admin.py generate-zip
 
@@ -47,16 +36,15 @@ jobs:
           echo "ZIP_PATH=dist/$(ls dist)" >> "$GITHUB_OUTPUT"
           echo "ZIP_NAME=$(ls dist)" >> "$GITHUB_OUTPUT"
 
-      - name: Upload release asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+      - name: Create release and upload asset
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          prerelease: ${{ steps.get-experimental.outputs.IS_EXPERIMENTAL }}
+          draft: false
+          files: ${{ steps.get-zip-details.outputs.ZIP_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url}}
-          asset_path: ${{ steps.get-zip-details.outputs.ZIP_PATH}}
-          asset_name: ${{ steps.get-zip-details.outputs.ZIP_NAME}}
-          asset_content_type: application/zip
 
       - name: Checkout code
         uses: actions/checkout@v4

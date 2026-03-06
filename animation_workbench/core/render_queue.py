@@ -159,6 +159,7 @@ class RenderQueue(QObject):
         self.decorations = []
 
         self.frames_per_feature = 0
+        self._canceling = False  # Flag to prevent race conditions during cancel
 
     def active_queue_size(self) -> int:
         """
@@ -190,25 +191,42 @@ class RenderQueue(QObject):
         """
         Cancels any in-progress operation
         """
+        self._canceling = True
+
         self.job_queue.clear()
         self.total_queue_size = 0
         self.total_completed = 0
         self.total_feature_count = 0
         self.completed_feature_count = 0
 
-        self.proxy_feedback.cancel()
+        if self.proxy_feedback:
+            self.proxy_feedback.cancel()
 
-        for _, task in self.active_tasks.items():
-            task.cancel()
+        # Copy the tasks list to avoid "dictionary changed size during iteration"
+        tasks_to_cancel = list(self.active_tasks.values())
+        self.active_tasks.clear()
+
+        for task in tasks_to_cancel:
+            try:
+                task.cancel()
+            except Exception:
+                pass  # Task may already be finished
 
         if self.proxy_task:
-            self.proxy_task.finalize(False)
+            try:
+                self.proxy_task.finalize(False)
+            except Exception:
+                pass  # May already be finalized
             self.proxy_task = None
 
+        self.proxy_feedback = None
         self.frames_per_feature = 0
         self.annotations_list = []
         self.decorations = []
-        self.status_message.emit("Cancelling...")
+
+        self.status_message.emit("Cancelled")
+        self._canceling = False
+        self.processing_completed.emit(False)
 
     def update_status(self):
         """
@@ -242,13 +260,20 @@ class RenderQueue(QObject):
         """
         Feed the QgsTaskManager with next task
         """
+        # Don't process if we're in the middle of canceling
+        if self._canceling:
+            return
+
         if not self.job_queue and not self.active_tasks:
             # all done!
             self.update_status()
             was_canceled = self.proxy_feedback and self.proxy_feedback.isCanceled()
             self.processing_completed.emit(not was_canceled)
             if self.proxy_task:
-                self.proxy_task.finalize(not was_canceled)
+                try:
+                    self.proxy_task.finalize(not was_canceled)
+                except Exception:
+                    pass  # May already be finalized
                 self.proxy_task = None
             return
 

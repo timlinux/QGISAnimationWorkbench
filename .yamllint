@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: Tim Sutton
+# SPDX-License-Identifier: MIT
+#
+# Yamllint configuration for QGIS Animation Workbench
+# https://yamllint.readthedocs.io/
+---
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  document-start: disable
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no']
+  comments:
+    require-starting-space: true
+    min-spaces-from-content: 1
+  indentation:
+    spaces: 2
+    indent-sequences: true
+
+ignore: |
+  .venv/
+  .vscode/
+  node_modules/

@@ -7,8 +7,8 @@ ORANGE='\033[38;2;237;177;72m'
 # Clear screen and show welcome banner
 clear
 echo -e "$RESET$ORANGE"
-if [ -f animation_workbench/resources/animation-workbench-sketched.png ]; then
-    chafa animation_workbench/resources/animation-workbench-sketched.png --size=30x80 --colors=256 | sed 's/^/                  /'
+if [ -f animation_workbench/icons/icon.png ]; then
+    chafa animation_workbench/icons/icon.png --size=10x10 --colors=256 | sed 's/^/                  /'
 fi
 # Quick tips with icons
 echo -e "$RESET$ORANGE \n__________________________________________________________________\n"

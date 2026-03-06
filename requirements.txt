@@ -1,0 +1,5 @@
+# QGIS Animation Workbench - Python Dependencies
+# Note: Most dependencies are provided by QGIS itself (PyQt5, qgis.core, etc.)
+
+# Required for easing curve preview visualization
+pyqtgraph>=0.13.0

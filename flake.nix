@@ -250,7 +250,6 @@
           # kcachegrind removed - pulls in qtwebengine via KDE deps
           # Use system kcachegrind or qcachegrind instead
           pkgs.markdownlint-cli
-          pkgs.nixfmt-rfc-style
           pkgs.pre-commit
           pkgs.pyprof2calltree # needed to covert cprofile call trees into a format kcachegrind can read
           pkgs.python3
@@ -354,8 +353,8 @@
             # Clear screen and show welcome banner
             clear
             echo -e "$RESET$ORANGE"
-            if [ -f animation_workbench/resources/animation-workbench-sketched.png ]; then
-              chafa animation_workbench/resources/animation-workbench-sketched.png --size=30x80 --colors=256 | sed 's/^/                  /'
+            if [ -f animation_workbench/icons/icon.png ]; then
+              chafa animation_workbench/icons/icon.png --size=10x10 --colors=256 | sed 's/^/                  /'
             fi
             # Quick tips with icons
             echo -e "$RESET$ORANGE \n__________________________________________________________________\n"

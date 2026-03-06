@@ -315,6 +315,7 @@ cat <<EOF >.vscode/launch.json
 EOF
 
 echo "Installing required extensions..."
+installed_exts=$(list_installed_extensions)
 for ext in "${REQUIRED_EXTENSIONS[@]}"; do
     if echo "$installed_exts" | grep -q "^${ext}$"; then
         echo "  Extension ${ext} already installed."
