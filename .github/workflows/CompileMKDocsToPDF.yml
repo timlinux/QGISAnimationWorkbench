@@ -1,38 +1,41 @@
-name: 📔 Compile MKDocs to PDF
-# This workflow is triggered on pushes to the repository.
+name: Build Documentation PDF
+
 on:
   push:
     branches:
       - main
-    # Paths can be used to only trigger actions when you have edited certain files, such as a file within the /docs directory
     paths:
       - '.github/workflows/CompileMKDocsToPDF.yml'
-      - 'docs/**.md'
-      - 'docs/assets/**'
-  # Allow manually running in the actions tab
+      - 'docs/**'
   workflow_dispatch:
-  
+
 jobs:
-  generatepdf:
-    name: Build PDF
+  build-pdf:
+    name: Build PDF Documentation
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout 🛒
-        uses: actions/checkout@v2
-      - name: Create Mkdocs Config 🚀
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create MkDocs Config
         working-directory: ./docs
-        run: ./create-mkdocs-pdf-config.sh        
-      - name: Build PDF 📃
+        run: |
+          if [ -f create-mkdocs-pdf-config.sh ]; then
+            chmod +x create-mkdocs-pdf-config.sh
+            ./create-mkdocs-pdf-config.sh
+          fi
+
+      - name: Build PDF
         uses: kartoza/mkdocs-deploy-build-pdf@master
-        # Uses orzih's mkdocs PDF builder
-        # https://github.com/orzih/mkdocs-with-pdf
         env:
           EXTRA_PACKAGES: build-base
           CONFIG_FILE: docs/mkdocs.yml
           REQUIREMENTS: docs/requirements.txt
-          #REQUIREMENTS: folder/requirements.txt
-      - name: Upload PDF Artifact ⚡
-        uses: actions/upload-artifact@v3
+
+      - name: Upload PDF Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: docs
+          name: documentation-pdf
           path: pdfs
+          retention-days: 30
