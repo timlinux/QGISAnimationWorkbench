@@ -256,6 +256,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.travel_duration_spin.valueChanged.connect(self._update_preview_frame_range)
         self.hover_duration_spin.valueChanged.connect(self._update_preview_frame_range)
         self.layer_combo.layerChanged.connect(self._update_preview_frame_range)
+        self.check_loop_features.toggled.connect(self._update_preview_frame_range)
         # Keep the scales the same if you dont want it to zoom in an out
         max_scale = float(
             setting(
@@ -1159,7 +1160,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """Calculate the total frame count based on current settings.
 
         For fixed extent mode: uses extent_frames_spin value.
-        For sphere/planar mode: fps × (travel_duration + hover_duration) × feature_count.
+        For sphere/planar mode: matches AnimationController formula:
+            (feature_count * hover_frames) + (travel_segments * travel_frames)
+        Where travel_segments = feature_count if loop else (feature_count - 1).
+        This accounts for whether the animation returns to the first feature.
         """
         if self.radio_extent.isChecked():
             return self.extent_frames_spin.value()
@@ -1173,18 +1177,25 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         travel_duration = self.travel_duration_spin.value()
         hover_duration = self.hover_duration_spin.value()
         feature_count = layer.featureCount()
+        loop = self.check_loop_features.isChecked()
 
         if feature_count == 0:
             return 1
 
-        total_frames = int(fps * (travel_duration + hover_duration) * feature_count)
+        hover_frames = fps * hover_duration
+        travel_frames = fps * travel_duration
+        # When looping, we travel back to first feature; otherwise one less travel segment
+        travel_segments = feature_count if loop else max(0, feature_count - 1)
+
+        total_frames = int((feature_count * hover_frames) + (travel_segments * travel_frames))
         return max(1, total_frames)
 
     def _update_preview_frame_range(self, *args):
-        """Update the slider and spinbox maximum based on calculated frame count."""
+        """Update the slider, spinbox, and total frames label based on calculated frame count."""
         max_value = self._calculate_total_frames()
         self.preview_frame_slider.setMaximum(max_value)
         self.preview_frame_spin.setMaximum(max_value)
+        self.total_frames_label.setText(f"/ {max_value}")
         # Also update easing previews for current position
         current = self.preview_frame_slider.value()
         if max_value > 0:
