@@ -6,22 +6,21 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-from qgis.PyQt.QtWidgets import QWidget
-#from qgis.PyQt.QtGui import QPainter, QPen, QColor
+from qgis.PyQt.QtWidgets import QWidget, QApplication
+from qgis.PyQt.QtGui import QPalette
 from qgis.PyQt.QtCore import (
     QEasingCurve,
-    QPropertyAnimation,
-    QPoint,
+    QTimer,
     pyqtSignal,
 )
-#TODO: add a gui to prompt the user if they want to install py
+
 try:
     import pyqtgraph
 except ModuleNotFoundError:
     import pip
     pip.main(['install', 'pyqtgraph'])
 
-from pyqtgraph import PlotWidget # pylint: disable=unused-import
+from pyqtgraph import PlotWidget  # pylint: disable=unused-import
 import pyqtgraph as pg
 from .utilities import get_ui_class
 
@@ -29,164 +28,206 @@ from .utilities import get_ui_class
 KARTOZA_GREEN_DARK = "#589632"
 KARTOZA_GREEN_LIGHT = "#93b023"
 
+# Theme-specific colors
+DARK_THEME = {
+    "background": "#2d2d2d",
+    "foreground": KARTOZA_GREEN_LIGHT,
+    "dot_color": "#ff6b6b",
+    "border": KARTOZA_GREEN_DARK,
+}
+
+LIGHT_THEME = {
+    "background": "#f5f5f5",
+    "foreground": KARTOZA_GREEN_DARK,
+    "dot_color": "#e74c3c",
+    "border": KARTOZA_GREEN_DARK,
+}
+
+# Animation settings
+ANIMATION_DURATION_MS = 3000  # Duration for one animation cycle
+ANIMATION_STEPS = 100  # Number of steps in the animation
+DOT_SIZE = 12  # Size of the animated dot
+
 FORM_CLASS = get_ui_class("easing_preview_base.ui")
-
-
-class EasingAnimation(QPropertyAnimation):
-    """Animation settings for easings for natural transitions between states.
-
-    See documentation here which explains that you should
-    create your own subclass of QVariantAnimation
-    if you want to change the animation behaviour. In our
-    case we want to override the fact that the animation
-    changes both the x and y coords in each increment
-    so that we can show the preview as a mock chart
-    https://doc.qt.io/qt-6/qvariantanimation.html#endValue-prop
-    """
-    def __init__(self, target_object, property):  # pylint: disable=redefined-builtin
-        #parent = None
-        super(EasingAnimation, self).__init__() # pylint: disable=super-with-arguments
-        self.setTargetObject(target_object)
-        self.setPropertyName(property)
-
-    def interpolated(
-        self, from_point: QPoint, to_point: QPoint, progress: float
-    ) -> QPoint:
-        """Linearly interpolate X and interpolate Y using the easing."""
-        if not isinstance(from_point) == QPoint:
-            from_point = QPoint(0, 0)
-        x_range = to_point.x() - from_point.x()
-        x = (progress * x_range) + from_point.x()
-        y_range = to_point.y() - from_point.y()
-        y = to_point.y() - (y_range * self.easingCurve().valueForProgress(progress))
-        return QPoint(int(x), int(y))
 
 
 class EasingPreview(QWidget, FORM_CLASS):
     """
-    A widget for setting an easing mode.
+    A widget for setting an easing mode with animated curve visualization.
     """
 
     # Signal emitted when the easing is changed
     easing_changed_signal = pyqtSignal(QEasingCurve)
 
-    def __init__(self, color="#ff0000", parent=None):
+    def __init__(self, color=None, parent=None):
         """Constructor for easing preview.
 
-        :color: Color of the easing display - defaults to red.
-        :type current_easing: str
+        :param color: Color of the dot (unused, kept for API compatibility).
+        :type color: str
 
         :param parent: Parent widget of this widget.
         :type parent: QWidget
         """
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        self.easing = None
-        self.easing_preview_animation = None
-        self.preview_color = color
+        self.easing = QEasingCurve(QEasingCurve.Linear)
+        self.curve_data = []
+        self.curve_plot = None
+        self.dot_plot = None
+        self.animation_progress = 0.0
+        self.animation_direction = 1  # 1 = forward, -1 = backward
+
+        # Animation timer
+        self.animation_timer = QTimer(self)
+        self.animation_timer.timeout.connect(self._update_animation)
+
         self.load_combo_with_easings()
-        self.setup_easing_previews()
+        self.setup_chart()
         self.easing_combo.currentIndexChanged.connect(self.easing_changed)
         self.enable_easing.toggled.connect(self.checkbox_changed)
 
-        # Chart styling with Kartoza branding
-        pg.setConfigOption("background", "#2d2d2d")
-        pg.setConfigOption("foreground", KARTOZA_GREEN_LIGHT)
+    def is_dark_theme(self) -> bool:
+        """Detect if the current application theme is dark.
+
+        :returns: True if the theme is dark, False otherwise.
+        :rtype: bool
+        """
+        palette = QApplication.instance().palette()
+        window_color = palette.color(QPalette.Window)
+        luminance = (
+            0.299 * window_color.red() +
+            0.587 * window_color.green() +
+            0.114 * window_color.blue()
+        )
+        return luminance < 128
+
+    def get_theme(self) -> dict:
+        """Get the current theme colors."""
+        return DARK_THEME if self.is_dark_theme() else LIGHT_THEME
+
+    def setup_chart(self):
+        """Set up the chart with the easing curve and animated dot."""
+        theme = self.get_theme()
+
+        # Configure chart appearance
+        self.chart.setBackground(theme["background"])
         self.chart.hideAxis("bottom")
         self.chart.hideAxis("left")
-        self.chart.setBackground("#2d2d2d")
+        self.chart.setMouseEnabled(x=False, y=False)
+        self.chart.setMenuEnabled(False)
 
-        # Style the easing preview area
-        self.easing_preview.setStyleSheet(f"""
-            background: qlineargradient(
-                x1:0, y1:0, x2:1, y2:1,
-                stop:0 #1a1a1a,
-                stop:1 #2d2d2d
-            );
-            border: 2px solid {KARTOZA_GREEN_DARK};
+        # Add a border around the chart
+        self.chart.setStyleSheet(f"""
+            border: 2px solid {theme["border"]};
             border-radius: 6px;
         """)
 
-    def resizeEvent(self, new_size):
-        """Resize event handler."""
-        super(EasingPreview, self).resizeEvent(new_size) # pylint: disable=super-with-arguments
-        width = self.easing_preview.width()
-        height = self.easing_preview.height()
-        self.easing_preview_animation.setEndValue(QPoint(width, height))
+        # Generate initial curve data
+        self._generate_curve_data()
+
+        # Plot the curve
+        pen = pg.mkPen(color=theme["foreground"], width=3)
+        self.curve_plot = self.chart.plot(self.curve_data, pen=pen)
+
+        # Create the animated dot as a scatter plot
+        self.dot_plot = pg.ScatterPlotItem(
+            size=DOT_SIZE,
+            brush=pg.mkBrush(theme["dot_color"]),
+            pen=pg.mkPen(None)
+        )
+        self.chart.addItem(self.dot_plot)
+
+        # Set initial dot position
+        self._update_dot_position()
+
+        # Start animation
+        interval = ANIMATION_DURATION_MS // ANIMATION_STEPS
+        self.animation_timer.start(interval)
+
+    def _generate_curve_data(self):
+        """Generate the Y values for the easing curve."""
+        self.curve_data = []
+        num_points = 1000
+        for i in range(num_points):
+            progress = i / (num_points - 1)
+            self.curve_data.append(self.easing.valueForProgress(progress))
+
+    def _update_animation(self):
+        """Update the animation progress and dot position."""
+        step = 1.0 / ANIMATION_STEPS
+        self.animation_progress += step * self.animation_direction
+
+        # Bounce at the ends
+        if self.animation_progress >= 1.0:
+            self.animation_progress = 1.0
+            self.animation_direction = -1
+        elif self.animation_progress <= 0.0:
+            self.animation_progress = 0.0
+            self.animation_direction = 1
+
+        self._update_dot_position()
+
+    def _update_dot_position(self):
+        """Update the dot position on the chart based on animation progress."""
+        if self.dot_plot is None:
+            return
+
+        # X position is linear (0 to 999 for 1000 data points)
+        x = self.animation_progress * (len(self.curve_data) - 1)
+        # Y position follows the easing curve
+        y = self.easing.valueForProgress(self.animation_progress)
+
+        self.dot_plot.setData([x], [y])
 
     def checkbox_changed(self, new_state):
-        """
-        Called when the enabled checkbox is toggled
-        """
+        """Called when the enabled checkbox is toggled."""
         if new_state:
             self.enable()
         else:
             self.disable()
 
     def disable(self):
-        """
-        Disables the widget
-        """
+        """Disables the widget."""
         self.enable_easing.setChecked(False)
-        self.easing_preview_animation.stop()
+        self.animation_timer.stop()
 
     def enable(self):
-        """
-        Enables the widget
-        """
+        """Enables the widget."""
         self.enable_easing.setChecked(True)
-        self.easing_preview_animation.start()
+        interval = ANIMATION_DURATION_MS // ANIMATION_STEPS
+        self.animation_timer.start(interval)
 
     def is_enabled(self) -> bool:
-        """
-        Returns True if the easing is enabled
-        """
+        """Returns True if the easing is enabled."""
         return self.enable_easing.isChecked()
 
     def set_easing_by_name(self, name: str):
-        """
-        Sets an easing mode to show in the widget by name
-        """
+        """Sets an easing mode to show in the widget by name."""
         combo = self.easing_combo
         index = combo.findText(name)
         if index != -1:
             combo.setCurrentIndex(index)
 
     def easing_name(self) -> str:
-        """
-        Returns the currently selected easing name
-        """
+        """Returns the currently selected easing name."""
         return self.easing_combo.currentText()
 
     def get_easing(self):
-        """
-        Returns the currently selected easing type
-        """
+        """Returns the currently selected easing type."""
         easing_type = QEasingCurve.Type(self.easing_combo.currentIndex())
         return QEasingCurve(easing_type)
 
     def set_preview_color(self, color: str):
-        """
-        Sets the widget's preview color
-        """
-        self.preview_color = color
-        self.easing_preview_icon.setStyleSheet(
-            "background-color:%s;border-radius:5px;" % self.preview_color
-        )
+        """Sets the widget's dot color."""
+        if self.dot_plot:
+            self.dot_plot.setBrush(pg.mkBrush(color))
 
     def set_checkbox_label(self, label: str):
-        """
-        Sets the label for the widget
-        """
+        """Sets the label for the widget."""
         self.enable_easing.setText(label)
 
     def load_combo_with_easings(self):
-        """
-        Populates the combobox with available easing modes
-        """
-        # Perhaps we can softcode these items using the logic here
-        # https://github.com/baoboa/pyqt5/blob/master/examples/
-        # animation/easing/easing.py#L159
+        """Populates the combobox with available easing modes."""
         combo = self.easing_combo
         combo.addItem("Linear", QEasingCurve.Linear)
         combo.addItem("InQuad", QEasingCurve.InQuad)
@@ -232,57 +273,32 @@ class EasingPreview(QWidget, FORM_CLASS):
         combo.addItem("BezierSpline", QEasingCurve.BezierSpline)
         combo.addItem("TCBSpline", QEasingCurve.TCBSpline)
 
-    def setup_easing_previews(self):
-        """
-        Set up easing previews
-        """
-        # Icon is the little dot that animates across the widget
-        self.easing_preview_icon = QWidget(self.easing_preview)
-        self.easing_preview_icon.setStyleSheet(
-            "background-color:%s;border-radius:5px;" % self.preview_color
-        )
-        # this is the size of the dot
-        self.easing_preview_icon.resize(10, 10)
-        self.easing_preview_animation = EasingAnimation(
-            self.easing_preview_icon, b"pos"
-        )
-        self.easing_preview_animation.setEasingCurve(QEasingCurve.InOutCubic)
-        self.easing_preview_animation.setStartValue(QPoint(0, 0))
-        self.easing_preview_animation.setEndValue(
-            QPoint(
-                self.easing_preview.width(),
-                self.easing_preview.height(),
-            )
-        )
-        self.easing_preview_animation.setDuration(35000)
-        # loop forever ...
-        self.easing_preview_animation.setLoopCount(-1)
-        self.easing_preview_animation.start()
-
     def easing_changed(self, index):
         """Handle changes to the easing type combo.
 
-        .. note:: This is called on changes to the easing combo.
-
-        .. versionadded:: 1.0
-
         :param index: Index of the now selected combo item.
-        :type flag: int
-
+        :type index: int
         """
         easing_type = QEasingCurve.Type(index)
-        self.easing_preview_animation.stop()
-        self.easing_preview_animation.setEasingCurve(easing_type)
         self.easing = QEasingCurve(easing_type)
         self.easing_changed_signal.emit(self.easing)
-        self.easing_preview_animation.start()
+
+        # Update the curve
+        self._generate_curve_data()
+
+        # Update the chart
+        theme = self.get_theme()
         self.chart.clear()
-        chart = []
-        for i in range(
-            0,
-            1000,
-        ):
-            chart.append(self.easing.valueForProgress(i / 1000))
-        # Plot with Kartoza green color
-        pen = pg.mkPen(color=KARTOZA_GREEN_LIGHT, width=3)
-        self.chart.plot(chart, pen=pen)
+
+        # Re-plot the curve
+        pen = pg.mkPen(color=theme["foreground"], width=3)
+        self.curve_plot = self.chart.plot(self.curve_data, pen=pen)
+
+        # Re-add the dot
+        self.dot_plot = pg.ScatterPlotItem(
+            size=DOT_SIZE,
+            brush=pg.mkBrush(theme["dot_color"]),
+            pen=pg.mkPen(None)
+        )
+        self.chart.addItem(self.dot_plot)
+        self._update_dot_position()

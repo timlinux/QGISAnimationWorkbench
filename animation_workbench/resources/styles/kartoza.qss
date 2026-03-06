@@ -1,0 +1,479 @@
+/*
+ * QGIS Animation Workbench - Kartoza Branded Stylesheet
+ * SPDX-FileCopyrightText: Tim Sutton
+ * SPDX-License-Identifier: GPL-3.0
+ *
+ * Kartoza Brand Colors:
+ * - Primary Green (Dark): #589632
+ * - Secondary Green (Light): #93b023
+ * - Accent Gold: #E8B849
+ */
+
+/* ============================================================================
+ * Global Styles
+ * ============================================================================ */
+
+QDialog, QWidget {
+    font-family: "Segoe UI", "Ubuntu", "Noto Sans", sans-serif;
+}
+
+/* ============================================================================
+ * Tab Widget Styling
+ * ============================================================================ */
+
+QTabWidget::pane {
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    padding: 8px;
+    background-color: palette(window);
+}
+
+QTabBar::tab {
+    background-color: palette(button);
+    border: 1px solid #c0c0c0;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 8px 16px;
+    margin-right: 2px;
+    min-width: 80px;
+}
+
+QTabBar::tab:selected {
+    background-color: #589632;
+    color: white;
+    font-weight: bold;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: #93b023;
+    color: white;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px;
+}
+
+/* ============================================================================
+ * Group Box Styling
+ * ============================================================================ */
+
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid #589632;
+    border-radius: 8px;
+    margin-top: 12px;
+    padding-top: 8px;
+    background-color: palette(window);
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 12px;
+    padding: 0 8px;
+    background-color: #589632;
+    color: white;
+    border-radius: 4px;
+}
+
+/* ============================================================================
+ * Button Styling
+ * ============================================================================ */
+
+QPushButton {
+    background-color: #589632;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-weight: bold;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background-color: #93b023;
+}
+
+QPushButton:pressed {
+    background-color: #4a7d2a;
+}
+
+QPushButton:disabled {
+    background-color: #a0a0a0;
+    color: #707070;
+}
+
+QPushButton:default {
+    border: 2px solid #E8B849;
+}
+
+/* Tool Buttons */
+QToolButton {
+    background-color: #589632;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px;
+    font-weight: bold;
+}
+
+QToolButton:hover {
+    background-color: #93b023;
+}
+
+QToolButton:pressed {
+    background-color: #4a7d2a;
+}
+
+QToolButton:disabled {
+    background-color: #c0c0c0;
+    color: #808080;
+}
+
+/* ============================================================================
+ * Input Widget Styling
+ * ============================================================================ */
+
+QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+    border: 2px solid #c0c0c0;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background-color: palette(base);
+    selection-background-color: #589632;
+    min-height: 20px;
+}
+
+QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
+    border-color: #589632;
+}
+
+QLineEdit:hover, QSpinBox:hover, QDoubleSpinBox:hover, QComboBox:hover {
+    border-color: #93b023;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 24px;
+}
+
+QComboBox::down-arrow {
+    width: 12px;
+    height: 12px;
+}
+
+QComboBox QAbstractItemView {
+    border: 2px solid #589632;
+    border-radius: 4px;
+    selection-background-color: #589632;
+    selection-color: white;
+}
+
+/* Spin Box Buttons */
+QSpinBox::up-button, QDoubleSpinBox::up-button,
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    background-color: #589632;
+    border: none;
+    width: 20px;
+}
+
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
+    background-color: #93b023;
+}
+
+/* ============================================================================
+ * Radio Button and Checkbox Styling
+ * ============================================================================ */
+
+QRadioButton, QCheckBox {
+    spacing: 8px;
+    padding: 4px;
+}
+
+QRadioButton::indicator, QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+}
+
+QRadioButton::indicator:unchecked, QCheckBox::indicator:unchecked {
+    border: 2px solid #808080;
+    background-color: palette(base);
+}
+
+QRadioButton::indicator {
+    border-radius: 10px;
+}
+
+QCheckBox::indicator {
+    border-radius: 4px;
+}
+
+QRadioButton::indicator:checked, QCheckBox::indicator:checked {
+    background-color: #589632;
+    border: 2px solid #589632;
+}
+
+QRadioButton::indicator:hover, QCheckBox::indicator:hover {
+    border-color: #93b023;
+}
+
+/* ============================================================================
+ * Progress Bar Styling
+ * ============================================================================ */
+
+QProgressBar {
+    border: 2px solid #c0c0c0;
+    border-radius: 8px;
+    text-align: center;
+    background-color: palette(base);
+    min-height: 24px;
+    font-weight: bold;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #589632, stop:0.5 #93b023, stop:1 #589632);
+    border-radius: 6px;
+}
+
+/* ============================================================================
+ * List Widget Styling
+ * ============================================================================ */
+
+QListWidget {
+    border: 2px solid #c0c0c0;
+    border-radius: 6px;
+    background-color: palette(base);
+    alternate-background-color: palette(alternateBase);
+}
+
+QListWidget:focus {
+    border-color: #589632;
+}
+
+QListWidget::item {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+QListWidget::item:selected {
+    background-color: #589632;
+    color: white;
+}
+
+QListWidget::item:hover:!selected {
+    background-color: rgba(147, 176, 35, 0.3);
+}
+
+/* ============================================================================
+ * Text Edit / Log Styling
+ * ============================================================================ */
+
+QTextEdit {
+    border: 2px solid #589632;
+    border-radius: 6px;
+    background-color: palette(base);
+    color: palette(text);
+    font-family: "Consolas", "Monaco", "Courier New", monospace;
+    font-size: 11px;
+    padding: 8px;
+}
+
+QTextEdit:focus {
+    border-color: #93b023;
+}
+
+/* ============================================================================
+ * Slider Styling
+ * ============================================================================ */
+
+QSlider::groove:horizontal {
+    border: 1px solid #c0c0c0;
+    height: 8px;
+    background: palette(base);
+    border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+    background: #589632;
+    border: 2px solid #4a7d2a;
+    width: 18px;
+    height: 18px;
+    margin: -6px 0;
+    border-radius: 10px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #93b023;
+    border-color: #589632;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #589632, stop:1 #93b023);
+    border-radius: 4px;
+}
+
+/* ============================================================================
+ * LCD Number Styling
+ * ============================================================================ */
+
+QLCDNumber {
+    border: 2px solid #589632;
+    border-radius: 6px;
+    background-color: palette(base);
+    color: #93b023;
+}
+
+/* ============================================================================
+ * Splitter Styling
+ * ============================================================================ */
+
+QSplitter::handle {
+    background-color: #589632;
+}
+
+QSplitter::handle:horizontal {
+    width: 4px;
+}
+
+QSplitter::handle:vertical {
+    height: 4px;
+}
+
+QSplitter::handle:hover {
+    background-color: #93b023;
+}
+
+/* ============================================================================
+ * Frame Styling
+ * ============================================================================ */
+
+QFrame[frameShape="4"], /* StyledPanel */
+QFrame[frameShape="5"] { /* Box */
+    border: 2px solid #c0c0c0;
+    border-radius: 8px;
+    background-color: palette(window);
+}
+
+/* ============================================================================
+ * Dialog Button Box
+ * ============================================================================ */
+
+QDialogButtonBox {
+    dialogbuttonbox-buttons-have-icons: 0;
+}
+
+/* ============================================================================
+ * Tooltips
+ * ============================================================================ */
+
+QToolTip {
+    background-color: palette(window);
+    color: palette(text);
+    border: 2px solid #589632;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+/* ============================================================================
+ * Scroll Bars
+ * ============================================================================ */
+
+QScrollBar:vertical {
+    border: none;
+    background: palette(base);
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background: #589632;
+    border-radius: 6px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #93b023;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background: palette(base);
+    height: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #589632;
+    border-radius: 6px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #93b023;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+
+/* ============================================================================
+ * Preview Areas
+ * ============================================================================ */
+
+QLabel#user_defined_preview,
+QLabel#current_frame_preview,
+QLabel#preview {
+    background-color: palette(base);
+    border: 3px solid #589632;
+    border-radius: 8px;
+}
+
+/* ============================================================================
+ * Kartoza Footer
+ * ============================================================================ */
+
+QLabel#kartoza_footer {
+    color: #589632;
+    font-size: 11px;
+    padding: 8px;
+}
+
+QLabel#kartoza_footer a {
+    color: #93b023;
+    text-decoration: none;
+}
+
+/* ============================================================================
+ * Custom Classes
+ * ============================================================================ */
+
+/* Header Labels */
+.header-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #589632;
+    padding: 8px 0;
+}
+
+/* Section Labels */
+.section-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #4a7d2a;
+    padding: 4px 0;
+}
+
+/* Info Labels */
+.info-label {
+    color: #666666;
+    font-style: italic;
+    padding: 4px;
+}

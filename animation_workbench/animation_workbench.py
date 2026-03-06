@@ -298,13 +298,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
 
     def _setup_kartoza_footer(self):
-        """Add the Kartoza branding footer to the dialog."""
-        # Get the main layout
+        """Add the Kartoza branding footer to the dialog above the button box."""
         main_layout = self.layout()
-        if main_layout:
-            # Add the footer after the button box
+        if main_layout and hasattr(self, 'button_box'):
+            # Create the footer
             footer = KartozaFooter(self)
-            main_layout.addWidget(footer)
+            # The layout is a QGridLayout - insert footer before button box
+            # Remove button_box, add footer at row 1, add button_box at row 2
+            main_layout.removeWidget(self.button_box)
+            main_layout.addWidget(footer, 1, 0)
+            main_layout.addWidget(self.button_box, 2, 0)
 
     def setup_video_widget(self):
         """Set up the video widget."""
