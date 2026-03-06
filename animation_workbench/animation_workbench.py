@@ -110,10 +110,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.output_log_text_edit.append("Welcome to the QGIS Animation Workbench")
         self.output_log_text_edit.append("© Tim Sutton, Feb 2022")
 
-        ok_button = self.button_box.button(QDialogButtonBox.Ok)
-        # ok_button.clicked.connect(self.accept)
-        ok_button.setText("Run")
-        ok_button.setEnabled(False)
+        self.run_button = self.button_box.button(QDialogButtonBox.Ok)
+        self.run_button.setText("Run")
+        self.run_button.setEnabled(False)
 
         self.cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
         self.cancel_button.clicked.connect(self.cancel_processing)
@@ -134,7 +133,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         )
         if output_file:
             self.movie_file_edit.setText(output_file)
-            ok_button.setEnabled(True)
+
+        # Connect output file edit to validation and update initial state
+        self.movie_file_edit.textChanged.connect(self._update_run_button_state)
+        self._update_run_button_state()
 
         self.movie_file_button.clicked.connect(self.set_output_name)
 
@@ -226,10 +228,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             )
         )
         self.extent_frames_spin.setValue(initial_frames)
-        # Initialize slider range and connect to keep in sync
-        self.preview_frame_slider.setMaximum(initial_frames)
-        self.preview_frame_spin.setMaximum(initial_frames)
-        self.extent_frames_spin.valueChanged.connect(self._update_slider_range)
+        # Connect signals that affect total frame count to update slider range
+        self.extent_frames_spin.valueChanged.connect(self._update_preview_frame_range)
+        self.framerate_spin.valueChanged.connect(self._update_preview_frame_range)
+        self.travel_duration_spin.valueChanged.connect(self._update_preview_frame_range)
+        self.hover_duration_spin.valueChanged.connect(self._update_preview_frame_range)
+        self.layer_combo.layerChanged.connect(self._update_preview_frame_range)
         # Keep the scales the same if you dont want it to zoom in an out
         max_scale = float(
             setting(
@@ -268,6 +272,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.setup_render_modes()
 
+        # Initialize preview frame range based on current settings
+        self._update_preview_frame_range()
+
         self.current_preview_frame_render_job = None
         # Set an initial image in the preview based on the current map
         self.show_preview_for_frame(0)
@@ -295,6 +302,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.preview_frame_spin.valueChanged.connect(self._sync_slider_from_spinbox)
         self.preview_frame_slider.valueChanged.connect(self._sync_spinbox_from_slider)
         self.preview_frame_slider.valueChanged.connect(self._update_easing_previews)
+        # Only render preview when slider is released (not during drag)
+        self.preview_frame_slider.sliderReleased.connect(self._on_slider_released)
 
         self.register_data_defined_button(
             self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
@@ -347,6 +356,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.radio_planar.toggled.connect(self.show_non_fixed_extent_settings)
         self.radio_sphere.toggled.connect(self.show_non_fixed_extent_settings)
         self.radio_extent.toggled.connect(self.show_fixed_extent_settings)
+        # Update frame range when mode changes
+        self.radio_planar.toggled.connect(self._update_preview_frame_range)
+        self.radio_sphere.toggled.connect(self._update_preview_frame_range)
+        self.radio_extent.toggled.connect(self._update_preview_frame_range)
 
     def setup_easings(self):
         """Set up the easing options for the gui."""
@@ -542,15 +555,27 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.progress_bar.setValue(self.render_queue.total_completed)
 
+    def _update_run_button_state(self):
+        """Update Run button and output file field based on whether output is set."""
+        output_file = self.movie_file_edit.text().strip()
+        has_output = bool(output_file)
+
+        # Update Run button state and tooltip
+        self.run_button.setEnabled(has_output)
+        if has_output:
+            self.run_button.setToolTip("Start rendering the animation")
+            self.movie_file_edit.setStyleSheet("")
+        else:
+            self.run_button.setToolTip("Output file not set - click '...' to choose")
+            self.movie_file_edit.setStyleSheet(
+                "QLineEdit { border: 2px solid #e74c3c; background-color: #fdf2f2; }"
+            )
+
     def set_output_name(self):
         """
         Asks the user for the output video file path
         """
-        # Popup a dialog to request the filename if scenario_file_path = None
         dialog_title = "Save video"
-        ok_button = self.button_box.button(QDialogButtonBox.Ok)
-        ok_button.setText("Run")
-        ok_button.setEnabled(False)
 
         output_directory = os.path.dirname(self.movie_file_edit.text())
         if not output_directory:
@@ -563,11 +588,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             os.path.join(output_directory, "qgis_animation.mp4"),
             "Video (*.mp4);;GIF (*.gif)",
         )
-        if file_path is None or file_path == "":
-            ok_button.setEnabled(False)
-            return
-        ok_button.setEnabled(True)
-        self.movie_file_edit.setText(file_path)
+        if file_path:
+            self.movie_file_edit.setText(file_path)
 
     def choose_music_file(self):
         """
@@ -982,12 +1004,19 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.preview_frame_slider.blockSignals(False)
 
     def _sync_spinbox_from_slider(self, value: int):
-        """Sync the spinbox value when slider position changes."""
+        """Sync the spinbox value when slider position changes.
+
+        Note: This does NOT trigger a preview render - that happens
+        via _on_slider_released to avoid rendering during drag.
+        """
         self.preview_frame_spin.blockSignals(True)
         self.preview_frame_spin.setValue(value)
         self.preview_frame_spin.blockSignals(False)
-        # Trigger the preview render (since spinbox signals were blocked)
-        self.show_preview_for_frame(value)
+
+    def _on_slider_released(self):
+        """Render preview when slider drag ends."""
+        frame = self.preview_frame_slider.value()
+        self.show_preview_for_frame(frame)
 
     def _update_easing_previews(self, frame: int):
         """Update easing preview dot positions based on current frame."""
@@ -997,8 +1026,34 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.pan_easing_widget.set_progress(progress)
             self.zoom_easing_widget.set_progress(progress)
 
-    def _update_slider_range(self, max_value: int):
-        """Update the slider's maximum value when total frames change."""
+    def _calculate_total_frames(self) -> int:
+        """Calculate the total frame count based on current settings.
+
+        For fixed extent mode: uses extent_frames_spin value.
+        For sphere/planar mode: fps × (travel_duration + hover_duration) × feature_count.
+        """
+        if self.radio_extent.isChecked():
+            return self.extent_frames_spin.value()
+
+        # Sphere or planar mode
+        layer = self.layer_combo.currentLayer()
+        if not layer:
+            return 1
+
+        fps = self.framerate_spin.value()
+        travel_duration = self.travel_duration_spin.value()
+        hover_duration = self.hover_duration_spin.value()
+        feature_count = layer.featureCount()
+
+        if feature_count == 0:
+            return 1
+
+        total_frames = int(fps * (travel_duration + hover_duration) * feature_count)
+        return max(1, total_frames)
+
+    def _update_preview_frame_range(self, *args):
+        """Update the slider and spinbox maximum based on calculated frame count."""
+        max_value = self._calculate_total_frames()
         self.preview_frame_slider.setMaximum(max_value)
         self.preview_frame_spin.setMaximum(max_value)
         # Also update easing previews for current position
