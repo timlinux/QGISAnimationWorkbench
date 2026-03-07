@@ -35,7 +35,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Docker pull and create qgis-testing-environment
         run: |
@@ -60,13 +60,13 @@ jobs:
     steps:
 
       - name: Install Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v6
         with:
           python-version: '3.8'
           architecture: 'x64'
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install packages
         run: |

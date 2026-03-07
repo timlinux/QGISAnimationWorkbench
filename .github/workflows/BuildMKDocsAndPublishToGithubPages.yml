@@ -25,7 +25,7 @@ jobs:
                 mkdocs-material 
                 qrcode
       - name: Checkout main from github
-        uses: actions/checkout@v1
+        uses: actions/checkout@v6
       - name: Create Mkdocs Config 🚀
         working-directory: ./docs
         run: ./create-mkdocs-html-config.sh           
