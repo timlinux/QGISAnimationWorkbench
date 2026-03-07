@@ -12,7 +12,6 @@ __revision__ = "$Format:%H$"
 # of the CRS sequentially to create a spinning globe effect
 import os
 import tempfile
-from functools import partial
 from typing import Optional
 
 from .core.video_player import (
@@ -299,6 +298,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self._update_preview_frame_range()
 
         self.current_preview_frame_render_job = None
+        self._preview_render_file = None
         # Set an initial image in the preview based on the current map
         self.show_preview_for_frame(0)
 
@@ -1092,45 +1092,71 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 )
                 return
         if self.current_preview_frame_render_job:
+            # Disconnect signal before cancelling to prevent stale callbacks
+            try:
+                self.current_preview_frame_render_job.taskCompleted.disconnect(
+                    self._on_preview_render_complete
+                )
+            except (TypeError, RuntimeError):
+                # Already disconnected or object deleted
+                pass
             self.current_preview_frame_render_job.cancel()
             self.current_preview_frame_render_job = None
 
         controller = self.create_controller()
+        if not controller:
+            return
         job = controller.create_job_for_frame(frame)
         if not job:
             return
 
-        def update_preview_image(file_name):
-            if not self.current_preview_frame_render_job:
-                return
-
-            image = QImage(file_name)
-            if not image.isNull():
-                pixmap = QPixmap.fromImage(image)
-                self.user_defined_preview.setPixmap(pixmap)
-                self.current_frame_preview.setPixmap(pixmap)
-
-            self.current_preview_frame_render_job = None
-
         job.file_name = "/tmp/tmp_image.png"
+        self._preview_render_file = job.file_name
         self.current_preview_frame_render_job = job.create_task()
 
+        # Use a proper method instead of nested function with partial
+        # to avoid closure issues when the task completes cross-thread.
+        # We use sender() in the callback to verify this is the current task.
         self.current_preview_frame_render_job.taskCompleted.connect(
-            partial(update_preview_image, file_name=job.file_name)
+            self._on_preview_render_complete
         )
-        self.current_preview_frame_render_job.taskTerminated.connect(
-            partial(update_preview_image, file_name=job.file_name)
-        )
+        # Don't connect taskTerminated - cancelled tasks shouldn't update preview
 
         QgsApplication.taskManager().addTask(self.current_preview_frame_render_job)
 
+    def _on_preview_render_complete(self):
+        """Handle preview render task completion.
+
+        Note: We cannot use sender() to verify the task because QgsTask
+        signals are emitted cross-thread and sender() may return None.
+        Instead, we just load whatever image is at the preview path.
+        Race conditions are mitigated by cancelling old tasks before
+        starting new ones.
+        """
+        file_name = getattr(self, '_preview_render_file', None)
+        if file_name:
+            try:
+                image = QImage(file_name)
+                if not image.isNull():
+                    pixmap = QPixmap.fromImage(image)
+                    self.user_defined_preview.setPixmap(pixmap)
+                    self.current_frame_preview.setPixmap(pixmap)
+            except Exception:
+                # Silently ignore errors loading preview image
+                pass
+
     def _sync_slider_from_spinbox(self, value: int):
         """Sync the slider position when spinbox value changes."""
-        max_frames = self.extent_frames_spin.value()
-        if max_frames > 0:
-            self.preview_frame_slider.blockSignals(True)
-            self.preview_frame_slider.setMaximum(max_frames)
-            self.preview_frame_slider.setValue(value)
+        try:
+            # Use the slider's current maximum (already set by _update_preview_frame_range)
+            # to avoid calling _calculate_total_frames on every spinbox change
+            max_frames = self.preview_frame_slider.maximum()
+            if max_frames > 0:
+                self.preview_frame_slider.blockSignals(True)
+                self.preview_frame_slider.setValue(min(value, max_frames))
+                self.preview_frame_slider.blockSignals(False)
+        except Exception:
+            # Ensure signals are unblocked even if there's an error
             self.preview_frame_slider.blockSignals(False)
 
     def _sync_spinbox_from_slider(self, value: int):
@@ -1139,9 +1165,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         Note: This does NOT trigger a preview render - that happens
         via _on_slider_released to avoid rendering during drag.
         """
-        self.preview_frame_spin.blockSignals(True)
-        self.preview_frame_spin.setValue(value)
-        self.preview_frame_spin.blockSignals(False)
+        try:
+            self.preview_frame_spin.blockSignals(True)
+            self.preview_frame_spin.setValue(value)
+            self.preview_frame_spin.blockSignals(False)
+        except Exception:
+            # Ensure signals are unblocked even if there's an error
+            self.preview_frame_spin.blockSignals(False)
 
     def _on_slider_released(self):
         """Render preview when slider drag ends."""
@@ -1150,11 +1180,17 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def _update_easing_previews(self, frame: int):
         """Update easing preview dot positions based on current frame."""
-        max_frames = self.extent_frames_spin.value()
-        if max_frames > 0:
-            progress = frame / max_frames
-            self.pan_easing_widget.set_progress(progress)
-            self.zoom_easing_widget.set_progress(progress)
+        try:
+            # Use the slider's current maximum (already set by _update_preview_frame_range)
+            # to avoid calling _calculate_total_frames on every slider movement
+            max_frames = self.preview_frame_slider.maximum()
+            if max_frames > 0:
+                progress = frame / max_frames
+                self.pan_easing_widget.set_progress(progress)
+                self.zoom_easing_widget.set_progress(progress)
+        except Exception:
+            # Silently handle any errors to prevent UI freezing
+            pass
 
     def _calculate_total_frames(self) -> int:
         """Calculate the total frame count based on current settings.

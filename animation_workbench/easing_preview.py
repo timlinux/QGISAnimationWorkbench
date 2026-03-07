@@ -86,9 +86,12 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.dot_plot = None
         self.animation_progress = 0.0
         self.animation_direction = 1  # 1 = forward, -1 = backward
+        self._animation_running = False
+        self._animation_interval = ANIMATION_DURATION_MS // ANIMATION_STEPS
 
-        # Animation timer
+        # Animation timer - we'll use singleShot to prevent event pile-up
         self.animation_timer = QTimer(self)
+        self.animation_timer.setSingleShot(True)
         self.animation_timer.timeout.connect(self._update_animation)
 
         self.load_combo_with_easings()
@@ -154,8 +157,8 @@ class EasingPreview(QWidget, FORM_CLASS):
         self._update_dot_position()
 
         # Start animation timer
-        interval = ANIMATION_DURATION_MS // ANIMATION_STEPS
-        self.animation_timer.start(interval)
+        self._animation_running = True
+        self.animation_timer.start(self._animation_interval)
 
     def _generate_curve_data(self):
         """Generate the Y values for the easing curve."""
@@ -167,18 +170,26 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def _update_animation(self):
         """Update the animation progress and dot position."""
-        step = 1.0 / ANIMATION_STEPS
-        self.animation_progress += step * self.animation_direction
+        try:
+            step = 1.0 / ANIMATION_STEPS
+            self.animation_progress += step * self.animation_direction
 
-        # Bounce at the ends
-        if self.animation_progress >= 1.0:
-            self.animation_progress = 1.0
-            self.animation_direction = -1
-        elif self.animation_progress <= 0.0:
-            self.animation_progress = 0.0
-            self.animation_direction = 1
+            # Bounce at the ends
+            if self.animation_progress >= 1.0:
+                self.animation_progress = 1.0
+                self.animation_direction = -1
+            elif self.animation_progress <= 0.0:
+                self.animation_progress = 0.0
+                self.animation_direction = 1
 
-        self._update_dot_position()
+            self._update_dot_position()
+        except Exception:
+            # Prevent exceptions from stopping the animation timer
+            pass
+        finally:
+            # Schedule next update if animation is still running
+            if self._animation_running:
+                self.animation_timer.start(self._animation_interval)
 
     def set_progress(self, progress: float):
         """Set the dot position based on progress (0.0 to 1.0).
@@ -194,15 +205,24 @@ class EasingPreview(QWidget, FORM_CLASS):
 
     def _update_dot_position(self):
         """Update the dot position on the chart based on animation progress."""
-        if self.dot_plot is None:
-            return
+        try:
+            if self.dot_plot is None:
+                return
 
-        # X position is linear (0 to 999 for 1000 data points)
-        x = self.animation_progress * (len(self.curve_data) - 1)
-        # Y position follows the easing curve
-        y = self.easing.valueForProgress(self.animation_progress)
+            # X position is linear (0 to 999 for 1000 data points)
+            x = self.animation_progress * (len(self.curve_data) - 1)
+            # Y position follows the easing curve
+            y = self.easing.valueForProgress(self.animation_progress)
 
-        self.dot_plot.setData([x], [y])
+            # Only update if position changed significantly to reduce overhead
+            if not hasattr(self, '_last_dot_pos') or \
+               abs(x - self._last_dot_pos[0]) > 0.5 or \
+               abs(y - self._last_dot_pos[1]) > 0.01:
+                self.dot_plot.setData([x], [y])
+                self._last_dot_pos = (x, y)
+        except Exception:
+            # Prevent exceptions from affecting the animation
+            pass
 
     def checkbox_changed(self, new_state):
         """Called when the enabled checkbox is toggled."""
@@ -214,13 +234,15 @@ class EasingPreview(QWidget, FORM_CLASS):
     def disable(self):
         """Disables the widget."""
         self.enable_easing.setChecked(False)
+        self._animation_running = False
         self.animation_timer.stop()
 
     def enable(self):
         """Enables the widget."""
         self.enable_easing.setChecked(True)
-        interval = ANIMATION_DURATION_MS // ANIMATION_STEPS
-        self.animation_timer.start(interval)
+        self._animation_running = True
+        if not self.animation_timer.isActive():
+            self.animation_timer.start(self._animation_interval)
 
     def is_enabled(self) -> bool:
         """Returns True if the easing is enabled."""
