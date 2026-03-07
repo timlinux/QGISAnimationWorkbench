@@ -14,8 +14,9 @@ darglint>=1.8.1
 # Security
 defusedxml>=0.7.1
 
-# HTTP client (used by admin.py for GitHub API)
+# CLI and HTTP (used by admin.py)
 httpx>=0.24.0
+typer>=0.9.0
 
 # Visualization
 pyqtgraph>=0.13.0
