@@ -13,24 +13,25 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from qgis.PyQt.QtWidgets import (
-    QMessageBox,
-    QDialog,
-    QVBoxLayout,
-    QLabel,
-    QTextEdit,
-    QPushButton,
-    QHBoxLayout,
-    QWidget,
-)
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .utilities import CoreUtils
 
 
 class DependencyStatus(Enum):
     """Status of a dependency check."""
+
     AVAILABLE = "available"
     MISSING = "missing"
     INSTALL_FAILED = "install_failed"
@@ -39,6 +40,7 @@ class DependencyStatus(Enum):
 @dataclass
 class DependencyResult:
     """Result of a dependency check."""
+
     name: str
     status: DependencyStatus
     path: Optional[str] = None
@@ -253,16 +255,13 @@ class DependencyChecker:
         """Check if pyqtgraph is available."""
         try:
             import pyqtgraph  # noqa: F401
+
             return DependencyResult(
-                name="pyqtgraph",
-                status=DependencyStatus.AVAILABLE,
-                message="pyqtgraph is installed"
+                name="pyqtgraph", status=DependencyStatus.AVAILABLE, message="pyqtgraph is installed"
             )
         except ImportError:
             return DependencyResult(
-                name="pyqtgraph",
-                status=DependencyStatus.MISSING,
-                message="pyqtgraph is not installed"
+                name="pyqtgraph", status=DependencyStatus.MISSING, message="pyqtgraph is not installed"
             )
 
     @classmethod
@@ -271,34 +270,25 @@ class DependencyChecker:
         try:
             # Use subprocess instead of deprecated pip.main()
             result = subprocess.run(
-                [sys.executable, "-m", "pip", "install", "pyqtgraph"],
-                capture_output=True,
-                text=True,
-                timeout=120
+                [sys.executable, "-m", "pip", "install", "pyqtgraph"], capture_output=True, text=True, timeout=120
             )
             if result.returncode == 0:
                 return DependencyResult(
-                    name="pyqtgraph",
-                    status=DependencyStatus.AVAILABLE,
-                    message="pyqtgraph installed successfully"
+                    name="pyqtgraph", status=DependencyStatus.AVAILABLE, message="pyqtgraph installed successfully"
                 )
             else:
                 return DependencyResult(
                     name="pyqtgraph",
                     status=DependencyStatus.INSTALL_FAILED,
-                    message=f"Installation failed: {result.stderr}"
+                    message=f"Installation failed: {result.stderr}",
                 )
         except subprocess.TimeoutExpired:
             return DependencyResult(
-                name="pyqtgraph",
-                status=DependencyStatus.INSTALL_FAILED,
-                message="Installation timed out"
+                name="pyqtgraph", status=DependencyStatus.INSTALL_FAILED, message="Installation timed out"
             )
         except Exception as e:
             return DependencyResult(
-                name="pyqtgraph",
-                status=DependencyStatus.INSTALL_FAILED,
-                message=f"Installation error: {str(e)}"
+                name="pyqtgraph", status=DependencyStatus.INSTALL_FAILED, message=f"Installation error: {str(e)}"
             )
 
     @classmethod
@@ -324,7 +314,7 @@ class DependencyChecker:
                 "Would you like to install it now?\n\n"
                 "(This will run: pip install pyqtgraph)",
                 QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
+                QMessageBox.Yes,
             )
 
             if reply == QMessageBox.Yes:
@@ -332,8 +322,7 @@ class DependencyChecker:
                 QMessageBox.information(
                     parent,
                     "Installing...",
-                    "Installing pyqtgraph. This may take a moment.\n"
-                    "QGIS may appear unresponsive briefly."
+                    "Installing pyqtgraph. This may take a moment.\n" "QGIS may appear unresponsive briefly.",
                 )
 
                 install_result = cls.install_pyqtgraph()
@@ -343,7 +332,7 @@ class DependencyChecker:
                         parent,
                         "Installation Successful",
                         "pyqtgraph has been installed successfully.\n\n"
-                        "Please restart QGIS to use the easing preview feature."
+                        "Please restart QGIS to use the easing preview feature.",
                     )
                     return False  # Need restart
                 else:
@@ -353,7 +342,7 @@ class DependencyChecker:
                         f"<p>Automatic installation failed:</p>"
                         f"<pre>{install_result.message}</pre>"
                         f"{cls.PYQTGRAPH_INSTALL_INSTRUCTIONS}",
-                        parent
+                        parent,
                     )
                     dialog.exec_()
                     return False
@@ -362,9 +351,7 @@ class DependencyChecker:
         else:
             # Show manual instructions
             dialog = DependencyInstallDialog(
-                "Missing Dependency: pyqtgraph",
-                cls.PYQTGRAPH_INSTALL_INSTRUCTIONS,
-                parent
+                "Missing Dependency: pyqtgraph", cls.PYQTGRAPH_INSTALL_INSTRUCTIONS, parent
             )
             dialog.exec_()
             return False
@@ -375,16 +362,9 @@ class DependencyChecker:
         paths = CoreUtils.which("ffmpeg")
         if paths:
             return DependencyResult(
-                name="ffmpeg",
-                status=DependencyStatus.AVAILABLE,
-                path=paths[0],
-                message=f"ffmpeg found at {paths[0]}"
+                name="ffmpeg", status=DependencyStatus.AVAILABLE, path=paths[0], message=f"ffmpeg found at {paths[0]}"
             )
-        return DependencyResult(
-            name="ffmpeg",
-            status=DependencyStatus.MISSING,
-            message="ffmpeg not found in PATH"
-        )
+        return DependencyResult(name="ffmpeg", status=DependencyStatus.MISSING, message="ffmpeg not found in PATH")
 
     @classmethod
     def check_imagemagick(cls) -> DependencyResult:
@@ -395,12 +375,10 @@ class DependencyChecker:
                 name="ImageMagick",
                 status=DependencyStatus.AVAILABLE,
                 path=paths[0],
-                message=f"convert found at {paths[0]}"
+                message=f"convert found at {paths[0]}",
             )
         return DependencyResult(
-            name="ImageMagick",
-            status=DependencyStatus.MISSING,
-            message="ImageMagick (convert) not found in PATH"
+            name="ImageMagick", status=DependencyStatus.MISSING, message="ImageMagick (convert) not found in PATH"
         )
 
     @classmethod
@@ -422,11 +400,7 @@ class DependencyChecker:
         return results
 
     @classmethod
-    def show_missing_dependency_dialog(
-        cls,
-        results: List[DependencyResult],
-        parent=None
-    ) -> bool:
+    def show_missing_dependency_dialog(cls, results: List[DependencyResult], parent=None) -> bool:
         """
         Show dialog for missing dependencies with installation instructions.
 
@@ -446,11 +420,7 @@ class DependencyChecker:
             elif result.name == "ImageMagick":
                 instructions += cls.get_imagemagick_install_instructions()
 
-        dialog = DependencyInstallDialog(
-            "Missing Dependencies",
-            instructions,
-            parent
-        )
+        dialog = DependencyInstallDialog("Missing Dependencies", instructions, parent)
         dialog.exec_()
         return False
 

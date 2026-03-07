@@ -9,21 +9,23 @@ __revision__ = "$Format:%H$"
 import json
 import os
 from os.path import expanduser
-from qgis.PyQt.QtWidgets import QWidget, QSizePolicy
-from qgis.PyQt.QtCore import Qt
 
-# from typing import Optional
+from qgis.PyQt.QtCore import Qt
 
 # from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 # from PyQt5.QtMultimediaWidgets import QVideoWidget
 # from qgis.PyQt.QtCore import pyqtSlot, QUrl
-from qgis.PyQt.QtGui import QPixmap, QImage
-from qgis.PyQt.QtWidgets import QFileDialog, QListWidgetItem
-from .utilities import get_ui_class
+from qgis.PyQt.QtGui import QImage, QPixmap
+from qgis.PyQt.QtWidgets import QFileDialog, QListWidgetItem, QSizePolicy, QWidget
+
 from .core import (
     set_setting,
     setting,
 )
+from .utilities import get_ui_class
+
+# from typing import Optional
+
 
 FORM_CLASS = get_ui_class("media_list_widget_base.ui")
 
@@ -55,9 +57,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.images_filter = "JPEG (*.jpg);;PNG (*.png);;All files (*.*)"
         self.movies_filter = "MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
-        self.movies_and_images_filter = (
-            "JPEG (*.jpg);;PNG (*.png);;MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
-        )
+        self.movies_and_images_filter = "JPEG (*.jpg);;PNG (*.png);;MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
         self.sounds_filter = "MP3 (*.mp3);;WAV (*.wav);;All files (*.*)"
 
     def set_media_type(self, media_type: str):
@@ -112,9 +112,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         # Popup a dialog to request the filename for music backing track
         dialog_title = "Select Media File"
         home = expanduser("~")
-        directory = setting(
-            key="last_directory", default=home, prefer_project_setting=True
-        )
+        directory = setting(key="last_directory", default=home, prefer_project_setting=True)
         # noinspection PyCallByClass,PyTypeChecker
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -143,9 +141,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         for item in items:
             self.media_list.takeItem(self.media_list.row(item))
         total = self.total_duration()
-        self.total_duration_label.setText(
-            f"Total duration for all media {total} seconds"
-        )
+        self.total_duration_label.setText(f"Total duration for all media {total} seconds")
 
     def create_item(self, file_path, duration=2):
         """Add an item to the list widget.
@@ -162,9 +158,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.media_list.insertItem(0, item)
         self.load_media(file_path)
         total = self.total_duration()
-        self.total_duration_label.setText(
-            f"Total duration for all media {total} seconds"
-        )
+        self.total_duration_label.setText(f"Total duration for all media {total} seconds")
 
     def load_media(self, file_path):
         """Load an image, movie or sound file.

@@ -15,10 +15,10 @@ import tempfile
 from typing import Optional
 
 from .core.video_player import (
-    is_multimedia_available,
-    open_in_system_player,
     get_system_player_name,
     get_video_playback_instructions,
+    is_multimedia_available,
+    open_in_system_player,
 )
 
 # Import multimedia components with fallback
@@ -30,51 +30,52 @@ else:
     QMediaContent = None
     QMediaPlayer = None
     QVideoWidget = None
-from qgis.PyQt.QtCore import pyqtSlot, QUrl
-from qgis.PyQt.QtGui import QIcon, QPixmap, QImage
-from qgis.PyQt.QtWidgets import (
-    QStyle,
-    QFileDialog,
-    QDialog,
-    QDialogButtonBox,
-    QGridLayout,
-    QVBoxLayout,
-    QHBoxLayout,
-    QPushButton,
-    QToolButton,
-    QSpacerItem,
-    QSizePolicy,
-    QLabel,
-    QTextBrowser,
-    QMessageBox,
-)
-from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import (
-    QgsExpressionContextUtils,
-    QgsProject,
-    QgsMapLayerProxyModel,
-    QgsReferencedRectangle,
     QgsApplication,
+    QgsExpressionContextUtils,
+    QgsMapLayerProxyModel,
+    QgsProject,
     QgsPropertyCollection,
+    QgsReferencedRectangle,
     QgsWkbTypes,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
+from qgis.PyQt.QtCore import QUrl, pyqtSlot
+from qgis.PyQt.QtGui import QIcon, QImage, QPixmap
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QStyle,
+    QTextBrowser,
+    QToolButton,
+    QVBoxLayout,
+)
+from qgis.PyQt.QtXml import QDomDocument
 
 from .core import (
     AnimationController,
     InvalidAnimationParametersException,
+    MapMode,
     MovieCreationTask,
     MovieFormat,
     set_setting,
     setting,
-    MapMode,
 )
 from .core.dependency_checker import DependencyChecker
 from .dialog_expression_context_generator import DialogExpressionContextGenerator
-from .gui.kartoza_branding import apply_kartoza_styling, KartozaFooter
+from .gui.kartoza_branding import KartozaFooter, apply_kartoza_styling
 from .utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("animation_workbench_base.ui")
+
 
 # pylint: disable=too-many-public-methods
 class AnimationWorkbench(QDialog, FORM_CLASS):
@@ -147,9 +148,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.work_directory = tempfile.gettempdir()
         self.frame_filename_prefix = "animation_workbench"
         # place where final products are stored
-        output_file = setting(
-            key="output_file", default="", prefer_project_setting=True
-        )
+        output_file = setting(key="output_file", default="", prefer_project_setting=True)
         if output_file:
             self.movie_file_edit.setText(output_file)
 
@@ -163,9 +162,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # types allowed in the QgsMapLayerSelector combo
         # See https://github.com/qgis/QGIS/issues/38472#issuecomment-715178025
         self.layer_combo.setFilters(
-            QgsMapLayerProxyModel.PointLayer
-            | QgsMapLayerProxyModel.LineLayer
-            | QgsMapLayerProxyModel.PolygonLayer
+            QgsMapLayerProxyModel.PointLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PolygonLayer
         )
         self.layer_combo.layerChanged.connect(self._layer_changed)
 
@@ -175,21 +172,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             if layer:
                 self.layer_combo.setLayer(layer)
 
-        prev_data_defined_properties_xml, _ = QgsProject.instance().readEntry(
-            "animation", "data_defined_properties"
-        )
+        prev_data_defined_properties_xml, _ = QgsProject.instance().readEntry("animation", "data_defined_properties")
         if prev_data_defined_properties_xml:
             doc = QDomDocument()
             doc.setContent(prev_data_defined_properties_xml.encode())
             elem = doc.firstChildElement("data_defined_properties")
-            self.data_defined_properties.readXml(
-                elem, AnimationController.DYNAMIC_PROPERTIES
-            )
+            self.data_defined_properties.readXml(elem, AnimationController.DYNAMIC_PROPERTIES)
 
         self.extent_group_box.setOutputCrs(QgsProject.instance().crs())
-        self.extent_group_box.setOutputExtentFromUser(
-            self.iface.mapCanvas().extent(), QgsProject.instance().crs()
-        )
+        self.extent_group_box.setOutputExtentFromUser(self.iface.mapCanvas().extent(), QgsProject.instance().crs())
         # self.extent_group_box.setOriginalExtnt()
 
         # Close button action (save state on close)
@@ -280,9 +271,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         self.setup_expression_contexts()
 
-        resolution_string = setting(
-            key="resolution", default="map_canvas", prefer_project_setting=True
-        )
+        resolution_string = setting(key="resolution", default="map_canvas", prefer_project_setting=True)
         if resolution_string == "low_res":
             self.radio_low_res.setChecked(True)
         elif resolution_string == "medium_res":
@@ -310,9 +299,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.current_movie_file = None
         self._multimedia_available = _multimedia_available
         if _multimedia_available:
-            self.media_player = QMediaPlayer(
-                None, QMediaPlayer.VideoSurface  # .video_preview_widget,
-            )
+            self.media_player = QMediaPlayer(None, QMediaPlayer.VideoSurface)  # .video_preview_widget,
         else:
             self.media_player = None
         self.setup_video_widget()
@@ -333,17 +320,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Only render preview when slider is released (not during drag)
         self.preview_frame_slider.sliderReleased.connect(self._on_slider_released)
 
-        self.register_data_defined_button(
-            self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE
-        )
-        self.register_data_defined_button(
-            self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE
-        )
+        self.register_data_defined_button(self.scale_min_dd_btn, AnimationController.PROPERTY_MIN_SCALE)
+        self.register_data_defined_button(self.scale_max_dd_btn, AnimationController.PROPERTY_MAX_SCALE)
 
     def _setup_kartoza_footer(self):
         """Add the Kartoza branding footer to the dialog above the button box."""
         main_layout = self.layout()
-        if main_layout and hasattr(self, 'button_box'):
+        if main_layout and hasattr(self, "button_box"):
             # Create the footer
             footer = KartozaFooter(self)
             # The layout is a QGridLayout - insert footer before button box
@@ -397,12 +380,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Create the system player button
         self.open_system_player_button = QToolButton()
         self.open_system_player_button.setText("Open External")
-        self.open_system_player_button.setToolTip(
-            f"Open video in {get_system_player_name()}"
-        )
-        self.open_system_player_button.setIcon(
-            self.style().standardIcon(QStyle.SP_MediaPlay)
-        )
+        self.open_system_player_button.setToolTip(f"Open video in {get_system_player_name()}")
+        self.open_system_player_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.open_system_player_button.setToolButtonStyle(2)  # TextBesideIcon
         self.open_system_player_button.clicked.connect(self._open_in_system_player)
         self.open_system_player_button.setEnabled(False)
@@ -414,9 +393,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
     def setup_render_modes(self):
         """Set up the render modes."""
-        mode_string = setting(
-            key="map_mode", default="sphere", prefer_project_setting=True
-        )
+        mode_string = setting(key="map_mode", default="sphere", prefer_project_setting=True)
         if mode_string == "sphere":
             self.radio_sphere.setChecked(True)
             self.settings_stack.setCurrentIndex(0)
@@ -441,9 +418,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # custom widgets implemented in easing_preview.py
         # and added in designer as promoted widgets.
         self.pan_easing_widget.set_checkbox_label("Enable Pan Easing")
-        pan_easing_name = setting(
-            key="pan_easing", default="Linear", prefer_project_setting=True
-        )
+        pan_easing_name = setting(key="pan_easing", default="Linear", prefer_project_setting=True)
         self.pan_easing_widget.set_preview_color("#ffff00")
         self.pan_easing_widget.set_easing_by_name(pan_easing_name)
         if (
@@ -461,9 +436,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.pan_easing_widget.enable()
 
         self.zoom_easing_widget.set_checkbox_label("Enable Zoom Easing")
-        zoom_easing_name = setting(
-            key="zoom_easing", default="Linear", prefer_project_setting=True
-        )
+        zoom_easing_name = setting(key="zoom_easing", default="Linear", prefer_project_setting=True)
         self.zoom_easing_widget.set_preview_color("#0000ff")
         self.zoom_easing_widget.set_easing_by_name(zoom_easing_name)
         if (
@@ -486,38 +459,20 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.outro_media.set_media_type("images")
         self.music_media.set_media_type("sounds")
 
-        self.intro_media.from_json(
-            setting(key="intro_media", default="{}", prefer_project_setting=True)
-        )
-        self.outro_media.from_json(
-            setting(key="outro_media", default="{}", prefer_project_setting=True)
-        )
-        self.music_media.from_json(
-            setting(key="music_media", default="{}", prefer_project_setting=True)
-        )
+        self.intro_media.from_json(setting(key="intro_media", default="{}", prefer_project_setting=True))
+        self.outro_media.from_json(setting(key="outro_media", default="{}", prefer_project_setting=True))
+        self.music_media.from_json(setting(key="music_media", default="{}", prefer_project_setting=True))
 
     def setup_expression_contexts(self):
         """Set up all the expression context variables."""
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "frames_per_feature", 0
-        )
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "current_frame_for_feature", 0
-        )
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "dwell_frames_per_feature", 0
-        )
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "current_feature_id", 0
-        )
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "frames_per_feature", 0)
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "current_frame_for_feature", 0)
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "dwell_frames_per_feature", 0)
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "current_feature_id", 0)
         # None, Panning, Hovering
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "current_animation_action", "None"
-        )
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "current_animation_action", "None")
 
-        QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), "total_frame_count", "None"
-        )
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "total_frame_count", "None")
 
     def debug_button_clicked(self):
         """Show the different ffmpeg commands that will be run to process the images."""
@@ -544,9 +499,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append(f"Warning: Could not save state: {e}")
         self.reject()
 
-    def closeEvent(
-        self, event
-    ):  # pylint: disable=missing-function-docstring,unused-argument
+    def closeEvent(self, event):  # pylint: disable=missing-function-docstring,unused-argument
         self.save_state()
         self.reject()
 
@@ -580,9 +533,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         Triggered when a property override button value is changed
         """
         button = self.sender()
-        self.data_defined_properties.setProperty(
-            button.propertyKey(), button.toProperty()
-        )
+        self.data_defined_properties.setProperty(button.propertyKey(), button.toProperty())
 
     def update_data_defined_button(self, button):
         """
@@ -593,9 +544,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             return
 
         button.blockSignals(True)
-        button.setToProperty(
-            self.data_defined_properties.property(button.propertyKey())
-        )
+        button.setToProperty(self.data_defined_properties.property(button.propertyKey()))
         button.blockSignals(False)
 
     def show_message(self, message: str):
@@ -625,8 +574,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.active_lcd.display(self.render_queue.active_queue_size())
         self.total_tasks_lcd.display(self.render_queue.total_queue_size)
         self.remaining_features_lcd.display(
-            self.render_queue.total_feature_count
-            - self.render_queue.completed_feature_count
+            self.render_queue.total_feature_count - self.render_queue.completed_feature_count
         )
         self.completed_tasks_lcd.display(self.render_queue.total_completed)
         self.completed_features_lcd.display(self.render_queue.completed_feature_count)
@@ -645,9 +593,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.movie_file_edit.setStyleSheet("")
         else:
             self.run_button.setToolTip("Output file not set - click '...' to choose")
-            self.movie_file_edit.setStyleSheet(
-                "QLineEdit { border: 2px solid #e74c3c; background-color: #fdf2f2; }"
-            )
+            self.movie_file_edit.setStyleSheet("QLineEdit { border: 2px solid #e74c3c; background-color: #fdf2f2; }")
 
     def set_output_name(self):
         """
@@ -697,15 +643,9 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             value=self.framerate_spin.value(),
             store_in_project=True,
         )
-        set_setting(
-            key="intro_media", value=self.intro_media.to_json(), store_in_project=True
-        )
-        set_setting(
-            key="outro_media", value=self.outro_media.to_json(), store_in_project=True
-        )
-        set_setting(
-            key="music_media", value=self.music_media.to_json(), store_in_project=True
-        )
+        set_setting(key="intro_media", value=self.intro_media.to_json(), store_in_project=True)
+        set_setting(key="outro_media", value=self.outro_media.to_json(), store_in_project=True)
+        set_setting(key="music_media", value=self.music_media.to_json(), store_in_project=True)
 
         if self.radio_low_res.isChecked():
             set_setting(key="resolution", value="low_res", store_in_project=True)
@@ -780,20 +720,14 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         # only saved to project
         if self.layer_combo.currentLayer():
-            QgsProject.instance().writeEntry(
-                "animation", "layer_id", self.layer_combo.currentLayer().id()
-            )
+            QgsProject.instance().writeEntry("animation", "layer_id", self.layer_combo.currentLayer().id())
         else:
             QgsProject.instance().removeEntry("animation", "layer_id")
         temp_doc = QDomDocument()
         dd_elem = temp_doc.createElement("data_defined_properties")
-        self.data_defined_properties.writeXml(
-            dd_elem, AnimationController.DYNAMIC_PROPERTIES
-        )
+        self.data_defined_properties.writeXml(dd_elem, AnimationController.DYNAMIC_PROPERTIES)
         temp_doc.appendChild(dd_elem)
-        QgsProject.instance().writeEntry(
-            "animation", "data_defined_properties", temp_doc.toString()
-        )
+        QgsProject.instance().writeEntry("animation", "data_defined_properties", temp_doc.toString())
 
     # Prevent the slot being called twice
     @pyqtSlot()
@@ -810,16 +744,13 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     self,
                     "Output File Required",
                     "Please specify an output file path before running.\n\n"
-                    "Click the '...' button next to the output field to choose a location."
+                    "Click the '...' button next to the output field to choose a location.",
                 )
                 return
 
             # Pre-flight dependency check - verify tools are available BEFORE rendering
             is_gif = self.radio_gif.isChecked()
-            valid, tool_path = DependencyChecker.validate_movie_export(
-                for_gif=is_gif,
-                parent=self
-            )
+            valid, tool_path = DependencyChecker.validate_movie_export(for_gif=is_gif, parent=self)
             if not valid:
                 self.output_log_text_edit.append(
                     "Export cancelled: Required tools not found. "
@@ -827,11 +758,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 )
                 return
         except Exception as e:
-            QMessageBox.critical(
-                self,
-                "Error",
-                f"An error occurred during pre-flight checks:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Error", f"An error occurred during pre-flight checks:\n{str(e)}")
             return
 
         # Enable progress page on accept
@@ -856,14 +783,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         controller.reuse_cache = self.reuse_cache.isChecked()
 
-        self.render_queue.set_annotations(
-            QgsProject.instance().annotationManager().annotations()
-        )
+        self.render_queue.set_annotations(QgsProject.instance().annotationManager().annotations())
         self.render_queue.set_decorations(self.iface.activeDecorations())
 
-        self.output_log_text_edit.append(
-            "Generating {} frames".format(controller.total_frame_count)
-        )
+        self.output_log_text_edit.append("Generating {} frames".format(controller.total_frame_count))
         self.progress_bar.setMaximum(controller.total_frame_count)
         self.progress_bar.setValue(0)
 
@@ -911,18 +834,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         if map_mode != MapMode.FIXED_EXTENT:
             if not self.layer_combo.currentLayer():
-                self.output_log_text_edit.append(
-                    "Cannot generate sequence without choosing a layer"
-                )
+                self.output_log_text_edit.append("Cannot generate sequence without choosing a layer")
                 return None
 
-            layer_type = QgsWkbTypes.displayString(
-                self.layer_combo.currentLayer().wkbType()
-            )
+            layer_type = QgsWkbTypes.displayString(self.layer_combo.currentLayer().wkbType())
             layer_name = self.layer_combo.currentLayer().name()
-            self.output_log_text_edit.append(
-                "Generating flight path for %s layer: %s" % (layer_type, layer_name)
-            )
+            self.output_log_text_edit.append("Generating flight path for %s layer: %s" % (layer_type, layer_name))
 
         if map_mode == MapMode.FIXED_EXTENT:
             controller = AnimationController.create_fixed_extent_controller(
@@ -948,21 +865,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                     min_scale=self.scale_range.minimumScale(),
                     max_scale=self.scale_range.maximumScale(),
                     loop=self.check_loop_features.isChecked(),
-                    pan_easing=self.pan_easing_widget.get_easing()
-                    if self.pan_easing_widget.is_enabled()
-                    else None,
-                    zoom_easing=self.zoom_easing_widget.get_easing()
-                    if self.zoom_easing_widget.is_enabled()
-                    else None,
+                    pan_easing=self.pan_easing_widget.get_easing() if self.pan_easing_widget.is_enabled() else None,
+                    zoom_easing=self.zoom_easing_widget.get_easing() if self.zoom_easing_widget.is_enabled() else None,
                     frame_rate=self.framerate_spin.value(),
                 )
             except InvalidAnimationParametersException as e:
                 self.output_log_text_edit.append(f"Processing halted: {e}")
                 return None
 
-        controller.data_defined_properties = QgsPropertyCollection(
-            self.data_defined_properties
-        )
+        controller.data_defined_properties = QgsPropertyCollection(self.data_defined_properties)
         return controller
 
     def processing_completed(self, success: bool):
@@ -990,9 +901,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             intro_command=intro_command,
             outro_command=outro_command,
             music_command=music_command,
-            output_format=MovieFormat.GIF
-            if self.radio_gif.isChecked()
-            else MovieFormat.MP4,
+            output_format=MovieFormat.GIF if self.radio_gif.isChecked() else MovieFormat.MP4,
             work_directory=self.work_directory,
             frame_filename_prefix=self.frame_filename_prefix,
             framerate=self.framerate_spin.value(),
@@ -1010,7 +919,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.preview_stack.setCurrentIndex(1)
 
             # Enable system player button
-            if hasattr(self, 'open_system_player_button'):
+            if hasattr(self, "open_system_player_button"):
                 self.open_system_player_button.setEnabled(True)
 
             if self._multimedia_available and self.media_player is not None:
@@ -1020,12 +929,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.play()
             else:
                 # Multimedia not available - offer to open in system player
-                self.output_log_text_edit.append(
-                    f"Video created successfully: {movie_file}"
-                )
-                self.output_log_text_edit.append(
-                    "Embedded player not available. Click 'Open External' to view."
-                )
+                self.output_log_text_edit.append(f"Video created successfully: {movie_file}")
+                self.output_log_text_edit.append("Embedded player not available. Click 'Open External' to view.")
                 # Auto-open in system player as a convenience
                 self._open_in_system_player()
 
@@ -1087,16 +992,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         if self.radio_sphere.isChecked() or self.radio_planar.isChecked():
             if not self.layer_combo.currentLayer():
-                self.output_log_text_edit.append(
-                    "Cannot generate sequence without choosing a layer"
-                )
+                self.output_log_text_edit.append("Cannot generate sequence without choosing a layer")
                 return
         if self.current_preview_frame_render_job:
             # Disconnect signal before cancelling to prevent stale callbacks
             try:
-                self.current_preview_frame_render_job.taskCompleted.disconnect(
-                    self._on_preview_render_complete
-                )
+                self.current_preview_frame_render_job.taskCompleted.disconnect(self._on_preview_render_complete)
             except (TypeError, RuntimeError):
                 # Already disconnected or object deleted
                 pass
@@ -1117,9 +1018,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Use a proper method instead of nested function with partial
         # to avoid closure issues when the task completes cross-thread.
         # We use sender() in the callback to verify this is the current task.
-        self.current_preview_frame_render_job.taskCompleted.connect(
-            self._on_preview_render_complete
-        )
+        self.current_preview_frame_render_job.taskCompleted.connect(self._on_preview_render_complete)
         # Don't connect taskTerminated - cancelled tasks shouldn't update preview
 
         QgsApplication.taskManager().addTask(self.current_preview_frame_render_job)
@@ -1133,7 +1032,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         Race conditions are mitigated by cancelling old tasks before
         starting new ones.
         """
-        file_name = getattr(self, '_preview_render_file', None)
+        file_name = getattr(self, "_preview_render_file", None)
         if file_name:
             try:
                 image = QImage(file_name)
@@ -1320,9 +1219,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.play_button.setEnabled(False)
         error_string = self.media_player.errorString() if self.media_player else "Unknown error"
         self.output_log_text_edit.append(f"Video playback error: {error_string}")
-        self.output_log_text_edit.append(
-            "Click 'Open External' to view in your system media player."
-        )
+        self.output_log_text_edit.append("Click 'Open External' to view in your system media player.")
 
         # Offer to open in system player
         if self.current_movie_file:
@@ -1332,7 +1229,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 f"The embedded video player encountered an error:\n{error_string}\n\n"
                 f"Would you like to open the video in {get_system_player_name()}?",
                 QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
+                QMessageBox.Yes,
             )
             if reply == QMessageBox.Yes:
                 self._open_in_system_player()
@@ -1340,22 +1237,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
     def _open_in_system_player(self):
         """Open the current movie file in the system's default media player."""
         if not self.current_movie_file:
-            QMessageBox.warning(
-                self,
-                "No Video Available",
-                "No video file is available to open."
-            )
+            QMessageBox.warning(self, "No Video Available", "No video file is available to open.")
             return
 
         success, error = open_in_system_player(self.current_movie_file)
         if success:
-            self.output_log_text_edit.append(
-                f"Opened video in {get_system_player_name()}"
-            )
+            self.output_log_text_edit.append(f"Opened video in {get_system_player_name()}")
         else:
             QMessageBox.warning(
                 self,
                 "Could Not Open Video",
                 f"Failed to open video in system player:\n{error}\n\n"
-                f"The video file is located at:\n{self.current_movie_file}"
+                f"The video file is located at:\n{self.current_movie_file}",
             )

@@ -24,17 +24,18 @@ from typing import List, Optional
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
 import qgis  # pylint: disable=unused-import
-from qgis.PyQt.QtCore import QObject, pyqtSignal
-from qgis.PyQt.QtGui import QImage
-from qgis.core import QgsApplication, QgsMapRendererParallelJob
 from qgis.core import (
+    Qgis,
+    QgsApplication,
+    QgsFeedback,
+    QgsMapRendererParallelJob,
     QgsMapRendererTask,
     QgsMapSettings,
     QgsProxyProgressTask,
-    QgsFeedback,
-    Qgis,
     QgsTask,
 )
+from qgis.PyQt.QtCore import QObject, pyqtSignal
+from qgis.PyQt.QtGui import QImage
 
 from .settings import setting
 
@@ -135,9 +136,7 @@ class RenderQueue(QObject):
         # during rendering. Probably setting to the same number
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
-        self.render_thread_pool_size = int(
-            setting(key="render_thread_pool_size", default=100)
-        )
+        self.render_thread_pool_size = int(setting(key="render_thread_pool_size", default=100))
         # A list of tasks that need to be rendered but
         # cannot be because the job queue is too full.
         # we pop items off this list self.render_thread_pool_size
@@ -293,12 +292,8 @@ class RenderQueue(QObject):
             task = job.create_task(self.annotations_list, self.decorations, hidden=True)
             self.active_tasks[job.file_name] = task
 
-            task.taskCompleted.connect(
-                partial(self.task_completed, file_name=job.file_name)
-            )
-            task.taskTerminated.connect(
-                partial(self.finalize_task, file_name=job.file_name)
-            )
+            task.taskCompleted.connect(partial(self.task_completed, file_name=job.file_name))
+            task.taskTerminated.connect(partial(self.finalize_task, file_name=job.file_name))
 
             QgsApplication.taskManager().addTask(task)
             self.proxy_feedback.set_remaining_steps(len(self.job_queue))
@@ -321,9 +316,7 @@ class RenderQueue(QObject):
         self.total_completed += 1
 
         if self.frames_per_feature:
-            self.completed_feature_count = int(
-                self.total_completed / self.frames_per_feature
-            )
+            self.completed_feature_count = int(self.total_completed / self.frames_per_feature)
 
         self.status_changed.emit()
         self.process_queue()

@@ -6,13 +6,13 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
-from qgis.PyQt.QtWidgets import QWidget, QApplication
-from qgis.PyQt.QtGui import QPalette
 from qgis.PyQt.QtCore import (
     QEasingCurve,
     QTimer,
     pyqtSignal,
 )
+from qgis.PyQt.QtGui import QPalette
+from qgis.PyQt.QtWidgets import QApplication, QWidget
 
 try:
     import pyqtgraph as pg
@@ -21,6 +21,7 @@ except ImportError:
     # Try to install pyqtgraph using subprocess (modern approach)
     import subprocess
     import sys
+
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "pyqtgraph"])
         import pyqtgraph as pg
@@ -107,11 +108,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         """
         palette = QApplication.instance().palette()
         window_color = palette.color(QPalette.Window)
-        luminance = (
-            0.299 * window_color.red() +
-            0.587 * window_color.green() +
-            0.114 * window_color.blue()
-        )
+        luminance = 0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
         return luminance < 128
 
     def get_theme(self) -> dict:
@@ -133,10 +130,12 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.chart.setMenuEnabled(False)
 
         # Add a border around the chart
-        self.chart.setStyleSheet(f"""
+        self.chart.setStyleSheet(
+            f"""
             border: 2px solid {theme["border"]};
             border-radius: 6px;
-        """)
+        """
+        )
 
         # Generate initial curve data
         self._generate_curve_data()
@@ -146,11 +145,7 @@ class EasingPreview(QWidget, FORM_CLASS):
         self.curve_plot = self.chart.plot(self.curve_data, pen=pen)
 
         # Create the indicator dot as a scatter plot
-        self.dot_plot = pg.ScatterPlotItem(
-            size=DOT_SIZE,
-            brush=pg.mkBrush(theme["dot_color"]),
-            pen=pg.mkPen(None)
-        )
+        self.dot_plot = pg.ScatterPlotItem(size=DOT_SIZE, brush=pg.mkBrush(theme["dot_color"]), pen=pg.mkPen(None))
         self.chart.addItem(self.dot_plot)
 
         # Set initial dot position
@@ -215,9 +210,11 @@ class EasingPreview(QWidget, FORM_CLASS):
             y = self.easing.valueForProgress(self.animation_progress)
 
             # Only update if position changed significantly to reduce overhead
-            if not hasattr(self, '_last_dot_pos') or \
-               abs(x - self._last_dot_pos[0]) > 0.5 or \
-               abs(y - self._last_dot_pos[1]) > 0.01:
+            if (
+                not hasattr(self, "_last_dot_pos")
+                or abs(x - self._last_dot_pos[0]) > 0.5
+                or abs(y - self._last_dot_pos[1]) > 0.01
+            ):
                 self.dot_plot.setData([x], [y])
                 self._last_dot_pos = (x, y)
         except Exception:

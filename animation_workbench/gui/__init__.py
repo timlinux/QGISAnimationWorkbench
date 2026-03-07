@@ -3,11 +3,11 @@ Gui classes
 """
 
 from .kartoza_branding import (
-    apply_kartoza_styling,
-    KartozaFooter,
-    KartozaHeader,
+    KARTOZA_GOLD,
     KARTOZA_GREEN_DARK,
     KARTOZA_GREEN_LIGHT,
-    KARTOZA_GOLD,
+    KartozaFooter,
+    KartozaHeader,
+    apply_kartoza_styling,
 )
 from .workbench_settings import AnimationWorkbenchOptionsFactory

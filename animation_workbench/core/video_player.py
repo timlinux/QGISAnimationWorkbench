@@ -19,8 +19,9 @@ _multimedia_available = False
 _multimedia_error = None
 
 try:
-    from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+    from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
     from PyQt5.QtMultimediaWidgets import QVideoWidget
+
     _multimedia_available = True
 except ImportError as e:
     _multimedia_error = str(e)
@@ -97,6 +98,7 @@ def get_system_player_name() -> str:
 
 class VideoPlayerStatus:
     """Status codes for video player operations."""
+
     SUCCESS = "success"
     MULTIMEDIA_UNAVAILABLE = "multimedia_unavailable"
     CODEC_ERROR = "codec_error"

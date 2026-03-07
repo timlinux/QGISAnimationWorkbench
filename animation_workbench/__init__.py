@@ -21,15 +21,15 @@ __revision__ = "$Format:%H$"
 import time
 from typing import Optional
 
+from qgis.core import Qgis
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QAction
-from qgis.core import Qgis
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QPushButton
 
 from .animation_workbench import AnimationWorkbench
 from .core import RenderQueue, setting
-from .utilities import resources_path
 from .gui import AnimationWorkbenchOptionsFactory
+from .utilities import resources_path
 
 
 def classFactory(iface):  # pylint: disable=missing-function-docstring
@@ -64,9 +64,7 @@ class AnimationWorkbenchPlugin:
         debug_mode = int(setting(key="debug_mode", default=0))
         if debug_mode:
             debug_icon = QIcon(resources_path("icons", "animation-workbench-debug.svg"))
-            self.debug_action = QAction(
-                debug_icon, "Animation Workbench Debug Mode", self.iface.mainWindow()
-            )
+            self.debug_action = QAction(debug_icon, "Animation Workbench Debug Mode", self.iface.mainWindow())
             self.debug_action.triggered.connect(self.debug)
             self.iface.addToolBarIcon(self.debug_action)
 
@@ -142,11 +140,7 @@ class AnimationWorkbenchPlugin:
         if more_details:
             button = QPushButton(widget)
             button.setText(button_text)
-            button.pressed.connect(
-                lambda: self.display_information_message_box(
-                    title=title, message=more_details
-                )
-            )
+            button.pressed.connect(lambda: self.display_information_message_box(title=title, message=more_details))
             widget.layout().addWidget(button)
 
         self.iface.messageBar().pushWidget(widget, Qgis.Info, duration)

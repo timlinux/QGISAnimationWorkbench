@@ -6,11 +6,12 @@ __license__ = "GPL version 3"
 __email__ = "tim@kartoza.com"
 __revision__ = "$Format:%H$"
 
+from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QVBoxLayout
-from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
+
 from animation_workbench.core import set_setting, setting
-from animation_workbench.gui.kartoza_branding import apply_kartoza_styling, KartozaFooter
+from animation_workbench.gui.kartoza_branding import KartozaFooter, apply_kartoza_styling
 from animation_workbench.utilities import get_ui_class, resources_path
 
 FORM_CLASS = get_ui_class("workbench_settings_base.ui")
@@ -37,9 +38,7 @@ class WorkbenchSettings(FORM_CLASS, QgsOptionsPageWidget):
         # during rendering. Probably setting to the same number
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
-        self.spin_thread_pool_size.setValue(
-            int(setting(key="render_thread_pool_size", default=1))
-        )
+        self.spin_thread_pool_size.setValue(int(setting(key="render_thread_pool_size", default=1)))
         # This is intended for developers to attach to the plugin using a
         # remote debugger so that they can step through the code. Do not
         # enable it if you do not have a remote debugger set up as it will

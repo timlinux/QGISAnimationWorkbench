@@ -11,11 +11,12 @@ import tempfile
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from qgis.PyQt.QtCore import pyqtSignal, QProcess
-from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
+from qgis.core import QgsBlockingProcess, QgsFeedback, QgsTask
+from qgis.PyQt.QtCore import QProcess, pyqtSignal
+
+from .dependency_checker import DependencyChecker, DependencyStatus
 from .settings import setting
 from .utilities import CoreUtils
-from .dependency_checker import DependencyChecker, DependencyStatus
 
 
 class MovieFormat(Enum):
@@ -123,10 +124,7 @@ class MovieCommandGenerator:
         else:
             ffmpeg_paths = CoreUtils.which("ffmpeg")
             if not ffmpeg_paths:
-                raise RuntimeError(
-                    "FFmpeg not found. "
-                    "Please install FFmpeg and ensure it is in your PATH."
-                )
+                raise RuntimeError("FFmpeg not found. " "Please install FFmpeg and ensure it is in your PATH.")
             ffmpeg = ffmpeg_paths[0]
             # Also, we will make a video of the scene - useful for cases where
             # you have a larger colour palette and gif will not hack it.
@@ -303,9 +301,7 @@ class MovieCreationTask(QgsTask):
         """
         Runs a process in a blocking way, reporting the stdout output to the user
         """
-        self.message.emit(
-            "Generating Movie: {} {}".format(command, " ".join(arguments))
-        )
+        self.message.emit("Generating Movie: {} {}".format(command, " ".join(arguments)))
 
         def on_stdout(ba):
             val = ba.data().decode("UTF-8")
@@ -362,8 +358,7 @@ class MovieCreationTask(QgsTask):
             convert_paths = CoreUtils.which("convert")
             if not convert_paths:
                 self.message.emit(
-                    "ERROR: ImageMagick 'convert' command not found. "
-                    "Please install ImageMagick and restart QGIS."
+                    "ERROR: ImageMagick 'convert' command not found. " "Please install ImageMagick and restart QGIS."
                 )
                 return False
             self.message.emit(f"convert found: {convert_paths[0]}")
@@ -371,10 +366,7 @@ class MovieCreationTask(QgsTask):
             self.message.emit("Generating MP4 Movie")
             ffmpeg_paths = CoreUtils.which("ffmpeg")
             if not ffmpeg_paths:
-                self.message.emit(
-                    "ERROR: FFmpeg not found. "
-                    "Please install FFmpeg and restart QGIS."
-                )
+                self.message.emit("ERROR: FFmpeg not found. " "Please install FFmpeg and restart QGIS.")
                 return False
             self.message.emit(f"ffmpeg found: {ffmpeg_paths[0]}")
 

@@ -10,10 +10,10 @@ __revision__ = "$Format:%H$"
 # of the CRS sequentially to create a spinning globe effect
 
 from qgis.core import (
+    QgsExpressionContext,
+    QgsExpressionContextGenerator,
     QgsExpressionContextUtils,
     QgsProject,
-    QgsExpressionContextGenerator,
-    QgsExpressionContext,
     QgsVectorLayer,
 )
 
@@ -39,9 +39,7 @@ class DialogExpressionContextGenerator(QgsExpressionContextGenerator):
     ) -> QgsExpressionContext:
         context = QgsExpressionContext()
         context.appendScope(QgsExpressionContextUtils.globalScope())
-        context.appendScope(
-            QgsExpressionContextUtils.projectScope(QgsProject.instance())
-        )
+        context.appendScope(QgsExpressionContextUtils.projectScope(QgsProject.instance()))
         if self.layer:
             context.appendScope(self.layer.createExpressionContextScope())
         return context

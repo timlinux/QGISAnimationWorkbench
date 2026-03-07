@@ -21,9 +21,8 @@ __revision__ = "$Format:%H$"
 import json
 from collections import OrderedDict
 
-from qgis.PyQt.QtCore import QSettings
-
 from qgis.core import QgsProject
+from qgis.PyQt.QtCore import QSettings
 
 from .constants import APPLICATION_NAME
 from .default_settings import default_settings

@@ -12,7 +12,6 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont, QPixmap
 from qgis.PyQt.QtWidgets import QHBoxLayout, QLabel, QWidget
 
-
 # Kartoza Brand Colors
 KARTOZA_GREEN_DARK = "#589632"
 KARTOZA_GREEN_LIGHT = "#93b023"
@@ -164,7 +163,8 @@ class KartozaHeader(QWidget):
         layout.addStretch()
 
         # Set background gradient
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QWidget {{
                 background: qlineargradient(
                     x1:0, y1:0, x2:1, y2:0,
@@ -174,4 +174,5 @@ class KartozaHeader(QWidget):
                 );
                 border-bottom: 2px solid {KARTOZA_GREEN_DARK};
             }}
-        """)
+        """
+        )
