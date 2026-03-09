@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create MkDocs Config
         working-directory: ./docs
@@ -34,7 +34,7 @@ jobs:
           REQUIREMENTS: docs/requirements.txt
 
       - name: Upload PDF Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: documentation-pdf
           path: pdfs
