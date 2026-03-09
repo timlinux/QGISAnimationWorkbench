@@ -28,28 +28,23 @@ jobs:
           fetch-depth: 0
 
       - name: Fix Python command
-        run: apt-get update && apt-get install -y python-is-python3
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+        run: apt-get update && apt-get install -y python-is-python3 python3-pip
 
       - name: Install plugin dependencies
-        run: pip install -r requirements-dev.txt
+        run: pip3 install -r requirements-dev.txt
 
       - name: Get plugin metadata
         id: metadata
         run: |
-          VERSION=$(python -c "import json; f = open('config.json'); data=json.load(f); print(data['general']['version'])")
-          IS_EXPERIMENTAL=$(python -c "import json; f = open('config.json'); data=json.load(f); print(str(data['general']['experimental']).lower())")
-          PLUGIN_NAME=$(python -c "import json; f = open('config.json'); data=json.load(f); print(data['general']['name'])")
+          VERSION=$(python3 -c "import json; f = open('config.json'); data=json.load(f); print(data['general']['version'])")
+          IS_EXPERIMENTAL=$(python3 -c "import json; f = open('config.json'); data=json.load(f); print(str(data['general']['experimental']).lower())")
+          PLUGIN_NAME=$(python3 -c "import json; f = open('config.json'); data=json.load(f); print(data['general']['name'])")
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           echo "IS_EXPERIMENTAL=$IS_EXPERIMENTAL" >> "$GITHUB_OUTPUT"
           echo "PLUGIN_NAME=$PLUGIN_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Generate plugin zip
-        run: python admin.py generate-zip
+        run: python3 admin.py generate-zip
 
       - name: Get zip details
         id: zip-details
@@ -103,19 +98,14 @@ jobs:
           fetch-depth: 0
 
       - name: Fix Python command
-        run: apt-get update && apt-get install -y python-is-python3
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+        run: apt-get update && apt-get install -y python-is-python3 python3-pip
 
       - name: Install dependencies
-        run: pip install -r requirements-dev.txt
+        run: pip3 install -r requirements-dev.txt
 
       - name: Update plugin repository XML
         run: |
-          python admin.py --verbose generate-plugin-repo-xml
+          python3 admin.py --verbose generate-plugin-repo-xml
           # Add newline to ensure clean git diff
           echo "" >> docs/repository/plugins.xml
 
