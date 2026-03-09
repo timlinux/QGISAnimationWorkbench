@@ -20,8 +20,8 @@ __revision__ = "$Format:%H$"
 
 import os
 
-from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt import uic
+from qgis.PyQt.QtCore import QUrl
 
 
 def resources_path(*args):

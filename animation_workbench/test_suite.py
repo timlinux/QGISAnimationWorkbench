@@ -9,12 +9,13 @@ Test Suite.
 
 """
 
-import sys
 import os
-import unittest
+import sys
 import tempfile
+import unittest
+
+import qgis  # noqa: F401  # pylint: disable=unused-import
 from osgeo import gdal
-import qgis  # pylint: disable=unused-import
 
 try:
     from pip import main as pipmain

@@ -11,8 +11,9 @@ import tempfile
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from qgis.PyQt.QtCore import pyqtSignal, QProcess
-from qgis.core import QgsTask, QgsBlockingProcess, QgsFeedback
+from qgis.core import QgsBlockingProcess, QgsFeedback, QgsTask
+from qgis.PyQt.QtCore import QProcess, pyqtSignal
+
 from .settings import setting
 from .utilities import CoreUtils
 
@@ -60,10 +61,17 @@ class MovieCommandGenerator:
         Returns a list of commands necessary for the movie generation.
 
         :returns tuple: Returned as tuples of the command and arguments list.
+        :raises RuntimeError: If required tools (ffmpeg/convert) are not found.
         """
         results = []
         if self.format == MovieFormat.GIF:
-            convert = CoreUtils.which("convert")[0]
+            convert_paths = CoreUtils.which("convert")
+            if not convert_paths:
+                raise RuntimeError(
+                    "ImageMagick 'convert' command not found. "
+                    "Please install ImageMagick and ensure it is in your PATH."
+                )
+            convert = convert_paths[0]
 
             # First generate the GIF. If this fails try to run the call from
             # the command line and check the path to convert (provided by
@@ -113,7 +121,10 @@ class MovieCommandGenerator:
                 )
             )
         else:
-            ffmpeg = CoreUtils.which("ffmpeg")[0]
+            ffmpeg_paths = CoreUtils.which("ffmpeg")
+            if not ffmpeg_paths:
+                raise RuntimeError("FFmpeg not found. " "Please install FFmpeg and ensure it is in your PATH.")
+            ffmpeg = ffmpeg_paths[0]
             # Also, we will make a video of the scene - useful for cases where
             # you have a larger colour palette and gif will not hack it.
             # The Pad option is to deal with cases where ffmpeg complains
@@ -289,9 +300,7 @@ class MovieCreationTask(QgsTask):
         """
         Runs a process in a blocking way, reporting the stdout output to the user
         """
-        self.message.emit(
-            "Generating Movie: {} {}".format(command, " ".join(arguments))
-        )
+        self.message.emit("Generating Movie: {} {}".format(command, " ".join(arguments)))
 
         def on_stdout(ba):
             val = ba.data().decode("UTF-8")
@@ -345,12 +354,20 @@ class MovieCreationTask(QgsTask):
 
         if self.format == MovieFormat.GIF:
             self.message.emit("Generating GIF")
-            convert = CoreUtils.which("convert")[0]
-            self.message.emit(f"convert found: {convert}")
+            convert_paths = CoreUtils.which("convert")
+            if not convert_paths:
+                self.message.emit(
+                    "ERROR: ImageMagick 'convert' command not found. " "Please install ImageMagick and restart QGIS."
+                )
+                return False
+            self.message.emit(f"convert found: {convert_paths[0]}")
         else:
             self.message.emit("Generating MP4 Movie")
-            ffmpeg = CoreUtils.which("ffmpeg")[0]
-            self.message.emit(f"ffmpeg found: {ffmpeg}")
+            ffmpeg_paths = CoreUtils.which("ffmpeg")
+            if not ffmpeg_paths:
+                self.message.emit("ERROR: FFmpeg not found. " "Please install FFmpeg and restart QGIS.")
+                return False
+            self.message.emit(f"ffmpeg found: {ffmpeg_paths[0]}")
 
         # This will create a temporary working dir & filename
         # that is secure and clean up after itself.
@@ -373,7 +390,13 @@ class MovieCreationTask(QgsTask):
                 temp_dir=tmp,
             )
 
-            for command, arguments in generator.as_commands():
+            try:
+                commands = generator.as_commands()
+            except RuntimeError as e:
+                self.message.emit(f"ERROR: {str(e)}")
+                return False
+
+            for command, arguments in commands:
                 self.run_process(command, arguments)
 
         self.movie_created.emit(self.output_file)

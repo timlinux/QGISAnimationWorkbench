@@ -1,0 +1,106 @@
+name: Continuous Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+env:
+  # Global environment variable
+  IMAGE: qgis/qgis
+  WITH_PYTHON_PEP: "true"
+  MUTE_LOGS: "false"
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    name: Running tests on ${{ matrix.os }} using QGIS ${{ matrix.qgis_version_tag }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        qgis_version_tag:
+          - release-3_30
+          - release-3_32
+          - release-3_34
+          - release-3_36
+        os: [ubuntu-22.04]
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Preparing docker-compose environment
+        env:
+          QGIS_VERSION_TAG: ${{ matrix.qgis_version_tag }}
+        run: |
+          cat << EOF > .env
+          QGIS_VERSION_TAG=${QGIS_VERSION_TAG}
+          IMAGE=${IMAGE}
+          ON_TRAVIS=true
+          MUTE_LOGS=${MUTE_LOGS}
+          WITH_PYTHON_PEP=${WITH_PYTHON_PEP}
+          EOF
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: pip
+
+      - name: Install plugin dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Preparing test environment
+        run: |
+          docker pull "${IMAGE}":${{ matrix.qgis_version_tag }}
+          python admin.py build --tests
+          docker compose up -d
+          sleep 10
+
+      - name: Run test suite
+        run: |
+          docker compose exec -T qgis-testing-environment qgis_testrunner.sh test_suite.test_package
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "black>=25.1.0,<26.0.0" flake8 isort bandit
+
+      - name: Run Black
+        run: black --check .
+
+      - name: Run Flake8
+        run: flake8 animation_workbench --config=.flake8
+
+      - name: Run isort
+        run: isort --check-only --diff .
+
+      - name: Run Bandit
+        run: bandit -c .bandit.yml -r animation_workbench

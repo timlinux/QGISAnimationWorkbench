@@ -1,0 +1,25 @@
+# Requirements that are not available in nixpkgs or need specific versions
+# Most packages are provided by nix - see flake.nix
+
+# Documentation extras (mkdocs plugins not in nixpkgs)
+mkdocs-autorefs>=1.2.0
+mkdocstrings>=0.26.1
+mkdocs-material-extensions>=1.3.1
+mkdocs-get-deps>=0.2.0
+pymdown-extensions>=10.9
+
+# Linting extras
+darglint>=1.8.1
+
+# Security
+defusedxml>=0.7.1
+
+# CLI and HTTP (used by admin.py)
+httpx>=0.24.0
+typer>=0.9.0
+
+# Visualization
+pyqtgraph>=0.13.0
+
+# Note: PyQt5, pytest-qt, and qtwebengine-related packages are omitted
+# Use system QGIS PyQt5 instead to avoid security issues with qtwebengine

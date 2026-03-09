@@ -154,4 +154,13 @@ templates/styles.scss
 animation_workbench_
 i*.qgs~
 
+# Development workflow
+PROMPT.log
+.pip-install.log
+profile.prof
+profile.callgrind
+pyrightconfig.json
+
 examples/kartoza_staff_example/
+.claude
+PROMPT.log

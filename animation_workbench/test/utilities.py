@@ -1,16 +1,16 @@
 # coding=utf-8
 """Common functionality used by regression tests."""
 
-import sys
+import atexit
 import logging
 import os
-import atexit
+import sys
 
 from qgis.core import QgsApplication
-from qgis.utils import iface
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QSize
 from qgis.PyQt.QtWidgets import QWidget
+from qgis.utils import iface
 
 from .qgis_interface import QgisInterface
 
@@ -72,9 +72,7 @@ def get_qgis_app(cleanup=True):
             """
             print("{}({}): {}".format(tag, level, message))
 
-        QgsApplication.instance().messageLog().messageReceived.connect(
-            debug_log_message
-        )
+        QgsApplication.instance().messageLog().messageReceived.connect(debug_log_message)
 
         if cleanup:
 
@@ -83,9 +81,10 @@ def get_qgis_app(cleanup=True):
                 """
                 Gracefully closes the QgsApplication instance
                 """
+                nonlocal QGISAPP
                 try:
-                    QGISAPP.exitQgis()  # pylint: disable=used-before-assignment
-                    QGISAPP = None  # pylint: disable=redefined-outer-name
+                    QGISAPP.exitQgis()
+                    QGISAPP = None  # noqa: F841
                 except NameError:
                     pass
 

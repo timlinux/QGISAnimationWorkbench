@@ -17,6 +17,7 @@ __revision__ = "$Format:%H$"
 import unittest
 
 from animation_workbench.core import MovieCommandGenerator, MovieFormat
+
 from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
@@ -143,8 +144,7 @@ class MovieCreatorTest(unittest.TestCase):
                         "-c",
                         "copy",
                         "-vf",
-                        "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white,"
-                        "scale=1920:1080,setsar=1:1",
+                        "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white," "scale=1920:1080,setsar=1:1",
                         "-c:v",
                         "libx264",
                         "-pix_fmt",

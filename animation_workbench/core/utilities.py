@@ -18,9 +18,9 @@ __revision__ = "$Format:%H$"
 # (at your option) any later version.
 # ---------------------------------------------------------------------
 
-from math import floor
 import os
 import sys
+from math import floor
 
 
 class CoreUtils:
@@ -57,18 +57,14 @@ class CoreUtils:
         """
         result = []
         # pylint: disable=W0141
-        extensions = [
-            _f for _f in os.environ.get("PATHEXT", "").split(os.pathsep) if _f
-        ]
+        extensions = [_f for _f in os.environ.get("PATHEXT", "").split(os.pathsep) if _f]
         # pylint: enable=W0141
         path = os.environ.get("PATH", None)
         # In c6c9b26 we removed this hard coding for issue #529 but I am
         # adding it back here in case the user's path does not include the
         # gdal binary dir on OSX but it is actually there. (TS)
         if sys.platform == "darwin":  # Mac OS X
-            gdal_prefix = (
-                "/Library/Frameworks/GDAL.framework/Versions/Current/Programs/"
-            )
+            gdal_prefix = "/Library/Frameworks/GDAL.framework/Versions/Current/Programs/"
             path = "%s:%s" % (path, gdal_prefix)
 
         if path is None:

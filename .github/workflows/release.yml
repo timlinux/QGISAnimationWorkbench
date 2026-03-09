@@ -1,0 +1,129 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v1.4.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ubuntu-22.04
+    container:
+      image: qgis/qgis:release-3_34
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix Python command
+        run: apt-get update && apt-get install -y python-is-python3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install plugin dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Get plugin metadata
+        id: metadata
+        run: |
+          VERSION=$(python -c "import json; f = open('config.json'); data=json.load(f); print(data['general']['version'])")
+          IS_EXPERIMENTAL=$(python -c "import json; f = open('config.json'); data=json.load(f); print(str(data['general']['experimental']).lower())")
+          PLUGIN_NAME=$(python -c "import json; f = open('config.json'); data=json.load(f); print(data['general']['name'])")
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "IS_EXPERIMENTAL=$IS_EXPERIMENTAL" >> "$GITHUB_OUTPUT"
+          echo "PLUGIN_NAME=$PLUGIN_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Generate plugin zip
+        run: python admin.py generate-zip
+
+      - name: Get zip details
+        id: zip-details
+        run: |
+          ZIP_NAME=$(ls dist)
+          echo "ZIP_PATH=dist/$ZIP_NAME" >> "$GITHUB_OUTPUT"
+          echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Extract release notes from CHANGELOG
+        id: release-notes
+        run: |
+          # Extract the latest version section from CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            # Get content between first and second version headers
+            NOTES=$(awk '/^## \[?[0-9]/{if(found)exit; found=1; next} found{print}' CHANGELOG.md | head -50)
+            if [ -z "$NOTES" ]; then
+              NOTES="See CHANGELOG.md for details."
+            fi
+          else
+            NOTES="Release ${{ steps.metadata.outputs.VERSION }}"
+          fi
+          # Write to file to preserve formatting
+          echo "$NOTES" > release_notes.txt
+
+      - name: Create release and upload asset
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.metadata.outputs.PLUGIN_NAME }} ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ steps.metadata.outputs.IS_EXPERIMENTAL }}
+          draft: false
+          body_path: release_notes.txt
+          files: |
+            ${{ steps.zip-details.outputs.ZIP_PATH }}
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-plugin-repo:
+    name: Update Plugin Repository
+    runs-on: ubuntu-22.04
+    needs: build-and-release
+    container:
+      image: qgis/qgis:release-3_34
+
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0
+
+      - name: Fix Python command
+        run: apt-get update && apt-get install -y python-is-python3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Update plugin repository XML
+        run: |
+          python admin.py --verbose generate-plugin-repo-xml
+          # Add newline to ensure clean git diff
+          echo "" >> docs/repository/plugins.xml
+
+      - name: Commit and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory /__w/QGISAnimationWorkbench/QGISAnimationWorkbench
+          git add -A
+          git diff --staged --quiet || git commit -m "Update plugins.xml for ${{ github.ref_name }}"
+          git push origin release

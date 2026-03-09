@@ -23,18 +23,19 @@ from typing import List, Optional
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
-import qgis  # pylint: disable=unused-import
-from qgis.PyQt.QtCore import QObject, pyqtSignal
-from qgis.PyQt.QtGui import QImage
-from qgis.core import QgsApplication, QgsMapRendererParallelJob
+import qgis  # noqa: F401  # pylint: disable=unused-import
 from qgis.core import (
+    Qgis,
+    QgsApplication,
+    QgsFeedback,
+    QgsMapRendererParallelJob,
     QgsMapRendererTask,
     QgsMapSettings,
     QgsProxyProgressTask,
-    QgsFeedback,
-    Qgis,
     QgsTask,
 )
+from qgis.PyQt.QtCore import QObject, pyqtSignal
+from qgis.PyQt.QtGui import QImage
 
 from .settings import setting
 
@@ -135,9 +136,7 @@ class RenderQueue(QObject):
         # during rendering. Probably setting to the same number
         # of CPU cores you have would be a good conservative approach
         # You could probably run 100 or more on a decently specced machine
-        self.render_thread_pool_size = int(
-            setting(key="render_thread_pool_size", default=100)
-        )
+        self.render_thread_pool_size = int(setting(key="render_thread_pool_size", default=100))
         # A list of tasks that need to be rendered but
         # cannot be because the job queue is too full.
         # we pop items off this list self.render_thread_pool_size
@@ -159,6 +158,7 @@ class RenderQueue(QObject):
         self.decorations = []
 
         self.frames_per_feature = 0
+        self._canceling = False  # Flag to prevent race conditions during cancel
 
     def active_queue_size(self) -> int:
         """
@@ -190,25 +190,42 @@ class RenderQueue(QObject):
         """
         Cancels any in-progress operation
         """
+        self._canceling = True
+
         self.job_queue.clear()
         self.total_queue_size = 0
         self.total_completed = 0
         self.total_feature_count = 0
         self.completed_feature_count = 0
 
-        self.proxy_feedback.cancel()
+        if self.proxy_feedback:
+            self.proxy_feedback.cancel()
 
-        for _, task in self.active_tasks.items():
-            task.cancel()
+        # Copy the tasks list to avoid "dictionary changed size during iteration"
+        tasks_to_cancel = list(self.active_tasks.values())
+        self.active_tasks.clear()
+
+        for task in tasks_to_cancel:
+            try:
+                task.cancel()
+            except Exception:
+                pass  # Task may already be finished
 
         if self.proxy_task:
-            self.proxy_task.finalize(False)
+            try:
+                self.proxy_task.finalize(False)
+            except Exception:
+                pass  # May already be finalized
             self.proxy_task = None
 
+        self.proxy_feedback = None
         self.frames_per_feature = 0
         self.annotations_list = []
         self.decorations = []
-        self.status_message.emit("Cancelling...")
+
+        self.status_message.emit("Cancelled")
+        self._canceling = False
+        self.processing_completed.emit(False)
 
     def update_status(self):
         """
@@ -242,13 +259,20 @@ class RenderQueue(QObject):
         """
         Feed the QgsTaskManager with next task
         """
+        # Don't process if we're in the middle of canceling
+        if self._canceling:
+            return
+
         if not self.job_queue and not self.active_tasks:
             # all done!
             self.update_status()
             was_canceled = self.proxy_feedback and self.proxy_feedback.isCanceled()
             self.processing_completed.emit(not was_canceled)
             if self.proxy_task:
-                self.proxy_task.finalize(not was_canceled)
+                try:
+                    self.proxy_task.finalize(not was_canceled)
+                except Exception:
+                    pass  # May already be finalized
                 self.proxy_task = None
             return
 
@@ -268,12 +292,8 @@ class RenderQueue(QObject):
             task = job.create_task(self.annotations_list, self.decorations, hidden=True)
             self.active_tasks[job.file_name] = task
 
-            task.taskCompleted.connect(
-                partial(self.task_completed, file_name=job.file_name)
-            )
-            task.taskTerminated.connect(
-                partial(self.finalize_task, file_name=job.file_name)
-            )
+            task.taskCompleted.connect(partial(self.task_completed, file_name=job.file_name))
+            task.taskTerminated.connect(partial(self.finalize_task, file_name=job.file_name))
 
             QgsApplication.taskManager().addTask(task)
             self.proxy_feedback.set_remaining_steps(len(self.job_queue))
@@ -296,9 +316,7 @@ class RenderQueue(QObject):
         self.total_completed += 1
 
         if self.frames_per_feature:
-            self.completed_feature_count = int(
-                self.total_completed / self.frames_per_feature
-            )
+            self.completed_feature_count = int(self.total_completed / self.frames_per_feature)
 
         self.status_changed.emit()
         self.process_queue()

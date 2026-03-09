@@ -1,0 +1,26 @@
+{
+  "general": {
+    "name": "QGIS Animation Workbench",
+    "qgisMinimumVersion": 3.0,
+    "qgisMaximumVersion": 3.99,
+    "icon": "icons/icon.png",
+    "experimental": false,
+    "deprecated": false,
+    "homepage": "https://timlinux.github.io/QGISAnimationWorkbench/",
+    "tracker": "https://github.com/timlinux/QGISAnimationWorkbench/issues",
+    "repository": "https://github.com/timlinux/QGISAnimationWorkbench",
+    "tags": ["animation", "cartography", "visualization", "temporal", "video"],
+    "category": [
+      "plugins"
+    ],
+    "hasProcessingProvider": "no",
+    "about": "QGIS Animation Bench exists because we wanted to use all the awesome cartography features in QGIS and make cool, animated maps! QGIS already includes the Temporal Manager which allows you to produce animations for time-based data. But what if you want to make animations where you travel around the map, zooming in and out, and perhaps making features on the map wiggle and jiggle as the animation progresses? That is what the animation workbench tries to solve...",
+    "author": "Tim Sutton, Nyall Dawson, Jeremy Prior",
+    "email": "tim@kartoza.com",
+    "description": "A plugin to let you build animations in QGIS",
+    "version": "1.4",
+    "changelog": "See CHANGELOG.md for details",
+    "server": false,
+    "license": "GPLv2"
+  }
+}
