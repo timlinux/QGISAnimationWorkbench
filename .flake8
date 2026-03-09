@@ -19,11 +19,13 @@ exclude =
 # E501: Line too long (handled by black)
 # W503: Line break before binary operator (conflicts with black)
 # E203: Whitespace before ':' (conflicts with black)
+# E402: Module level import not at top (needed for optional imports)
 # D-series: Docstring convention errors (handled separately)
 ignore =
     E501,
     W503,
     E203,
+    E402,
     D
 
 # Docstring checking

@@ -8,7 +8,6 @@ __revision__ = "$Format:%H$"
 
 from qgis.gui import QgsOptionsPageWidget, QgsOptionsWidgetFactory
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QVBoxLayout
 
 from animation_workbench.core import set_setting, setting
 from animation_workbench.gui.kartoza_branding import KartozaFooter, apply_kartoza_styling

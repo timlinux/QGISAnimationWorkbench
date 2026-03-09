@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Tuple
 
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import (
     QDialog,
@@ -23,7 +22,6 @@ from qgis.PyQt.QtWidgets import (
     QPushButton,
     QTextEdit,
     QVBoxLayout,
-    QWidget,
 )
 
 from .utilities import CoreUtils

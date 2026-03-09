@@ -23,7 +23,7 @@ from typing import List, Optional
 
 # DO NOT REMOVE THIS - it forces sip2
 # noinspection PyUnresolvedReferences
-import qgis  # pylint: disable=unused-import
+import qgis  # noqa: F401  # pylint: disable=unused-import
 from qgis.core import (
     Qgis,
     QgsApplication,

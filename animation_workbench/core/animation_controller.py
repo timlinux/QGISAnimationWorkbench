@@ -225,7 +225,7 @@ class AnimationController(QObject):
         for _ in range(frame + 1):
             try:  # hacky fix for crash experienced by a user TODO
                 job = next(jobs)
-            except:
+            except StopIteration:
                 pass
         return job
 

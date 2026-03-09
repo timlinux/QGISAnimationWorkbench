@@ -2,7 +2,7 @@
 Gui classes
 """
 
-from .kartoza_branding import (
+from .kartoza_branding import (  # noqa: F401
     KARTOZA_GOLD,
     KARTOZA_GREEN_DARK,
     KARTOZA_GREEN_LIGHT,
@@ -10,4 +10,4 @@ from .kartoza_branding import (
     KartozaHeader,
     apply_kartoza_styling,
 )
-from .workbench_settings import AnimationWorkbenchOptionsFactory
+from .workbench_settings import AnimationWorkbenchOptionsFactory  # noqa: F401

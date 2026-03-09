@@ -14,7 +14,6 @@ from typing import List, Optional, Tuple
 from qgis.core import QgsBlockingProcess, QgsFeedback, QgsTask
 from qgis.PyQt.QtCore import QProcess, pyqtSignal
 
-from .dependency_checker import DependencyChecker, DependencyStatus
 from .settings import setting
 from .utilities import CoreUtils
 

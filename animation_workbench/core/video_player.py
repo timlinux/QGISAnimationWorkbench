@@ -19,8 +19,8 @@ _multimedia_available = False
 _multimedia_error = None
 
 try:
-    from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-    from PyQt5.QtMultimediaWidgets import QVideoWidget
+    from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer  # noqa: F401
+    from PyQt5.QtMultimediaWidgets import QVideoWidget  # noqa: F401
 
     _multimedia_available = True
 except ImportError as e:
