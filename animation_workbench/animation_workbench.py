@@ -765,7 +765,15 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # set parameter from dialog
 
         if not self.reuse_cache.isChecked():
-            os.system("rm %s/%s*" % (self.work_directory, self.frame_filename_prefix))
+            # Safely delete cached frame files using glob instead of shell
+            import glob as glob_module
+
+            pattern = os.path.join(self.work_directory, f"{self.frame_filename_prefix}*")
+            for filepath in glob_module.glob(pattern):
+                try:
+                    os.remove(filepath)
+                except OSError:
+                    pass  # Ignore errors when removing files
 
         self.save_state()
 
