@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -39,7 +39,7 @@ jobs:
           echo "ZIP_PATH=dist/$ZIP_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Upload plugin artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.zip-details.outputs.ZIP_NAME }}
           path: ${{ steps.zip-details.outputs.ZIP_PATH }}

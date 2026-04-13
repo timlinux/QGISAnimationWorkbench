@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -70,7 +70,7 @@ jobs:
           echo "$NOTES" > release_notes.txt
 
       - name: Create release and upload asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: ${{ steps.metadata.outputs.PLUGIN_NAME }} ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
@@ -92,7 +92,7 @@ jobs:
 
     steps:
       - name: Checkout release branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: release
           fetch-depth: 0
