@@ -15,7 +15,7 @@ darglint>=1.8.1
 defusedxml>=0.7.1
 
 # CLI and HTTP (used by admin.py)
-httpx>=0.24.0
+httpx>=0.28.1
 typer>=0.9.0
 
 # Visualization
