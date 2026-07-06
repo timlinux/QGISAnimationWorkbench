@@ -19,7 +19,7 @@ httpx>=0.24.0
 typer>=0.9.0
 
 # Visualization
-pyqtgraph>=0.13.0
+pyqtgraph>=0.14.0
 
 # Note: PyQt5, pytest-qt, and qtwebengine-related packages are omitted
 # Use system QGIS PyQt5 instead to avoid security issues with qtwebengine
