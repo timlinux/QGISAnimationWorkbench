@@ -18,7 +18,7 @@
     "author": "Tim Sutton, Nyall Dawson, Jeremy Prior",
     "email": "tim@kartoza.com",
     "description": "A plugin to let you build animations in QGIS",
-    "version": "1.4",
+    "version": "1.4.1",
     "changelog": "See CHANGELOG.md for details",
     "server": false,
     "license": "GPLv2"

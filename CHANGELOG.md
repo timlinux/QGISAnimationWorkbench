@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2026-09-16
+## [1.4.1] - 2026-09-16
 
 Adds QGIS 4 / Qt6 compatibility. The plugin previously crashed immediately
 on QGIS 4 (PyQt6); it now runs on both QGIS 3.x (PyQt5) and QGIS 4.x (PyQt6).
