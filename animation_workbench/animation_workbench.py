@@ -60,6 +60,8 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QFileDialog,
     QGridLayout,
+    QHBoxLayout,
+    QLabel,
     QMessageBox,
     QPushButton,
     QStyle,
@@ -78,7 +80,7 @@ from .core import (
     set_setting,
     setting,
 )
-from .core.dependency_checker import DependencyChecker
+from .core.dependency_checker import DependencyChecker, DependencyStatus
 from .dialog_expression_context_generator import DialogExpressionContextGenerator
 from .gui.kartoza_branding import KartozaFooter, apply_kartoza_styling
 from .utilities import get_ui_class, resources_path
@@ -164,6 +166,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # Connect output file edit to validation and update initial state
         self.movie_file_edit.textChanged.connect(self._update_run_button_state)
         self._update_run_button_state()
+        self._update_ffmpeg_status_label()
 
         self.movie_file_button.clicked.connect(self.set_output_name)
 
@@ -342,10 +345,19 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             # Create the footer
             footer = KartozaFooter(self)
             # The layout is a QGridLayout - insert footer before button box
-            # Remove button_box, add footer at row 1, add button_box at row 2
+            # Remove button_box, add footer at row 1, add button_box (with a
+            # hint label to its left) at row 2
             main_layout.removeWidget(self.button_box)
             main_layout.addWidget(footer, 1, 0)
-            main_layout.addWidget(self.button_box, 2, 0)
+
+            self.output_hint_label = QLabel()
+            self.output_hint_label.setStyleSheet("color: #c0392b;")
+            self.output_hint_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            button_row = QHBoxLayout()
+            button_row.addStretch()
+            button_row.addWidget(self.output_hint_label)
+            button_row.addWidget(self.button_box)
+            main_layout.addLayout(button_row, 2, 0)
 
     def setup_video_widget(self):
         """Set up the video widget."""
@@ -608,9 +620,24 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if has_output:
             self.run_button.setToolTip("Start rendering the animation")
             self.movie_file_edit.setStyleSheet("")
+            self.output_hint_label.setText("")
         else:
             self.run_button.setToolTip("Output file not set - click '...' to choose")
             self.movie_file_edit.setStyleSheet("QLineEdit { border: 2px solid #e74c3c; background-color: #fdf2f2; }")
+            self.output_hint_label.setText("Set your output path on the output tab to run →")
+
+    def _update_ffmpeg_status_label(self):
+        """Show whether FFmpeg was detected, in the Output Options group."""
+        result = DependencyChecker.check_ffmpeg()
+        if result.status == DependencyStatus.AVAILABLE:
+            self.ffmpeg_status_label.setText(f"✓ FFmpeg found at {result.path}")
+            self.ffmpeg_status_label.setStyleSheet("color: #589632;")
+        else:
+            self.ffmpeg_status_label.setText(
+                "⚠ FFmpeg not found - required to produce a Movie (MP4). "
+                "Animated GIF export does not need it."
+            )
+            self.ffmpeg_status_label.setStyleSheet("color: #c0392b;")
 
     def set_output_name(self):
         """
