@@ -24,12 +24,25 @@ from .core.video_player import (
 # Import multimedia components with fallback
 _multimedia_available, _multimedia_error = is_multimedia_available()
 if _multimedia_available:
-    from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-    from PyQt5.QtMultimediaWidgets import QVideoWidget
+    from qgis.PyQt.QtCore import QT_VERSION
+    from qgis.PyQt.QtMultimedia import QMediaPlayer
+
+    QT6 = QT_VERSION >= 0x060000
+    # qgis.PyQt does not ship a QtMultimediaWidgets shim, so QVideoWidget
+    # has to come straight from whichever Qt binding QGIS resolved to.
+    # QMediaContent was removed entirely in Qt6 (setSource(QUrl) replaces it).
+    if QT6:
+        from PyQt6.QtMultimediaWidgets import QVideoWidget
+
+        QMediaContent = None
+    else:
+        from PyQt5.QtMultimedia import QMediaContent
+        from PyQt5.QtMultimediaWidgets import QVideoWidget
 else:
     QMediaContent = None
     QMediaPlayer = None
     QVideoWidget = None
+    QT6 = False
 from qgis.core import (
     QgsApplication,
     QgsExpressionContextUtils,
@@ -40,7 +53,7 @@ from qgis.core import (
     QgsWkbTypes,
 )
 from qgis.gui import QgsExtentWidget, QgsPropertyOverrideButton
-from qgis.PyQt.QtCore import QUrl, pyqtSlot
+from qgis.PyQt.QtCore import Qt, QUrl, pyqtSlot
 from qgis.PyQt.QtGui import QIcon, QImage, QPixmap
 from qgis.PyQt.QtWidgets import (
     QDialog,
@@ -126,11 +139,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.output_log_text_edit.append("Welcome to the QGIS Animation Workbench")
         self.output_log_text_edit.append("© Tim Sutton, Feb 2022")
 
-        self.run_button = self.button_box.button(QDialogButtonBox.Ok)
+        self.run_button = self.button_box.button(QDialogButtonBox.StandardButton.Ok)
         self.run_button.setText("Run")
         self.run_button.setEnabled(False)
 
-        self.cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
+        self.cancel_button = self.button_box.button(QDialogButtonBox.StandardButton.Cancel)
         self.cancel_button.clicked.connect(self.cancel_processing)
 
         # Show commands button only shown in debug mode
@@ -138,7 +151,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if debug_mode:
             self.debug_button = QPushButton("Show Commands", default=True)
             self.debug_button.clicked.connect(self.debug_button_clicked)
-            self.button_box.addButton(self.debug_button, QDialogButtonBox.ActionRole)
+            self.button_box.addButton(self.debug_button, QDialogButtonBox.ButtonRole.ActionRole)
 
         # place where working files are stored
         self.work_directory = tempfile.gettempdir()
@@ -180,11 +193,11 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         # self.extent_group_box.setOriginalExtnt()
 
         # Close button action (save state on close)
-        self.button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
+        self.button_box.button(QDialogButtonBox.StandardButton.Close).clicked.connect(self.close)
         # Connect both accepted signal AND direct click to ensure accept() is called
         self.button_box.accepted.connect(self.accept)
         self.run_button.clicked.connect(self.accept)
-        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
+        self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
 
         # Used by ffmpeg and convert to set the fps for rendered videos
         self.framerate_spin.setValue(
@@ -295,7 +308,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.current_movie_file = None
         self._multimedia_available = _multimedia_available
         if _multimedia_available:
-            self.media_player = QMediaPlayer(None, QMediaPlayer.VideoSurface)  # .video_preview_widget,
+            # The QMediaPlayer(parent, flags) form (with the VideoSurface
+            # flag) was removed in Qt6 - video output is wired up purely
+            # via setVideoOutput() further down in setup_video_widget().
+            self.media_player = QMediaPlayer(None)
         else:
             self.media_player = None
         self.setup_video_widget()
@@ -338,13 +354,18 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if self._multimedia_available and QVideoWidget is not None:
             # Full video player available
             video_widget = QVideoWidget()
-            self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+            self.play_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaPlay))
             self.play_button.clicked.connect(self.play)
             self.media_player.setVideoOutput(video_widget)
-            self.media_player.stateChanged.connect(self.media_state_changed)
+            # Qt6 renamed stateChanged/error -> playbackStateChanged/errorOccurred.
+            if QT6:
+                self.media_player.playbackStateChanged.connect(self.media_state_changed)
+                self.media_player.errorOccurred.connect(self.handle_video_error)
+            else:
+                self.media_player.stateChanged.connect(self.media_state_changed)
+                self.media_player.error.connect(self.handle_video_error)
             self.media_player.positionChanged.connect(self.position_changed)
             self.media_player.durationChanged.connect(self.duration_changed)
-            self.media_player.error.connect(self.handle_video_error)
             layout.addWidget(video_widget, 0, 0)
         else:
             # Multimedia not available - show fallback UI
@@ -377,8 +398,8 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         self.open_system_player_button = QToolButton()
         self.open_system_player_button.setText("Open External")
         self.open_system_player_button.setToolTip(f"Open video in {get_system_player_name()}")
-        self.open_system_player_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-        self.open_system_player_button.setToolButtonStyle(2)  # TextBesideIcon
+        self.open_system_player_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaPlay))
+        self.open_system_player_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.open_system_player_button.clicked.connect(self._open_in_system_player)
         self.open_system_player_button.setEnabled(False)
 
@@ -812,7 +833,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append(job.file_name)
             self.render_queue.add_job(job)
 
-        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(True)
+        self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(True)
         # Now all the tasks are prepared, start the render_queue processing
         self.render_queue.start_processing()
 
@@ -820,7 +841,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         """
         Cancels current processing
         """
-        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
+        self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
         self.render_queue.cancel_processing()
         # Enable progress page
         self.main_tab.setCurrentIndex(0)
@@ -889,7 +910,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self.output_log_text_edit.append("Canceled by user")
             self.progress_bar.setMaximum(100)
             self.progress_bar.setValue(0)
-            self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
+            self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
             return
         # We assemble first commands needed to make the pieces of the movie
         self.intro_media.set_output_resolution(self.output_mode_name())
@@ -927,8 +948,12 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 self.open_system_player_button.setEnabled(True)
 
             if self._multimedia_available and self.media_player is not None:
-                # Try embedded player
-                self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
+                # Try embedded player. QMediaContent was removed in Qt6 -
+                # setSource(QUrl) directly replaces setMedia(QMediaContent(...)).
+                if QT6:
+                    self.media_player.setSource(QUrl.fromLocalFile(movie_file))
+                else:
+                    self.media_player.setMedia(QMediaContent(QUrl.fromLocalFile(movie_file)))
                 self.play_button.setEnabled(True)
                 self.play()
             else:
@@ -953,7 +978,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
 
         QgsApplication.taskManager().addTask(self.movie_task)
 
-        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
+        self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
         self.main_tab.setCurrentIndex(5)
 
     def output_mode_ffmpeg(self):
@@ -1167,6 +1192,16 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             pass
 
     # Video Playback Methods
+    def _player_is_playing(self) -> bool:
+        """Whether the media player is currently playing.
+
+        Qt6 renamed QMediaPlayer.state()/State.PlayingState to
+        playbackState()/PlaybackState.PlayingState.
+        """
+        if QT6:
+            return self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
+        return self.media_player.state() == QMediaPlayer.PlayingState
+
     def play(self):
         """
         Plays the video preview.
@@ -1178,7 +1213,7 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
             self._open_in_system_player()
             return
 
-        if self.media_player.state() == QMediaPlayer.PlayingState:
+        if self._player_is_playing():
             self.media_player.pause()
         else:
             self.media_player.play()
@@ -1190,10 +1225,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
         if not self._multimedia_available or self.media_player is None:
             return
 
-        if self.media_player.state() == QMediaPlayer.PlayingState:
-            self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
+        if self._player_is_playing():
+            self.play_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaPause))
         else:
-            self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+            self.play_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaPlay))
 
     def position_changed(self, position):
         """
@@ -1232,10 +1267,10 @@ class AnimationWorkbench(QDialog, FORM_CLASS):
                 "Video Playback Error",
                 f"The embedded video player encountered an error:\n{error_string}\n\n"
                 f"Would you like to open the video in {get_system_player_name()}?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
             )
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 self._open_in_system_player()
 
     def _open_in_system_player(self):

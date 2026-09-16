@@ -311,11 +311,11 @@ class DependencyChecker:
                 "The 'pyqtgraph' package is required for easing curve previews.\n\n"
                 "Would you like to install it now?\n\n"
                 "(This will run: pip install pyqtgraph)",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
             )
 
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 # Show progress
                 QMessageBox.information(
                     parent,
@@ -342,7 +342,7 @@ class DependencyChecker:
                         f"{cls.PYQTGRAPH_INSTALL_INSTRUCTIONS}",
                         parent,
                     )
-                    dialog.exec_()
+                    dialog.exec()
                     return False
             else:
                 return False
@@ -351,7 +351,7 @@ class DependencyChecker:
             dialog = DependencyInstallDialog(
                 "Missing Dependency: pyqtgraph", cls.PYQTGRAPH_INSTALL_INSTRUCTIONS, parent
             )
-            dialog.exec_()
+            dialog.exec()
             return False
 
     @classmethod
@@ -419,7 +419,7 @@ class DependencyChecker:
                 instructions += cls.get_imagemagick_install_instructions()
 
         dialog = DependencyInstallDialog("Missing Dependencies", instructions, parent)
-        dialog.exec_()
+        dialog.exec()
         return False
 
     @classmethod

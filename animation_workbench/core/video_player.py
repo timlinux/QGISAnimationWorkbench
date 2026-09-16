@@ -19,8 +19,16 @@ _multimedia_available = False
 _multimedia_error = None
 
 try:
-    from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer  # noqa: F401
-    from PyQt5.QtMultimediaWidgets import QVideoWidget  # noqa: F401
+    from qgis.PyQt.QtCore import QT_VERSION
+    from qgis.PyQt.QtMultimedia import QMediaPlayer  # noqa: F401
+
+    # qgis.PyQt does not ship a QtMultimediaWidgets shim, so QVideoWidget
+    # has to come straight from whichever Qt binding QGIS itself resolved
+    # qgis.PyQt.QtCore to (mirrored via QT_VERSION).
+    if QT_VERSION >= 0x060000:
+        from PyQt6.QtMultimediaWidgets import QVideoWidget  # noqa: F401
+    else:
+        from PyQt5.QtMultimediaWidgets import QVideoWidget  # noqa: F401
 
     _multimedia_available = True
 except ImportError as e:

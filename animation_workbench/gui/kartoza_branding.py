@@ -77,8 +77,8 @@ class KartozaFooter(QWidget):
         # Create a single label with HTML hyperlinks
         footer_label = QLabel()
         footer_label.setOpenExternalLinks(True)
-        footer_label.setTextFormat(Qt.RichText)
-        footer_label.setAlignment(Qt.AlignCenter)
+        footer_label.setTextFormat(Qt.TextFormat.RichText)
+        footer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         html = f"""
         <span style="font-size: 11px;">
@@ -131,7 +131,9 @@ class KartozaHeader(QWidget):
         )
         if os.path.exists(logo_path):
             pixmap = QPixmap(logo_path)
-            logo_label.setPixmap(pixmap.scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            logo_label.setPixmap(
+                pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            )
         layout.addWidget(logo_label)
 
         # Title container

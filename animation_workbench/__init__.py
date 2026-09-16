@@ -110,7 +110,7 @@ class AnimationWorkbenchPlugin:
             iface=self.iface,
             render_queue=self.render_queue,
         )
-        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         dialog.show()
 
     def display_information_message_bar(

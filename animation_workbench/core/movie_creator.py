@@ -332,11 +332,11 @@ class MovieCreationTask(QgsTask):
         res = proc.run(self.feedback)
         if self.feedback.isCanceled() and res != 0:
             self.message.emit("Process was canceled and did not complete")
-        elif not self.feedback.isCanceled() and proc.exitStatus() == QProcess.CrashExit:
+        elif not self.feedback.isCanceled() and proc.exitStatus() == QProcess.ExitStatus.CrashExit:
             self.message.emit("Process was unexpectedly terminated")
         elif res == 0:
             self.message.emit("Process completed successfully")
-        elif proc.processError() == QProcess.FailedToStart:
+        elif proc.processError() == QProcess.ProcessError.FailedToStart:
             self.message.emit(
                 f"Process {command} failed to start. Either {command} "
                 "is missing, or you may have insufficient permissions to "

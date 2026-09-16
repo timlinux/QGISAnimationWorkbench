@@ -54,7 +54,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         self.add_media.clicked.connect(self.choose_media_file)
         self.remove_media.clicked.connect(self.remove_media_file)
         self.duration.valueChanged.connect(self.update_duration)
-        self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.preview.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
         self.images_filter = "JPEG (*.jpg);;PNG (*.png);;All files (*.*)"
         self.movies_filter = "MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
         self.movies_and_images_filter = "JPEG (*.jpg);;PNG (*.png);;MOV (*.mov);;MP4 (*.mp4);;All files (*.*)"
@@ -98,12 +98,12 @@ class MediaListWidget(QWidget, FORM_CLASS):
             return
         file_path = self.media_list.currentItem().text()
         self.load_media(file_path)
-        duration = self.media_list.currentItem().data(Qt.UserRole)
+        duration = self.media_list.currentItem().data(Qt.ItemDataRole.UserRole)
         self.duration.setValue(duration)
 
     def update_duration(self):
         """Set the current item duration when the duration is changed."""
-        self.media_list.currentItem().setData(Qt.UserRole, self.duration.value())
+        self.media_list.currentItem().setData(Qt.ItemDataRole.UserRole, self.duration.value())
 
     def choose_media_file(self):
         """
@@ -154,7 +154,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         :type duration: int - defaults to 2s
         """
         item = QListWidgetItem(file_path)
-        item.setData(Qt.UserRole, duration)
+        item.setData(Qt.ItemDataRole.UserRole, duration)
         self.media_list.insertItem(0, item)
         self.load_media(file_path)
         total = self.total_duration()
@@ -185,7 +185,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         for index in range(self.media_list.count()):
             item = {
                 "file": self.media_list.item(index).text(),
-                "duration": self.media_list.item(index).data(Qt.UserRole),
+                "duration": self.media_list.item(index).data(Qt.ItemDataRole.UserRole),
             }
             items[index] = item
         json_object = json.dumps(items, indent=4)
@@ -209,7 +209,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         """Calculate the total duration of all the added media files."""
         total = 0
         for index in range(self.media_list.count()):
-            total += self.media_list.item(index).data(Qt.UserRole)
+            total += self.media_list.item(index).data(Qt.ItemDataRole.UserRole)
         return total
 
     def video_command(self):
@@ -225,7 +225,7 @@ class MediaListWidget(QWidget, FORM_CLASS):
         arguments = ["-y"]
         for index in range(self.media_list.count()):
             file = self.media_list.item(index).text()
-            duration = self.media_list.item(index).data(Qt.UserRole)
+            duration = self.media_list.item(index).data(Qt.ItemDataRole.UserRole)
             if self.media_type == "images":
                 # Images need to loop for a certain duration
                 arguments.append("-loop")

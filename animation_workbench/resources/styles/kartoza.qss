@@ -135,7 +135,16 @@ QToolButton:disabled {
  * Input Widget Styling
  * ============================================================================ */
 
-QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+/* QSpinBox/QDoubleSpinBox are deliberately excluded here - see note below.
+ * Verified in an isolated PyQt6 test harness against this exact Qt6 style
+ * (qt6ct-style): applying ANY box-level QSS (border/background/padding)
+ * to a QSpinBox switches Qt off its native full-paint path for the whole
+ * compound control, so the up/down arrow sub-controls - not explicitly
+ * restyled - fall back to a generic, near-invisible render instead of the
+ * platform-native triangle. Leaving QSpinBox/QDoubleSpinBox completely
+ * unstyled is the only variant that reliably shows a visible, directional
+ * arrow under this style. */
+QLineEdit, QComboBox {
     border: 2px solid #c0c0c0;
     border-radius: 6px;
     padding: 6px 10px;
@@ -144,11 +153,11 @@ QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     min-height: 20px;
 }
 
-QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
+QLineEdit:focus, QComboBox:focus {
     border-color: #589632;
 }
 
-QLineEdit:hover, QSpinBox:hover, QDoubleSpinBox:hover, QComboBox:hover {
+QLineEdit:hover, QComboBox:hover {
     border-color: #93b023;
 }
 
@@ -167,19 +176,6 @@ QComboBox QAbstractItemView {
     border-radius: 4px;
     selection-background-color: #589632;
     selection-color: white;
-}
-
-/* Spin Box Buttons */
-QSpinBox::up-button, QDoubleSpinBox::up-button,
-QSpinBox::down-button, QDoubleSpinBox::down-button {
-    background-color: #589632;
-    border: none;
-    width: 20px;
-}
-
-QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
-QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
-    background-color: #93b023;
 }
 
 /* ============================================================================
